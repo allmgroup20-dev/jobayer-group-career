@@ -5,7 +5,7 @@ import { generateId } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
-    const { workerId, productId, productName, quantity, totalAmount, currency, paymentMethod } = await request.json();
+    const { workerId, productId, productName, quantity, totalAmount, currency, paymentMethod } = await request.json() as { workerId: string; productId?: string; productName?: string; quantity?: number; totalAmount: number; currency?: string; paymentMethod?: string };
     const env = getDB();
     const orderId = generateId("ORD");
 

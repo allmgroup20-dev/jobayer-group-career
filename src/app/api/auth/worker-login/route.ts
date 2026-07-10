@@ -5,7 +5,7 @@ import { verifyWorkerPassword, generateToken } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone, password } = await request.json();
+    const { phone, password } = await request.json() as { phone: string; password: string };
     if (!phone || !password) {
       return NextResponse.json({ error: "Phone and password required" }, { status: 400 });
     }

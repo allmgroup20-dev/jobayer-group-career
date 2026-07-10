@@ -5,7 +5,7 @@ import { hashWorkerPassword, generateToken, generateWorkerId } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, phone, password, referralCode } = await request.json();
+    const { name, phone, password, referralCode } = await request.json() as { name: string; phone: string; password: string; referralCode?: string };
     if (!name || !phone || !password) {
       return NextResponse.json({ error: "All fields required" }, { status: 400 });
     }

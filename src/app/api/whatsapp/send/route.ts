@@ -4,7 +4,7 @@ import { getDB } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
-    const { workerIds, message } = await request.json();
+    const { workerIds, message } = await request.json() as { workerIds: string[]; message: string };
     const env = getDB();
     let success = 0;
     let failed = 0;
