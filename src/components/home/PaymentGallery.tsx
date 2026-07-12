@@ -12,9 +12,12 @@ export default function PaymentGallery() {
         <div className="flex w-fit gap-2 px-4 py-2.5 mx-auto mb-3.5 rounded-full bg-[rgba(29,78,216,.08)] border border-[rgba(29,78,216,.15)] font-extrabold text-sm text-[#1E3A8A]">
           🧾 পেমেন্ট স্ক্রিনশট দেখুন (১০টি)
         </div>
-        <h3 className="text-lg md:text-xl font-black text-[#1E293B] mb-1 text-center">💰 ব্যাংক, বিকাশ ও নগদে পেমেন্টের বাস্তব ছবি</h3>
+        <div className="flex w-fit gap-2 px-4 py-2.5 mx-auto mb-3.5 rounded-full bg-[rgba(29,78,216,.08)] border border-[rgba(29,78,216,.15)] font-extrabold text-sm text-[#1E3A8A]">
+          💰 ব্যাংক, বিকাশ ও নগদে পেমেন্টের বাস্তব ছবি — দেখুন!
+        </div>
+        <h3 className="text-lg md:text-xl font-black text-[#1E293B] mb-1 text-center">📸 রিয়েল পার্টনার — রিয়েল পেমেন্ট প্রমাণ</h3>
         <p className="text-sm font-semibold text-[#64748B] mb-5 text-center">
-          নিচে আমাদের সফল শিক্ষার্থীদের ব্যাংক, বিকাশ ও নগদে টাকা পাওয়ার বাস্তব ছবি
+          নিচে আমাদের সফল শিক্ষার্থীদের ব্যাংক, বিকাশ ও নগদে টাকা পাওয়ার বাস্তব ছবি — আপনার চোখের সামনে প্রমাণ।
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 md:gap-3">
