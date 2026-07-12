@@ -21,6 +21,8 @@
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
   --color-success: #10B981;
+  --color-orange: #FF6B35;
+  --color-orange-dark: #E85D2C;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-bengali: 'Hind Siliguri', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
 }
@@ -85,7 +87,7 @@
     @apply bg-gradient-to-br from-primary via-primary-light to-primary-dark;
   }
   .gradient-gold {
-    @apply bg-gradient-to-br from-secondary via-secondary-light to-yellow-300;
+    @apply bg-gradient-to-br from-secondary via-secondary-light to-secondary;
   }
   .gradient-premium {
     @apply bg-gradient-to-br from-primary via-accent to-primary-light;

@@ -24,6 +24,7 @@ export default function LiveNotificationBar() {
   const showNext = () => {
     if (queueRef.current.length === 0) {
       setVisible(false);
+      timerRef.current = null;
       return;
     }
     const msg = queueRef.current.shift()!;
@@ -32,7 +33,7 @@ export default function LiveNotificationBar() {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       setVisible(false);
-      setTimeout(showNext, 800);
+      timerRef.current = setTimeout(showNext, 800);
     }, 4000);
   };
 
@@ -54,7 +55,7 @@ export default function LiveNotificationBar() {
   if (!visible || !notification) return null;
 
   return (
-    <div className="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-[9999] max-w-[94vw] md:max-w-[560px] px-4 py-3 rounded-xl bg-white border border-border shadow-xl flex items-center gap-2.5 animate-fade-up transition-all duration-400">
+    <div className="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-[9999] max-w-[94vw] md:max-w-[560px] px-4 py-3 rounded-xl bg-white border border-border shadow-xl flex items-center gap-2.5 animate-fade-up transition-all duration-[400ms]">
       <span className="flex-shrink-0 text-base">🎉</span>
       <span className="font-bold text-sm leading-relaxed text-text">{notification}</span>
     </div>

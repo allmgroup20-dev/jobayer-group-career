@@ -26,12 +26,17 @@ export default function FAQSection() {
           <div key={i} className="rounded-xl bg-bg border border-border overflow-hidden">
             <button
               onClick={() => setOpenIdx(openIdx === i ? null : i)}
-              className="w-full flex items-center justify-between p-4 text-sm font-bold text-text bg-transparent border-none cursor-pointer text-left font-inherit hover:bg-primary/5 transition-colors"
+              aria-expanded={openIdx === i}
+              aria-controls={`faq-panel-${i}`}
+              className="w-full flex items-center justify-between p-4 text-sm font-bold text-text bg-transparent border-none cursor-pointer text-left font-[inherit] hover:bg-primary/5 transition-colors"
             >
               <span>{faq.q}</span>
               <span className={`text-text-secondary text-xs transition-transform duration-200 ${openIdx === i ? "rotate-180" : ""}`}>▼</span>
             </button>
             <div
+              id={`faq-panel-${i}`}
+              role="region"
+              aria-labelledby={`faq-button-${i}`}
               className="overflow-hidden transition-all duration-300 ease-in-out"
               style={{ maxHeight: openIdx === i ? "300px" : "0px", padding: openIdx === i ? "0 16px 16px" : "0 16px" }}
             >

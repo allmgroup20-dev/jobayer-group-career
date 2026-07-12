@@ -22,16 +22,16 @@ const testimonials = [
 
 export default function Testimonials() {
   const [slideIdx, setSlideIdx] = useState(0);
-  const intervalRef = useRef<any>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => setSlideIdx((p) => (p + 1) % testimonials.length), 4000);
-    return () => clearInterval(intervalRef.current);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
   const goTo = (n: number) => {
     setSlideIdx(n);
-    clearInterval(intervalRef.current);
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => setSlideIdx((p) => (p + 1) % testimonials.length), 4000);
   };
 

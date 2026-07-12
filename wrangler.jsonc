@@ -9,7 +9,6 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "JWT_SECRET": "your-super-secret-key-change-in-production",
     "DEFAULT_CURRENCY": "BDT",
     "SITE_NAME": "Jobayer Group Career",
     "SITE_URL": "https://jobayer-group-career.workers.dev"

@@ -83,7 +83,7 @@ export default function CourseCatalog() {
       </div>
 
       <div className="text-center mt-4">
-        <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D2C] text-white font-black text-sm no-underline shadow-lg shadow-orange-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
+        <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-orange to-orange-dark text-white font-black text-sm no-underline shadow-lg shadow-orange/30 hover:-translate-y-0.5 transition-all cursor-pointer">
           📚 সম্পূর্ণ ক্যাটালগ দেখুন →
         </Link>
       </div>

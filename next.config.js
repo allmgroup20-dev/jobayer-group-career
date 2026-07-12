@@ -4,10 +4,4 @@ module.exports = {
   images: {
     unoptimized: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  turbopack: {
-    root: __dirname,
-  },
 }

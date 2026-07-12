@@ -37,7 +37,7 @@ export default function HowItWorks() {
       <div className="grid gap-3 md:gap-4 mb-4">
         {steps.map((step, i) => (
           <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-white border border-border shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-info to-[#FF6B35] flex items-center justify-center text-white font-black text-base flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-info to-orange flex items-center justify-center text-white font-black text-base flex-shrink-0">
               {step.num}
             </div>
             <div className="flex-1 min-w-0">
@@ -55,7 +55,7 @@ export default function HowItWorks() {
       </div>
 
       <div className="text-center mt-4">
-        <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D2C] text-white font-black text-sm no-underline shadow-lg shadow-orange-500/30 hover:-translate-y-0.5 transition-all cursor-pointer">
+        <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-orange to-orange-dark text-white font-black text-sm no-underline shadow-lg shadow-orange/30 hover:-translate-y-0.5 transition-all cursor-pointer">
           🚀 এখনই রেজিস্টার করুন →
         </Link>
       </div>

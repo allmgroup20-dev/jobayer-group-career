@@ -59,7 +59,7 @@ export default function SalaryTable() {
       <div className="max-h-[500px] overflow-y-auto rounded-xl border border-border bg-white">
         <table className="w-full border-collapse">
           <thead className="sticky top-0 z-[2]">
-            <tr className="bg-gradient-to-r from-info to-[#FF6B35] text-white">
+            <tr className="bg-gradient-to-r from-info to-orange text-white">
               <th className="p-3 text-left text-xs font-extrabold">নাম</th>
               <th className="p-3 text-left text-xs font-extrabold">মোট বোনাস</th>
               <th className="p-3 text-left text-xs font-extrabold">স্ট্যাটাস</th>
@@ -69,7 +69,7 @@ export default function SalaryTable() {
             {rows.map((data, i) => (
               <tr
                 key={i}
-                className={`border-b border-border ${data.success ? "bg-warning/20 font-bold text-warning" : i % 2 === 0 ? "bg-white" : "bg-bg"}`}
+                className={`border-b border-border ${data.success ? "bg-success/20 font-bold text-success" : i % 2 === 0 ? "bg-white" : "bg-bg"}`}
               >
                 <td className="p-3 text-xs font-bold text-text">{data.name}</td>
                 <td className="p-3 text-xs font-bold text-text">{toBn(data.amount)} টাকা</td>

@@ -39,7 +39,7 @@ export default function Navbar() {
                 JG
               </div>
               <div className="hidden sm:block">
-                <span className="font-bold text-lg text-primary">Jobayer</span>
+                <span className={`font-bold text-lg ${scrolled ? "text-primary" : "text-white"}`}>Jobayer</span>
                 <span className="text-secondary font-bold"> Group</span>
               </div>
             </Link>
@@ -49,8 +49,11 @@ export default function Navbar() {
                 <Link
                   key={item.key}
                   href={item.href}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary 
-                           hover:text-primary hover:bg-primary/5 transition-all"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    scrolled
+                      ? "text-text-secondary hover:text-primary hover:bg-primary/5"
+                      : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
                 >
                   {lang === "bn" ? item.bn : item.en}
                 </Link>
@@ -63,10 +66,11 @@ export default function Navbar() {
                 {lang === "bn" ? "লগইন" : "Login"}
               </Link>
               <button
-                className="md:hidden p-2 rounded-lg hover:bg-primary/5"
+                className={`md:hidden p-2 rounded-lg ${scrolled ? "hover:bg-primary/5" : "hover:bg-white/10"}`}
                 onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label={lang === "bn" ? "মেনু" : "Menu"}
               >
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className={`w-6 h-6 ${scrolled ? "text-primary" : "text-white"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {mobileOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (

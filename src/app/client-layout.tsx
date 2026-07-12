@@ -25,7 +25,7 @@ function ScrollProgressBar() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[99999] h-[3px] bg-transparent pointer-events-none">
-      <div ref={barRef} className="h-full bg-gradient-to-r from-info via-[#FF6B35] to-info transition-all duration-100" style={{ width: "0%" }} />
+      <div ref={barRef} className="h-full bg-gradient-to-r from-info via-orange to-info transition-all duration-100" style={{ width: "0%" }} />
     </div>
   );
 }

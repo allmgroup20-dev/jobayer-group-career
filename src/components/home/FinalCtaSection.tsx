@@ -36,7 +36,7 @@ export default function FinalCtaSection() {
         <span className="px-3 py-1.5 rounded-full bg-warning/10 text-warning text-xs font-extrabold">✅ ২৪ ঘণ্টা নিঃশর্ত ফেরত</span>
       </div>
 
-      <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#E85D2C] text-white font-bold text-lg shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all duration-300 animate-pulse">
+      <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-orange to-orange-dark text-white font-bold text-lg shadow-xl shadow-orange/30 hover:shadow-orange/40 hover:-translate-y-0.5 transition-all duration-300 animate-pulse">
         🚀 এখনই রেজিস্টার করুন →
       </Link>
     </div>
