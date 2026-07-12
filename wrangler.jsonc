@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "jobayer-group-career",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2025-07-08",
+  "compatibility_date": "2026-07-12",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": ".open-next/assets",
@@ -19,12 +19,6 @@
       "binding": "DB",
       "database_name": "jgcareer-db",
       "database_id": "3e54502f-3cc2-4529-a082-3019726a7784"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "R2",
-      "bucket_name": "jobayer-uploads"
     }
   ],
   "kv_namespaces": [
