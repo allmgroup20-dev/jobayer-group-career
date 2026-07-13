@@ -34,7 +34,7 @@ export default function CourseCatalog() {
           <button
             key={cat.id}
             onClick={() => setActiveTab(cat.id)}
-            className={px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer }
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === cat.id ? "bg-primary text-white shadow-lg shadow-primary/30" : "bg-white border border-border text-text-secondary hover:border-primary/30 hover:text-text"}`}
           >
             {cat.icon} {lang === "bn" ? cat.titleBn : cat.titleEn}
           </button>
@@ -64,12 +64,9 @@ export default function CourseCatalog() {
                     {lang === "bn" ? course.nameBn : course.nameEn}
                   </span>
                 </div>
-                {course.originalPrice && (
-                  <div className="flex items-center gap-2 ml-8">
-                    <span className="text-xs font-bold text-text-secondary line-through">৳{course.originalPrice.toLocaleString("en-IN")}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-orange text-white text-[10px] font-extrabold">৳৯৯</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 ml-8">
+                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-orange text-white text-[10px] font-extrabold">৳৯৯</span>
+                </div>
               </div>
             ))}
           </div>
@@ -119,3 +116,4 @@ export default function CourseCatalog() {
     </div>
   );
 }
+
