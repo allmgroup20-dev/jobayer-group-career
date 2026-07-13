@@ -39,16 +39,17 @@ function toBn(v: number) {
 export default function SalaryTable({ onNewSuccess }: Props) {
   const { lang } = useLanguageStore();
   const [rows, setRows] = useState<RowData[]>([]);
+  const [total, setTotal] = useState(0);
   const seenSuccessRef = useRef<Set<number>>(new Set());
   const initialBatchRef = useRef(false);
 
   const tick = useCallback(() => {
-    const total = Math.floor(Date.now() / 1000 / AVG_DELAY);
-    const start = Math.max(0, total - MAX_VISIBLE);
+    const totalUpdates = Math.floor(Date.now() / 1000 / AVG_DELAY);
+    const start = Math.max(0, totalUpdates - MAX_VISIBLE);
     const newRows: RowData[] = [];
     const newSuccessNames: string[] = [];
 
-    for (let i = total - 1; i >= start; i--) {
+    for (let i = totalUpdates - 1; i >= start; i--) {
       const data = generateRow(i, lang);
       newRows.push(data);
       if (data.success && !seenSuccessRef.current.has(i)) {
@@ -58,6 +59,7 @@ export default function SalaryTable({ onNewSuccess }: Props) {
     }
 
     setRows(newRows);
+    setTotal(totalUpdates);
 
     if (onNewSuccess) {
       if (!initialBatchRef.current) {
@@ -96,27 +98,31 @@ export default function SalaryTable({ onNewSuccess }: Props) {
       </div>
 
       <div className="mt-5 rounded-xl bg-bg border border-border overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
-          <span className="font-black text-xs text-text-secondary">{lang === "bn" ? "নাম" : "Name"}</span>
-          <span className="font-black text-xs text-text-secondary">{lang === "bn" ? "মোট বোনাস" : "Total Bonus"}</span>
-          <span className="font-black text-xs text-text-secondary">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</span>
+        <div className="grid grid-cols-[40px_1fr_160px_1fr] items-center px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
+          <span className="font-black text-[11px] text-text-secondary text-center">#</span>
+          <span className="font-black text-[11px] text-text-secondary">{lang === "bn" ? "নাম" : "Name"}</span>
+          <span className="font-black text-[11px] text-text-secondary text-center">{lang === "bn" ? "মোট বোনাস" : "Bonus"}</span>
+          <span className="font-black text-[11px] text-text-secondary text-right">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</span>
         </div>
-        <div className="overflow-y-auto" style={{ maxHeight: 600 }}>
+        <div>
           {rows.map((row, i) => (
             <div
               key={i}
-              className={`flex items-center justify-between px-4 py-3 border-b border-border/50 last:border-none ${
-                row.success ? "bg-amber-50 border-l-4 border-l-amber-400" : i % 2 === 0 ? "bg-white/50" : ""
+              className={`grid grid-cols-[40px_1fr_160px_1fr] items-center px-4 py-3 border-b border-border/50 last:border-none ${
+                row.success
+                  ? "ring-2 ring-inset ring-amber-400 bg-amber-50"
+                  : i % 2 === 0 ? "bg-white/50" : ""
               }`}
             >
-              <span className={`font-bold text-xs truncate max-w-[120px] ${row.success ? "text-amber-700" : "text-text"}`}>
+              <span className="font-bold text-[11px] text-text-secondary text-center">{total - i}</span>
+              <span className={`font-bold text-xs truncate ${row.success ? "text-amber-700" : "text-text"}`}>
                 {row.name}
               </span>
-              <span className={`font-black text-sm ${row.success ? "text-amber-600" : "text-success"}`}>
+              <span className={`font-black text-sm text-center ${row.success ? "text-amber-600" : "text-success"}`}>
                 {toBn(row.amount)}৳
               </span>
               <span
-                className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-full justify-self-end whitespace-nowrap ${
                   row.success
                     ? "bg-amber-100 text-amber-700"
                     : "bg-info/10 text-info"
