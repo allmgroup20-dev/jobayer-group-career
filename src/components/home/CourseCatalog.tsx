@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
-import { courseCategories, trainers, bundlePricingData } from "@/data/landing-page-data";
+import { courseCategories, trainers, bundlePricingData, tab0OverviewItems } from "@/data/landing-page-data";
 
 export default function CourseCatalog() {
   const { lang } = useLanguageStore();
@@ -46,43 +46,74 @@ export default function CourseCatalog() {
           <h4 className="font-black text-lg text-text">
             {activeCategory.icon} {lang === "bn" ? activeCategory.titleBn : activeCategory.titleEn}
           </h4>
-          <p className="text-xs font-semibold text-text-secondary -mt-3">
-            {activeCategory.courses.length} {lang === "bn" ? "টি কোর্স" : "Courses"}
-          </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {activeCategory.courses.map((course, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col gap-1.5 p-4 rounded-xl bg-gradient-to-r from-primary/[0.03] to-transparent border border-border"
-              >
-                <div className="flex items-start gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-primary/10 text-primary font-black text-xs shrink-0 mt-0.5">
-                    {idx + 1}
-                  </span>
-                  <span className="font-semibold text-sm text-text leading-tight">
-                    {lang === "bn" ? course.nameBn : course.nameEn}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 ml-8">
-                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-orange text-white text-[10px] font-extrabold">৳৯৯</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {activeCategory.descriptionBn && activeCategory.id === "knowledge-skills" ? (
+            <p className="text-xs font-semibold text-text-secondary -mt-2">
+              {lang === "bn" ? activeCategory.descriptionBn : activeCategory.descriptionEn}
+            </p>
+          ) : activeCategory.id !== "knowledge-skills" ? (
+            <>
+              {activeCategory.descriptionBn && (
+                <p className="text-xs font-semibold text-text-secondary -mt-2">
+                  {lang === "bn" ? activeCategory.descriptionBn : activeCategory.descriptionEn}
+                </p>
+              )}
+              <p className="text-xs font-semibold text-text-secondary -mt-2">
+                {activeCategory.courses.length} {lang === "bn" ? "টি কোর্স" : "Courses"}
+              </p>
+            </>
+          ) : null}
 
-          {activeCategory.trainers.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              <span className="text-xs font-bold text-text-secondary mr-1">👨‍🏫</span>
-              {activeCategory.trainers.map((tName) => {
-                const trainer = trainers.find((t) => t.name === tName);
-                return trainer ? (
-                  <span key={tName} className="px-3 py-1 rounded-lg bg-white border border-border text-xs font-bold text-text">
-                    {lang === "bn" ? trainer.nameBn : trainer.name}
-                  </span>
-                ) : null;
-              })}
+          {/* Tab 0: জ্ঞান — Overview items */}
+          {activeCategory.id === "knowledge-skills" && (
+            <div className="grid gap-3 sm:grid-cols-2 mt-4">
+              {tab0OverviewItems.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/[0.03] to-transparent border border-border">
+                  <span className="text-lg shrink-0 mt-0.5">{item.icon}</span>
+                  <div>
+                    <span className="font-bold text-sm text-text leading-tight block">
+                      {lang === "bn" ? item.titleBn : item.titleEn}
+                    </span>
+                    <span className="text-xs text-text-secondary font-semibold mt-1 block">
+                      {lang === "bn" ? item.descBn : item.descEn}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+
+          {/* All other tabs: course list */}
+          {activeCategory.id !== "knowledge-skills" && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {activeCategory.courses.map((course, idx) => (
+                  <div key={idx} className="flex flex-col gap-1.5 p-4 rounded-xl bg-gradient-to-r from-primary/[0.03] to-transparent border border-border">
+                    <div className="flex items-start gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-primary/10 text-primary font-black text-xs shrink-0 mt-0.5">{idx + 1}</span>
+                      <span className="font-semibold text-sm text-text leading-tight">{lang === "bn" ? course.nameBn : course.nameEn}</span>
+                    </div>
+                    <div className="flex items-center gap-2 ml-8">
+                      <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-orange text-white text-[10px] font-extrabold">৳৯৯</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {activeCategory.trainers.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="text-xs font-bold text-text-secondary mr-1">👨‍🏫</span>
+                  {activeCategory.trainers.map((tName) => {
+                    const trainer = trainers.find((t) => t.name === tName);
+                    return trainer ? (
+                      <span key={tName} className="px-3 py-1 rounded-lg bg-white border border-border text-xs font-bold text-text">
+                        {lang === "bn" ? trainer.nameBn : trainer.name}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
