@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobayer-group-career",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "DEFAULT_CURRENCY": "BDT",
+    "SITE_NAME": "Jobayer Group Career",
+    "SITE_URL": "https://jobayer-group-career.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jgcareer-db",
+      "database_id": "3e54502f-3cc2-4529-a082-3019726a7784"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "6ee0dd4bc9b147feb8400759e6ce33be"
+    }
+  ]
+}

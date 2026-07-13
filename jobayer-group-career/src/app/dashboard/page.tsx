@@ -1,0 +1,155 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useLanguageStore } from "@/lib/store";
+import { formatCurrency, formatDate, maskPhone } from "@/lib/utils";
+import { Card, StatCard } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+const mockWorker = {
+  workerId: "JGRH1234",
+  name: "Rahim Molla",
+  phone: "01712345678",
+  balance: 12500,
+  totalEarned: 87500,
+  totalTeamMembers: 45,
+  level: 3,
+  joinDate: "2025-12-01",
+};
+
+export default function WorkerDashboard() {
+  const { lang } = useLanguageStore();
+
+  return (
+    <div className="min-h-screen py-24 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-fade-up">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">
+              {lang === "bn" ? "স্বাগতম" : "Welcome"}, {mockWorker.name}
+            </h1>
+            <p className="text-sm text-text-secondary mt-1">
+              {lang === "bn" ? "সদস্য আইডি" : "Member ID"}: {mockWorker.workerId}
+            </p>
+          </div>
+          <Link href="/company/login" className="text-sm text-text-secondary hover:text-primary underline">
+            {lang === "bn" ? "কোম্পানি লগইন" : "Company Login"} →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            label={lang === "bn" ? "ব্যালেন্স" : "Balance"}
+            value={formatCurrency(mockWorker.balance)}
+            color="text-action"
+          />
+          <StatCard
+            label={lang === "bn" ? "মোট আয়" : "Total Earnings"}
+            value={formatCurrency(mockWorker.totalEarned)}
+            color="text-secondary-dark"
+          />
+          <StatCard
+            label={lang === "bn" ? "টিম মেম্বার" : "Team Members"}
+            value={mockWorker.totalTeamMembers.toString()}
+            color="text-primary"
+          />
+          <StatCard
+            label={lang === "bn" ? "লেভেল" : "Level"}
+            value={`Level ${mockWorker.level}`}
+            color="text-accent"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Link href="/dashboard/tree" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-semibold text-primary text-sm">{lang === "bn" ? "আমার টিম" : "My Team"}</p>
+              <p className="text-xs text-text-secondary">{mockWorker.totalTeamMembers} {lang === "bn" ? "মেম্বার" : "Members"}</p>
+            </div>
+          </Link>
+
+          <Link href="/dashboard/commissions" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
+            <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-secondary-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-semibold text-primary text-sm">{lang === "bn" ? "কমিশন" : "Commissions"}</p>
+              <p className="text-xs text-text-secondary">{lang === "bn" ? "ইতিহাস দেখুন" : "View History"}</p>
+            </div>
+          </Link>
+
+          <Link href="/dashboard/orders" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
+            <div className="w-12 h-12 bg-action/10 rounded-xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-action" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-semibold text-primary text-sm">{lang === "bn" ? "আমার অর্ডার" : "My Orders"}</p>
+              <p className="text-xs text-text-secondary">{lang === "bn" ? "অর্ডার ট্র্যাক করুন" : "Track Orders"}</p>
+            </div>
+          </Link>
+
+          <Link href="/dashboard/profile" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
+            <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-semibold text-primary text-sm">{lang === "bn" ? "প্রোফাইল" : "Profile"}</p>
+              <p className="text-xs text-text-secondary">{lang === "bn" ? "সেটিংস" : "Settings"}</p>
+            </div>
+          </Link>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "রেফারেল লিংক" : "Referral Link"}</h3>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={`https://jobayer-group.com/register?ref=${mockWorker.workerId}`}
+                className="input-field text-xs flex-1"
+              />
+              <button
+                onClick={() => navigator.clipboard.writeText(`https://jobayer-group.com/register?ref=${mockWorker.workerId}`)}
+                className="btn-primary text-xs !px-4 !py-2.5"
+              >
+                {lang === "bn" ? "কপি" : "Copy"}
+              </button>
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "দ্রুত উইথড্র" : "Quick Withdraw"}</h3>
+            <div className="flex gap-2">
+              <input type="number" placeholder={lang === "bn" ? "পরিমাণ" : "Amount"} className="input-field flex-1" />
+              <button className="btn-primary text-xs !px-4 !py-2.5">
+                {lang === "bn" ? "উইথড্র" : "Withdraw"}
+              </button>
+            </div>
+            <p className="text-xs text-text-secondary mt-2">
+              {lang === "bn" ? "ন্যূনতম উইথড্র: ৳৫০০" : "Min withdrawal: ৳500"}
+            </p>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
