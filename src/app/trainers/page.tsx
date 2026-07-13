@@ -1,6 +1,7 @@
 "use client";
 
-import { trainers } from "@/data/landing-page-data";
+import { trainers, courseCategories } from "@/data/landing-page-data";
+import Image from "next/image";
 
 export default function TrainersPage() {
   return (
@@ -15,28 +16,31 @@ export default function TrainersPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {trainers.map((trainer, i) => (
-            <div key={i} className="rounded-2xl p-5 bg-white border border-border hover:shadow-lg hover:-translate-y-0.5 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-info to-orange flex items-center justify-center text-2xl font-black text-white flex-shrink-0">
-                  {trainer.name.charAt(0)}
+          {trainers.map((trainer, i) => {
+            const catCount = courseCategories.filter((c) => c.trainers.includes(trainer.name)).length;
+            return (
+              <div key={i} className="rounded-2xl p-5 bg-white border border-border hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-info to-orange flex-shrink-0 relative">
+                    <Image src={trainer.image} alt={trainer.nameBn} fill className="object-cover" sizes="64px" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-black text-text">{trainer.nameBn}</h3>
+                    <p className="text-info text-sm font-bold">{trainer.specialty}</p>
+                    <p className="text-xs text-text-secondary font-medium mt-0.5">{trainer.credential}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-black text-text">{trainer.name}</h3>
-                  <p className="text-info text-sm font-bold">{trainer.specialty}</p>
-                  <p className="text-xs text-text-secondary font-medium mt-0.5">{trainer.credential}</p>
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs font-bold text-text-secondary mb-2">📚 {catCount}টি ক্যাটাগরিতে কোর্স:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {trainer.courses.slice(0, 3).map((c, ci) => (
+                      <span key={ci} className="px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-xs font-bold">{c}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-border">
-                <p className="text-xs font-bold text-text-secondary mb-2">📚 কোর্স সমূহ:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {trainer.courses.map((c, ci) => (
-                    <span key={ci} className="px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-xs font-bold">{c}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-10 text-center p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-info/5 border border-primary/20">

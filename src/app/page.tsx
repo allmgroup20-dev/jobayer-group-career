@@ -7,6 +7,7 @@ import HowItWorks from "@/components/home/HowItWorks";
 import CourseCatalog from "@/components/home/CourseCatalog";
 import Testimonials from "@/components/home/Testimonials";
 import SalaryTable from "@/components/home/SalaryTable";
+import PaymentGallery from "@/components/home/PaymentGallery";
 import FAQSection from "@/components/home/FAQSection";
 import TrustSection from "@/components/home/TrustSection";
 
@@ -21,6 +22,7 @@ export default function HomePage() {
         <CourseCatalog />
         <Testimonials />
         <SalaryTable />
+        <PaymentGallery />
         <FAQSection />
         <TrustSection />
       </div>

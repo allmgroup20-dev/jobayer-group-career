@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { courseCategories, trainers } from "@/data/landing-page-data";
-
-const institutions = [
-  "📘 টেন মিনিট স্কুল", "📗 ঘুড়ি লার্নিং", "📙 স্কিল আপ",
-  "📕 ইশিখন", "📊 মায়াজাল", "🖥️ MSB Academy",
-  "⚙️ ক্রিয়েটিভ আইটি", "🧩 প্রব্লেম কেআই", "📖 রেপটো",
-];
+import Image from "next/image";
+import { courseCategories, trainers, platforms } from "@/data/landing-page-data";
 
 export default function CourseCatalog() {
   const [showAll, setShowAll] = useState(false);
@@ -22,7 +17,7 @@ export default function CourseCatalog() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {courseCategories.map((cat, i) => (
+        {courseCategories.map((cat) => (
           <div key={cat.id} className="flex items-center gap-3 p-3.5 rounded-xl bg-white border border-border hover:border-info/30 hover:shadow-sm transition-all">
             <span className="text-2xl leading-none">{cat.icon}</span>
             <div>
@@ -44,11 +39,16 @@ export default function CourseCatalog() {
         {showAll && (
           <div className="mt-4 grid gap-4">
             <div className="rounded-xl p-4 bg-white border border-border">
-              <h4 className="font-black text-sm text-text mb-3">🏛️ প্রতিষ্ঠানসমূহ</h4>
+              <h4 className="font-black text-sm text-text mb-3">🏛️ প্ল্যাটফর্মসমূহ</h4>
               <p className="text-xs font-semibold text-text-secondary mb-3">যেসব প্ল্যাটফর্মের কোর্স আপনি পাচ্ছেন</p>
-              <div className="flex flex-wrap gap-2">
-                {institutions.map((item) => (
-                  <span key={item} className="px-3 py-2 rounded-full bg-white border border-border font-bold text-xs text-text">{item}</span>
+              <div className="flex flex-wrap gap-3">
+                {platforms.map((p) => (
+                  <div key={p.name} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-bg relative flex-shrink-0">
+                      <Image src={p.logo} alt={p.nameBn} fill className="object-contain p-1" sizes="32px" />
+                    </div>
+                    <span className="font-bold text-xs text-text">{p.nameBn}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -56,8 +56,13 @@ export default function CourseCatalog() {
               <h4 className="font-black text-sm text-text mb-3">👨‍🏫 শীর্ষ প্রশিক্ষকবৃন্দ</h4>
               <p className="text-xs font-semibold text-text-secondary mb-3">যেসব তারকা প্রশিক্ষকের কোর্স আপনি পাচ্ছেন</p>
               <div className="flex flex-wrap gap-2">
-                {trainers.map((item) => (
-                  <span key={item.name} className="px-3 py-2 rounded-full bg-white border border-border font-bold text-xs text-text">{item.name} — {item.specialty}</span>
+                {trainers.map((t) => (
+                  <div key={t.name} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-border">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-info to-orange relative flex-shrink-0">
+                      <Image src={t.image} alt={t.nameBn} fill className="object-cover" sizes="32px" />
+                    </div>
+                    <span className="font-bold text-xs text-text">{t.nameBn} — {t.specialty}</span>
+                  </div>
                 ))}
               </div>
             </div>

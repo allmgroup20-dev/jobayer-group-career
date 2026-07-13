@@ -15,19 +15,27 @@ export interface FaqItem {
 
 export interface Trainer {
   name: string;
+  nameBn: string;
   specialty: string;
   credential: string;
   courses: string[];
-  image?: string;
+  image: string;
+  bio: string;
+}
+
+export interface PlatformItem {
+  name: string;
+  nameBn: string;
+  logo: string;
 }
 
 export interface CourseCategory {
   id: string;
   icon: string;
   title: string;
-  institutions: string[];
+  platformLogos: string[];
   trainers: string[];
-  courses: { name: string; price?: string }[];
+  courses: { name: string }[];
 }
 
 export interface GalleryImage {
@@ -35,13 +43,6 @@ export interface GalleryImage {
   alt: string;
   label: string;
   amount?: string;
-}
-
-export interface SalaryRow {
-  name: string;
-  amount: number;
-  status: string;
-  success: boolean;
 }
 
 export interface StatItem {
@@ -89,24 +90,116 @@ export const stats: StatItem[] = [
   { chip: "✅ ২৪ ঘণ্টা ফেরত" },
 ];
 
-export const howItWorksSteps = [
+export const platforms: PlatformItem[] = [
+  { name: "10 Minute School", nameBn: "টেন মিনিট স্কুল", logo: "/images/platforms/10-minute-school.jpg" },
+  { name: "Ghoori Learning", nameBn: "ঘুড়ি লার্নিং", logo: "/images/platforms/ghoori-learning.jpeg" },
+  { name: "Skill Up", nameBn: "স্কিল আপ", logo: "/images/platforms/skill-up.png" },
+  { name: "eShikhon", nameBn: "ইশিখন", logo: "/images/platforms/eshikhon.webp" },
+  { name: "Mayajal", nameBn: "মায়াজাল", logo: "/images/platforms/mayajal.jpg" },
+  { name: "MSB Academy", nameBn: "MSB Academy", logo: "/images/platforms/msb-academy.png" },
+  { name: "Creative IT", nameBn: "ক্রিয়েটিভ আইটি", logo: "/images/platforms/creative-it.jpg" },
+  { name: "Problem KI", nameBn: "প্রব্লেম কেআই", logo: "/images/platforms/problem-ki.png" },
+  { name: "REPTO", nameBn: "রেপটো", logo: "/images/platforms/repto.jpg" },
+];
+
+export const platformLogos: string[] = platforms.map((p) => p.logo);
+
+export const trainers: Trainer[] = [
   {
-    num: "১", icon: "📝",
-    title: "বিনামূল্যে রেজিস্টার করুন",
-    desc: "আপনার অ্যাকাউন্ট খুলুন। সাথে সাথেই সব কোর্স ও টুলস খুলে যাবে!",
-    highlight: "⏱ ৩০ সেকেন্ড",
+    name: "Ayman Sadiq", nameBn: "আয়মান সাদিক",
+    specialty: "এডুকেশন & কন্টেন্ট ক্রিয়েশন",
+    credential: "১০ মিনিট স্কুলের প্রতিষ্ঠাতা, ৫০০০০+ শিক্ষার্থী",
+    courses: ["কন্টেন্ট ক্রিয়েশন মাস্টারক্লাস", "ডিজিটাল এডুকেশন স্ট্র্যাটেজি"],
+    image: "/images/trainers/ayman-sadiq.jpg",
+    bio: "দেশের সর্ববৃহৎ এডটেক প্ল্যাটফর্ম ১০ মিনিট স্কুলের প্রতিষ্ঠাতা।"
   },
   {
-    num: "২", icon: "📢",
-    title: "লিংক শেয়ার করুন",
-    desc: "আপনার লিংক ফেসবুক ও হোয়াটসঅ্যাপে শেয়ার করুন। কোনো অভিজ্ঞতা লাগে না — সবকিছু রেডিমেড দেওয়া আছে!",
-    highlight: "🎯 শুরু করুন আজই",
+    name: "Munzereen Shahid", nameBn: "মুনজারিন শহীদ",
+    specialty: "স্পোকেন ইংলিশ & কমিউনিকেশন",
+    credential: "১০ মিনিট স্কুলের স্পোকেন ইংলিশ টিচার, ২০০০০+ শিক্ষার্থী",
+    courses: ["স্পোকেন ইংলিশ মাস্টারি", "ইংলিশ কমিউনিকেশন কোর্স"],
+    image: "/images/trainers/munzereen-shahid.jpg",
+    bio: "স্পোকেন ইংলিশে দেশের শীর্ষ প্রশিক্ষকদের একজন।"
   },
   {
-    num: "৩", icon: "💰",
-    title: "টাকা তুলুন",
-    desc: "আপনার লিংকে যতজন যুক্ত হবে, তত আয় সরাসরি বিকাশ/নগদে চলে আসবে!",
-    highlight: "🟢 সরাসরি পেমেন্ট",
+    name: "Jhankar Mahbub", nameBn: "ঝংকার মাহবুব",
+    specialty: "ওয়েব ডেভেলপমেন্ট & প্রোগ্রামিং",
+    credential: "সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার, bestselling author",
+    courses: ["ওয়েব ডেভেলপমেন্ট বুটক্যাম্প", "প্রোগ্রামিং বেসিক"],
+    image: "/images/trainers/jhankar-mahbub.jpg",
+    bio: "আমেরিকান টেক কোম্পানির সিনিয়র ইঞ্জিনিয়ার ও প্রোগ্রামিং বইয়ের লেখক।"
+  },
+  {
+    name: "Khalid Farhan", nameBn: "খালিদ ফারহান",
+    specialty: "ডিজিটাল মার্কেটিং",
+    credential: "ডিজিটাল মার্কেটিং স্পেশালিস্ট, ৮+ বছর",
+    courses: ["ফেসবুক & ইনস্টাগ্রাম মার্কেটিং", "গুগল অ্যাডস মাস্টারি"],
+    image: "/images/trainers/khalid-farhan.jpg",
+    bio: "ডিজিটাল মার্কেটিংয়ে ৮ বছরের অভিজ্ঞতা।"
+  },
+  {
+    name: "Sadman Sadik", nameBn: "সাদমান সাদিক",
+    specialty: "UI/UX ডিজাইন",
+    credential: "প্রিমিয়ার UI/UX ডিজাইনার, ৬+ বছর",
+    courses: ["UI/UX ডিজাইন ফান্ডামেন্টাল", "ফিগমা মাস্টারক্লাস"],
+    image: "/images/trainers/sadman-sadik.jpg",
+    bio: "UI/UX ডিজাইনে দেশের শীর্ষ ডিজাইনারদের একজন।"
+  },
+  {
+    name: "Freelancer Nasim", nameBn: "ফ্রিল্যান্সার নাসিম",
+    specialty: "ফ্রিল্যান্সিং & আউটসোর্সিং",
+    credential: "ফাইভার টপ-রেটেড ফ্রিল্যান্সার, ৭+ বছর",
+    courses: ["ফাইভার ফ্রিল্যান্সিং মাস্টারি", "আপওয়ার্ক প্রোফাইল অপটিমাইজেশন"],
+    image: "/images/trainers/freelancer-nasim.jpg",
+    bio: "ফ্রিল্যান্সিংয়ে হাজারো শিক্ষার্থী তৈরি করেছেন।"
+  },
+  {
+    name: "Tahsan Khan", nameBn: "তাহসান খান",
+    specialty: "ডিজিটাল মার্কেটিং & ব্র্যান্ডিং",
+    credential: "ডিজিটাল মার্কেটিং এক্সপার্ট, ৬+ বছর",
+    courses: ["SEO মাস্টারি কোর্স", "কন্টেন্ট মার্কেটিং স্ট্র্যাটেজি"],
+    image: "/images/trainers/tahsan-khan.jpg",
+    bio: "ব্র্যান্ডিং ও ডিজিটাল মার্কেটিং স্পেশালিস্ট।"
+  },
+  {
+    name: "Jubayer Hossain", nameBn: "জুবায়ের হোসাইন",
+    specialty: "গ্রাফিক্স ডিজাইন & ভিডিও এডিটিং",
+    credential: "প্রিমিয়ার প্রো & ফটোশপ এক্সপার্ট, ৫+ বছর",
+    courses: ["ফটোশপ মাস্টারক্লাস", "প্রিমিয়ার প্রো বেসিক টু অ্যাডভান্সড"],
+    image: "/images/trainers/jubayer-hossain.jpg",
+    bio: "গ্রাফিক্স ডিজাইন ও ভিডিও এডিটিং প্রশিক্ষক।"
+  },
+  {
+    name: "Abtahi Iptesam", nameBn: "আবতাহি ইপ্তেসাম",
+    specialty: "ডেটা সায়েন্স & এআই",
+    credential: "ডেটা সায়েন্টিস্ট, ৫+ বছর",
+    courses: ["ডেটা সায়েন্স ফান্ডামেন্টাল", "পাইথন ফর ডেটা সায়েন্স"],
+    image: "/images/trainers/abtahi-iptesam.jpg",
+    bio: "ডেটা সায়েন্স ও মেশিন লার্নিং বিশেষজ্ঞ।"
+  },
+  {
+    name: "Mahade Hasan", nameBn: "মাহাদে হাসান",
+    specialty: "ই-কমার্স & শপিফাই",
+    credential: "শপিফাই এক্সপার্ট, ৫+ বছর",
+    courses: ["শপিফাই স্টোর ডেভেলপমেন্ট", "ড্রপশিপিং মাস্টারি"],
+    image: "/images/trainers/mahade-hasan.jpg",
+    bio: "ই-কমার্স ও শপিফাই বিশেষজ্ঞ।"
+  },
+  {
+    name: "Vaibhav Sisinity", nameBn: "ভৈভব সিসিনিটি",
+    specialty: "ডিজিটাল মার্কেটিং & অ্যাফিলিয়েট",
+    credential: "অ্যাফিলিয়েট মার্কেটিং এক্সপার্ট, ৬+ বছর",
+    courses: ["অ্যাফিলিয়েট মার্কেটিং মাস্টারক্লাস", "ই-কমার্স অ্যাফিলিয়েট স্ট্র্যাটেজি"],
+    image: "/images/trainers/vaibhav-sisinity.jpg",
+    bio: "অ্যাফিলিয়েট মার্কেটিংয়ে আন্তর্জাতিক খ্যাতিসম্পন্ন প্রশিক্ষক।"
+  },
+  {
+    name: "Soban Tariq", nameBn: "সোবান তারিক",
+    specialty: "অ্যাফিলিয়েট মার্কেটিং & ফানেল",
+    credential: "ফানেল বিল্ডিং এক্সপার্ট, ৫+ বছর",
+    courses: ["ফানেল বিল্ডিং কোর্স", "ক্লিকফানেল মাস্টারি"],
+    image: "/images/trainers/soban-tariq.jpg",
+    bio: "ফানেল বিল্ডিং ও অ্যাফিলিয়েট মার্কেটিং বিশেষজ্ঞ।"
   },
 ];
 
@@ -115,138 +208,127 @@ export const courseCategories: CourseCategory[] = [
     id: "affiliate-marketing",
     icon: "📢",
     title: "অ্যাফিলিয়েট মার্কেটিং",
-    institutions: ["Jobayer Group Academy", "Digital Marketing Institute"],
-    trainers: ["জোবায়ের আহমেদ", "রাফি হাসান"],
+    platformLogos: ["/images/platforms/10-minute-school.jpg", "/images/platforms/problem-ki.png"],
+    trainers: ["Vaibhav Sisinity", "Soban Tariq"],
     courses: [
-      { name: "অ্যাফিলিয়েট মার্কেটিং মাস্টারক্লাস", price: "৫,০০০ টাকা" },
-      { name: "ফেসবুক অ্যাফিলিয়েট কোর্স", price: "৩,৫০০ টাকা" },
-      { name: "ই-কমার্স অ্যাফিলিয়েট স্ট্র্যাটেজি", price: "৪,২০০ টাকা" },
+      { name: "অ্যাফিলিয়েট মার্কেটিং মাস্টারক্লাস" },
+      { name: "ফেসবুক অ্যাফিলিয়েট কোর্স" },
+      { name: "ই-কমার্স অ্যাফিলিয়েট স্ট্র্যাটেজি" },
+      { name: "ক্লিকফানেল মাস্টারি" },
     ],
   },
   {
     id: "digital-marketing",
     icon: "📱",
     title: "ডিজিটাল মার্কেটিং",
-    institutions: ["Jobayer Group Academy", "BD Digital Pro"],
-    trainers: ["সাকিব আল হাসান", "নাদিয়া ইসলাম"],
+    platformLogos: ["/images/platforms/creative-it.jpg", "/images/platforms/10-minute-school.jpg"],
+    trainers: ["Khalid Farhan", "Tahsan Khan"],
     courses: [
-      { name: "ফেসবুক & ইনস্টাগ্রাম মার্কেটিং", price: "৪,৫০০ টাকা" },
-      { name: "গুগল অ্যাডস মাস্টারি", price: "৫,৫০০ টাকা" },
-      { name: "SEO & কন্টেন্ট মার্কেটিং", price: "৩,৮০০ টাকা" },
-      { name: "ইমেইল মার্কেটিং স্ট্র্যাটেজি", price: "২,৯০০ টাকা" },
+      { name: "ফেসবুক & ইনস্টাগ্রাম মার্কেটিং" },
+      { name: "গুগল অ্যাডস মাস্টারি" },
+      { name: "SEO & কন্টেন্ট মার্কেটিং" },
+      { name: "ইমেইল মার্কেটিং স্ট্র্যাটেজি" },
     ],
   },
   {
     id: "ecommerce",
     icon: "🛒",
     title: "ই-কমার্স",
-    institutions: ["Jobayer Group Academy", "Ecom Success BD"],
-    trainers: ["আমিনুল ইসলাম", "ফারিহা তাবাসসুম"],
+    platformLogos: ["/images/platforms/ghoori-learning.jpeg", "/images/platforms/mayajal.jpg"],
+    trainers: ["Mahade Hasan", "Freelancer Nasim"],
     courses: [
-      { name: "শপিফাই স্টোর তৈরি ও মার্কেটিং", price: "৪,৮০০ টাকা" },
-      { name: "ড্রপশিপিং মাস্টারি", price: "৫,২০০ টাকা" },
-      { name: "ওয়াকমার্স স্টোর ডেভেলপমেন্ট", price: "৩,৫০০ টাকা" },
-      { name: "ফেসবুক শপ সেটআপ", price: "২,৫০০ টাকা" },
+      { name: "শপিফাই স্টোর তৈরি ও মার্কেটিং" },
+      { name: "ড্রপশিপিং মাস্টারি" },
+      { name: "ওয়াকমার্স স্টোর ডেভেলপমেন্ট" },
+      { name: "ফেসবুক শপ সেটআপ" },
     ],
   },
   {
     id: "graphics-design",
     icon: "🎨",
     title: "গ্রাফিক্স ডিজাইন",
-    institutions: ["Design Studio BD", "Jobayer Group Academy"],
-    trainers: ["তানভীর আহমেদ", "সাজিয়া ইসলাম"],
+    platformLogos: ["/images/platforms/msb-academy.png", "/images/platforms/repto.jpg"],
+    trainers: ["Jubayer Hossain", "Sadman Sadik"],
     courses: [
-      { name: "ফটোশপ মাস্টারক্লাস", price: "৩,২০০ টাকা" },
-      { name: "ইলাস্ট্রেটর প্রো কোর্স", price: "৩,৫০০ টাকা" },
-      { name: "ক্যানভা ডিজাইন গাইড", price: "১,৮০০ টাকা" },
+      { name: "ফটোশপ মাস্টারক্লাস" },
+      { name: "ইলাস্ট্রেটর প্রো কোর্স" },
+      { name: "UI/UX ডিজাইন ফান্ডামেন্টাল" },
+      { name: "ফিগমা মাস্টারক্লাস" },
     ],
   },
   {
     id: "web-development",
     icon: "💻",
     title: "ওয়েব ডেভেলপমেন্ট",
-    institutions: ["CodeLab BD", "Jobayer Group Academy"],
-    trainers: ["হাসান মাহমুদ", "নাজমুল হাসান"],
+    platformLogos: ["/images/platforms/skill-up.png", "/images/platforms/eshikhon.webp"],
+    trainers: ["Jhankar Mahbub", "Abtahi Iptesam"],
     courses: [
-      { name: "ওয়েব ডিজাইন বেসিক", price: "৩,০০০ টাকা" },
-      { name: "ফুল স্ট্যাক ওয়েব ডেভেলপমেন্ট", price: "১২,০০০ টাকা" },
-      { name: "ওয়ার্ডপ্রেস থিম ডেভেলপমেন্ট", price: "৪,৫০০ টাকা" },
+      { name: "ওয়েব ডিজাইন বেসিক" },
+      { name: "ফুল স্ট্যাক ওয়েব ডেভেলপমেন্ট" },
+      { name: "ওয়ার্ডপ্রেস থিম ডেভেলপমেন্ট" },
+      { name: "পাইথন ফর ডেটা সায়েন্স" },
     ],
   },
   {
     id: "freelancing",
     icon: "🌍",
     title: "ফ্রিল্যান্সিং",
-    institutions: ["Jobayer Group Academy", "Freelancer Hub BD"],
-    trainers: ["রাশেদুল ইসলাম", "তানিয়া সুলতানা"],
+    platformLogos: ["/images/platforms/repto.jpg", "/images/platforms/ghoori-learning.jpeg"],
+    trainers: ["Freelancer Nasim", "Tahsan Khan"],
     courses: [
-      { name: "ফাইভার ফ্রিল্যান্সিং মাস্টারি", price: "৪,০০০ টাকা" },
-      { name: "আপওয়ার্ক প্রোফাইল অপটিমাইজেশন", price: "৩,২০০ টাকা" },
-      { name: "লিংকডইন ফ্রিল্যান্সিং গাইড", price: "২,৫০০ টাকা" },
+      { name: "ফাইভার ফ্রিল্যান্সিং মাস্টারি" },
+      { name: "আপওয়ার্ক প্রোফাইল অপটিমাইজেশন" },
+      { name: "লিংকডইন ফ্রিল্যান্সিং গাইড" },
     ],
   },
   {
     id: "video-editing",
     icon: "🎬",
     title: "ভিডিও এডিটিং",
-    institutions: ["Creative Studio BD", "Jobayer Group Academy"],
-    trainers: ["কামরুল হাসান", "ঈশিতা রহমান"],
+    platformLogos: ["/images/platforms/creative-it.jpg", "/images/platforms/msb-academy.png"],
+    trainers: ["Jubayer Hossain", "Ayman Sadiq"],
     courses: [
-      { name: "প্রিমিয়ার প্রো বেসিক টু অ্যাডভান্সড", price: "৪,৩০০ টাকা" },
-      { name: "ক্যাপকাট মোবাইল এডিটিং", price: "১,৫০০ টাকা" },
-      { name: "ইউটিউব কন্টেন্ট ক্রিয়েশন", price: "৩,৮০০ টাকা" },
+      { name: "প্রিমিয়ার প্রো বেসিক টু অ্যাডভান্সড" },
+      { name: "ক্যাপকাট মোবাইল এডিটিং" },
+      { name: "ইউটিউব কন্টেন্ট ক্রিয়েশন" },
     ],
   },
   {
     id: "content-writing",
     icon: "✍️",
     title: "কন্টেন্ট রাইটিং",
-    institutions: ["Content Studio BD", "Jobayer Group Academy"],
-    trainers: ["শারমিন আক্তার", "ইমরান হোসেন"],
+    platformLogos: ["/images/platforms/10-minute-school.jpg", "/images/platforms/eshikhon.webp"],
+    trainers: ["Ayman Sadiq", "Tahsan Khan"],
     courses: [
-      { name: "প্রফেশনাল কন্টেন্ট রাইটিং", price: "২,৮০০ টাকা" },
-      { name: "কপিরাইটিং মাস্টারি", price: "৩,২০০ টাকা" },
-      { name: "ব্লগিং ও এসইও রাইটিং", price: "২,৫০০ টাকা" },
-    ],
-  },
-  {
-    id: "virtual-assistant",
-    icon: "🤝",
-    title: "ভার্চুয়াল অ্যাসিস্ট্যান্ট",
-    institutions: ["VATrain BD", "Jobayer Group Academy"],
-    trainers: ["নুসরাত জাহান", "রবিউল ইসলাম"],
-    courses: [
-      { name: "ভার্চুয়াল অ্যাসিস্ট্যান্ট ট্রেনিং", price: "৩,০০০ টাকা" },
-      { name: "এডমিন সাপোর্ট কোর্স", price: "২,২০০ টাকা" },
+      { name: "প্রফেশনাল কন্টেন্ট রাইটিং" },
+      { name: "কপিরাইটিং মাস্টারি" },
+      { name: "ব্লগিং ও এসইও রাইটিং" },
     ],
   },
   {
     id: "spoken-english",
     icon: "🗣️",
     title: "স্পোকেন ইংলিশ",
-    institutions: ["English Pro BD", "Jobayer Group Academy"],
-    trainers: ["মিসেস রেবেকা সুলতানা", "জনি হাসান"],
+    platformLogos: ["/images/platforms/10-minute-school.jpg", "/images/platforms/skill-up.png"],
+    trainers: ["Munzereen Shahid", "Khalid Farhan"],
     courses: [
-      { name: "স্পোকেন ইংলিশ ফর ফ্রিল্যান্সিং", price: "২,৫০০ টাকা" },
-      { name: "ইংলিশ কমিউনিকেশন মাস্টারি", price: "৩,৫০০ টাকা" },
-      { name: "আইইএলটিএস প্রিপারেশন", price: "৫,০০০ টাকা" },
+      { name: "স্পোকেন ইংলিশ ফর ফ্রিল্যান্সিং" },
+      { name: "ইংলিশ কমিউনিকেশন মাস্টারি" },
+      { name: "আইইএলটিএস প্রিপারেশন" },
     ],
   },
-];
-
-export const trainers: Trainer[] = [
-  { name: "জোবায়ের আহমেদ", specialty: "অ্যাফিলিয়েট মার্কেটিং", credential: "৮+ বছর অভিজ্ঞতা, ৫০০০+ শিক্ষার্থী", courses: ["অ্যাফিলিয়েট মার্কেটিং মাস্টারক্লাস", "ই-কমার্স অ্যাফিলিয়েট স্ট্র্যাটেজি"] },
-  { name: "সাকিব আল হাসান", specialty: "ডিজিটাল মার্কেটিং", credential: "গুগল সার্টিফাইড, ৬+ বছর", courses: ["ফেসবুক & ইনস্টাগ্রাম মার্কেটিং", "গুগল অ্যাডস মাস্টারি"] },
-  { name: "আমিনুল ইসলাম", specialty: "ই-কমার্স", credential: "শপিফাই এক্সপার্ট, ৫+ বছর", courses: ["শপিফাই স্টোর তৈরি ও মার্কেটিং", "ড্রপশিপিং মাস্টারি"] },
-  { name: "তানভীর আহমেদ", specialty: "গ্রাফিক্স ডিজাইন", credential: "প্রিমিয়ার ডিজাইনার, ৭+ বছর", courses: ["ফটোশপ মাস্টারক্লাস", "ইলাস্ট্রেটর প্রো কোর্স"] },
-  { name: "হাসান মাহমুদ", specialty: "ওয়েব ডেভেলপমেন্ট", credential: "সিনিয়র ডেভেলপার, ৮+ বছর", courses: ["ফুল স্ট্যাক ওয়েব ডেভেলপমেন্ট", "ওয়ার্ডপ্রেস থিম ডেভেলপমেন্ট"] },
-  { name: "রাশেদুল ইসলাম", specialty: "ফ্রিল্যান্সিং", credential: "ফাইভার টপ-রেটেড, ৬+ বছর", courses: ["ফাইভার ফ্রিল্যান্সিং মাস্টারি", "আপওয়ার্ক প্রোফাইল অপটিমাইজেশন"] },
-  { name: "কামরুল হাসান", specialty: "ভিডিও এডিটিং", credential: "প্রিমিয়ার প্রো এক্সপার্ট, ৫+ বছর", courses: ["প্রিমিয়ার প্রো বেসিক টু অ্যাডভান্সড", "ইউটিউব কন্টেন্ট ক্রিয়েশন"] },
-  { name: "শারমিন আক্তার", specialty: "কন্টেন্ট রাইটিং", credential: "প্রকাশিত লেখক, ৪+ বছর", courses: ["প্রফেশনাল কন্টেন্ট রাইটিং", "কপিরাইটিং মাস্টারি"] },
-  { name: "নুসরাত জাহান", specialty: "ভার্চুয়াল অ্যাসিস্ট্যান্ট", credential: "ভিএ ট্রেইনার, ৪+ বছর", courses: ["ভার্চুয়াল অ্যাসিস্ট্যান্ট ট্রেনিং"] },
-  { name: "রাফি হাসান", specialty: "অ্যাফিলিয়েট মার্কেটিং", credential: "৫+ বছর কোর্স সম্পন্ন", courses: ["অ্যাফিলিয়েট মার্কেটিং মাস্টারক্লাস", "ফেসবুক অ্যাফিলিয়েট কোর্স"] },
-  { name: "নাদিয়া ইসলাম", specialty: "ডিজিটাল মার্কেটিং", credential: "ডিজিটাল মার্কেটিং স্পেশালিস্ট", courses: ["SEO & কন্টেন্ট মার্কেটিং", "ইমেইল মার্কেটিং স্ট্র্যাটেজি"] },
-  { name: "ফারিহা তাবাসসুম", specialty: "ই-কমার্স", credential: "ই-কমার্স কনসালট্যান্ট, ৫+ বছর", courses: ["ওয়াকমার্স স্টোর ডেভেলপমেন্ট", "ফেসবুক শপ সেটআপ"] },
+  {
+    id: "data-science",
+    icon: "🤖",
+    title: "ডেটা সায়েন্স & এআই",
+    platformLogos: ["/images/platforms/skill-up.png", "/images/platforms/mayajal.jpg"],
+    trainers: ["Abtahi Iptesam", "Jhankar Mahbub"],
+    courses: [
+      { name: "ডেটা সায়েন্স ফান্ডামেন্টাল" },
+      { name: "মেশিন লার্নিং বেসিক" },
+      { name: "পাইথন ফর ডেটা সায়েন্স" },
+    ],
+  },
 ];
 
 export const testimonials: Testimonial[] = [
@@ -271,16 +353,16 @@ export const faqs: FaqItem[] = [
 ];
 
 export const galleryImages: GalleryImage[] = [
-  { src: "/images/payment-1.jpg", alt: "bKash payment", label: "বিকাশ পেমেন্ট", amount: "১,২০০ টাকা" },
-  { src: "/images/payment-2.jpg", alt: "Nagad payment", label: "নগদ পেমেন্ট", amount: "২,৫০০ টাকা" },
-  { src: "/images/payment-3.jpg", alt: "Bank transfer", label: "ব্যাংক ট্রান্সফার", amount: "৫,০০০ টাকা" },
-  { src: "/images/payment-4.jpg", alt: "Rocket payment", label: "রকেট পেমেন্ট", amount: "৮০০ টাকা" },
-  { src: "/images/payment-5.jpg", alt: "Upwork payment", label: "আপওয়ার্ক পেমেন্ট", amount: "$১৫০" },
-  { src: "/images/payment-6.jpg", alt: "Fiverr payment", label: "ফাইভার পেমেন্ট", amount: "$২০০" },
-  { src: "/images/payment-7.jpg", alt: "Freelancer payment", label: "ফ্রিল্যান্সার পেমেন্ট", amount: "$১৮০" },
-  { src: "/images/payment-8.jpg", alt: "bKash large payment", label: "বিকাশ বড় পেমেন্ট", amount: "১৫,০০০ টাকা" },
-  { src: "/images/payment-9.jpg", alt: "Nagad large payment", label: "নগদ বড় পেমেন্ট", amount: "১২,০০০ টাকা" },
-  { src: "/images/payment-10.jpg", alt: "Bank salary", label: "ব্যাংক বেতন", amount: "২৫,০০০ টাকা" },
+  { src: "/images/payments/payment-1.jpg", alt: "bKash payment", label: "বিকাশ পেমেন্ট", amount: "১,২০০ টাকা" },
+  { src: "/images/payments/payment-2.jpg", alt: "Nagad payment", label: "নগদ পেমেন্ট", amount: "২,৫০০ টাকা" },
+  { src: "/images/payments/payment-3.jpg", alt: "Bank transfer", label: "ব্যাংক ট্রান্সফার", amount: "৫,০০০ টাকা" },
+  { src: "/images/payments/payment-4.jpg", alt: "Rocket payment", label: "রকেট পেমেন্ট", amount: "৮০০ টাকা" },
+  { src: "/images/payments/payment-5.jpg", alt: "Upwork payment", label: "আপওয়ার্ক পেমেন্ট", amount: "$১৫০" },
+  { src: "/images/payments/payment-6.jpg", alt: "Fiverr payment", label: "ফাইভার পেমেন্ট", amount: "$২০০" },
+  { src: "/images/payments/payment-7.jpg", alt: "Freelancer payment", label: "ফ্রিল্যান্সার পেমেন্ট", amount: "$১৮০" },
+  { src: "/images/payments/payment-8.jpg", alt: "bKash large payment", label: "বিকাশ বড় পেমেন্ট", amount: "১৫,০০০ টাকা" },
+  { src: "/images/payments/payment-9.jpg", alt: "Nagad large payment", label: "নগদ বড় পেমেন্ট", amount: "১২,০০০ টাকা" },
+  { src: "/images/payments/payment-10.jpg", alt: "Bank salary", label: "ব্যাংক বেতন", amount: "২৫,০০০ টাকা" },
 ];
 
 export const trustBadges = [
