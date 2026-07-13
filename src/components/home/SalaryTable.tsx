@@ -39,7 +39,6 @@ function toBn(v: number) {
 export default function SalaryTable({ onNewSuccess }: Props) {
   const { lang } = useLanguageStore();
   const [rows, setRows] = useState<RowData[]>([]);
-  const [total, setTotal] = useState(0);
   const seenSuccessRef = useRef<Set<number>>(new Set());
   const initialBatchRef = useRef(false);
 
@@ -59,7 +58,6 @@ export default function SalaryTable({ onNewSuccess }: Props) {
     }
 
     setRows(newRows);
-    setTotal(totalUpdates);
 
     if (onNewSuccess) {
       if (!initialBatchRef.current) {
@@ -98,8 +96,7 @@ export default function SalaryTable({ onNewSuccess }: Props) {
       </div>
 
       <div className="mt-5 rounded-xl bg-bg border border-border overflow-hidden">
-        <div className="grid grid-cols-[40px_1fr_160px_1fr] items-center px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
-          <span className="font-black text-[11px] text-text-secondary text-center">#</span>
+        <div className="grid grid-cols-[1fr_160px_1fr] items-center px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
           <span className="font-black text-[11px] text-text-secondary">{lang === "bn" ? "নাম" : "Name"}</span>
           <span className="font-black text-[11px] text-text-secondary text-center">{lang === "bn" ? "মোট বোনাস" : "Bonus"}</span>
           <span className="font-black text-[11px] text-text-secondary text-right">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</span>
@@ -108,13 +105,12 @@ export default function SalaryTable({ onNewSuccess }: Props) {
           {rows.map((row, i) => (
             <div
               key={i}
-              className={`grid grid-cols-[40px_1fr_160px_1fr] items-center px-4 py-3 border-b border-border/50 last:border-none ${
+              className={`grid grid-cols-[1fr_160px_1fr] items-center px-4 py-3 border-b border-border/50 last:border-none ${
                 row.success
                   ? "ring-2 ring-inset ring-amber-400 bg-amber-50"
                   : i % 2 === 0 ? "bg-white/50" : ""
               }`}
             >
-              <span className="font-bold text-[11px] text-text-secondary text-center">{total - i}</span>
               <span className={`font-bold text-xs truncate ${row.success ? "text-amber-700" : "text-text"}`}>
                 {row.name}
               </span>
