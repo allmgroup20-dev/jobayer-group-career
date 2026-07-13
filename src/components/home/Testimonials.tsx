@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
 import { testimonials, chatTestimonials, gridTestimonials, phpSliderTestimonials } from "@/data/landing-page-data";
 
@@ -153,6 +154,12 @@ export default function Testimonials() {
           )}
         </div>
       )}
+
+      <div className="text-center mt-5 pt-4 border-t border-border">
+        <Link href="/reviews" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-info text-white text-sm font-bold hover:bg-info/90 transition-colors shadow-lg shadow-info/30">
+          {lang === "bn" ? "সব মতামত দেখুন →" : "View All Reviews →"}
+        </Link>
+      </div>
     </div>
   );
 }

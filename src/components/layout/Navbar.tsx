@@ -9,6 +9,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 const menuItems = [
   { key: "nav_home", en: "Home", bn: "হোম", href: "/" },
   { key: "nav_courses", en: "Courses", bn: "কোর্স সমূহ", href: "/courses" },
+  { key: "nav_reviews", en: "Reviews", bn: "মতামত", href: "/reviews" },
   { key: "nav_trainers", en: "Trainers", bn: "প্রশিক্ষক", href: "/trainers" },
   { key: "nav_faq", en: "FAQ", bn: "FAQ", href: "/faq" },
   { key: "nav_app", en: "Get App", bn: "অ্যাপ", href: "/app-install" },
