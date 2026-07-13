@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
@@ -31,6 +32,8 @@ function ScrollProgressBar() {
 }
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const { lang } = useLanguageStore();
 
   useEffect(() => {
@@ -46,12 +49,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <ScrollProgressBar />
-      <Navbar />
-      <main className="min-h-screen pt-16 md:pt-20">{children}</main>
-      <Footer />
-      <BottomNav />
-      <SmartInstall />
+      {!isHome && <ScrollProgressBar />}
+      {!isHome && <Navbar />}
+      <main className={isHome ? "" : "min-h-screen pt-16 md:pt-20"}>{children}</main>
+      {!isHome && <Footer />}
+      {!isHome && <BottomNav />}
+      {!isHome && <SmartInstall />}
     </>
   );
 }
