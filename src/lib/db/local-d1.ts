@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const STATE_FILE = path.join(process.cwd(), ".open-next", ".local-d1-state.json");
+const STATE_FILE = path.join(process.cwd(), ".local-d1-state.json");
 
 interface TableState {
   rows: Record<string, unknown>[];

@@ -7,6 +7,7 @@ dist/
 .env
 .env.local
 cloudflare-env.d.ts
+.local-d1-state.json
 .DS_Store
 *.log
 jobayer-group-career/
