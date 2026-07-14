@@ -16,6 +16,10 @@ const adminLinks = [
   { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄", color: "bg-teal-50 text-teal-600" },
   { href: "/company/ai-settings", en: "AI Settings", bn: "এআই সেটিংস", icon: "🤖", color: "bg-indigo-50 text-indigo-600" },
   { href: "/company/ai-insights", en: "AI Insights", bn: "এআই ইনসাইটস", icon: "📊", color: "bg-violet-50 text-violet-600" },
+  { href: "/company/whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ", icon: "💬", color: "bg-green-50 text-green-600" },
+  { href: "/company/whatsapp-contacts", en: "Contacts", bn: "কন্ট্যাক্ট", icon: "📇", color: "bg-blue-50 text-blue-600" },
+  { href: "/company/whatsapp-campaigns", en: "Campaigns", bn: "ক্যাম্পেইন", icon: "📢", color: "bg-orange-50 text-orange-600" },
+  { href: "/company/whatsapp-numbers", en: "Number Tools", bn: "নাম্বার টুলস", icon: "🔢", color: "bg-purple-50 text-purple-600" },
 ];
 
 export default function CompanyDashboard() {

@@ -175,6 +175,114 @@ export const aiLog = sqliteTable("ai_log", {
   createdAt: text("created_at"),
 });
 
+export const waContacts = sqliteTable("wa_contacts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").unique().notNull(),
+  name: text("name"),
+  status: text("status").default("pending"),
+  priorityScore: integer("priority_score").default(0),
+  source: text("source").default("manual"),
+  assignedAccount: text("assigned_account"),
+  lastContactedAt: text("last_contacted_at"),
+  lastReply: text("last_reply"),
+  notes: text("notes"),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const waMessageQueue = sqliteTable("wa_message_queue", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  to: text("to").notNull(),
+  text: text("text").notNull(),
+  priority: integer("priority").default(0),
+  status: text("status").default("queued"),
+  accountId: text("account_id"),
+  campaignId: text("campaign_id"),
+  messageType: text("message_type").default("outreach"),
+  attempts: integer("attempts").default(0),
+  error: text("error"),
+  scheduledAt: text("scheduled_at"),
+  sentAt: text("sent_at"),
+  createdAt: text("created_at"),
+});
+
+export const waCampaigns = sqliteTable("wa_campaigns", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  message: text("message").notNull(),
+  status: text("status").default("draft"),
+  targetFilter: text("target_filter"),
+  totalTargets: integer("total_targets").default(0),
+  sentCount: integer("sent_count").default(0),
+  repliedCount: integer("replied_count").default(0),
+  startedAt: text("started_at"),
+  completedAt: text("completed_at"),
+  createdBy: text("created_by"),
+  createdAt: text("created_at"),
+});
+
+export const waTemplates = sqliteTable("wa_templates", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").unique().notNull(),
+  content: text("content").notNull(),
+  category: text("category").default("general"),
+  variables: text("variables"),
+  usageCount: integer("usage_count").default(0),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const waBlocklist = sqliteTable("wa_blocklist", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").unique().notNull(),
+  reason: text("reason"),
+  createdBy: text("created_by"),
+  createdAt: text("created_at"),
+});
+
+export const waAccounts = sqliteTable("wa_accounts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: text("account_id").unique().notNull(),
+  phone: text("phone"),
+  provider: text("provider").default("meta"),
+  status: text("status").default("disconnected"),
+  dailyLimit: integer("daily_limit").default(100),
+  dailySent: integer("daily_sent").default(0),
+  totalSent: integer("total_sent").default(0),
+  config: text("config"),
+  lastUsedAt: text("last_used_at"),
+  createdAt: text("created_at"),
+});
+
+export const waWarmup = sqliteTable("wa_warmup", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: text("account_id").unique().notNull(),
+  dayCount: integer("day_count").default(0),
+  currentLimit: integer("current_limit").default(20),
+  startedAt: text("started_at"),
+  lastIncrementAt: text("last_increment_at"),
+});
+
+export const waScannedNumbers = sqliteTable("wa_scanned_numbers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").unique().notNull(),
+  status: text("status").default("generated"),
+  source: text("source").default("generator"),
+  createdAt: text("created_at"),
+});
+
+export const waLogs = sqliteTable("wa_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone"),
+  message: text("message"),
+  direction: text("direction").default("outbound"),
+  status: text("status").default("pending"),
+  messageType: text("message_type").default("text"),
+  campaignId: text("campaign_id"),
+  error: text("error"),
+  createdAt: text("created_at"),
+});
+
 export const updateHistory = sqliteTable("update_history", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   version: text("version").notNull(),

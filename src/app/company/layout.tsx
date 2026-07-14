@@ -24,6 +24,10 @@ const sidebarLinks = [
   { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄" },
   { href: "/company/ai-settings", en: "AI Settings", bn: "এআই সেটিংস", icon: "🤖" },
   { href: "/company/ai-insights", en: "AI Insights", bn: "এআই ইনসাইটস", icon: "📊" },
+  { href: "/company/whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ", icon: "💬" },
+  { href: "/company/whatsapp-contacts", en: "Contacts", bn: "কন্ট্যাক্ট", icon: "📇" },
+  { href: "/company/whatsapp-campaigns", en: "Campaigns", bn: "ক্যাম্পেইন", icon: "📢" },
+  { href: "/company/whatsapp-numbers", en: "Number Tools", bn: "নাম্বার টুলস", icon: "🔢" },
 ];
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
