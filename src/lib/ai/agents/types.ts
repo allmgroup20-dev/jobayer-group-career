@@ -87,6 +87,14 @@ export interface AgentStats {
   totalSubmissions: number;
 }
 
+export interface GlobalAgentConfig {
+  id: number;
+  mode: "auto" | "provider" | "model";
+  provider: string | null;
+  modelId: string | null;
+  updatedAt: string | null;
+}
+
 export interface RunResult {
   success: boolean;
   agent_id: string;

@@ -1,7 +1,7 @@
 import { ensureDB } from "@/lib/db";
 import { query, execute } from "@/lib/db/queries";
 import { callAI } from "@/lib/ai/router";
-import { getAgent, updateAgentConfig, createSubmission, createReport, logActivity } from "./registry";
+import { getAgent, updateAgentConfig, createSubmission, createReport, logActivity, getGlobalConfig } from "./registry";
 import { buildResearchPrompt, parseResearchResponse } from "./prompts";
 import { SECTOR_KEYWORDS } from "./types";
 import type { Agent, ResearchResult, RunResult } from "./types";
@@ -29,9 +29,16 @@ export async function runAgent(agentId: string): Promise<RunResult> {
       recentMessages: data.recentMessages,
     });
 
+    // Determine model/provider: agent config > global config > default
+    const globalConfig = await getGlobalConfig();
+    const preferredModel = agent.model_id || (globalConfig?.mode === "model" ? globalConfig.modelId : undefined) || undefined;
+    const preferredProvider = agent.provider || (globalConfig?.mode === "provider" ? globalConfig.provider : undefined) || undefined;
+
     const response = await callAI(
       { messages: [{ role: "user", content: prompt }] },
-      800
+      800,
+      preferredModel,
+      preferredProvider
     );
 
     const result = parseResearchResponse(response.text);

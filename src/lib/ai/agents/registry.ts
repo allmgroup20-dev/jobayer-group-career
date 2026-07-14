@@ -1,6 +1,6 @@
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
-import type { Agent, AgentReport, AgentSubmission, AgentLog, AgentTreeNode, AgentStats } from "./types";
+import type { Agent, AgentReport, AgentSubmission, AgentLog, AgentTreeNode, AgentStats, GlobalAgentConfig } from "./types";
 
 export async function getAllAgents(): Promise<Agent[]> {
   const db = await ensureDB();
@@ -171,6 +171,29 @@ export async function getAgentActivityLogs(agentId: string, limit = 50): Promise
   return query<AgentLog>({ DB: db },
     "SELECT * FROM ai_agent_logs WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?",
     [agentId, limit]
+  );
+}
+
+export async function getGlobalConfig(): Promise<GlobalAgentConfig | null> {
+  const db = await ensureDB();
+  return queryFirst<GlobalAgentConfig>({ DB: db },
+    "SELECT * FROM ai_agent_global_config WHERE id = 1"
+  );
+}
+
+export async function updateGlobalConfig(
+  config: { mode?: string; provider?: string; model_id?: string }
+): Promise<void> {
+  const db = await ensureDB();
+  const sets: string[] = [];
+  const params: any[] = [];
+  if (config.mode !== undefined) { sets.push("mode = ?"); params.push(config.mode); }
+  if (config.provider !== undefined) { sets.push("provider = ?"); params.push(config.provider); }
+  if (config.model_id !== undefined) { sets.push("model_id = ?"); params.push(config.model_id); }
+  if (sets.length === 0) return;
+  sets.push("updated_at = datetime('now')");
+  await execute({ DB: db },
+    `UPDATE ai_agent_global_config SET ${sets.join(", ")} WHERE id = 1`, params
   );
 }
 

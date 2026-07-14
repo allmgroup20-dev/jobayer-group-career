@@ -180,7 +180,9 @@ async function tryProviderStage(
 
 export async function callAI(
   request: AIRequest,
-  maxTokens = 500
+  maxTokens = 500,
+  preferredModel?: string,
+  preferredProvider?: string
 ): Promise<AIResponse> {
   const env = { DB: await ensureDB() };
 
@@ -199,11 +201,62 @@ export async function callAI(
     throw new Error("No AI API keys configured. Add OpenRouter or OpenCode keys in AI Settings.");
   }
 
-  const result = await tryProviderStage(env, "openrouter", messages, maxTokens, exhaustedSet);
-  if (result) return result;
+  // If preferredProvider is given, try that provider first
+  const providers = preferredProvider
+    ? [preferredProvider, ...["openrouter", "opencode"].filter((p) => p !== preferredProvider)]
+    : ["openrouter", "opencode"];
 
-  const result2 = await tryProviderStage(env, "opencode", messages, maxTokens, exhaustedSet);
-  if (result2) return result2;
+  for (const provider of providers) {
+    const providerKeys = provider === "openrouter" ? openrouterKeys : opencodeKeys;
+    if (!providerKeys.length) continue;
+
+    // Try preferred model first within this provider, then all models
+    let result: AIResponse | null = null;
+    if (preferredModel) {
+      result = await tryPreferredModel(env, provider, preferredModel, messages, maxTokens, exhaustedSet);
+      if (result) return result;
+    }
+    result = await tryProviderStage(env, provider, messages, maxTokens, exhaustedSet);
+    if (result) return result;
+  }
 
   throw new Error("All AI models exhausted across all providers.");
+}
+
+async function tryPreferredModel(
+  env: { DB: D1Database },
+  provider: string,
+  modelId: string,
+  messages: { role: string; content: string }[],
+  maxTokens: number,
+  exhaustedSet: Set<string>
+): Promise<AIResponse | null> {
+  const keys = await getActiveKeys(env.DB, provider);
+  if (!keys.length) return null;
+
+  for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
+    const apiKey = keys[keyIdx];
+    const modelKey = `${provider}|${keyIdx}|${modelId}`;
+    if (exhaustedSet.has(modelKey)) continue;
+
+    const result = await callModel(apiKey, modelId, provider, messages, maxTokens);
+    if (result) {
+      await execute(env,
+        "UPDATE ai_model_failover_state SET total_responses = total_responses + 1, today_responses = today_responses + 1, updated_at = datetime('now') WHERE id = 1"
+      );
+      return {
+        text: result.text,
+        model: `${provider}:${modelId}`,
+        tokens: result.tokens,
+      };
+    }
+
+    exhaustedSet.add(modelKey);
+    await execute(env,
+      "UPDATE ai_model_failover_state SET exhausted_models = ?, updated_at = datetime('now') WHERE id = 1",
+      [Array.from(exhaustedSet).join(",")]
+    );
+  }
+
+  return null;
 }

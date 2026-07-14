@@ -239,6 +239,14 @@ export const aiAgentLogs = sqliteTable("ai_agent_logs", {
   createdAt: text("created_at"),
 });
 
+export const aiAgentGlobalConfig = sqliteTable("ai_agent_global_config", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  mode: text("mode").notNull().default("auto"),
+  provider: text("provider"),
+  modelId: text("model_id"),
+  updatedAt: text("updated_at"),
+});
+
 export const waContacts = sqliteTable("wa_contacts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   phone: text("phone").unique().notNull(),

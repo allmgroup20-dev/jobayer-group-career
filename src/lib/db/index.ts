@@ -382,6 +382,14 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       metadata TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS ai_agent_global_config (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      mode TEXT NOT NULL DEFAULT 'auto',
+      provider TEXT,
+      model_id TEXT,
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`INSERT OR IGNORE INTO ai_agent_global_config (id, mode) VALUES (1, 'auto')`).run();
 
     // Seed default agents (8 sector + 4 domain + 1 senior)
     await env.DB.prepare(`INSERT OR IGNORE INTO ai_agents (agent_id, name_bn, name_en, level, sector, parent_agent_id, cron_interval) VALUES
