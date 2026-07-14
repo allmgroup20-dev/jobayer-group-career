@@ -1,17 +1,14 @@
-let localDBInstance: ReturnType<typeof import("./local-d1").createLocalDB> | null = null;
-let localDBInit = false;
-
 async function getLocalDB() {
-  if (!localDBInit) {
-    localDBInit = true;
+  const g = globalThis as any;
+  if (!g.__localD1Instance) {
     try {
-      const { createLocalDB } = await import("./local-d1");
-      localDBInstance = createLocalDB();
+      const mod = await import("./local-d1");
+      g.__localD1Instance = mod.createLocalDB();
     } catch (e) {
       console.warn("Local D1 not available:", (e as Error)?.message);
     }
   }
-  return localDBInstance;
+  return g.__localD1Instance || null;
 }
 
 export async function getDB(): Promise<{ DB: D1Database }> {
