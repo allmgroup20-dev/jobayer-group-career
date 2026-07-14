@@ -14,6 +14,8 @@ const adminLinks = [
   { href: "/company/translations", en: "Translations", bn: "অনুবাদ", icon: "🌐", color: "bg-indigo-50 text-indigo-600" },
   { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪", color: "bg-orange-50 text-orange-600" },
   { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄", color: "bg-teal-50 text-teal-600" },
+  { href: "/company/ai-settings", en: "AI Settings", bn: "এআই সেটিংস", icon: "🤖", color: "bg-indigo-50 text-indigo-600" },
+  { href: "/company/ai-insights", en: "AI Insights", bn: "এআই ইনসাইটস", icon: "📊", color: "bg-violet-50 text-violet-600" },
 ];
 
 export default function CompanyDashboard() {

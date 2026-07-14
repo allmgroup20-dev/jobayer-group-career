@@ -182,3 +182,96 @@ export const updateHistory = sqliteTable("update_history", {
   releasedAt: text("released_at"),
   status: text("status").default("active"),
 });
+
+export const aiModels = sqliteTable("ai_models", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  modelId: text("model_id").unique().notNull(),
+  name: text("name").notNull(),
+  tier: integer("tier").default(5),
+  provider: text("provider").default("openrouter"),
+  isActive: integer("is_active").default(1),
+  createdAt: text("created_at"),
+});
+
+export const aiApiKeys = sqliteTable("ai_api_keys", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  keySlot: integer("key_slot").unique().notNull(),
+  keyValue: text("key_value").notNull(),
+  isActive: integer("is_active").default(1),
+  createdAt: text("created_at"),
+});
+
+export const aiConversations = sqliteTable("ai_conversations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").notNull(),
+  role: text("role").default("customer"),
+  messages: text("messages"),
+  personaName: text("persona_name"),
+  personaGender: text("persona_gender"),
+  language: text("language").default("bn"),
+  painPoints: text("pain_points"),
+  interests: text("interests"),
+  source: text("source").default("whatsapp"),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const aiPhoneProfiles = sqliteTable("ai_phone_profiles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  phone: text("phone").unique().notNull(),
+  nameGuess: text("name_guess"),
+  genderGuess: text("gender_guess"),
+  ageGroupGuess: text("age_group_guess"),
+  sector: text("sector"),
+  language: text("language").default("bn"),
+  painPoints: text("pain_points"),
+  interests: text("interests"),
+  priorityScore: integer("priority_score").default(0),
+  totalChats: integer("total_chats").default(0),
+  lastChatAt: text("last_chat_at"),
+  status: text("status").default("new"),
+  notes: text("notes"),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const aiSkills = sqliteTable("ai_skills", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  keywords: text("keywords").notNull(),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  usageCount: integer("usage_count").default(0),
+  category: text("category").default("general"),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const aiPersonas = sqliteTable("ai_personas", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  gender: text("gender").notNull(),
+  isActive: integer("is_active").default(1),
+  usageCount: integer("usage_count").default(0),
+  createdAt: text("created_at"),
+});
+
+export const aiKnowledgePages = sqliteTable("ai_knowledge_pages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").default("general"),
+  isActive: integer("is_active").default(1),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const aiModelFailoverState = sqliteTable("ai_model_failover_state", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  currentKeySlot: integer("current_key_slot").default(1),
+  currentModelIndex: integer("current_model_index").default(0),
+  exhaustedModels: text("exhausted_models"),
+  totalResponses: integer("total_responses").default(0),
+  todayResponses: integer("today_responses").default(0),
+  lastResetDate: text("last_reset_date"),
+  updatedAt: text("updated_at"),
+});

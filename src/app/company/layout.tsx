@@ -22,6 +22,8 @@ const sidebarLinks = [
   { href: "/company/translations", en: "Translations", bn: "অনুবাদ", icon: "🌐" },
   { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪" },
   { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄" },
+  { href: "/company/ai-settings", en: "AI Settings", bn: "এআই সেটিংস", icon: "🤖" },
+  { href: "/company/ai-insights", en: "AI Insights", bn: "এআই ইনসাইটস", icon: "📊" },
 ];
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
