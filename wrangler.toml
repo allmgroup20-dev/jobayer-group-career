@@ -1,0 +1,21 @@
+name = "jobayer-group-career"
+compatibility_date = "2026-07-12"
+pages_build_output_dir = ".vercel/output/static"
+
+# ===== D1 Database =====
+# Cloudflare Dashboard → D1 → jgcareer-db →  "Database ID" কপি করে নিচে বসান
+[[d1_databases]]
+binding = "DB"
+database_name = "jgcareer-db"
+database_id = "paste-your-d1-database-id-here"
+
+# ===== KV Namespace =====
+# Cloudflare Dashboard → KV → jgcareer-cache (তৈরি না থাকলে আগে তৈরি করুন) → "ID" কপি করে বসান
+[[kv_namespaces]]
+binding = "CACHE"
+id = "paste-your-kv-namespace-id-here"
+
+# ===== Non-secret env vars =====
+[vars]
+SITE_NAME = "Jobayer Group Career"
+SSLCOMMERZ_IS_LIVE = "false"
