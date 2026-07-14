@@ -26,7 +26,22 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateCompanyToken(admin.username, process.env.JWT_SECRET || "default-secret");
-    return NextResponse.json({ token, username: admin.username, name: admin.name, role: admin.role });
+    const response = NextResponse.json({ token, username: admin.username, name: admin.name, role: admin.role });
+    response.cookies.set("company_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
+    response.cookies.set("company_user", JSON.stringify({ name: admin.name, username: admin.username, role: admin.role }), {
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
+    return response;
   } catch (error) {
     console.error("Company login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

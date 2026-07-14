@@ -14,6 +14,7 @@ const menuItems = [
   { key: "nav_trainers", en: "Trainers", bn: "প্রশিক্ষক", href: "/trainers" },
   { key: "nav_faq", en: "FAQ", bn: "FAQ", href: "/faq" },
   { key: "nav_app", en: "Get App", bn: "অ্যাপ", href: "/app-install" },
+  { key: "nav_company", en: "Company", bn: "কোম্পানি", href: "/company" },
 ];
 
 export default function Navbar() {
