@@ -42,6 +42,7 @@ export async function saveMessage(
     language?: string;
     painPoints?: string[];
     interests?: string[];
+    source?: string;
   }
 ): Promise<void> {
   const db = await ensureDB();
@@ -86,7 +87,7 @@ export async function saveMessage(
     await execute(
       { DB: db },
       `INSERT INTO ai_conversations (phone, role, messages, persona_name, persona_gender, language, pain_points, interests, source, created_at, updated_at)
-       VALUES (?, 'customer', ?, ?, ?, ?, ?, ?, 'whatsapp', datetime('now'), datetime('now'))`,
+       VALUES (?, 'customer', ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [
         phone,
         serialized,
@@ -95,6 +96,7 @@ export async function saveMessage(
         context?.language || "bn",
         context?.painPoints ? JSON.stringify(context.painPoints) : null,
         context?.interests ? JSON.stringify(context.interests) : null,
+        context?.source || "whatsapp",
       ]
     );
   }

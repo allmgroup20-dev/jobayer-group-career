@@ -514,6 +514,23 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
+    // Telegram module tables
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS tg_bots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token TEXT NOT NULL,
+      username TEXT,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS tg_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chat_id TEXT NOT NULL,
+      message TEXT,
+      direction TEXT DEFAULT 'inbound',
+      status TEXT DEFAULT 'received',
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     // AI Leads table
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS ai_leads (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
