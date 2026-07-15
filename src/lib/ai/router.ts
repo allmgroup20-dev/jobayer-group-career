@@ -31,6 +31,8 @@ const PROVIDER_ENDPOINTS: Record<string, string> = {
 };
 
 const FREE_MODEL_ORDER: Record<string, string[]> = {
+  // OpenRouter free models — verified working as of July 2026
+  // Ordered by capability (best first), auto-failover on exhaustion
   openrouter: [
     "openrouter/free",
     "meta-llama/llama-3.3-70b-instruct:free",
@@ -40,28 +42,22 @@ const FREE_MODEL_ORDER: Record<string, string[]> = {
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
     "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
     "nvidia/nemotron-3-nano-30b-a3b:free",
     "meta-llama/llama-3.2-3b-instruct:free",
+    "nvidia/nemotron-nano-12b-v2-vl:free",
     "nvidia/nemotron-nano-9b-v2:free",
     "tencent/hy3:free",
   ],
+  // OpenCode Zen free models
   opencode: [
     "deepseek-v4-flash-free",
-    "deepseek-v4-flash",
-    "gemini-3.5-flash",
-    "grok-4.5",
-    "claude-haiku-4-5",
-    "qwen3.5-plus",
     "mimo-v2.5-free",
-    "hy3-free",
-    "gemini-3-flash",
-    "gpt-5.4-mini",
     "nemotron-3-ultra-free",
-    "gpt-5.4-nano",
-    "minimax-m3",
-    "glm-5",
-    "kimi-k2.5",
-    "north-mini-code-free",
+    "nemotron-3-super-free",
+    "minimax-m2.5-free",
+    "ring-2.6-1t-free",
+    "big-pickle",
   ],
 };
 
