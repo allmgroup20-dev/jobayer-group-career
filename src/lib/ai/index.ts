@@ -11,3 +11,8 @@ export { getOrCreateLead, updateLeadStatus, getLeads, getLeadStats } from "./lea
 export { consolidateSkills } from "./skill-consolidation";
 export { getSimilarUserContext } from "./cross-user-learning";
 export type { Mood, Dialect, Religion } from "./analyzer";
+
+// Premium Employee Brain
+export { processMessage } from "./brain/orchestrator";
+export { DEPARTMENTS, getAllDepartments, getDepartment, findAgent } from "./brain/registry";
+export type { MessageCtx, BrainResult, Intent, DepartmentId, AgentDef, DepartmentDef, TeamDef } from "./brain/types";
