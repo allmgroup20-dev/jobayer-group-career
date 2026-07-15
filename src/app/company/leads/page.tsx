@@ -58,7 +58,7 @@ export default function LeadsPage() {
   async function loadStats() {
     try {
       const res = await fetch("/api/leads?stats=true");
-      const data = await res.json();
+      const data: LeadStats = await res.json();
       if (data && typeof data.total === "number") setStats(data);
     } catch {}
   }
