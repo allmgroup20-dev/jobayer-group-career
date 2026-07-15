@@ -79,6 +79,7 @@ export interface BrainResult {
   intent: Intent;
   ms: number;
   chainType?: "single" | "cross";
+  seniorReview?: AgentSeniorReview;
 }
 
 export interface AgentOutput {
@@ -86,4 +87,12 @@ export interface AgentOutput {
   text: string;
   model: string;
   tokens: number;
+}
+
+export interface AgentSeniorReview {
+  quality: "pass" | "needs_rewrite" | "blocked";
+  score: number;
+  feedback: string;
+  rewritten?: string;
+  issues: string[];
 }

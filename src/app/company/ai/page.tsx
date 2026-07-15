@@ -72,6 +72,19 @@ export default function AIHubPage() {
   const [testMsg, setTestMsg] = useState("");
   const [testResult, setTestResult] = useState<any>(null);
   const [testLoading, setTestLoading] = useState(false);
+  const [disabledAgents, setDisabledAgents] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem("brainDisabledAgents") || "[]"); } catch { return []; }
+  });
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  const toggleAgent = (agentId: string) => {
+    setDisabledAgents(prev => {
+      const next = prev.includes(agentId) ? prev.filter(id => id !== agentId) : [...prev, agentId];
+      localStorage.setItem("brainDisabledAgents", JSON.stringify(next));
+      return next;
+    });
+  };
 
   // ─── Skills State ──────────────────────────────────────
   const [skillsStats, setSkillsStats] = useState<AIStats | null>(null);
@@ -481,7 +494,47 @@ export default function AIHubPage() {
                     <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "মডেল:" : "Model:"}</span><span className="text-xs font-mono bg-gray-200 px-2 py-0.5 rounded">{testResult.model}</span></div>
                     <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "এজেন্ট:" : "Agents:"}</span><span className="text-xs">{testResult.agentsUsed?.join(" → ")}</span></div>
                     <div className="flex items-start gap-2"><span className="font-medium text-primary shrink-0">{lang === "bn" ? "রিপ্লাই:" : "Reply:"}</span><span className="text-text-secondary">{testResult.reply}</span></div>
+                    {testResult.seniorReview && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-amber-800 text-xs">{lang === "bn" ? "👑 এজেন্ট সিনিয়র রিভিউ:" : "👑 Agent Senior Review:"}</span>
+                          <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${testResult.seniorReview.quality === "blocked" ? "bg-red-100 text-red-700" : testResult.seniorReview.quality >= 7 ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{testResult.seniorReview.quality}/10</span>
+                        </div>
+                        {testResult.seniorReview.issues?.length > 0 && <div className="text-xs text-amber-700">⚠️ {testResult.seniorReview.issues.join(", ")}</div>}
+                        <div className="text-xs text-amber-700 italic">{testResult.seniorReview.feedback}</div>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-xs text-text-secondary"><span>{testResult.tokens} tokens</span><span>·</span><span>{testResult.processingMs}ms</span></div>
+                  </div>
+                )}
+              </div>
+
+              {/* ──────── Brain Admin Controls ──────── */}
+              <div className="bg-white rounded-2xl border border-border overflow-hidden">
+                <button onClick={() => setShowAdmin(!showAdmin)} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span>🔐</span>
+                    <span className="font-semibold text-primary">{lang === "bn" ? "এডমিন কন্ট্রোল" : "Admin Controls"}</span>
+                    <span className="text-xs text-text-secondary">({disabledAgents.length} {lang === "bn" ? "এজেন্ট ডিসেবল" : "disabled"})</span>
+                  </div>
+                  <span className={`text-text-secondary transition-transform ${showAdmin ? "rotate-180" : ""}`}>▼</span>
+                </button>
+                {showAdmin && (
+                  <div className="border-t border-border p-4">
+                    <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "এজেন্ট অন/অফ করুন (ব্রাউজার লোকাল)" : "Enable/disable agents (browser local storage)"}</p>
+                    {brainData?.departments?.map((dept: any) => (
+                      <div key={dept.id} className="mb-3">
+                        <div className="text-sm font-medium text-primary mb-2">{dept.icon} {lang === "bn" ? dept.nameBn : dept.name}</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                          {dept.teams?.flatMap((team: any) => team.agents || []).map((agent: any) => (
+                            <label key={agent.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-xs cursor-pointer">
+                              <input type="checkbox" checked={!disabledAgents.includes(agent.id)} onChange={() => toggleAgent(agent.id)} className="w-3.5 h-3.5 accent-primary" />
+                              <span className={`${disabledAgents.includes(agent.id) ? "line-through text-gray-300" : "text-text"}`}>{agent.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

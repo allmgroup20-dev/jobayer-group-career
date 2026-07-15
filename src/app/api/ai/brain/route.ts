@@ -7,6 +7,8 @@ import {
   getOrCreateLead,
 } from "@/lib/ai";
 import type { MessageCtx } from "@/lib/ai/brain/types";
+import { execute } from "@/lib/db/queries";
+import { getDB } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +55,22 @@ export async function POST(request: NextRequest) {
 
     const result = await processMessage(ctx);
 
+    // ── Log usage to D1 ──
+    try {
+      const db = await getDB();
+      await execute(
+        db,
+        `INSERT INTO brain_usage (phone, text, intent, primary_department, departments_used, agents_used, chain_type, model_used, tokens_used, processing_ms, success) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          phone, text.slice(0, 500), result.intent,
+          result.department, result.departmentsUsed?.join(",") || result.department,
+          result.agentsUsed?.join(",") || "",
+          result.chainType || "single", result.model, result.tokens,
+          result.ms, 1,
+        ],
+      );
+    } catch {}
+
     return NextResponse.json({
       success: true,
       reply: result.text,
@@ -64,6 +82,7 @@ export async function POST(request: NextRequest) {
       intent: result.intent,
       processingMs: result.ms,
       chainType: result.chainType,
+      seniorReview: result.seniorReview,
     });
   } catch (error) {
     console.error("Brain chat error:", error);

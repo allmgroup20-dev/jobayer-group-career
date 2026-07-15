@@ -1,7 +1,7 @@
 import { callAI } from "../router";
 import { executeAgent, buildAgentPrompt } from "./executor";
 import { DEPARTMENTS, getAgentsByDepartment, findAgent } from "./registry";
-import type { Intent, DepartmentId, MessageCtx, BrainResult, AgentDef, CrossDeptStep } from "./types";
+import type { Intent, DepartmentId, MessageCtx, BrainResult, AgentDef, CrossDeptStep, AgentSeniorReview } from "./types";
 
 // ── Intent → Department routing ──
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
@@ -176,6 +176,11 @@ async function detectIntent(text: string, ctx: MessageCtx, fallbackDept: Departm
   return { intent: "general", department: fallbackDept };
 }
 
+function cleanJsonResponse(text: string): string {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  return jsonMatch ? jsonMatch[0] : text;
+}
+
 function buildContext(ctx: MessageCtx, intent: Intent, chainOutput?: string): Record<string, any> {
   return {
     language: ctx.language === "bn" ? "Bengali" : ctx.language === "en" ? "English" : "Bengali with English mix",
@@ -304,6 +309,21 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
   const deptList = [...new Set(departmentsUsed)];
   const deptNames = deptList.map((d) => DEPARTMENTS[d]?.name).filter(Boolean).join(", ");
 
+  const AGENT_SENIOR_PROMPT = `You are Agent Senior, the CEO-level quality reviewer at Jobayer Group Career.
+Your job: review the drafted response for quality, Islamic values, Bengali culture, brand voice, and clarity.
+
+Review criteria:
+1. QUALITY (0-10): Is the response well-structured, clear, and helpful?
+2. APPROPRIATENESS (pass/needs_rewrite/blocked): 
+   - "pass" — good to send
+   - "needs_rewrite" — fix tone, clarity, or missing info
+   - "blocked" — contains haram, offensive, or dangerous content
+3. ISSUES: List specific problems (empty array if none)
+4. FEEDBACK: Brief improvement note
+5. REWRITTEN: Only if needs_rewrite — provide the corrected version
+
+Return valid JSON: { "quality": number, "appropriateness": "pass"|"needs_rewrite"|"blocked", "issues": string[], "feedback": string, "rewritten": string | null }`;
+
   const compositionPrompt = `You are a lead orchestrator at Jobayer Group Career.
 Departments involved: ${deptNames}
 Primary department: ${finalDept?.name} (${finalDept?.nameBn})
@@ -320,26 +340,70 @@ Compose a final natural response to the customer in ${ctx.language === "bn" ? "B
 Weave the agent outputs into one coherent, warm, helpful message.
 Keep under 400 words. If complaint → empathetic first. If purchase → guide to next step.`;
 
+  let finalText: string;
+  let finalModel: string;
+  let finalTokens: number;
+  let seniorReview: AgentSeniorReview | undefined;
+
   try {
     const result = await callAI(
       { messages: [{ role: "system", content: compositionPrompt }, { role: "user", content: ctx.text }] },
       600, "llama-3.3-70b", "openrouter"
     );
-
-    return {
-      text: result.text, model: result.model, tokens: result.tokens,
-      agentsUsed, departmentsUsed, department,
-      intent, ms: Date.now() - start, chainType: isCrossDept ? "cross" : "single",
-    };
+    finalText = result.text;
+    finalModel = result.model;
+    finalTokens = result.tokens;
   } catch (e) {
     const fb = await callAI(
       { messages: [{ role: "system", content: `You are a helpful Jobayer Group assistant. Reply in ${ctx.language === "bn" ? "Bengali" : "English"}.` }, { role: "user", content: ctx.text }] },
       400, "gemma-4-26b", "openrouter"
     );
-    return {
-      text: fb.text, model: fb.model, tokens: fb.tokens,
-      agentsUsed, departmentsUsed, department, intent, ms: Date.now() - start,
-      chainType: isCrossDept ? "cross" : "single",
-    };
+    finalText = fb.text;
+    finalModel = fb.model;
+    finalTokens = fb.tokens;
   }
+
+  // ── Agent Senior: CEO quality review ──
+  try {
+    const reviewResponse = await callAI(
+      {
+        messages: [
+          { role: "system", content: AGENT_SENIOR_PROMPT },
+          { role: "user", content: `Draft response to review:\n\n${finalText}\n\nCustomer message: ${ctx.text}\nCustomer mood: ${ctx.mood}` },
+        ],
+      },
+      150, "llama-3.3-70b", "openrouter"
+    );
+
+    const parsed = JSON.parse(cleanJsonResponse(reviewResponse.text)) as {
+      quality: number;
+      appropriateness: "pass" | "needs_rewrite" | "blocked";
+      issues: string[];
+      feedback: string;
+      rewritten: string | null;
+    };
+
+    seniorReview = {
+      quality: parsed.appropriateness,
+      score: parsed.quality,
+      feedback: parsed.feedback,
+      issues: parsed.issues || [],
+      rewritten: parsed.rewritten || undefined,
+    };
+
+    if (parsed.appropriateness === "blocked") {
+      finalText = `${ctx.language === "bn" ? "ক্ষমা করবেন, আমি এই বিষয়ে উত্তর দিতে পারছি না। একজন সিনিয়র এজেন্ট শীঘ্রই আপনার সাথে যোগাযোগ করবে।" : "I apologize, I cannot answer this. A senior agent will contact you shortly."}`;
+    } else if (parsed.appropriateness === "needs_rewrite" && parsed.rewritten) {
+      finalText = parsed.rewritten;
+    }
+  } catch {
+    // Agent Senior unavailable — proceed with composed response
+  }
+
+  return {
+    text: finalText, model: finalModel, tokens: finalTokens,
+    agentsUsed, departmentsUsed, department,
+    intent, ms: Date.now() - start, chainType: isCrossDept ? "cross" : "single",
+    seniorReview: seniorReview as AgentSeniorReview | undefined,
+  };
 }
