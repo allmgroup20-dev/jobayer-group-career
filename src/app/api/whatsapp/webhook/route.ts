@@ -22,6 +22,7 @@ import {
   getOrCreateLead,
   updateLeadStatus,
 } from "@/lib/ai";
+import { recordPlatformActivity } from "@/lib/platform-router";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function parseIncomingMessage(body: any): { phone: string; text: string; name?: string } | null {
@@ -132,6 +133,9 @@ export async function POST(request: NextRequest) {
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;
     }
+
+    // Record platform preference — user replied on WhatsApp
+    await recordPlatformActivity(phone, "whatsapp");
 
     // Save conversation
     await saveMessage(phone, "user", text, {

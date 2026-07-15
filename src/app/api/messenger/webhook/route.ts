@@ -19,6 +19,7 @@ import {
   getOrCreateLead,
   updateLeadStatus,
 } from "@/lib/ai";
+import { recordPlatformActivity } from "@/lib/platform-router";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function mapSenderId(senderId: string): string {
@@ -105,6 +106,9 @@ export async function POST(request: NextRequest) {
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;
     }
+
+    // Record platform preference — user replied on Messenger
+    await recordPlatformActivity(phone, "messenger");
 
     await saveMessage(phone, "user", text, { language: lang, painPoints, interests, source: "messenger" });
     await saveMessage(phone, "assistant", reply, { language: lang, source: "messenger" });

@@ -548,6 +548,17 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
+    // Cross-platform user preference table
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_platform_preferences (
+      phone TEXT PRIMARY KEY,
+      preferred_platform TEXT NOT NULL DEFAULT 'whatsapp',
+      last_active_platform TEXT,
+      platforms_tried TEXT DEFAULT '[]',
+      last_active_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     // AI Leads table
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS ai_leads (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
