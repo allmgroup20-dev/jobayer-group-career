@@ -31,6 +31,9 @@ const sidebarGroups: SidebarGroup[] = [
     icon: "🤖",
     links: [
       { href: "/company/whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ", icon: "💬" },
+      { href: "/dashboard/messenger", en: "Messenger", bn: "মেসেঞ্জার", icon: "💬" },
+      { href: "/dashboard/telegram", en: "Telegram", bn: "টেলিগ্রাম", icon: "✈️" },
+      { href: "/dashboard/platforms", en: "Platform Prefs", bn: "প্ল্যাটফর্ম", icon: "🔄" },
       { href: "/company/ai", en: "AI", bn: "এআই", icon: "🤖" },
     ],
   },
