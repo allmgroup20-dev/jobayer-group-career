@@ -559,7 +559,7 @@ export default function AIHubPage() {
     <div className="py-8 px-4 md:px-6 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "এআই" : "AI"}</h1>
-        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "এআই সেটিংস, এজেন্ট, ইনসাইটস ও স্কিল ম্যানেজমেন্ট" : "AI settings, agents, insights & skill management"}</p>
+        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "এআই সেটিংস, কর্মচারী, ইনসাইটস ও স্কিল ম্যানেজমেন্ট" : "AI settings, employees, insights & skill management"}</p>
       </div>
 
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto mb-6">
@@ -652,7 +652,7 @@ export default function AIHubPage() {
                   <div className="grid grid-cols-3 gap-3">
                     <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-xl font-bold text-primary">{dashBrainUsage?.totalDepartments || 7}</div><div className="text-[10px] text-text-secondary">{lang === "bn" ? "ডিপার্টমেন্ট" : "Depts"}</div></div>
                     <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-xl font-bold text-purple-600">{dashBrainUsage?.totalTeams || 33}</div><div className="text-[10px] text-text-secondary">{lang === "bn" ? "টিম" : "Teams"}</div></div>
-                    <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-xl font-bold text-green-600">{dashBrainUsage?.totalAgents || 235}</div><div className="text-[10px] text-text-secondary">{lang === "bn" ? "এজেন্ট" : "Agents"}</div></div>
+                    <div className="bg-gray-50 rounded-xl p-3 text-center"><div className="text-xl font-bold text-green-600">{dashBrainUsage?.totalAgents || 235}</div><div className="text-[10px] text-text-secondary">{lang === "bn" ? "কর্মচারী" : "Employees"}</div></div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-border">
                     <h3 className="text-xs font-medium text-text-secondary mb-2">{lang === "bn" ? "সিস্টেম হেলথ" : "System Health"}</h3>
@@ -728,7 +728,7 @@ export default function AIHubPage() {
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-primary">{dashBrainStats?.stats?.total || 0}</div><div className="text-text-secondary">{lang === "bn" ? "রিকোয়েস্ট" : "Requests"}</div></div>
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-green-600">{feedbackStats?.stats?.total || 0}</div><div className="text-text-secondary">{lang === "bn" ? "ফিডব্যাক" : "Feedback"}</div></div>
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-purple-600">{dashBrainUsage?.totalDepartments || 7}</div><div className="text-text-secondary">{lang === "bn" ? "ডিপার্টমেন্ট" : "Depts"}</div></div>
-                    <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-amber-600">{dashBrainUsage?.totalAgents || 235}</div><div className="text-text-secondary">{lang === "bn" ? "এজেন্ট" : "Agents"}</div></div>
+                    <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-amber-600">{dashBrainUsage?.totalAgents || 235}</div><div className="text-text-secondary">{lang === "bn" ? "কর্মচারী" : "Employees"}</div></div>
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-blue-600">{dashBrainStats?.stats?.total_tokens || 0}</div><div className="text-text-secondary">{lang === "bn" ? "টোকেন" : "Tokens"}</div></div>
                   </div>
                   <button onClick={exportBrainData} disabled={exportLoading} className="px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{exportLoading ? "..." : (lang === "bn" ? "💾 JSON এক্সপোর্ট" : "💾 Export JSON")}</button>
@@ -844,7 +844,7 @@ export default function AIHubPage() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-text">{lang === "bn" ? "🧬 প্রিমিয়াম এমপ্লয়ি ব্রেইন" : "🧬 Premium Employee Brain"}</h1>
-            <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "সকল ডিপার্টমেন্ট, টিম ও এজেন্ট এক নজরে" : "All departments, teams & agents at a glance"}</p>
+            <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "সকল ডিপার্টমেন্ট, টিম ও কর্মচারী এক নজরে" : "All departments, teams & employees at a glance"}</p>
           </div>
 
           {/* ── Brain Sub-tabs ── */}
@@ -873,7 +873,7 @@ export default function AIHubPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-white rounded-xl border border-border p-4 text-center"><div className="text-2xl font-bold text-primary">{brainData.totalDepartments}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "ডিপার্টমেন্ট" : "Departments"}</div></div>
                 <div className="bg-white rounded-xl border border-border p-4 text-center"><div className="text-2xl font-bold text-purple-600">{brainData.totalTeams}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "টিম" : "Teams"}</div></div>
-                <div className="bg-white rounded-xl border border-border p-4 text-center"><div className="text-2xl font-bold text-green-600">{brainData.totalAgents}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "এজেন্ট" : "Agents"}</div></div>
+                <div className="bg-white rounded-xl border border-border p-4 text-center"><div className="text-2xl font-bold text-green-600">{brainData.totalAgents}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "কর্মচারী" : "Employees"}</div></div>
                 <div className="bg-white rounded-xl border border-border p-4 text-center"><div className="text-2xl font-bold text-amber-600">{brainData.totalDepartments * 4}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "ফ্রি মডেল টিয়ার" : "Free Model Tiers"}</div></div>
               </div>
 
@@ -885,7 +885,7 @@ export default function AIHubPage() {
                         <span className="text-2xl">{dept.icon}</span>
                         <div className="text-left">
                           <div className="font-semibold text-primary">{lang === "bn" ? dept.nameBn : dept.name}</div>
-                          <div className="text-xs text-text-secondary">{dept.teamCount} {lang === "bn" ? "টি টিম" : "teams"} · {dept.agentCount} {lang === "bn" ? "জন এজেন্ট" : "agents"}</div>
+                          <div className="text-xs text-text-secondary">{dept.teamCount} {lang === "bn" ? "টি টিম" : "teams"} · {dept.agentCount} {lang === "bn" ? "জন কর্মচারী" : "employees"}</div>
                         </div>
                       </div>
                       <span className={`text-text-secondary transition-transform ${expandedDept === dept.id ? "rotate-180" : ""}`}>▼</span>
@@ -899,7 +899,7 @@ export default function AIHubPage() {
                             <button onClick={() => setExpandedTeam(expandedTeam === team.id ? null : team.id)} className="w-full flex items-center justify-between p-3 hover:bg-gray-100 transition-colors">
                               <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-primary">{team.name}</span>
-                                <span className="text-xs text-text-secondary">({team.agentCount} {lang === "bn" ? "এজেন্ট" : "agents"})</span>
+                                <span className="text-xs text-text-secondary">({team.agentCount} {lang === "bn" ? "কর্মচারী" : "employees"})</span>
                               </div>
                               <span className={`text-xs text-text-secondary transition-transform ${expandedTeam === team.id ? "rotate-180" : ""}`}>▼</span>
                             </button>
@@ -931,7 +931,7 @@ export default function AIHubPage() {
               {/* ──────── Brain Test Playground ──────── */}
               <div className="bg-white rounded-2xl border border-border p-6">
                 <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "🧪 ব্রেইন টেস্ট প্লে-গ্রাউন্ড" : "🧪 Brain Test Playground"}</h2>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "কোনো মেসেজ লিখে দেখুন কোন ডিপার্টমেন্ট ও এজেন্ট রেসপন্স করবে" : "Type a message to see which department & agent responds"}</p>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "কোনো মেসেজ লিখে দেখুন কোন ডিপার্টমেন্ট ও কর্মচারী রেসপন্স করবে" : "Type a message to see which department & employee responds"}</p>
                 <div className="flex gap-3">
                   <input value={testMsg} onChange={e => setTestMsg(e.target.value)} placeholder={lang === "bn" ? 'যেমন: "আপনার প্রোডাক্টের দাম কত?"' : 'e.g. "What is your product price?"'} className="flex-1 px-4 py-3 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" onKeyDown={e => e.key === "Enter" && testBrain()} />
                   <button onClick={testBrain} disabled={testLoading || !testMsg.trim()} className="px-6 py-3 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{testLoading ? "..." : "▶️ Test"}</button>
@@ -943,7 +943,7 @@ export default function AIHubPage() {
                     <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "ডিপার্টমেন্ট (প্রক্রিয়াকৃত):" : "Depts Used:"}</span><span className="text-xs">{testResult.departmentsUsed?.join(" → ")}</span></div>
                     <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "ইনটেন্ট:" : "Intent:"}</span><span>{testResult.intent}</span></div>
                     <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "মডেল:" : "Model:"}</span><span className="text-xs font-mono bg-gray-200 px-2 py-0.5 rounded">{testResult.model}</span></div>
-                    <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "এজেন্ট:" : "Agents:"}</span><span className="text-xs">{testResult.agentsUsed?.join(" → ")}</span></div>
+                    <div className="flex items-center gap-2"><span className="font-medium text-primary">{lang === "bn" ? "কর্মচারী:" : "Employees:"}</span><span className="text-xs">{testResult.agentsUsed?.join(" → ")}</span></div>
                     <div className="flex items-start gap-2"><span className="font-medium text-primary shrink-0">{lang === "bn" ? "রিপ্লাই:" : "Reply:"}</span><span className="text-text-secondary">{testResult.reply}</span></div>
                     {testResult.seniorReview && (
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
@@ -1017,7 +1017,7 @@ export default function AIHubPage() {
                   <div className="flex items-center gap-2">
                     <span>🔐</span>
                     <span className="font-semibold text-primary">{lang === "bn" ? "এডমিন কন্ট্রোল" : "Admin Controls"}</span>
-                    <span className="text-xs text-text-secondary">({disabledAgents.length} {lang === "bn" ? "এজেন্ট ডিসেবল" : "disabled"})</span>
+                    <span className="text-xs text-text-secondary">({disabledAgents.length} {lang === "bn" ? "কর্মচারী ডিসেবল" : "disabled"})</span>
                   </div>
                   <span className={`text-text-secondary transition-transform ${showAdmin ? "rotate-180" : ""}`}>▼</span>
                 </button>
@@ -1025,12 +1025,12 @@ export default function AIHubPage() {
                   <div className="border-t border-border p-4 space-y-4">
                     {/* ── Cache & Reset Actions ── */}
                     <div className="flex items-center gap-3 flex-wrap">
-                      <button onClick={() => { localStorage.removeItem("brainDisabledAgents"); setDisabledAgents([]); }} className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-xl hover:bg-red-100">{lang === "bn" ? "🔄 সব এজেন্ট রিসেট" : "🔄 Reset All Agents"}</button>
+                      <button onClick={() => { localStorage.removeItem("brainDisabledAgents"); setDisabledAgents([]); }} className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-xl hover:bg-red-100">{lang === "bn" ? "🔄 সব কর্মচারী রিসেট" : "🔄 Reset All Employees"}</button>
                       <button onClick={() => { fetch("/api/ai/brain/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "__clear_cache__" }) }).then(r => r.json()).then(() => alert(lang === "bn" ? "ক্যাশ ক্লিয়ার করা হয়েছে!" : "Cache cleared!")).catch(() => {}); }} className="px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100">{lang === "bn" ? "🗑️ ক্যাশ ক্লিয়ার" : "🗑️ Clear Cache"}</button>
                     </div>
 
                     {/* ── Per-Department Agent Toggle ── */}
-                    <p className="text-xs text-text-secondary">{lang === "bn" ? "এজেন্ট অন/অফ করুন (ব্রাউজার লোকাল)" : "Enable/disable agents (browser local storage)"}</p>
+                    <p className="text-xs text-text-secondary">{lang === "bn" ? "কর্মচারী অন/অফ করুন (ব্রাউজার লোকাল)" : "Enable/disable employees (browser local storage)"}</p>
                     {brainData?.departments?.map((dept: any) => {
                       const deptAgentIds = dept.teams?.flatMap((t: any) => t.agents?.map((a: any) => a.id) || []) || [];
                       const allDisabled = deptAgentIds.length > 0 && deptAgentIds.every((id: string) => disabledAgents.includes(id));
@@ -1064,8 +1064,8 @@ export default function AIHubPage() {
           {(brainSubTab as string) === "memory" && (
             <div className="space-y-4">
               <div className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "🧠 এজেন্ট মেমোরি" : "🧠 Agent Memory"}</h2>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "প্রতি ফোন নম্বরের জন্য এজেন্টদের মেমোরি — পছন্দ, ইতিহাস, প্রোফাইল" : "Persistent memory per phone — preferences, history, profile"}</p>
+                <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "🧠 কর্মচারী মেমোরি" : "🧠 Employee Memory"}</h2>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "প্রতি ফোন নম্বরের জন্য কর্মচারীদের মেমোরি — পছন্দ, ইতিহাস, প্রোফাইল" : "Persistent memory per phone — preferences, history, profile"}</p>
                 <div className="flex gap-3 mb-4">
                   <input value={memoryPhone} onChange={e => setMemoryPhone(e.target.value)} placeholder={lang === "bn" ? "ফোন নম্বর দিন" : "Enter phone number"} className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" />
                   <button onClick={() => loadMemory(memoryPhone)} disabled={memoryLoading || !memoryPhone.trim()} className="px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{memoryLoading ? "..." : "🔍 Load"}</button>
@@ -1097,8 +1097,8 @@ export default function AIHubPage() {
           {(brainSubTab as string) === "schedule" && (
             <div className="space-y-4">
               <div className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "⏰ এজেন্ট শিডিউল" : "⏰ Agent Schedule"}</h2>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "অটোমেটিক এজেন্ট টাস্ক — ডেইলি রিপোর্ট, ফলো-আপ, রিমাইন্ডার" : "Automated agent tasks — daily reports, follow-ups, reminders"}</p>
+                <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "⏰ কর্মচারী শিডিউল" : "⏰ Employee Schedule"}</h2>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "অটোমেটিক কর্মচারী টাস্ক — ডেইলি রিপোর্ট, ফলো-আপ, রিমাইন্ডার" : "Automated employee tasks — daily reports, follow-ups, reminders"}</p>
                 <div className="flex gap-3 mb-4">
                   <input value={memoryPhone} onChange={e => { setMemoryPhone(e.target.value); }} placeholder={lang === "bn" ? "ফোন নম্বর" : "Phone"} className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" />
                   <button onClick={() => loadSchedules(memoryPhone)} disabled={schedulesLoading} className="px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{schedulesLoading ? "..." : "📋 List"}</button>
@@ -1132,7 +1132,7 @@ export default function AIHubPage() {
               {/* ── Flow Builder ── */}
               <div className="bg-white rounded-2xl border border-border p-6">
                 <h2 className="text-lg font-bold text-primary mb-2">{lang === "bn" ? "🔀 ফ্লো বিল্ডার" : "🔀 Flow Builder"}</h2>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "কাস্টম এজেন্ট চেইন তৈরি করুন — ডিপার্টমেন্ট ও এজেন্ট সিলেক্ট করুন" : "Create custom agent chains — select departments & agents"}</p>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "কাস্টম কর্মচারী চেইন তৈরি করুন — ডিপার্টমেন্ট ও কর্মচারী সিলেক্ট করুন" : "Create custom employee chains — select departments & employees"}</p>
 
                 <div className="flex gap-3 mb-4">
                   <input value={flowName} onChange={e => setFlowName(e.target.value)} placeholder={lang === "bn" ? "ফ্লোর নাম" : "Flow name"} className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" />
@@ -1141,7 +1141,7 @@ export default function AIHubPage() {
 
                 {/* Agent selector */}
                 <div className="mb-4">
-                  <p className="text-xs font-medium text-text-secondary mb-2">{lang === "bn" ? "এজেন্ট যোগ করুন:" : "Add agents (click to add to chain):"}</p>
+                  <p className="text-xs font-medium text-text-secondary mb-2">{lang === "bn" ? "কর্মচারী যোগ করুন:" : "Add employees (click to add to chain):"}</p>
                   <div className="max-h-40 overflow-y-auto space-y-1 border border-border rounded-xl p-2">
                     {brainData?.departments?.map((dept: any) =>
                       dept.teams?.flatMap((t: any) => t.agents || []).map((agent: any) => (
@@ -1242,16 +1242,16 @@ export default function AIHubPage() {
             <div className="space-y-4">
               <div className="bg-white rounded-2xl border border-border p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "🎯 এজেন্ট টিউনিং" : "🎯 Agent Tuning"}</h2>
+                  <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "🎯 কর্মচারী টিউনিং" : "🎯 Employee Tuning"}</h2>
                   <button onClick={loadTuningDashboard} disabled={tuningLoading} className="px-4 py-2 text-xs font-medium bg-primary text-white rounded-xl disabled:opacity-50">{tuningLoading ? "..." : (lang === "bn" ? "📊 রিফ্রেশ" : "📊 Refresh")}</button>
                 </div>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "ফিডব্যাক ডাটা ব্যবহার করে এজেন্ট প্রম্পট অটো-ইমপ্রুভ করুন। নিচে এজেন্ট সিলেক্ট করে অ্যানালাইসিস ও ইমপ্রুভমেন্ট সাজেশন দেখুন।" : "Use feedback data to auto-improve agent prompts. Select an agent below to see analysis & improvement suggestions."}</p>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "ফিডব্যাক ডাটা ব্যবহার করে কর্মচারী প্রম্পট অটো-ইমপ্রুভ করুন। নিচে কর্মচারী সিলেক্ট করে অ্যানালাইসিস ও ইমপ্রুভমেন্ট সাজেশন দেখুন।" : "Use feedback data to auto-improve employee prompts. Select an employee below to see analysis & improvement suggestions."}</p>
 
                 {/* Agent selector */}
                 <div className="mb-4">
-                  <p className="text-xs font-medium text-text-secondary mb-2">{lang === "bn" ? "এজেন্ট সিলেক্ট করুন:" : "Select Agent:"}</p>
+                  <p className="text-xs font-medium text-text-secondary mb-2">{lang === "bn" ? "কর্মচারী সিলেক্ট করুন:" : "Select Employee:"}</p>
                   <div className="flex gap-2">
-                    <input value={tuningAgentId} onChange={e => setTuningAgentId(e.target.value)} placeholder={lang === "bn" ? "এজেন্ট আইডি (যেমন: lead_scanner)" : "Agent ID (e.g. lead_scanner)"} className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" />
+                    <input value={tuningAgentId} onChange={e => setTuningAgentId(e.target.value)} placeholder={lang === "bn" ? "কর্মচারী আইডি (যেমন: lead_scanner)" : "Employee ID (e.g. lead_scanner)"} className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-gray-50 text-sm text-primary font-mono" />
                     <button onClick={analyzeAgentForTuning} disabled={!tuningAgentId || tuningLoading} className="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50">{lang === "bn" ? "🔍 অ্যানালাইজ" : "🔍 Analyze"}</button>
                     <button onClick={suggestPromptImprovement} disabled={!tuningAgentId || !tuningAnalysis} className="px-4 py-2 text-sm font-medium bg-purple-500 text-white rounded-xl hover:bg-purple-600 disabled:opacity-50">{lang === "bn" ? "🤖 সাজেশন" : "🤖 Suggest"}</button>
                   </div>
@@ -1619,7 +1619,7 @@ export default function AIHubPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   <div className="card p-4 text-center"><div className="text-lg font-bold text-primary">{brainData?.totalDepartments || "—"}</div><div className="text-xs text-text-secondary">{lang === "bn" ? "ডিপার্টমেন্ট" : "Departments"}</div></div>
                   <div className="card p-4 text-center"><div className="text-lg font-bold text-purple-600">{brainData?.totalTeams || "—"}</div><div className="text-xs text-text-secondary">{lang === "bn" ? "টিম" : "Teams"}</div></div>
-                  <div className="card p-4 text-center"><div className="text-lg font-bold text-green-600">{brainData?.totalAgents || "—"}</div><div className="text-xs text-text-secondary">{lang === "bn" ? "এজেন্ট" : "Agents"}</div></div>
+                  <div className="card p-4 text-center"><div className="text-lg font-bold text-green-600">{brainData?.totalAgents || "—"}</div><div className="text-xs text-text-secondary">{lang === "bn" ? "কর্মচারী" : "Employees"}</div></div>
                 </div>
               </div>
 
