@@ -57,11 +57,11 @@ function seedState() {
 
   ensureTable("commission_levels");
   const levelDefaults = [
-    { level_number: 1, level_name: "Level 1", percentage: 10, fixed_amount: 0, currency: "BDT", is_active: 1 },
-    { level_number: 2, level_name: "Level 2", percentage: 5, fixed_amount: 0, currency: "BDT", is_active: 1 },
-    { level_number: 3, level_name: "Level 3", percentage: 3, fixed_amount: 0, currency: "BDT", is_active: 1 },
-    { level_number: 4, level_name: "Level 4", percentage: 2, fixed_amount: 0, currency: "BDT", is_active: 1 },
-    { level_number: 5, level_name: "Level 5", percentage: 1, fixed_amount: 0, currency: "BDT", is_active: 1 },
+    { level_number: 1, level_name: "Level 1", percentage: 10, fixed_amount: 0, currency: "BDT", is_active: 1, commission_type: "both", min_referral_base: 3 },
+    { level_number: 2, level_name: "Level 2", percentage: 5, fixed_amount: 0, currency: "BDT", is_active: 1, commission_type: "both", min_referral_base: 3 },
+    { level_number: 3, level_name: "Level 3", percentage: 3, fixed_amount: 0, currency: "BDT", is_active: 1, commission_type: "both", min_referral_base: 3 },
+    { level_number: 4, level_name: "Level 4", percentage: 2, fixed_amount: 0, currency: "BDT", is_active: 1, commission_type: "both", min_referral_base: 3 },
+    { level_number: 5, level_name: "Level 5", percentage: 1, fixed_amount: 0, currency: "BDT", is_active: 1, commission_type: "both", min_referral_base: 3 },
   ];
   for (const lvl of levelDefaults) {
     const exists = state.commission_levels!.rows.some((r) => r.level_number === lvl.level_number);
