@@ -5,10 +5,11 @@ import { hashWorkerPassword, generateToken, generateWorkerId } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, phone, password, referralCode } = await request.json() as { name: string; phone: string; password: string; referralCode?: string };
-    if (!name || !phone || !password) {
-      return NextResponse.json({ error: "All fields required" }, { status: 400 });
+    const { name, phone, password, referralCode } = await request.json() as { name?: string; phone: string; password: string; referralCode?: string };
+    if (!phone || !password) {
+      return NextResponse.json({ error: "Phone and password required" }, { status: 400 });
     }
+    const displayName = name || `User${phone.slice(-6)}`;
 
     const env = await getDB();
 
@@ -29,13 +30,13 @@ export async function POST(request: NextRequest) {
       if (sponsor) { sponsorId = sponsor.worker_id; sponsorName = sponsor.name; }
     }
 
-    const workerId = generateWorkerId(name, phone);
+    const workerId = generateWorkerId(displayName, phone);
     const hashedPassword = await hashWorkerPassword(password);
 
     await execute(env,
       `INSERT INTO workers (worker_id, name, phone, password, sponsor_id, sponsor_name, level, join_date, membership_status)
        VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), 'active')`,
-      [workerId, name, phone, hashedPassword, sponsorId, sponsorName]
+      [workerId, displayName, phone, hashedPassword, sponsorId, sponsorName]
     );
 
     await execute(env,
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateToken(workerId, process.env.JWT_SECRET || "default-secret");
-    return NextResponse.json({ token, workerId, name }, { status: 201 });
+    return NextResponse.json({ token, workerId, name: displayName }, { status: 201 });
   } catch (error) {
     console.error("Register error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

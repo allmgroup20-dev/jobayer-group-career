@@ -51,7 +51,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             if (newSW) {
               newSW.addEventListener("statechange", () => {
                 if (newSW.state === "installed" && navigator.serviceWorker.controller) {
-                  // New version available
                   console.log("New SW version available");
                 }
               });
@@ -61,6 +60,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         .catch((err) => console.warn("SW registration failed:", err));
     }
   }, []);
+
+  // Global referral code tracker — saves last ?ref= to localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      localStorage.setItem("referral_code", ref);
+    }
+  }, [pathname]);
 
   return (
     <>

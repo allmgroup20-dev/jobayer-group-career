@@ -11,7 +11,7 @@
     "build": "node scripts/fix-turbopack.js && opennextjs-cloudflare build && node scripts/fix-chunks.js",
     "build:cf": "node scripts/fix-turbopack.js && opennextjs-cloudflare build && node scripts/fix-chunks.js",
     "preview": "node scripts/fix-turbopack.js && opennextjs-cloudflare build --skipNextBuild && node scripts/fix-chunks.js && opennextjs-cloudflare preview",
-    "deploy": "node scripts/fix-turbopack.js && opennextjs-cloudflare build --skipNextBuild && node scripts/fix-chunks.js && opennextjs-cloudflare deploy",
+    "deploy": "node scripts/fix-turbopack.js && opennextjs-cloudflare build --skipNextBuild && node scripts/fix-chunks.js && node scripts/fix-cache-headers.js && opennextjs-cloudflare deploy",
     "pages:deploy": "npx @cloudflare/next-on-pages",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply jgcareer-db --local",

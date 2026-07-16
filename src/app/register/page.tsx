@@ -8,20 +8,20 @@ import { useLanguageStore } from "@/lib/store";
 export default function RegisterPage() {
   const { lang } = useLanguageStore();
   const router = useRouter();
-  const [referral, setReferral] = useState("");
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setReferral(params.get("ref") || "");
-  }, []);
-
-  const [form, setForm] = useState({ name: "", phone: "", password: "", confirmPassword: "", referralCode: "" });
+  const [form, setForm] = useState({ phone: "", password: "", confirmPassword: "", referralCode: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setForm((prev) => ({ ...prev, referralCode: referral }));
-  }, [referral]);
+    // Priority: URL param > localStorage > nothing
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref") || localStorage.getItem("referral_code") || "";
+    if (ref) {
+      localStorage.setItem("referral_code", ref);
+      setForm((prev) => ({ ...prev, referralCode: ref }));
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,19 +34,26 @@ export default function RegisterPage() {
       return;
     }
 
+    // Only send phone, password, referralCode — name is generated server-side
+    const payload = {
+      phone: form.phone,
+      password: form.password,
+      referralCode: form.referralCode || undefined,
+    };
+
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
       if (!res.ok) throw new Error(data.error || "Registration failed");
       if (data.token) {
         localStorage.setItem("worker_token", data.token);
         localStorage.setItem("worker_id", data.workerId || "");
-        localStorage.setItem("worker_name", data.name || "");
       }
+      localStorage.removeItem("referral_code");
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -78,29 +85,19 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {referral && (
+            {form.referralCode && (
               <div className="p-3 bg-accent/5 border border-accent/20 rounded-xl text-sm text-accent">
-                {lang === "bn" ? `রেফারেল কোড: ${referral}` : `Referral Code: ${referral}`}
+                {lang === "bn"
+                  ? `রেফারেল কোড: ${form.referralCode}`
+                  : `Referral Code: ${form.referralCode}`}
               </div>
             )}
 
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
-                {lang === "bn" ? "আপনার নাম" : "Your Name"}
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="input-field"
-                placeholder={lang === "bn" ? "আপনার পুরো নাম" : "Your full name"}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                {lang === "bn" ? "মোবাইল নম্বর" : "Phone Number"}
+                {lang === "bn"
+                  ? "আপনার হোয়াটসঅ্যাপ নাম্বার দিন"
+                  : "Your WhatsApp Number"}
               </label>
               <input
                 type="tel"
@@ -147,7 +144,10 @@ export default function RegisterPage() {
               <input
                 type="text"
                 value={form.referralCode}
-                onChange={(e) => setForm({ ...form, referralCode: e.target.value })}
+                onChange={(e) => {
+                  setForm({ ...form, referralCode: e.target.value });
+                  if (e.target.value) localStorage.setItem("referral_code", e.target.value);
+                }}
                 className="input-field"
                 placeholder={lang === "bn" ? "রেফারেল কোড দিন" : "Enter referral code"}
               />
