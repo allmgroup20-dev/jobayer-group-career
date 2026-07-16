@@ -23,6 +23,7 @@ import {
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
 import type { MessageCtx } from "@/lib/ai/brain/types";
+import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
 
 function mapChatId(chatId: number | string): string {
   return `tg_${chatId}`;
@@ -109,6 +110,12 @@ export async function POST(request: NextRequest) {
       };
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;
+
+      if (isWorker && brainResult.agentsUsed.length > 0) {
+        const agentName = brainResult.agentsUsed[0];
+        await linkWorkerToAgent(db, phone, agentName, agentName);
+        await saveAgentKnowledge(db, phone, agentName, agentName, reply.slice(0, 1000));
+      }
     }
 
     // Auto-save to skills

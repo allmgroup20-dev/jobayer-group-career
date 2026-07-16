@@ -22,6 +22,7 @@ import {
   updateLeadStatus,
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
+import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function mapSenderId(senderId: string): string {
@@ -107,6 +108,12 @@ export async function POST(request: NextRequest) {
       };
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;
+
+      if (isWorker && brainResult.agentsUsed.length > 0) {
+        const agentName = brainResult.agentsUsed[0];
+        await linkWorkerToAgent(db, phone, agentName, agentName);
+        await saveAgentKnowledge(db, phone, agentName, agentName, reply.slice(0, 1000));
+      }
     }
 
     // Auto-save to skills

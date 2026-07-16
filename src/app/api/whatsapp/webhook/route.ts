@@ -25,6 +25,7 @@ import {
   updateLeadStatus,
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
+import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function parseIncomingMessage(body: any): { phone: string; text: string; name?: string } | null {
@@ -134,6 +135,13 @@ export async function POST(request: NextRequest) {
 
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;
+
+      // Employee-agent link: save knowledge for workers
+      if (isWorker && brainResult.agentsUsed.length > 0) {
+        const agentName = brainResult.agentsUsed[0];
+        await linkWorkerToAgent(env.DB, phone, agentName, agentName);
+        await saveAgentKnowledge(env.DB, phone, agentName, agentName, reply.slice(0, 1000));
+      }
     }
 
     // Ensure reply is never empty — fallback if brain returns nothing

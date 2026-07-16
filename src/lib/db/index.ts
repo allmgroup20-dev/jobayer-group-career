@@ -266,6 +266,21 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       today_responses INTEGER DEFAULT 0,
       last_reset_date TEXT,
       updated_at TEXT DEFAULT (datetime('now'))
+    `).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS worker_agent_links (
+      phone TEXT NOT NULL,
+      agent_id TEXT NOT NULL,
+      linked_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (phone, agent_id)
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS worker_agent_knowledge (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      agent_id TEXT NOT NULL,
+      agent_name TEXT DEFAULT '',
+      knowledge TEXT NOT NULL,
+      source TEXT DEFAULT 'brain',
+      created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
     // Seed 100% free AI models — OpenRouter (verified pricing=0) + OpenCode
