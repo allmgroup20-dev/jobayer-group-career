@@ -661,6 +661,16 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('reminder', 'Assalamu Alaikum! মনে করিয়ে দিচ্ছি, আগামীকাল আমাদের অনলাইন মিটিং আছে।', 'reminder')
     `).run();
 
+    // Biometric (fingerprint) credentials
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS biometric_credentials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      worker_id TEXT NOT NULL,
+      credential_id TEXT UNIQUE NOT NULL,
+      public_key TEXT NOT NULL,
+      device_name TEXT DEFAULT '',
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     g[DONE_FLAG] = true;
   } catch (e) {
     g[DONE_FLAG] = false;

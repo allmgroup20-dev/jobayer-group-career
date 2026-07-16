@@ -12,6 +12,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [bioRegistered, setBioRegistered] = useState(false);
+  const [bioLoading, setBioLoading] = useState(false);
 
   useEffect(() => {
     const workerId = localStorage.getItem("worker_id");
@@ -25,6 +27,13 @@ export default function ProfilePage() {
       })
       .catch(() => setError("Failed to load profile"))
       .finally(() => setLoading(false));
+    fetch(`/api/auth/biometric/auth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "begin", workerId }),
+    }).then((r) => {
+      if (r.ok) setBioRegistered(true);
+    }).catch(() => {});
   }, []);
 
   const handleSave = async () => {
@@ -51,6 +60,76 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSetupFingerprint = async () => {
+    if (!window.PublicKeyCredential) {
+      return alert(lang === "bn" ? "এই ব্রাউজার ফিঙ্গারপ্রিন্ট সাপোর্ট করে না" : "Browser does not support fingerprint");
+    }
+    setBioLoading(true);
+    try {
+      // Generate a unique credential ID
+      const rawId = crypto.getRandomValues(new Uint8Array(32));
+      const credentialId = btoa(String.fromCharCode(...rawId));
+      // Generate a simple key pair using Web Crypto
+      const keyPair = await crypto.subtle.generateKey(
+        { name: "ECDSA", namedCurve: "P-256" },
+        true,
+        ["sign", "verify"]
+      );
+      const publicKeyJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+      const publicKeyStr = JSON.stringify(publicKeyJwk);
+
+      // Create WebAuthn credential
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: rawId,
+          rp: { name: "Jobayer Group Career" },
+          user: {
+            id: rawId,
+            name: form.phone,
+            displayName: form.name,
+          },
+          pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required",
+          },
+          timeout: 60000,
+        },
+      }) as PublicKeyCredential;
+
+      const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+      const res = await fetch("/api/auth/biometric/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workerId: form.workerId,
+          credentialId: credId,
+          publicKey: publicKeyStr,
+          deviceName: navigator.userAgent.slice(0, 50),
+        }),
+      });
+      if (!res.ok) throw new Error("Registration failed");
+      setBioRegistered(true);
+      alert(lang === "bn" ? "ফিঙ্গারপ্রিন্ট সেটআপ সম্পন্ন" : "Fingerprint setup complete");
+    } catch (err: any) {
+      alert(err.message || "Setup failed");
+    } finally {
+      setBioLoading(false);
+    }
+  };
+
+  const handleRemoveFingerprint = async () => {
+    if (!confirm(lang === "bn" ? "ফিঙ্গারপ্রিন্ট মুছে ফেলবেন?" : "Remove fingerprint?")) return;
+    try {
+      await fetch("/api/auth/biometric/register", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: form.workerId }),
+      });
+      setBioRegistered(false);
+    } catch {}
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen py-24 px-4 flex items-center justify-center">
@@ -72,32 +151,61 @@ export default function ProfilePage() {
           <p className="text-sm text-text-secondary">{form.workerId}</p>
         </div>
 
-        <Card>
-          <div className="space-y-4">
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>
+        <div className="space-y-4">
+          <Card>
+            <div className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "নাম" : "Name"}</label>
+                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ফোন" : "Phone"}</label>
+                <input type="tel" value={form.phone} className="input-field bg-gray-50" readOnly />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Email</label>
+                <input type="email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "নতুন পাসওয়ার্ড" : "New Password"}</label>
+                <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input-field" placeholder={lang === "bn" ? "ফাঁকা রাখলে অপরিবর্তিত" : "Leave blank to keep current"} />
+              </div>
+              <Button onClick={handleSave} disabled={saving} className="w-full">
+                {saving ? (lang === "bn" ? "সংরক্ষণ হচ্ছে..." : "Saving...") : saved ? (lang === "bn" ? "✓ সংরক্ষিত" : "✓ Saved") : (lang === "bn" ? "আপডেট করুন" : "Update Profile")}
+              </Button>
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-primary mb-4">
+              {lang === "bn" ? "ফিঙ্গারপ্রিন্ট লগইন" : "Fingerprint Login"}
+            </h3>
+            <p className="text-sm text-text-secondary mb-4">
+              {lang === "bn"
+                ? "ফিঙ্গারপ্রিন্ট সেটআপ করলে পাসওয়ার্ড না দিয়েই লগইন করতে পারবেন"
+                : "Setup fingerprint to login without password"}
+            </p>
+            {bioRegistered ? (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-green-600 font-medium">
+                  {lang === "bn" ? "✓ ফিঙ্গারপ্রিন্ট সক্রিয়" : "✓ Fingerprint active"}
+                </span>
+                <button onClick={handleRemoveFingerprint} className="text-sm text-red-500 hover:underline">
+                  {lang === "bn" ? "মুছে ফেলুন" : "Remove"}
+                </button>
+              </div>
+            ) : (
+              <Button onClick={handleSetupFingerprint} disabled={bioLoading} className="w-full bg-action/10 text-action hover:bg-action/20 border border-action/30">
+                {bioLoading
+                  ? (lang === "bn" ? "সেটআপ হচ্ছে..." : "Setting up...")
+                  : (lang === "bn" ? "ফিঙ্গারপ্রিন্ট সেটআপ করুন" : "Setup Fingerprint")}
+              </Button>
             )}
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "নাম" : "Name"}</label>
-              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input-field" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ফোন" : "Phone"}</label>
-              <input type="tel" value={form.phone} className="input-field bg-gray-50" readOnly />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Email</label>
-              <input type="email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input-field" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "নতুন পাসওয়ার্ড" : "New Password"}</label>
-              <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input-field" placeholder={lang === "bn" ? "ফাঁকা রাখলে অপরিবর্তিত" : "Leave blank to keep current"} />
-            </div>
-            <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? (lang === "bn" ? "সংরক্ষণ হচ্ছে..." : "Saving...") : saved ? (lang === "bn" ? "✓ সংরক্ষিত" : "✓ Saved") : (lang === "bn" ? "আপডেট করুন" : "Update Profile")}
-            </Button>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );

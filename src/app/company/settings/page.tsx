@@ -1,29 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
+interface Channel {
+  id: string;
+  label: string;
+  labelBn: string;
+  enabled: boolean;
+}
+
+const DEFAULT_CHANNELS: Channel[] = [
+  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true },
+  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true },
+  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false },
+];
+
 export default function CompanySettingsPage() {
   const { lang } = useLanguageStore();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({
-    companyName: "Jobayer Group Career",
-    companyEmail: "info@jobayergroup.com",
-    companyPhone: "+880 1XXX-XXXXXX",
-    companyAddress: "Dhaka, Bangladesh",
+    companyName: "",
+    companyEmail: "",
+    companyPhone: "",
+    companyAddress: "",
     minWithdrawal: "500",
     registrationBonus: "0",
     primaryColor: "#1E3A5A",
     secondaryColor: "#FFD700",
     actionColor: "#28A745",
   });
-  const [saved, setSaved] = useState(false);
+  const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    fetch("/api/company/settings")
+      .then((r) => r.json() as Promise<{ settings?: Record<string, string> }>)
+      .then((data) => {
+        if (data.settings) {
+          const s = data.settings;
+          setForm((prev) => ({
+            ...prev,
+            companyName: s.company_name || prev.companyName,
+            companyEmail: s.company_email || prev.companyEmail,
+            companyPhone: s.company_phone || prev.companyPhone,
+            companyAddress: s.company_address || prev.companyAddress,
+            minWithdrawal: s.min_withdrawal || prev.minWithdrawal,
+            registrationBonus: s.registration_bonus || prev.registrationBonus,
+            primaryColor: s.primary_color || prev.primaryColor,
+            secondaryColor: s.secondary_color || prev.secondaryColor,
+            actionColor: s.action_color || prev.actionColor,
+          }));
+          try {
+            const bc = (s as any).banking_channels ? JSON.parse((s as any).banking_channels) : null;
+            if (bc && Array.isArray(bc)) setChannels(bc);
+          } catch {}
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const toggleChannel = (id: string) => {
+    setChannels((prev) =>
+      prev.map((ch) => (ch.id === id ? { ...ch, enabled: !ch.enabled } : ch))
+    );
   };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const settings = [
+      { key: "company_name", value: form.companyName },
+      { key: "company_email", value: form.companyEmail },
+      { key: "company_phone", value: form.companyPhone },
+      { key: "company_address", value: form.companyAddress },
+      { key: "min_withdrawal", value: form.minWithdrawal },
+      { key: "registration_bonus", value: form.registrationBonus },
+      { key: "primary_color", value: form.primaryColor },
+      { key: "secondary_color", value: form.secondaryColor },
+      { key: "action_color", value: form.actionColor },
+      { key: "banking_channels", value: JSON.stringify(channels) },
+    ];
+    try {
+      await fetch("/api/company/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings }),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      alert(lang === "bn" ? "সেভ ব্যর্থ" : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-24 px-4 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
@@ -73,6 +156,37 @@ export default function CompanySettingsPage() {
           </Card>
 
           <Card>
+            <h3 className="font-bold text-primary mb-4">
+              {lang === "bn" ? "ব্যাংকিং চ্যানেল" : "Banking Channels"}
+            </h3>
+            <p className="text-sm text-text-secondary mb-4">
+              {lang === "bn"
+                ? "কোন চ্যানেল সক্রিয় রাখলে তা ইউজার ড্যাশবোর্ডে উইথড্র অপশন হিসেবে দেখাবে"
+                : "Active channels will appear as withdrawal options in user dashboard"}
+            </p>
+            <div className="space-y-3">
+              {channels.map((ch) => (
+                <div key={ch.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-xl">
+                  <span className="text-sm font-medium text-primary">
+                    {lang === "bn" ? ch.labelBn : ch.label}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => toggleChannel(ch.id)}
+                    className={`relative w-12 h-6 rounded-full transition-all ${
+                      ch.enabled ? "bg-action" : "bg-gray-300"
+                    }`}
+                  >
+                    <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all shadow-sm ${
+                      ch.enabled ? "left-6" : "left-0.5"
+                    }`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
             <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "থিম কালার" : "Theme Colors"}</h3>
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
@@ -90,8 +204,8 @@ export default function CompanySettingsPage() {
             </div>
           </Card>
 
-          <Button onClick={handleSave} className="w-full !py-4">
-            {saved ? (lang === "bn" ? "✓ সংরক্ষিত হয়েছে" : "✓ Saved") : (lang === "bn" ? "সব সেভ করুন" : "Save All Settings")}
+          <Button onClick={handleSave} disabled={saving} className="w-full !py-4">
+            {saving ? (lang === "bn" ? "সংরক্ষণ হচ্ছে..." : "Saving...") : saved ? (lang === "bn" ? "✓ সংরক্ষিত হয়েছে" : "✓ Saved") : (lang === "bn" ? "সব সেভ করুন" : "Save All Settings")}
           </Button>
         </div>
       </div>

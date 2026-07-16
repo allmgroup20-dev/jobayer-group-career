@@ -3,32 +3,74 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
-import { formatCurrency, formatDate, maskPhone } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+
+interface Channel { id: string; label: string; labelBn: string; enabled?: boolean }
+const DEFAULT_CHANNELS: Channel[] = [
+  { id: "bkash", label: "bKash", labelBn: "বিকাশ" },
+  { id: "nagad", label: "Nagad", labelBn: "নগদ" },
+  { id: "rocket", label: "Rocket", labelBn: "রকেট" },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক" },
+];
 
 export default function WorkerDashboard() {
   const { lang } = useLanguageStore();
   const [worker, setWorker] = useState<{
     workerId: string; name: string; phone: string; balance: number;
-    totalEarned: number; totalTeamMembers: number; level: number; joinDate: string;
+    totalEarned: number; totalTeamMembers: number; level: number;
+    levelName?: string; joinDate: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [channels, setChannels] = useState(DEFAULT_CHANNELS);
+  const [minWithdraw, setMinWithdraw] = useState(500);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawChannel, setWithdrawChannel] = useState("bkash");
+  const [withdrawAccount, setWithdrawAccount] = useState("");
 
   useEffect(() => {
     const workerId = localStorage.getItem("worker_id");
-    if (!workerId) {
-      setLoading(false);
-      return;
-    }
-    fetch(`/api/workers/profile?workerId=${workerId}`)
-      .then((r) => r.json() as Promise<{ workerId?: string; name?: string; phone?: string; balance?: number; totalEarned?: number; totalTeamMembers?: number; level?: number; joinDate?: string }>)
-      .then((data) => {
-        if (data.workerId) setWorker(data as any);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    if (!workerId) { setLoading(false); return; }
+
+    Promise.all([
+      fetch(`/api/workers/profile?workerId=${workerId}`).then(r => r.json() as Promise<Record<string, unknown>>),
+      fetch("/api/company/settings").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => ({} as Record<string, unknown>)),
+    ]).then(([profile, settings]) => {
+      if (profile?.workerId) setWorker(profile as any);
+      const s = settings && typeof settings.settings === "object" ? (settings.settings as Record<string, string>) : {};
+      const mw = parseInt(s.min_withdrawal || "500");
+      setMinWithdraw(isNaN(mw) ? 500 : mw);
+      try {
+        const bcStr = s.banking_channels;
+        if (bcStr) {
+          const saved = JSON.parse(bcStr);
+          if (Array.isArray(saved)) setChannels(saved);
+        }
+      } catch {}
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  const doWithdraw = async () => {
+    const amount = parseFloat(withdrawAmount);
+    if (!amount || amount <= 0) return alert(lang === "bn" ? "সঠিক পরিমাণ দিন" : "Enter valid amount");
+    if (amount < minWithdraw) return alert(lang === "bn" ? `ন্যূনতম উইথড্র: ৳${minWithdraw}` : `Min withdrawal: ৳${minWithdraw}`);
+    if (amount > (worker?.balance || 0)) return alert(lang === "bn" ? "পর্যাপ্ত ব্যালেন্স নেই" : "Insufficient balance");
+    if (!withdrawAccount) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
+    const res = await fetch("/api/withdrawals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workerId: worker!.workerId, amount, paymentMethod: withdrawChannel, accountNumber: withdrawAccount }),
+    });
+    const data = await res.json() as { error?: string };
+    if (res.ok) {
+      alert(lang === "bn" ? "উইথড্রয়াল অনুরোধ জমা দেওয়া হয়েছে" : "Withdrawal request submitted");
+      setWithdrawAmount("");
+      setWithdrawAccount("");
+    } else {
+      alert(data.error || "Failed");
+    }
+  };
 
   if (loading) {
     return (
@@ -74,7 +116,7 @@ export default function WorkerDashboard() {
           <StatCard label={lang === "bn" ? "ব্যালেন্স" : "Balance"} value={formatCurrency(worker.balance)} color="text-action" />
           <StatCard label={lang === "bn" ? "মোট আয়" : "Total Earnings"} value={formatCurrency(worker.totalEarned)} color="text-secondary-dark" />
           <StatCard label={lang === "bn" ? "টিম মেম্বার" : "Team Members"} value={worker.totalTeamMembers.toString()} color="text-primary" />
-          <StatCard label={lang === "bn" ? "লেভেল" : "Level"} value={`Level ${worker.level}`} color="text-accent" />
+          <StatCard label={lang === "bn" ? "পদবী" : "Position"} value={worker.levelName || `Level ${worker.level}`} color="text-accent" />
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -154,29 +196,61 @@ export default function WorkerDashboard() {
 
           <Card>
             <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "দ্রুত উইথড্র" : "Quick Withdraw"}</h3>
-            <div className="flex gap-2">
-              <input id="withdrawAmount" type="number" placeholder={lang === "bn" ? "পরিমাণ" : "Amount"} className="input-field flex-1" />
-              <button onClick={async () => {
-                const amount = parseFloat((document.getElementById("withdrawAmount") as HTMLInputElement)?.value || "0");
-                if (!amount || amount <= 0) return alert(lang === "bn" ? "সঠিক পরিমাণ দিন" : "Enter valid amount");
-                if (amount > worker.balance) return alert(lang === "bn" ? "পর্যাপ্ত ব্যালেন্স নেই" : "Insufficient balance");
-                const res = await fetch("/api/withdrawals", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ workerId: worker.workerId, amount }),
-                });
-                const data = await res.json() as { error?: string };
-                if (res.ok) {
-                  alert(lang === "bn" ? "উইথড্রয়াল অনুরোধ জমা দেওয়া হয়েছে" : "Withdrawal request submitted");
-                } else {
-                  alert(data.error || "Failed");
-                }
-              }} className="btn-primary text-xs !px-4 !py-2.5">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  {lang === "bn" ? "পরিমাণ" : "Amount"}
+                </label>
+                <input
+                  type="number"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder={lang === "bn" ? "পরিমাণ" : "Amount"}
+                  className="input-field w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  {lang === "bn" ? "অ্যাকাউন্ট নাম্বার" : "Account Number"}
+                </label>
+                <input
+                  type="text"
+                  value={withdrawAccount}
+                  onChange={(e) => setWithdrawAccount(e.target.value)}
+                  placeholder={lang === "bn" ? "আপনার অ্যাকাউন্ট নাম্বার দিন" : "Enter your account number"}
+                  className="input-field w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  {lang === "bn" ? "পেমেন্ট চ্যানেল" : "Payment Channel"}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {channels.filter((ch) => ch.enabled !== false).map((ch) => (
+                    <button
+                      key={ch.id}
+                      type="button"
+                      onClick={() => setWithdrawChannel(ch.id)}
+                      className={`py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
+                        withdrawChannel === ch.id
+                          ? "border-action bg-action/10 text-action"
+                          : "border-border text-text-secondary hover:border-action/50"
+                      }`}
+                    >
+                      {lang === "bn" ? ch.labelBn || ch.label : ch.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={doWithdraw}
+                className="btn-primary w-full text-xs !py-3"
+              >
                 {lang === "bn" ? "উইথড্র" : "Withdraw"}
               </button>
             </div>
             <p className="text-xs text-text-secondary mt-2">
-              {lang === "bn" ? "ন্যূনতম উইথড্র: ৳৫০০" : "Min withdrawal: ৳500"}
+              {lang === "bn" ? `ন্যূনতম উইথড্র: ৳${minWithdraw}` : `Min withdrawal: ৳${minWithdraw}`}
             </p>
           </Card>
         </div>
