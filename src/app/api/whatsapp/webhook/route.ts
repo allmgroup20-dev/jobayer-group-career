@@ -26,6 +26,7 @@ import {
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
 import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
+import { enforceWordLimit } from "@/lib/ai/conversation-rules";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function parseIncomingMessage(body: any): { phone: string; text: string; name?: string } | null {
@@ -149,6 +150,9 @@ export async function POST(request: NextRequest) {
       console.warn(`[WhatsApp Webhook] Brain returned empty reply for ${phone} — using fallback`);
       reply = "ধন্যবাদ আপনার মেসেজের জন্য। আমি আপনার সহায়তার জন্য প্রস্তুত আছি। বিস্তারিত জানাতে পারেন?";
     }
+
+    // Enforce conversation rules — keep replies short (15-40 words, max 2 sentences)
+    reply = enforceWordLimit(reply);
 
     // Auto-save to skills — so brain learns from this Q&A
     try {

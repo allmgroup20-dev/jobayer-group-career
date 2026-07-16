@@ -23,6 +23,7 @@ import {
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
 import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
+import { enforceWordLimit } from "@/lib/ai/conversation-rules";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 
 function mapSenderId(senderId: string): string {
@@ -115,6 +116,9 @@ export async function POST(request: NextRequest) {
         await saveAgentKnowledge(db, phone, agentName, agentName, reply.slice(0, 1000));
       }
     }
+
+    // Enforce conversation rules — keep replies short (15-40 words, max 2 sentences)
+    reply = enforceWordLimit(reply);
 
     // Auto-save to skills
     try {

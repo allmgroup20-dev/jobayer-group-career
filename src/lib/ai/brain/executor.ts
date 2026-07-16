@@ -1,5 +1,6 @@
 import { callAI } from "../router";
 import type { AgentDef, AgentOutput } from "./types";
+import { getConversationRules } from "../conversation-rules";
 
 // Tier-based model preference hints.
 // Router.ts handles full key-by-key + model-by-model failover automatically.
@@ -17,8 +18,9 @@ export async function executeAgent(
   userMessage: string,
 ): Promise<AgentOutput> {
   const preferred = TIER_MODELS[agent.tier] || TIER_MODELS[3];
+  const rules = getConversationRules("en") + "\n\n" + getConversationRules("bn");
   const messages = [
-    { role: "system" as const, content: systemPrompt },
+    { role: "system" as const, content: systemPrompt + "\n\n" + rules },
     { role: "user" as const, content: userMessage },
   ];
 

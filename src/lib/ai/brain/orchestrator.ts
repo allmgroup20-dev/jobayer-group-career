@@ -2,6 +2,7 @@ import { callAI } from "../router";
 import { executeAgent, buildAgentPrompt } from "./executor";
 import { DEPARTMENTS, getAgentsByDepartment, findAgent } from "./registry";
 import type { Intent, DepartmentId, MessageCtx, BrainResult, AgentDef, CrossDeptStep, AgentSeniorReview } from "./types";
+import { getConversationRules } from "../conversation-rules";
 import { getMemory, setMemory, buildMemoryContext } from "./memory";
 import { getDB } from "@/lib/db";
 import { getActivePromptOverride } from "./agent-tuning";
@@ -451,7 +452,9 @@ ${chainContext}
 ## Your Task
 Compose a final natural response to the customer in ${ctx.language === "bn" ? "Bengali" : "English"}.
 Weave the agent outputs into one coherent, warm, helpful message.
-Keep under 2 sentences (maximum 40 words). Be brief, warm, and natural — like a real WhatsApp chat.
+
+${getConversationRules(ctx.language)}
+
 If complaint → empathetic first. If purchase → guide to next step.`;
 
   let finalText: string;
