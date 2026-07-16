@@ -31,42 +31,93 @@ const PROVIDER_ENDPOINTS: Record<string, string> = {
   opencode: "https://opencode.ai/zen/v1/chat/completions",
 };
 
+const COOLDOWN_MS = 300_000;
+
+const RETRY_BACKOFF = [200, 800, 2_000];
+
+const TIMEOUT_MS: Record<string, number> = {
+  "openrouter/free": 30_000,
+  default: 15_000,
+};
+
 const FREE_MODEL_ORDER: Record<string, string[]> = {
-  // OpenRouter free models — verified 100% free via API (July 2026, pricing=0)
-  // Ordered by capability (best first), auto-failover on exhaustion
   openrouter: [
-    "openrouter/free",                                // Auto-routes to any available free model
-    "meta-llama/llama-3.3-70b-instruct:free",         // 131K ctx — best overall quality
-    "nousresearch/hermes-3-llama-3.1-405b:free",      // 131K ctx — strong reasoning
-    "nvidia/nemotron-3-ultra-550b-a55b:free",          // 1M ctx — very capable
-    "google/gemma-4-31b-it:free",                      // 262K ctx — strong general
-    "qwen/qwen3-coder:free",                           // 1M ctx ★ NEW — excellent at coding
-    "qwen/qwen3-next-80b-a3b-instruct:free",           // 262K ctx — good general
-    "nvidia/nemotron-3-super-120b-a12b:free",          // 1M ctx — strong
-    "google/gemma-4-26b-a4b-it:free",                  // 262K ctx — balanced
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", // 256K ctx — reasoning
-    "nvidia/nemotron-3-nano-30b-a3b:free",             // 256K ctx — fast
-    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", // 32K ctx ★ NEW
-    "cohere/north-mini-code:free",                     // 256K ctx ★ NEW
-    "openai/gpt-oss-20b:free",                         // 131K ctx ★ NEW
-    "poolside/laguna-m.1:free",                        // 262K ctx ★ NEW
-    "meta-llama/llama-3.2-3b-instruct:free",           // 131K ctx — lightweight
-    "nvidia/nemotron-nano-12b-v2-vl:free",             // 128K ctx
-    "nvidia/nemotron-nano-9b-v2:free",                 // 128K ctx
-    "nvidia/nemotron-3.5-content-safety:free",         // 128K ctx ★ NEW
-    "poolside/laguna-xs-2.1:free",                     // 262K ctx ★ NEW
-    "tencent/hy3:free",                                // 262K ctx — last resort
+    "openrouter/free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "google/gemma-4-31b-it:free",
+    "qwen/qwen3-coder:free",
+    "qwen/qwen3-next-80b-a3b-instruct:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "nvidia/nemotron-3-nano-30b-a3b:free",
+    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "cohere/north-mini-code:free",
+    "openai/gpt-oss-20b:free",
+    "poolside/laguna-m.1:free",
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "nvidia/nemotron-nano-12b-v2-vl:free",
+    "nvidia/nemotron-nano-9b-v2:free",
+    "nvidia/nemotron-3.5-content-safety:free",
+    "poolside/laguna-xs-2.1:free",
+    "tencent/hy3:free",
   ],
-  // OpenCode Zen free models — verified via live API (July 2026)
   opencode: [
-    "deepseek-v4-flash-free",      // Best quality (needs ~2000 tokens — reasoning model)
-    "nemotron-3-ultra-free",       // Strong general, fast
-    "mimo-v2.5-free",              // Balanced
-    "north-mini-code-free",        // Good for coding
-    "hy3-free",                    // General
-    "big-pickle",                  // Fallback
+    "deepseek-v4-flash-free",
+    "nemotron-3-ultra-free",
+    "mimo-v2.5-free",
+    "north-mini-code-free",
+    "hy3-free",
+    "big-pickle",
   ],
 };
+
+// ─── Cooldown Helpers ───────────────────────────────────
+
+function parseCooldowns(raw: string): Record<string, number> {
+  if (!raw) return {};
+  if (raw.startsWith("{")) {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return {};
+}
+
+function isOnCooldown(cooldowns: Record<string, number>, modelKey: string): boolean {
+  const until = cooldowns[modelKey];
+  if (!until) return false;
+  if (Date.now() >= until) {
+    delete cooldowns[modelKey];
+    return false;
+  }
+  return true;
+}
+
+async function purgeExpiredCooldowns(db: D1Database, cooldowns: Record<string, number>): Promise<void> {
+  const now = Date.now();
+  let changed = false;
+  for (const key of Object.keys(cooldowns)) {
+    if (now >= cooldowns[key]) {
+      delete cooldowns[key];
+      changed = true;
+    }
+  }
+  if (changed) {
+    await execute({ DB: db },
+      "UPDATE ai_model_failover_state SET exhausted_models = ? WHERE id = 1",
+      [JSON.stringify(cooldowns)]
+    );
+  }
+}
+
+async function recordCooldown(db: D1Database, modelKey: string, cooldowns: Record<string, number>): Promise<void> {
+  cooldowns[modelKey] = Date.now() + COOLDOWN_MS;
+  await execute({ DB: db },
+    "UPDATE ai_model_failover_state SET exhausted_models = ? WHERE id = 1",
+    [JSON.stringify(cooldowns)]
+  );
+}
 
 // ─── DB Helpers ─────────────────────────────────────────
 
@@ -76,9 +127,9 @@ async function getState(db: D1Database): Promise<FailoverState> {
   );
   if (!s) {
     await execute({ DB: db },
-      "INSERT INTO ai_model_failover_state (id, total_responses, today_responses, exhausted_models, last_reset_date) VALUES (1, 0, 0, '', datetime('now'))"
+      "INSERT INTO ai_model_failover_state (id, total_responses, today_responses, exhausted_models, last_reset_date) VALUES (1, 0, 0, '{}', datetime('now'))"
     );
-    s = { total_responses: 0, today_responses: 0, exhausted_models: "", last_reset_date: "" };
+    s = { total_responses: 0, today_responses: 0, exhausted_models: "{}", last_reset_date: "" };
   }
   return s;
 }
@@ -87,10 +138,10 @@ async function dailyReset(db: D1Database, state: FailoverState): Promise<Failove
   const today = new Date().toISOString().split("T")[0];
   if (state.last_reset_date !== today) {
     await execute({ DB: db },
-      "UPDATE ai_model_failover_state SET exhausted_models = '', today_responses = 0, last_reset_date = ? WHERE id = 1",
+      "UPDATE ai_model_failover_state SET exhausted_models = '{}', today_responses = 0, last_reset_date = ? WHERE id = 1",
       [today]
     );
-    return { ...state, exhausted_models: "", today_responses: 0, last_reset_date: today };
+    return { ...state, exhausted_models: "{}", today_responses: 0, last_reset_date: today };
   }
   return state;
 }
@@ -107,15 +158,7 @@ async function recordSuccess(db: D1Database): Promise<void> {
   );
 }
 
-async function recordExhaustion(db: D1Database, modelKey: string, exhaustedSet: Set<string>): Promise<void> {
-  exhaustedSet.add(modelKey);
-  await execute({ DB: db },
-    "UPDATE ai_model_failover_state SET exhausted_models = ? WHERE id = 1",
-    [Array.from(exhaustedSet).join(",")]
-  );
-}
-
-// ─── Model Caller ───────────────────────────────────────
+// ─── Model Caller with Retry + Backoff + Timeout ────────
 
 async function tryModel(
   apiKey: string,
@@ -136,32 +179,47 @@ async function tryModel(
     headers["HTTP-Referer"] = "https://jobayer-group-career.workers.dev";
   }
 
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ model: modelId, messages, max_tokens: maxTokens, ...(temperature !== undefined && { temperature }) }),
-    });
+  const timeoutMs = TIMEOUT_MS[modelId] || TIMEOUT_MS.default;
+  const maxRetries = modelId === "openrouter/free" ? 3 : 2;
 
-    if (res.status === 429 || res.status === 500 || res.status === 503) return null;
-    if (!res.ok) {
-      const err = await res.text().catch(() => "");
-      console.error(`[${provider}] ${modelId} (${res.status}): ${err.slice(0, 200)}`);
-      return null;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      const delay = RETRY_BACKOFF[Math.min(attempt - 1, RETRY_BACKOFF.length - 1)];
+      await new Promise(r => setTimeout(r, delay));
     }
 
-    const data = await res.json() as {
-      choices?: { message: { content: string | null; reasoning_content?: string; reasoning?: string } }[];
-      usage?: { total_tokens: number };
-    };
-    const msg = data.choices?.[0]?.message;
-    let text = msg?.content || msg?.reasoning || msg?.reasoning_content || "";
-    if (text.length === 0) return null;
-    return { text, tokens: data.usage?.total_tokens || 0 };
-  } catch (e) {
-    console.error(`[${provider}] ${modelId} error:`, (e as Error)?.message);
-    return null;
+    try {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), timeoutMs);
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ model: modelId, messages, max_tokens: maxTokens, ...(temperature !== undefined && { temperature }) }),
+        signal: ac.signal,
+      });
+      clearTimeout(timer);
+
+      if (res.status === 429 || res.status === 500 || res.status === 503) continue;
+      if (!res.ok) return null;
+
+      const data = await res.json() as {
+        choices?: { message: { content: string | null } }[];
+        usage?: { total_tokens: number };
+      };
+      const text = data?.choices?.[0]?.message?.content || "";
+      if (!text && attempt < maxRetries) continue;
+      if (!text) return null;
+      return { text, tokens: data?.usage?.total_tokens || 0 };
+    } catch (e) {
+      const msg = (e as Error)?.message || "";
+      const isTransient = msg.includes("abort") || msg.includes("timed out") || msg.includes("network") || msg.includes("econnrefused") || msg.includes("enotfound");
+      if (!isTransient) return null;
+      if (attempt >= maxRetries) return null;
+    }
   }
+
+  return null;
 }
 
 // ─── DB-Driven Model List ──────────────────────────────
@@ -183,18 +241,6 @@ async function resolveModelList(db: D1Database, provider: string): Promise<strin
 }
 
 // ─── Core Failover Logic ────────────────────────────────
-//
-// Chain of execution:
-//   API Key 1 (OpenRouter)
-//     → Model 1 (openrouter/free)
-//     → Model 2 (llama-3.3-70b)
-//     → ... all OpenRouter free models
-//   API Key 2 (OpenCode)
-//     → Model 1 (nemotron-3-ultra-free)
-//     → ... all OpenCode free models
-//   API Key 3+ (if more keys added)
-//     → ... same pattern
-//   If ALL exhausted → Error
 
 export async function callAI(
   request: AIRequest,
@@ -207,9 +253,8 @@ export async function callAI(
 
   const state = await getState(db);
   const resetState = await dailyReset(db, state);
-  const exhaustedSet = new Set<string>(
-    resetState.exhausted_models ? resetState.exhausted_models.split(",").filter(Boolean) : []
-  );
+  const cooldowns = parseCooldowns(resetState.exhausted_models || "");
+  await purgeExpiredCooldowns(db, cooldowns);
 
   const allKeys = await getAllKeys(db);
   if (allKeys.length === 0) {
@@ -218,55 +263,63 @@ export async function callAI(
 
   const messages = request.messages;
 
-  // Determine provider order
   const providerOrder = preferredProvider
     ? [preferredProvider, ...["openrouter", "opencode"].filter((p) => p !== preferredProvider)]
     : ["openrouter", "opencode"];
 
-  // KEY-BY-KEY: Iterate through each API key
   for (const key of allKeys) {
     const { id: keyId, key_value: apiKey, provider } = key;
-
-    // Skip if this provider is not in our order
     if (!providerOrder.includes(provider)) continue;
 
-    // Get the model list — prefer DB (user-configurable), fall back to hardcoded
     const modelList = await resolveModelList(db, provider);
     if (modelList.length === 0) continue;
 
-    // If preferredModel is given, try it first within this key
     const modelsToTry = preferredModel && providerOrder.indexOf(provider) === 0
       ? [preferredModel, ...modelList.filter((m) => m !== preferredModel)]
       : modelList;
 
-    // MODEL-BY-MODEL: Try each model in this key
-    for (const modelId of modelsToTry) {
-      const modelKey = `k${keyId}|${provider}|${modelId}`;
+    const isFreeRouterProvider = provider === "openrouter";
+    const hasFreeRouter = isFreeRouterProvider && modelsToTry.includes("openrouter/free");
+    const staticModels = modelsToTry.filter(m => m !== "openrouter/free");
 
-      // Skip if this (key, provider, model) combination is exhausted
-      if (exhaustedSet.has(modelKey)) continue;
+    for (const modelId of staticModels) {
+      const modelKey = `k${keyId}|${provider}|${modelId}`;
+      if (isOnCooldown(cooldowns, modelKey)) continue;
 
       const result = await tryModel(apiKey, provider, modelId, messages, maxTokens, request.temperature);
       if (result) {
         await recordSuccess(db);
-        return {
-          text: result.text,
-          model: `${provider}:${modelId}`,
-          tokens: result.tokens,
-        };
+        return { text: result.text, model: `${provider}:${modelId}`, tokens: result.tokens };
       }
 
-      // This (key + model) exhausted — record it
-      await recordExhaustion(db, modelKey, exhaustedSet);
-      console.warn(`[FAILOVER] ${provider} key#${keyId} model ${modelId} — exhausted, trying next`);
+      await recordCooldown(db, modelKey, cooldowns);
+      console.warn(`[FAILOVER] ${provider} key#${keyId} model ${modelId} — cooling down 5min`);
     }
 
-    console.warn(`[FAILOVER] ${provider} key#${keyId} — ALL models exhausted, moving to next key`);
+    if (hasFreeRouter) {
+      for (let i = 0; i < 2; i++) {
+        if (i === 1) await new Promise(r => setTimeout(r, 1_000));
+
+        const result = await tryModel(apiKey, provider, "openrouter/free", messages, maxTokens, request.temperature);
+        if (result) {
+          await recordSuccess(db);
+          return { text: result.text, model: `${provider}:openrouter/free`, tokens: result.tokens };
+        }
+        console.warn(`[FAILOVER] openrouter/free attempt ${i + 1} — transient, retrying...`);
+      }
+    }
+
+    console.warn(`[FAILOVER] ${provider} key#${keyId} — all models failed, moving to next key`);
   }
 
+  const onCooldown = Object.entries(cooldowns)
+    .filter(([, until]) => Date.now() < until)
+    .map(([key]) => key)
+    .join(", ");
+
   throw new Error(
-    `All models exhausted across ${allKeys.length} API key(s). ` +
-    `Exhausted: ${Array.from(exhaustedSet).join(", ")}. ` +
-    `Reset happens daily at midnight UTC.`
+    `All models temporarily unavailable across ${allKeys.length} API key(s). ` +
+    `On cooldown: ${onCooldown || "none"}. ` +
+    `Retry after cooldown (5 min) expires.`
   );
 }
