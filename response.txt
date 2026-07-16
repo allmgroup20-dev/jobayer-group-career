@@ -1,0 +1,1 @@
+{"status":"ok","uptime":"unknown","timestamp":"2026-07-15T23:10:59.545Z","checks":{"database":{"status":"ok"},"cache":{"status":"ok","detail":"0 entries"},"rate_limiter":{"status":"ok","detail":"0 active phones"},"circuit_breakers":{"status":"ok","detail":"0 tracked, 0 open"},"memory":{"status":"ok","detail":"0MB / 0MB"}}}

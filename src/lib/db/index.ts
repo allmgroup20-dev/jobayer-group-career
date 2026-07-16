@@ -266,7 +266,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       today_responses INTEGER DEFAULT 0,
       last_reset_date TEXT,
       updated_at TEXT DEFAULT (datetime('now'))
-    `).run();
+    )`).run();
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS worker_agent_links (
       phone TEXT NOT NULL,
       agent_id TEXT NOT NULL,
