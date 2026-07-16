@@ -1,19 +1,27 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
 
-function RegisterForm() {
+export default function RegisterPage() {
   const { lang } = useLanguageStore();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const referral = searchParams.get("ref") || "";
+  const [referral, setReferral] = useState("");
 
-  const [form, setForm] = useState({ name: "", phone: "", password: "", confirmPassword: "", referralCode: referral });
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setReferral(params.get("ref") || "");
+  }, []);
+
+  const [form, setForm] = useState({ name: "", phone: "", password: "", confirmPassword: "", referralCode: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, referralCode: referral }));
+  }, [referral]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,13 +181,5 @@ function RegisterForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function RegisterPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <RegisterForm />
-    </Suspense>
   );
 }
