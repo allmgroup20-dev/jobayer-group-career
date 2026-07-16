@@ -39,7 +39,7 @@ export function verifyToken(token: string, secret: string): { sub: string; type:
 }
 
 export function generateWorkerId(name: string, phone: string): string {
-  const prefix = "JG";
+  const prefix = "JGC";
   const namePart = name.substring(0, 2).toUpperCase();
   const phonePart = phone.slice(-4);
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
