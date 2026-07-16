@@ -53,6 +53,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/settings", en: "Settings", bn: "সেটিংস", icon: "⚙️" },
       { href: "/company/users", en: "Users", bn: "ব্যবহারকারী", icon: "🔐" },
       { href: "/company/translations", en: "Translations", bn: "অনুবাদ", icon: "🌐" },
+      { href: "/company/fingerprint", en: "Fingerprint", bn: "ফিঙ্গারপ্রিন্ট", icon: "🔐" },
       { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪" },
       { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄" },
     ],

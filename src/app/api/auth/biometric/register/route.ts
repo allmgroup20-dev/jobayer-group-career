@@ -4,17 +4,17 @@ import { getDB } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
-    const { workerId, credentialId, publicKey, deviceName } = await request.json() as {
-      workerId: string; credentialId: string; publicKey: string; deviceName?: string;
+    const { workerId, credentialId, publicKey, deviceName, userType } = await request.json() as {
+      workerId: string; credentialId: string; publicKey: string; deviceName?: string; userType?: string;
     };
     if (!workerId || !credentialId || !publicKey) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
     const env = await getDB();
     await execute(env,
-      `INSERT INTO biometric_credentials (worker_id, credential_id, public_key, device_name)
-       VALUES (?, ?, ?, ?)`,
-      [workerId, credentialId, publicKey, deviceName || ""]
+      `INSERT INTO biometric_credentials (worker_id, credential_id, public_key, device_name, user_type)
+       VALUES (?, ?, ?, ?, ?)`,
+      [workerId, credentialId, publicKey, deviceName || "", userType || "worker"]
     );
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error: any) {
@@ -27,10 +27,13 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { workerId } = await request.json() as { workerId: string };
-    if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
+    const { workerId, userType } = await request.json() as { workerId: string; userType?: string };
+    if (!workerId) return NextResponse.json({ error: "workerId/username required" }, { status: 400 });
     const env = await getDB();
-    await execute(env, "DELETE FROM biometric_credentials WHERE worker_id = ?", [workerId]);
+    await execute(env,
+      "DELETE FROM biometric_credentials WHERE worker_id = ? AND user_type = ?",
+      [workerId, userType || "worker"]
+    );
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

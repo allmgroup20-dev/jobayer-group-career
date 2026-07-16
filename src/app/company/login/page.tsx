@@ -31,6 +31,47 @@ export default function CompanyLoginPage() {
     }
   };
 
+  const handleFingerprint = async () => {
+    if (!username) return alert(lang === "bn" ? "প্রথমে ইউজারনেম দিন" : "Enter username first");
+    setLoading(true);
+    setError("");
+    try {
+      const bioRes = await fetch("/api/auth/biometric/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "begin", workerId: username, userType: "company" }),
+      });
+      const bioData = await bioRes.json() as { error?: string; challenge?: string; credentials?: { id: string; deviceName: string }[] };
+      if (!bioRes.ok) throw new Error(bioData.error || "No biometric setup found");
+      if (!window.PublicKeyCredential) {
+        throw new Error(lang === "bn" ? "এই ব্রাউজার ফিঙ্গারপ্রিন্ট সাপোর্ট করে না" : "Browser does not support fingerprint");
+      }
+      const credential = (await navigator.credentials.get({
+        publicKey: {
+          challenge: Uint8Array.from(atob(bioData.challenge!), (c) => c.charCodeAt(0)),
+          allowCredentials: bioData.credentials!.map((c) => ({
+            id: Uint8Array.from(atob(c.id!), (ch) => ch.charCodeAt(0)),
+            type: "public-key" as PublicKeyCredentialType,
+          })),
+          userVerification: "required" as UserVerificationRequirement,
+        },
+      })) as PublicKeyCredential;
+      const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+      const finishRes = await fetch("/api/auth/biometric/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "complete", credentialId: credId }),
+      });
+      const finishData = await finishRes.json() as { error?: string; token?: string; userType?: string };
+      if (!finishRes.ok) throw new Error(finishData.error || "Biometric auth failed");
+      window.location.href = "/company";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Biometric login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-gray-50">
       <div className="w-full max-w-sm animate-fade-up">
@@ -75,9 +116,24 @@ export default function CompanyLoginPage() {
               </button>
             </div>
           </div>
-          <button type="submit" disabled={loading} className="btn-primary w-full text-base !py-3.5">
-            {loading ? (lang === "bn" ? "লগইন হচ্ছে..." : "Logging in...") : (lang === "bn" ? "লগইন" : "Login")}
-          </button>
+          <div className="flex gap-3">
+            <button type="submit" disabled={loading} className="btn-primary flex-1 text-base !py-3.5">
+              {loading ? (lang === "bn" ? "লগইন হচ্ছে..." : "Logging in...") : (lang === "bn" ? "লগইন" : "Login")}
+            </button>
+            <button
+              type="button"
+              onClick={handleFingerprint}
+              disabled={loading}
+              className="w-14 h-14 rounded-xl bg-gradient-to-br from-action/10 to-accent/10 border border-action/20 flex items-center justify-center hover:bg-action/20 transition-all shrink-0 disabled:opacity-50"
+              title={lang === "bn" ? "ফিঙ্গারপ্রিন্ট দিয়ে লগইন" : "Login with fingerprint"}
+            >
+              <svg className="w-6 h-6 text-action" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16.5V9.5C7 6.46 9.24 4 12 4c2.76 0 5 2.46 5 5.5v2M12 13v4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 14.5v-2A7 7 0 0119 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12a9 9 0 0118 0v2M8 12a4 4 0 018 0M12 20v-1" />
+              </svg>
+            </button>
+          </div>
           <p className="text-xs text-text-secondary text-center">
             {lang === "bn" ? "শুধুমাত্র কোম্পানি অনুমোদিত ব্যক্তির জন্য" : "For authorized company personnel only"}
           </p>

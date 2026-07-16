@@ -665,11 +665,14 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS biometric_credentials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       worker_id TEXT NOT NULL,
+      user_type TEXT DEFAULT 'worker',
       credential_id TEXT UNIQUE NOT NULL,
       public_key TEXT NOT NULL,
       device_name TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    // Migrate: add user_type column if missing (idempotent)
+    await env.DB.prepare(`ALTER TABLE biometric_credentials ADD COLUMN user_type TEXT DEFAULT 'worker'`).run().catch(() => {});
 
     g[DONE_FLAG] = true;
   } catch (e) {

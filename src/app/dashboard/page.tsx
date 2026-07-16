@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
-interface Channel { id: string; label: string; labelBn: string; enabled?: boolean }
+interface Channel { id: string; label: string; labelBn: string; enabled?: boolean; status?: "active" | "paused" }
 const DEFAULT_CHANNELS: Channel[] = [
   { id: "bkash", label: "bKash", labelBn: "বিকাশ" },
   { id: "nagad", label: "Nagad", labelBn: "নগদ" },
@@ -28,6 +28,9 @@ export default function WorkerDashboard() {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawChannel, setWithdrawChannel] = useState("bkash");
   const [withdrawAccount, setWithdrawAccount] = useState("");
+  const [paySysActive, setPaySysActive] = useState(true);
+  const [nextPayDate, setNextPayDate] = useState("");
+  const [payInterval, setPayInterval] = useState(7);
 
   useEffect(() => {
     const workerId = localStorage.getItem("worker_id");
@@ -36,7 +39,8 @@ export default function WorkerDashboard() {
     Promise.all([
       fetch(`/api/workers/profile?workerId=${workerId}`).then(r => r.json() as Promise<Record<string, unknown>>),
       fetch("/api/company/settings").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => ({} as Record<string, unknown>)),
-    ]).then(([profile, settings]) => {
+      fetch("/api/company/payment-schedule").then(r => r.json()).catch(() => ({})),
+    ]).then(([profile, settings, schedule]: [any, any, any]) => {
       if (profile?.workerId) setWorker(profile as any);
       const s = settings && typeof settings.settings === "object" ? (settings.settings as Record<string, string>) : {};
       const mw = parseInt(s.min_withdrawal || "500");
@@ -48,6 +52,11 @@ export default function WorkerDashboard() {
           if (Array.isArray(saved)) setChannels(saved);
         }
       } catch {}
+      if (schedule && typeof schedule.systemActive === "boolean") {
+        setPaySysActive(schedule.systemActive as boolean);
+        setNextPayDate((schedule.nextPaymentDate as string) || "");
+        setPayInterval(schedule.intervalDays as number || 7);
+      }
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -195,6 +204,35 @@ export default function WorkerDashboard() {
           </Card>
 
           <Card>
+            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "পেমেন্ট শিডিউল" : "Payment Schedule"}</h3>
+            <div className={`p-3 rounded-xl text-sm ${paySysActive ? "bg-green-50" : "bg-red-50"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`w-2.5 h-2.5 rounded-full ${paySysActive ? "bg-green-500" : "bg-red-500"}`} />
+                <span className={`font-medium ${paySysActive ? "text-green-700" : "text-red-700"}`}>
+                  {paySysActive
+                    ? (lang === "bn" ? "পেমেন্ট সিস্টেম চালু আছে" : "Payment system is active")
+                    : (lang === "bn" ? "পেমেন্ট সিস্টেম বর্তমানে বন্ধ" : "Payment system is disabled")}
+                </span>
+              </div>
+              {nextPayDate && (
+                <p className="text-text-secondary">
+                  {lang === "bn" ? "পরবর্তী পেমেন্ট:" : "Next Payment:"}{" "}
+                  {new Date(nextPayDate).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                </p>
+              )}
+              <p className="text-text-secondary text-xs mt-1">
+                {lang === "bn" ? `প্রতি ${payInterval} দিন পর পর` : `Every ${payInterval} days`}
+              </p>
+            </div>
+            <div className="mt-3 text-xs text-text-secondary">
+              {lang === "bn" ? `আপনার ব্যালেন্স: ৳${worker.balance.toLocaleString()}` : `Your balance: ৳${worker.balance.toLocaleString()}`}
+              {lang === "bn" ? ` | ন্যূনতম উইথড্র: ৳${minWithdraw.toLocaleString()}` : ` | Min withdrawal: ৳${minWithdraw.toLocaleString()}`}
+            </div>
+          </Card>
+        </div>
+
+        <div className="mt-6">
+          <Card>
             <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "দ্রুত উইথড্র" : "Quick Withdraw"}</h3>
             <div className="space-y-3">
               <div>
@@ -226,27 +264,41 @@ export default function WorkerDashboard() {
                   {lang === "bn" ? "পেমেন্ট চ্যানেল" : "Payment Channel"}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {channels.filter((ch) => ch.enabled !== false).map((ch) => (
-                    <button
-                      key={ch.id}
-                      type="button"
-                      onClick={() => setWithdrawChannel(ch.id)}
-                      className={`py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
-                        withdrawChannel === ch.id
-                          ? "border-action bg-action/10 text-action"
-                          : "border-border text-text-secondary hover:border-action/50"
-                      }`}
-                    >
-                      {lang === "bn" ? ch.labelBn || ch.label : ch.label}
-                    </button>
-                  ))}
+                  {channels.filter((ch) => ch.enabled !== false).map((ch) => {
+                    const isPaused = ch.status === "paused";
+                    return (
+                      <button
+                        key={ch.id}
+                        type="button"
+                        onClick={() => !isPaused && setWithdrawChannel(ch.id)}
+                        disabled={isPaused}
+                        title={isPaused ? (lang === "bn" ? "এই চ্যানেলটি সাময়িকভাবে বন্ধ রয়েছে" : "This channel is temporarily paused") : ""}
+                        className={`py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
+                          isPaused
+                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed line-through"
+                            : withdrawChannel === ch.id
+                              ? "border-action bg-action/10 text-action"
+                              : "border-border text-text-secondary hover:border-action/50"
+                        }`}
+                      >
+                        {lang === "bn" ? ch.labelBn || ch.label : ch.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <button
                 onClick={doWithdraw}
-                className="btn-primary w-full text-xs !py-3"
+                disabled={!paySysActive}
+                className={`w-full text-xs !py-3 rounded-xl font-medium transition-all ${
+                  !paySysActive
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "btn-primary"
+                }`}
               >
-                {lang === "bn" ? "উইথড্র" : "Withdraw"}
+                {!paySysActive
+                  ? (lang === "bn" ? "পেমেন্ট সিস্টেম বন্ধ" : "Payment Disabled")
+                  : (lang === "bn" ? "উইথড্র" : "Withdraw")}
               </button>
             </div>
             <p className="text-xs text-text-secondary mt-2">

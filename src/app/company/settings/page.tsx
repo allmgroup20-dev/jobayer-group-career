@@ -10,13 +10,24 @@ interface Channel {
   label: string;
   labelBn: string;
   enabled: boolean;
+  status?: "active" | "paused";
 }
 
 const DEFAULT_CHANNELS: Channel[] = [
-  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true },
-  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true },
-  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true },
-  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false },
+  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true, status: "active" },
+  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true, status: "active" },
+  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true, status: "active" },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false, status: "active" },
+];
+
+const WEEKDAYS = [
+  { id: 0, en: "Sunday", bn: "রবিবার" },
+  { id: 1, en: "Monday", bn: "সোমবার" },
+  { id: 2, en: "Tuesday", bn: "মঙ্গলবার" },
+  { id: 3, en: "Wednesday", bn: "বুধবার" },
+  { id: 4, en: "Thursday", bn: "বৃহস্পতিবার" },
+  { id: 5, en: "Friday", bn: "শুক্রবার" },
+  { id: 6, en: "Saturday", bn: "শনিবার" },
 ];
 
 export default function CompanySettingsPage() {
@@ -24,6 +35,7 @@ export default function CompanySettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
   const [form, setForm] = useState({
     companyName: "",
     companyEmail: "",
@@ -37,37 +49,58 @@ export default function CompanySettingsPage() {
   });
   const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
 
+  // Payment schedule state
+  const [intervalDays, setIntervalDays] = useState(7);
+  const [dayOfWeek, setDayOfWeek] = useState(5);
+  const [systemActive, setSystemActive] = useState(true);
+  const [nextPaymentDate, setNextPaymentDate] = useState("");
+
   useEffect(() => {
-    fetch("/api/company/settings")
-      .then((r) => r.json() as Promise<{ settings?: Record<string, string> }>)
-      .then((data) => {
-        if (data.settings) {
-          const s = data.settings;
-          setForm((prev) => ({
-            ...prev,
-            companyName: s.company_name || prev.companyName,
-            companyEmail: s.company_email || prev.companyEmail,
-            companyPhone: s.company_phone || prev.companyPhone,
-            companyAddress: s.company_address || prev.companyAddress,
-            minWithdrawal: s.min_withdrawal || prev.minWithdrawal,
-            registrationBonus: s.registration_bonus || prev.registrationBonus,
-            primaryColor: s.primary_color || prev.primaryColor,
-            secondaryColor: s.secondary_color || prev.secondaryColor,
-            actionColor: s.action_color || prev.actionColor,
-          }));
-          try {
-            const bc = (s as any).banking_channels ? JSON.parse((s as any).banking_channels) : null;
-            if (bc && Array.isArray(bc)) setChannels(bc);
-          } catch {}
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/company/settings").then((r) => r.json() as Promise<{ settings?: Record<string, string> }>),
+      fetch("/api/company/payment-schedule").then((r) => r.json()).catch(() => ({})),
+    ]).then(([data, schedule]: [any, any]) => {
+      if (data.settings) {
+        const s = data.settings;
+        setForm((prev) => ({
+          ...prev,
+          companyName: s.company_name || prev.companyName,
+          companyEmail: s.company_email || prev.companyEmail,
+          companyPhone: s.company_phone || prev.companyPhone,
+          companyAddress: s.company_address || prev.companyAddress,
+          minWithdrawal: s.min_withdrawal || prev.minWithdrawal,
+          registrationBonus: s.registration_bonus || prev.registrationBonus,
+          primaryColor: s.primary_color || prev.primaryColor,
+          secondaryColor: s.secondary_color || prev.secondaryColor,
+          actionColor: s.action_color || prev.actionColor,
+        }));
+        try {
+          const bc = (s as any).banking_channels ? JSON.parse((s as any).banking_channels) : null;
+          if (bc && Array.isArray(bc)) setChannels(bc);
+        } catch {}
+      }
+      if (schedule && typeof schedule.intervalDays === "number") {
+        setIntervalDays(schedule.intervalDays as number);
+        setDayOfWeek(schedule.dayOfWeek as number);
+        setSystemActive(schedule.systemActive as boolean);
+        setNextPaymentDate((schedule.nextPaymentDate as string) || "");
+      }
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const toggleChannel = (id: string) => {
     setChannels((prev) =>
       prev.map((ch) => (ch.id === id ? { ...ch, enabled: !ch.enabled } : ch))
+    );
+  };
+
+  const toggleChannelStatus = (id: string) => {
+    setChannels((prev) =>
+      prev.map((ch) =>
+        ch.id === id
+          ? { ...ch, status: ch.status === "paused" ? "active" : "paused" as "active" | "paused" }
+          : ch
+      )
     );
   };
 
@@ -86,13 +119,24 @@ export default function CompanySettingsPage() {
       { key: "banking_channels", value: JSON.stringify(channels) },
     ];
     try {
-      await fetch("/api/company/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings }),
-      });
+      await Promise.all([
+        fetch("/api/company/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ settings }),
+        }),
+        fetch("/api/company/payment-schedule", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intervalDays, dayOfWeek, systemActive }),
+        }),
+      ]);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+      // Refresh next payment date
+      fetch("/api/company/payment-schedule").then((r) => r.json()).then((d: any) => {
+        if (d.nextPaymentDate) setNextPaymentDate(d.nextPaymentDate);
+      }).catch(() => {});
     } catch {
       alert(lang === "bn" ? "সেভ ব্যর্থ" : "Save failed");
     } finally {
@@ -157,30 +201,128 @@ export default function CompanySettingsPage() {
 
           <Card>
             <h3 className="font-bold text-primary mb-4">
+              {lang === "bn" ? "পেমেন্ট শিডিউল" : "Payment Schedule"}
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-xl">
+                <span className="text-sm font-medium text-primary">
+                  {lang === "bn" ? "পেমেন্ট সিস্টেম" : "Payment System"}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSystemActive(true)}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      systemActive ? "bg-action text-white" : "bg-gray-200 text-text-secondary"
+                    }`}
+                  >
+                    {lang === "bn" ? "সক্রিয়" : "Active"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSystemActive(false)}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      !systemActive ? "bg-red-500 text-white" : "bg-gray-200 text-text-secondary"
+                    }`}
+                  >
+                    {lang === "bn" ? "নিষ্ক্রিয়" : "Disabled"}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  {lang === "bn" ? "পেমেন্ট Interval (দিন)" : "Payment Interval (Days)"}
+                </label>
+                <select
+                  value={intervalDays}
+                  onChange={(e) => setIntervalDays(parseInt(e.target.value))}
+                  className="input-field"
+                >
+                  {[1, 3, 7, 14, 15, 30].map((d) => (
+                    <option key={d} value={d}>{d} {lang === "bn" ? "দিন" : "days"}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  {lang === "bn" ? "পেমেন্টের দিন" : "Payment Day of Week"}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {WEEKDAYS.map((wd) => (
+                    <button
+                      key={wd.id}
+                      type="button"
+                      onClick={() => setDayOfWeek(wd.id)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all ${
+                        dayOfWeek === wd.id
+                          ? "border-action bg-action/10 text-action"
+                          : "border-border text-text-secondary hover:border-action/50"
+                      }`}
+                    >
+                      {lang === "bn" ? wd.bn : wd.en}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {nextPaymentDate && (
+                <div className="p-3 bg-blue-50 rounded-xl text-sm text-blue-700">
+                  {lang === "bn"
+                    ? `পরবর্তী পেমেন্ট: ${new Date(nextPaymentDate).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })}`
+                    : `Next Payment: ${new Date(nextPaymentDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`}
+                </div>
+              )}
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-primary mb-4">
               {lang === "bn" ? "ব্যাংকিং চ্যানেল" : "Banking Channels"}
             </h3>
             <p className="text-sm text-text-secondary mb-4">
               {lang === "bn"
-                ? "কোন চ্যানেল সক্রিয় রাখলে তা ইউজার ড্যাশবোর্ডে উইথড্র অপশন হিসেবে দেখাবে"
-                : "Active channels will appear as withdrawal options in user dashboard"}
+                ? "সক্রিয় চ্যানেল ইউজার ড্যাশবোর্ডে দেখাবে, সাময়িক বন্ধ চ্যানেল গ্রে আউট থাকবে"
+                : "Active channels appear in dashboard, paused channels are grayed out"}
             </p>
             <div className="space-y-3">
               {channels.map((ch) => (
                 <div key={ch.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-xl">
-                  <span className="text-sm font-medium text-primary">
-                    {lang === "bn" ? ch.labelBn : ch.label}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => toggleChannel(ch.id)}
-                    className={`relative w-12 h-6 rounded-full transition-all ${
-                      ch.enabled ? "bg-action" : "bg-gray-300"
-                    }`}
-                  >
-                    <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all shadow-sm ${
-                      ch.enabled ? "left-6" : "left-0.5"
-                    }`} />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleChannel(ch.id)}
+                      className={`relative w-12 h-6 rounded-full transition-all ${
+                        ch.enabled ? "bg-action" : "bg-gray-300"
+                      }`}
+                    >
+                      <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all shadow-sm ${
+                        ch.enabled ? "left-6" : "left-0.5"
+                      }`} />
+                    </button>
+                    <span className="text-sm font-medium text-primary">
+                      {lang === "bn" ? ch.labelBn : ch.label}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleChannelStatus(ch.id)}
+                      disabled={!ch.enabled}
+                      className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                        !ch.enabled
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : ch.status === "paused"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {ch.status === "paused"
+                        ? (lang === "bn" ? "সাময়িক বন্ধ" : "Paused")
+                        : (lang === "bn" ? "চালু" : "Active")}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

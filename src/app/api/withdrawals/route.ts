@@ -14,6 +14,15 @@ export async function POST(request: NextRequest) {
     }
 
     const env = await getDB();
+
+    // Check if payment system is active
+    const paySetting = await query<{ setting_value: string }>(
+      env, "SELECT setting_value FROM company_settings WHERE setting_key = 'payment_system_active'"
+    );
+    if (paySetting.length > 0 && paySetting[0].setting_value === "0") {
+      return NextResponse.json({ error: "Payment system is currently disabled" }, { status: 400 });
+    }
+
     const worker = await query<{ worker_id: string; balance: number; name: string; phone: string }>(
       env, "SELECT worker_id, balance, name, phone FROM workers WHERE worker_id = ?", [workerId]
     );
