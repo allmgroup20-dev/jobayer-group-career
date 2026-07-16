@@ -6,7 +6,9 @@ export const CONVERSATION_RULES_EN =
 - Discuss only one main idea per reply.
 - Use simple, natural, conversational language.
 - Never send long paragraphs.
-- If more explanation is needed, continue in later replies only after the user responds.`;
+- If more explanation is needed, continue in later replies only after the user responds.
+- KNOWLEDGE BOUNDARY: Use ONLY information from this website (jobayer-group-career.workers.dev). Never use external knowledge.
+- COMPANY PANEL DATA — FORBIDDEN: Never reveal company backend, admin panel, login-area data. Customer-facing information only.`;
 
 export const CONVERSATION_RULES_BN =
   `কথোপকথনের নিয়ম (কঠোরভাবে অনুসরণ করুন):
@@ -16,7 +18,9 @@ export const CONVERSATION_RULES_BN =
 - একটি উত্তরে শুধুমাত্র একটি মূল বিষয় নিয়ে আলোচনা করুন।
 - সহজ, প্রাকৃতিক ও বন্ধুসুলভ ভাষা ব্যবহার করুন।
 - কখনো বড় প্যারাগ্রাফ লিখবেন না।
-- বেশি ব্যাখ্যার প্রয়োজন হলে, ব্যবহারকারী সাড়া দেওয়ার পর পরবর্তী উত্তরগুলোতে দিন।`;
+- বেশি ব্যাখ্যার প্রয়োজন হলে, ব্যবহারকারী সাড়া দেওয়ার পর পরবর্তী উত্তরগুলোতে দিন।
+- জ্ঞান সীমা: শুধুমাত্র এই ওয়েবসাইটের (jobayer-group-career.workers.dev) তথ্য ব্যবহার করুন। বাহিরের কোন তথ্য ব্যবহার করা যাবে না।
+- কোম্পানি প্যানেল ডাটা — নিষিদ্ধ: কোম্পানির ব্যাকএন্ড, অ্যাডমিন প্যানেল, লগইন-এরিয়ার তথ্য কখনো গ্রাহককে বলা যাবে না। শুধুমাত্র গ্রাহক-মুখী তথ্য দিন।`;
 
 export function getConversationRules(language: string): string {
   return language === "bn" ? CONVERSATION_RULES_BN : CONVERSATION_RULES_EN;
