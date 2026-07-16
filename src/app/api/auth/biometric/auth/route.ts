@@ -28,20 +28,16 @@ export async function POST(request: NextRequest) {
 
       if (!wid) return NextResponse.json({ error: "Identifier required" }, { status: 400 });
 
-      const creds = await query<{ credential_id: string; device_name: string }>(
+      const exists = await query<{ c: number }>(
         env,
-        "SELECT credential_id, device_name FROM biometric_credentials WHERE worker_id = ? AND user_type = ?",
+        "SELECT COUNT(*) as c FROM biometric_credentials WHERE worker_id = ? AND user_type = ?",
         [wid, ut]
       );
-      if (creds.length === 0) {
+      if (!exists[0]?.c) {
         return NextResponse.json({ error: "No biometric credentials found" }, { status: 404 });
       }
       const challenge = btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((s, b) => s + String.fromCharCode(b), ""));
-      return NextResponse.json({
-        challenge,
-        credentials: creds.map((c) => ({ id: c.credential_id, deviceName: c.device_name })),
-        userType: ut,
-      });
+      return NextResponse.json({ challenge, userType: ut });
     }
 
     if (action === "complete") {

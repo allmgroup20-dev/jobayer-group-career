@@ -61,10 +61,6 @@ export default function LoginPage() {
       const credential = (await navigator.credentials.get({
         publicKey: {
           challenge: Uint8Array.from(atob(bioData.challenge!), (c) => c.charCodeAt(0)),
-          allowCredentials: bioData.credentials!.map((c) => ({
-            id: Uint8Array.from(atob(c.id!), (ch) => ch.charCodeAt(0)),
-            type: "public-key" as PublicKeyCredentialType,
-          })),
           userVerification: "required" as UserVerificationRequirement,
         },
       })) as PublicKeyCredential;
