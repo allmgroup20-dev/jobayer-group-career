@@ -307,6 +307,19 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
+    // AI response cache — same query → same answer (0 tokens on repeat)
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS ai_response_cache (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      query_hash TEXT NOT NULL,
+      normalized_query TEXT NOT NULL,
+      response TEXT NOT NULL,
+      agent_id TEXT DEFAULT '',
+      phone TEXT DEFAULT '',
+      hit_count INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      last_accessed_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     // Seed 100% free AI models — OpenRouter (verified pricing=0) + OpenCode
     // First wipe stale models so DB matches the current plan exactly
     await env.DB.prepare(`DELETE FROM ai_models WHERE provider IN ('openrouter', 'opencode')`).run();
