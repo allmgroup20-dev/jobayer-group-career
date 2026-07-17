@@ -361,9 +361,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
 
     // Seed 100% free AI models — OpenRouter (verified pricing=0) + OpenCode
-    // First wipe stale models so DB matches the current plan exactly
-    await env.DB.prepare(`DELETE FROM ai_models WHERE provider IN ('openrouter', 'opencode')`).run();
-    await env.DB.prepare(`INSERT INTO ai_models (model_id, name, provider, tier) VALUES
+    await env.DB.prepare(`INSERT OR IGNORE INTO ai_models (model_id, name, provider, tier) VALUES
       -- OpenRouter free models (verified 100% free via API)
       ('openrouter/free',                                'Free Models Router (Auto)',        'openrouter', 1),
       ('meta-llama/llama-3.3-70b-instruct:free',         'Llama 3.3 70B Instruct Free',      'openrouter', 1),
@@ -388,7 +386,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('tencent/hy3:free',                                'Tencent Hy3 Free',                 'openrouter', 5)
     `).run();
     // OpenCode free models
-    await env.DB.prepare(`INSERT INTO ai_models (model_id, name, provider, tier) VALUES
+    await env.DB.prepare(`INSERT OR IGNORE INTO ai_models (model_id, name, provider, tier) VALUES
       ('deepseek-v4-flash-free',   'DeepSeek V4 Flash Free (OpenCode)',  'opencode', 1),
       ('nemotron-3-ultra-free',    'Nemotron 3 Ultra Free (OpenCode)',   'opencode', 2),
       ('mimo-v2.5-free',           'MiMo V2.5 Free (OpenCode)',          'opencode', 3),

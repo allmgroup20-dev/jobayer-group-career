@@ -155,7 +155,7 @@ export async function POST(request: Request) {
           );
           if (!existing) {
             await execute({ DB: db },
-              "INSERT INTO ai_models (model_id, name, provider, tier, is_active) VALUES (?, ?, 'openrouter', 4, 1)",
+              "INSERT OR IGNORE INTO ai_models (model_id, name, provider, tier, is_active) VALUES (?, ?, 'openrouter', 4, 1)",
               [m.id, m.name || m.id]
             );
             added++;
