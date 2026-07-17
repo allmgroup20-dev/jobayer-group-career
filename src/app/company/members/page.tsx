@@ -144,6 +144,24 @@ export default function CompanyMembersPage() {
     finally { setSaving(false); }
   };
 
+  const loginAsMember = async (m: Member) => {
+    try {
+      const res = await fetch("/api/company/impersonate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: m.workerId }),
+      });
+      const data = await res.json() as { error?: string; token?: string; workerId?: string };
+      if (!res.ok) throw new Error(data.error || "Impersonation failed");
+      if (data.token) {
+        localStorage.setItem("worker_token", data.token);
+        localStorage.setItem("worker_id", data.workerId || m.workerId);
+        window.open("/dashboard", "_blank");
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to login as member");
+    }
+  };
+
   const togglePremium = async (m: Member) => {
     const newStatus = m.membershipStatus === "premium" ? "active" : "premium";
     try {
@@ -293,6 +311,7 @@ export default function CompanyMembersPage() {
                     <th className="text-center p-3 text-xs font-semibold text-primary">{lang === "bn" ? "টিম" : "Team"}</th>
                     <th className="text-center p-3 text-xs font-semibold text-primary">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
                     <th className="text-center p-3 text-xs font-semibold text-primary">⭐</th>
+                    <th className="text-center p-3 text-xs font-semibold text-primary">{lang === "bn" ? "লগইন" : "Login"}</th>
                     <th className="text-center p-3 text-xs font-semibold text-primary">{lang === "bn" ? "কাজ" : "Actions"}</th>
                   </tr>
                 </thead>
@@ -319,6 +338,12 @@ export default function CompanyMembersPage() {
                           className={`text-lg transition-all ${m.membershipStatus === "premium" ? "scale-110" : "grayscale opacity-40 hover:opacity-100 hover:grayscale-0"}`}
                           title={m.membershipStatus === "premium" ? (lang === "bn" ? "প্রিমিয়াম সরান" : "Remove Premium") : (lang === "bn" ? "প্রিমিয়াম করুন" : "Make Premium")}
                         >⭐</button>
+                      </td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => loginAsMember(m)}
+                          className="px-2.5 py-1 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
+                          title={lang === "bn" ? "এই মেম্বার হিসেবে লগইন করুন" : "Login as this member"}
+                        >🔑 {lang === "bn" ? "লগইন" : "Login"}</button>
                       </td>
                       <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1">
