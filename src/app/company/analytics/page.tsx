@@ -128,7 +128,36 @@ export default function CompanyAnalyticsPage() {
           </Card>
         </div>
 
-        <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-primary">{lang === "bn" ? "কনভার্সন ফানেল" : "Conversion Funnel"}</h3>
+              <a href="/company/funnel" className="text-xs text-primary hover:underline">
+                {lang === "bn" ? "পূর্ণ বিশ্লেষণ" : "Full Analysis"}
+              </a>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {[{s:"visit",ico:"👁️",bn:"ভিজিট"},{s:"interest",ico:"🔍",bn:"আগ্রহ"},{s:"view",ico:"📦",bn:"দেখা"},{s:"cart",ico:"🛒",bn:"কার্ট"},{s:"purchase",ico:"✅",bn:"ক্রয়"}].map((item) => {
+                let cnt = 0;
+                for (const e of eventStats) {
+                  if (item.s === "visit" && e.event_type === "page_view") cnt += e.count;
+                  else if (item.s === "interest" && (e.event_type === "search" || e.event_type === "product_view")) cnt += e.count;
+                  else if (item.s === "view" && e.event_type === "product_view") cnt += e.count;
+                  else if (item.s === "cart" && e.event_type === "add_to_cart") cnt += e.count;
+                  else if (item.s === "purchase" && e.event_type === "purchase") cnt += e.count;
+                }
+                return (
+                  <div key={item.s} className="text-center p-2 rounded-lg bg-gray-50">
+                    <div className="text-lg">{item.ico}</div>
+                    <div className="text-xs text-text-secondary capitalize mt-1">{lang === "bn" ? item.bn : item.s}</div>
+                    <div className="text-sm font-bold text-primary">{cnt.toLocaleString()}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card>
           <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "ইভেন্ট টাইপ" : "Event Types"}</h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {eventStats.map(e => {
@@ -147,6 +176,7 @@ export default function CompanyAnalyticsPage() {
           </div>
         </Card>
       </div>
+    </div>
     </div>
   );
 }
