@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function ProfilePage() {
   const { lang } = useLanguageStore();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "", city: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "", city: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -24,7 +24,7 @@ export default function ProfilePage() {
       .then((r) => r.json() as Promise<{ workerId?: string; name?: string; phone?: string; email?: string; membershipStatus?: string }>)
       .then((data: any) => {
         if (data.workerId) {
-          setForm({ name: data.name || "", phone: data.phone || "", email: data.email || "", password: "", workerId: data.workerId, ageGroup: data.ageGroup || "", occupation: data.occupation || "", educationLevel: data.educationLevel || "", preferredLanguage: data.preferredLanguage || "bn", gender: data.gender || "", country: data.country || "", city: data.city || "", goal: data.goal || "", preferredLearningTime: data.preferredLearningTime || "", referralSource: data.referralSource || "", communicationPreference: data.communicationPreference || "whatsapp", budgetRange: data.budgetRange || "" });
+          setForm({ name: data.name || "", phone: data.phone || "", email: data.email || "", password: "", workerId: data.workerId, ageGroup: data.ageGroup || "", occupation: data.occupation || "", educationLevel: data.educationLevel || "", preferredLanguage: data.preferredLanguage || "bn", gender: data.gender || "", country: data.country || "", city: data.city || "", goal: data.goal || "", preferredLearningTime: data.preferredLearningTime || "", referralSource: data.referralSource || "", communicationPreference: data.communicationPreference || "whatsapp", budgetRange: data.budgetRange || "", religion: data.religion || "" });
           if (data.membershipStatus) setMembershipStatus(data.membershipStatus);
         }
       })
@@ -58,6 +58,7 @@ export default function ProfilePage() {
     if (form.referralSource) body.referralSource = form.referralSource;
     if (form.communicationPreference) body.communicationPreference = form.communicationPreference;
     if (form.budgetRange) body.budgetRange = form.budgetRange;
+    if (form.religion) body.religion = form.religion;
     try {
       const res = await fetch("/api/workers/profile", {
         method: "PUT",
@@ -315,6 +316,26 @@ export default function ProfilePage() {
                   <option value="3000_5000">{lang === "bn" ? "৩,০০০ - ৫,০০০" : "3,000 - 5,000 ৳"}</option>
                   <option value="5000_10000">{lang === "bn" ? "৫,০০০ - ১০,০০০" : "5,000 - 10,000 ৳"}</option>
                   <option value="over_10000">{lang === "bn" ? "১০,০০০ এর উপরে" : "Above 10,000 ৳"}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ধর্ম" : "Religion"}</label>
+                <select value={form.religion} onChange={(e) => setForm({ ...form, religion: e.target.value })} className="input-field">
+                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
+                  <option value="islam">{lang === "bn" ? "ইসলাম" : "Islam"}</option>
+                  <option value="hindu">{lang === "bn" ? "হিন্দু" : "Hindu"}</option>
+                  <option value="buddhist">{lang === "bn" ? "বৌদ্ধ" : "Buddhist"}</option>
+                  <option value="christian">{lang === "bn" ? "খ্রিস্টান" : "Christian"}</option>
+                  <option value="atheist">{lang === "bn" ? "নাস্তিক" : "Atheist"}</option>
+                  <option value="agnostic">{lang === "bn" ? "সঞ্চয়বাদী" : "Agnostic"}</option>
+                  <option value="sanatan">{lang === "bn" ? "সনাতন" : "Sanatan"}</option>
+                  <option value="seventh_day_adventist">{lang === "bn" ? "সেভেনডে অ্যাডভেন্টিস্ট" : "Seventh-day Adventist"}</option>
+                  <option value="tawhidi">{lang === "bn" ? "তাওহীদি" : "Tawhidi"}</option>
+                  <option value="quran_sunnah">{lang === "bn" ? "কোরান-সুন্নাহ" : "Quran Sunnah"}</option>
+                  <option value="sarbabadi">{lang === "bn" ? "সর্ববাদী" : "Sarbabadi"}</option>
+                  <option value="lgbtq">{lang === "bn" ? "এলজিবিটি" : "LGBTQ+"}</option>
+                  <option value="other">{lang === "bn" ? "অন্যান্য" : "Other"}</option>
                 </select>
               </div>
 

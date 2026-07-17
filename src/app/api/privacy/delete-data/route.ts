@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     // Anonymize worker personal data instead of full deletion
     await db.prepare(
-      "UPDATE workers SET name = 'Deleted User', phone = CONCAT('deleted_', worker_id), email = NULL, password = 'DELETED', avatar_url = NULL, preferred_language = NULL, age_group = NULL, occupation = NULL, education_level = NULL WHERE worker_id = ?"
+      "UPDATE workers SET name = 'Deleted User', phone = CONCAT('deleted_', worker_id), email = NULL, password = 'DELETED', avatar_url = NULL, preferred_language = NULL, age_group = NULL, occupation = NULL, education_level = NULL, religion = NULL WHERE worker_id = ?"
     ).bind(workerId).run();
 
     await db.prepare("DELETE FROM user_events WHERE worker_id = ?").bind(workerId).run();

@@ -19,8 +19,9 @@ export async function GET(request: NextRequest) {
               w.total_team_members, w.membership_status, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.avatar_url,
               w.gender, w.country, w.city, w.goal, w.preferred_learning_time,
-              w.referral_source, w.communication_preference, w.budget_range,
-              w.interests_updated_at, w.created_at, w.updated_at,
+               w.referral_source, w.communication_preference, w.budget_range,
+               w.religion,
+               w.interests_updated_at, w.created_at, w.updated_at,
               cl.level_name, cl.level_name_bn
        FROM workers w
        LEFT JOIN commission_levels cl ON cl.level_number = w.level AND cl.is_active = 1
@@ -61,7 +62,8 @@ export async function GET(request: NextRequest) {
       referralSource: worker.referral_source || null,
       communicationPreference: worker.communication_preference || "whatsapp",
       budgetRange: worker.budget_range || null,
-      profileCompleted: !!(worker.name && !worker.name.startsWith("User") && (worker.age_group || worker.occupation || worker.education_level)),
+      religion: worker.religion || null,
+      profileCompleted: !!(worker.name && !worker.name.startsWith("User") && (worker.age_group || worker.occupation || worker.education_level || worker.religion)),
     });
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -100,6 +102,7 @@ export async function PUT(request: NextRequest) {
     if (body.referralSource) { updates.push("referral_source = ?"); params.push(body.referralSource); }
     if (body.communicationPreference) { updates.push("communication_preference = ?"); params.push(body.communicationPreference); }
     if (body.budgetRange) { updates.push("budget_range = ?"); params.push(body.budgetRange); }
+    if (body.religion) { updates.push("religion = ?"); params.push(body.religion); }
 
     if (updates.length === 0) {
       return NextResponse.json({ error: "Nothing to update" }, { status: 400 });

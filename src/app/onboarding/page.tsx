@@ -36,6 +36,7 @@ export default function OnboardingPage() {
   const [referralSource, setReferralSource] = useState("");
   const [communicationPreference, setCommPref] = useState("whatsapp");
   const [budgetRange, setBudgetRange] = useState("");
+  const [religion, setReligion] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -56,6 +57,7 @@ export default function OnboardingPage() {
         if (d.referralSource) setReferralSource(d.referralSource);
         if (d.communicationPreference) setCommPref(d.communicationPreference);
         if (d.budgetRange) setBudgetRange(d.budgetRange);
+        if (d.religion) setReligion(d.religion);
       })
       .catch(() => {});
   }, [router]);
@@ -80,6 +82,7 @@ export default function OnboardingPage() {
       if (referralSource) body.referralSource = referralSource;
       if (communicationPreference) body.communicationPreference = communicationPreference;
       if (budgetRange) body.budgetRange = budgetRange;
+      if (religion) body.religion = religion;
 
       if (Object.keys(body).length > 1) {
         await fetch("/api/workers/profile", {
@@ -187,6 +190,7 @@ export default function OnboardingPage() {
                   <option value="freelancer">{lang === "bn" ? "ফ্রিল্যান্সার" : "Freelancer"}</option>
                   <option value="business">{lang === "bn" ? "ব্যবসায়ী" : "Business Owner"}</option>
                   <option value="homemaker">{lang === "bn" ? "গৃহিণী" : "Homemaker"}</option>
+                  <option value="unemployed">{lang === "bn" ? "বেকার" : "Unemployed"}</option>
                 </select>
               </div>
               <div>
@@ -198,6 +202,25 @@ export default function OnboardingPage() {
                   <option value="bachelor">{lang === "bn" ? "স্নাতক" : "Bachelor's"}</option>
                   <option value="master">{lang === "bn" ? "স্নাতকোত্তর" : "Master's"}</option>
                   <option value="phd">PhD</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ধর্ম" : "Religion"}</label>
+                <select value={religion} onChange={e => setReligion(e.target.value)} className="input-field">
+                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
+                  <option value="islam">{lang === "bn" ? "ইসলাম" : "Islam"}</option>
+                  <option value="hindu">{lang === "bn" ? "হিন্দু" : "Hindu"}</option>
+                  <option value="buddhist">{lang === "bn" ? "বৌদ্ধ" : "Buddhist"}</option>
+                  <option value="christian">{lang === "bn" ? "খ্রিস্টান" : "Christian"}</option>
+                  <option value="atheist">{lang === "bn" ? "নাস্তিক" : "Atheist"}</option>
+                  <option value="agnostic">{lang === "bn" ? "সঞ্চয়বাদী" : "Agnostic"}</option>
+                  <option value="sanatan">{lang === "bn" ? "সনাতন" : "Sanatan"}</option>
+                  <option value="seventh_day_adventist">{lang === "bn" ? "সেভেনডে অ্যাডভেন্টিস্ট" : "Seventh-day Adventist"}</option>
+                  <option value="tawhidi">{lang === "bn" ? "তাওহীদি" : "Tawhidi"}</option>
+                  <option value="quran_sunnah">{lang === "bn" ? "কোরান-সুন্নাহ" : "Quran Sunnah"}</option>
+                  <option value="sarbabadi">{lang === "bn" ? "সর্ববাদী" : "Sarbabadi"}</option>
+                  <option value="lgbtq">{lang === "bn" ? "এলজিবিটি" : "LGBTQ+"}</option>
+                  <option value="other">{lang === "bn" ? "অন্যান্য" : "Other"}</option>
                 </select>
               </div>
               <div>

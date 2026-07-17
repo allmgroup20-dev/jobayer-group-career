@@ -31,6 +31,7 @@ export const workers = sqliteTable("workers", {
   referralSource: text("referral_source"),
   communicationPreference: text("communication_preference").default("whatsapp"),
   budgetRange: text("budget_range"),
+  religion: text("religion"),
   interestsUpdatedAt: text("interests_updated_at"),
   createdAt: text("created_at"),
   updatedAt: text("updated_at"),
