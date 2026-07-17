@@ -61,12 +61,21 @@ function getWorkerId(): string {
   }
 }
 
+function isCompanyLoggedIn(): boolean {
+  try {
+    return document.cookie.includes("company_user=");
+  } catch {
+    return false;
+  }
+}
+
 function getIpHint(): string {
   return "";
 }
 
 async function registerDevice() {
   if (deviceRegistered) return;
+  if (isCompanyLoggedIn()) return;
   const workerId = getWorkerId();
   if (!workerId) return;
   const di = getDeviceInfo();
@@ -91,6 +100,7 @@ async function registerDevice() {
 }
 
 async function trackSessionStart() {
+  if (isCompanyLoggedIn()) return;
   const workerId = getWorkerId();
   if (!workerId || !sessionId) return;
   const di = getDeviceInfo();
@@ -119,6 +129,7 @@ async function trackSessionStart() {
 }
 
 async function trackSessionEnd() {
+  if (isCompanyLoggedIn()) return;
   const workerId = getWorkerId();
   if (!workerId || !sessionId) return;
   try {
@@ -132,6 +143,7 @@ async function trackSessionEnd() {
 }
 
 async function sendEvent(data: Record<string, unknown>) {
+  if (isCompanyLoggedIn()) return;
   try {
     const payload: Record<string, unknown> = {
       ...data,
@@ -152,6 +164,7 @@ export function trackEvent(
   eventType: string,
   extra?: Record<string, unknown>
 ) {
+  if (isCompanyLoggedIn()) return;
   const timeOnPage = pageEnterTime > 0 ? Math.round((Date.now() - pageEnterTime) / 1000) : 0;
   sendEvent({ eventType, timeSpentSeconds: timeOnPage, ...extra });
 }
@@ -161,6 +174,7 @@ export function useTracker() {
   const endedRef = useRef(false);
 
   const trackPageView = useCallback(() => {
+    if (isCompanyLoggedIn()) return;
     const path = window.location.pathname + window.location.search;
     if (path === pathRef.current) return;
     pathRef.current = path;
@@ -187,6 +201,7 @@ export function useTracker() {
   }, []);
 
   useEffect(() => {
+    if (isCompanyLoggedIn()) return;
     const stored = sessionStorage.getItem("tsid");
     if (stored) {
       sessionId = stored;
