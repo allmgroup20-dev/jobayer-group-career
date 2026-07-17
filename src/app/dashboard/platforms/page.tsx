@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 interface PlatformUser {
   phone: string;
@@ -20,24 +21,18 @@ const PLATFORM_LABELS: Record<string, [string, string]> = {
 
 export default function PlatformPreferencesPage() {
   const { lang } = useLanguageStore();
-  const [users, setUsers] = useState<PlatformUser[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editPlatform, setEditPlatform] = useState("whatsapp");
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      const res = await fetch(`/api/platform-prefs?${params}`);
-      const data = await res.json() as { users: PlatformUser[] };
-      setUsers(data.users || []);
-    } catch {} finally { setLoading(false); }
-  }, [search]);
+  const qs = new URLSearchParams();
+  if (search) qs.set("search", search);
+  const { data, loading, refresh } = useSWRFetch<{ users: PlatformUser[] }>(
+    `/api/platform-prefs?${qs}`,
+    { ttlMs: 180_000 }
+  );
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  const users = data?.users || [];
 
   const handleUpdate = async (phone: string) => {
     await fetch("/api/platform-prefs", {
@@ -46,13 +41,13 @@ export default function PlatformPreferencesPage() {
       body: JSON.stringify({ phone, platform: editPlatform }),
     });
     setEditing(null);
-    fetchUsers();
+    refresh();
   };
 
   const handleDelete = async (phone: string) => {
     if (!confirm(lang === "bn" ? "মুছে ফেলবেন?" : "Delete?")) return;
     await fetch(`/api/platform-prefs?phone=${phone}`, { method: "DELETE" });
-    fetchUsers();
+    refresh();
   };
 
   return (

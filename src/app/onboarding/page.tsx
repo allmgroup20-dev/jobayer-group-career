@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 const INTEREST_OPTIONS = [
   { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
@@ -182,62 +183,79 @@ export default function OnboardingPage() {
   const [interestSaved, setInterestSaved] = useState(false);
   const [done, setDone] = useState(false);
 
+  const processed = useRef(false);
+
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
     if (!wid) { router.push("/login"); return; }
     setWorkerId(wid);
-
-    (async () => {
-      try {
-        const [profRes, sugRes] = await Promise.all([
-          fetch(`/api/workers/profile?workerId=${wid}`).then(r => r.json()),
-          fetch("/api/profile/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId: wid }) }).then(r => r.json()),
-        ]);
-
-        const existing = profRes as Record<string, any>;
-        const sug = sugRes as Record<string, any>;
-        setSuggestions(sug);
-
-        const vals = defaultValues();
-        const missing: FieldKey[] = [];
-
-        for (const field of ALL_FIELDS) {
-          const existingVal = existing[field.key] as string | undefined;
-          const suggestedVal = sug[field.key] as string | undefined;
-
-          if (existingVal) {
-            vals[field.key] = existingVal;
-          } else {
-            missing.push(field.key);
-            vals[field.key] = suggestedVal || "";
-          }
-        }
-
-        setValues(vals);
-
-        const storedIdx = sessionStorage.getItem("onboarding_idx");
-        if (missing.length > 0 && storedIdx) {
-          const idx = parseInt(storedIdx);
-          const savedHalfway = sessionStorage.getItem("onboarding_last_key");
-          const savedField = ALL_FIELDS.find(f => f.key === savedHalfway);
-          if (savedField && !existing[savedField.key]) {
-            const fieldIdx = missing.indexOf(savedField.key as FieldKey);
-            setCurrentIdx(fieldIdx >= 0 ? fieldIdx : 0);
-          } else {
-            setCurrentIdx(0);
-          }
-        } else {
-          setCurrentIdx(0);
-        }
-
-        if (missing.length === 0 && existing.profileCompleted) {
-          setDone(true);
-        } else {
-          setPendingFields(missing);
-        }
-      } catch {} finally { setLoading(false); }
-    })();
   }, [router]);
+
+  const { data: profileData } = useSWRFetch<Record<string, any>>(
+    workerId ? `/api/workers/profile?workerId=${workerId}` : null,
+    { ttlMs: 180_000 }
+  );
+
+  const [suggestionsReady, setSuggestionsReady] = useState(false);
+
+  useEffect(() => {
+    if (!workerId) return;
+    fetch("/api/profile/suggest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workerId }),
+    })
+      .then(r => r.json())
+      .then(sug => { setSuggestions(sug as Record<string, any>); setSuggestionsReady(true); })
+      .catch(() => setSuggestionsReady(true));
+  }, [workerId]);
+
+  useEffect(() => {
+    if (!profileData?.workerId || processed.current) return;
+    if (!profileData.profileCompleted && !suggestionsReady) return;
+    processed.current = true;
+
+    const existing = profileData;
+    const vals = defaultValues();
+    const missing: FieldKey[] = [];
+
+    for (const field of ALL_FIELDS) {
+      const existingVal = existing[field.key] as string | undefined;
+      const suggestedVal = suggestions[field.key] as string | undefined;
+
+      if (existingVal) {
+        vals[field.key] = existingVal;
+      } else {
+        missing.push(field.key);
+        vals[field.key] = suggestedVal || "";
+      }
+    }
+
+    setValues(vals);
+
+    const storedIdx = sessionStorage.getItem("onboarding_idx");
+    if (missing.length > 0 && storedIdx) {
+      const idx = parseInt(storedIdx);
+      const savedHalfway = sessionStorage.getItem("onboarding_last_key");
+      const savedField = ALL_FIELDS.find(f => f.key === savedHalfway);
+      if (savedField && !existing[savedField.key]) {
+        const fieldIdx = missing.indexOf(savedField.key as FieldKey);
+        setCurrentIdx(fieldIdx >= 0 ? fieldIdx : 0);
+      } else {
+        setCurrentIdx(0);
+      }
+    } else {
+      setCurrentIdx(0);
+    }
+
+    if (missing.length === 0 && existing.profileCompleted) {
+      setDone(true);
+    } else {
+      setPendingFields(missing);
+    }
+
+    setLoading(false);
+  }, [profileData, suggestions, suggestionsReady, workerId]);
 
   const currentField = pendingFields[currentIdx];
   const fieldDef = currentField ? ALL_FIELDS.find(f => f.key === currentField) : null;

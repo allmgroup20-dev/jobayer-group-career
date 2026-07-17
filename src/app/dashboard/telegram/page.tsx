@@ -1,24 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 export default function TelegramSettingsPage() {
   const [token, setToken] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [webhookInfo, setWebhookInfo] = useState<{ url?: string; pendingCount?: number; error?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/telegram/setup")
-      .then((r) => r.json())
-      .then((data: any) => {
-        setWebhookInfo(data.webhook);
-        if (data.hasEnvToken) setStatus("TELEGRAM_BOT_TOKEN env var is set");
-      })
-      .catch(() => setStatus("Failed to check webhook status"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, refresh } = useSWRFetch<{ webhook?: { url?: string; pendingCount?: number; error?: string }; hasEnvToken?: boolean }>(
+    "/api/telegram/setup",
+    { ttlMs: 180_000 }
+  );
+
+  const webhookInfo = data?.webhook ?? null;
+  if (data?.hasEnvToken && !status) setStatus("TELEGRAM_BOT_TOKEN env var is set");
 
   const handleSetup = async () => {
     setStatus("Setting up webhook...");
@@ -27,13 +23,12 @@ export default function TelegramSettingsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: token || undefined }),
     });
-    const data: any = await res.json();
-    if (data.success) {
+    const d: any = await res.json();
+    if (d.success) {
       setStatus("Webhook set up successfully!");
-      const info: any = await fetch("/api/telegram/setup").then((r) => r.json());
-      setWebhookInfo(info.webhook);
+      refresh();
     } else {
-      setStatus(`Error: ${data.error}`);
+      setStatus(`Error: ${d.error}`);
     }
   };
 

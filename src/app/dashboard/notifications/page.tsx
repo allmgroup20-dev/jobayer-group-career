@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 interface Notification {
   id: number;
@@ -17,31 +18,22 @@ interface Notification {
 
 export default function NotificationsPage() {
   const { lang } = useLanguageStore();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
   const workerId = typeof window !== "undefined" ? localStorage.getItem("worker_id") || "" : "";
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ workerId, limit: "100" });
-      if (filter === "unread") params.set("unreadOnly", "1");
-      const res = await fetch(`/api/notifications?${params}`);
-      const data = await res.json() as { notifications: Notification[]; unreadCount: number };
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
-    } catch {} finally { setLoading(false); }
-  };
+  const params = new URLSearchParams({ workerId, limit: "100" });
+  if (filter === "unread") params.set("unreadOnly", "1");
+  const { data, loading } = useSWRFetch<{ notifications: Notification[]; unreadCount: number }>(
+    workerId ? `/api/notifications?${params}` : null,
+    { ttlMs: 180_000 }
+  );
 
-  useEffect(() => { if (workerId) load(); }, [workerId, filter]);
+  const notifications = data?.notifications || [];
+  const unreadCount = data?.unreadCount || 0;
 
   const markRead = async (id: number) => {
     await fetch(`/api/notifications/${id}/read`, { method: "PUT" });
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: 1 } : n));
-    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   const formatDate = (d: string) => {

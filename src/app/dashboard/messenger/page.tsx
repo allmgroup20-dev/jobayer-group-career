@@ -1,27 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 export default function MessengerSettingsPage() {
   const [token, setToken] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [config, setConfig] = useState<{
-    hasPageToken?: boolean; hasVerifyToken?: boolean;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/messenger/setup")
-      .then((r) => r.json())
-      .then((data: any) => {
-        setConfig(data);
-        if (data.hasPageToken) setStatus("MESSENGER_PAGE_TOKEN env var is set");
-      })
-      .catch(() => setStatus("Failed to check config"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, refresh } = useSWRFetch<{ hasPageToken?: boolean; hasVerifyToken?: boolean }>(
+    "/api/messenger/setup",
+    { ttlMs: 180_000 }
+  );
+
+  const config = data ?? null;
+  if (data?.hasPageToken && !status) setStatus("MESSENGER_PAGE_TOKEN env var is set");
 
   const handleSetup = async () => {
     setStatus("Setting up webhook...");
@@ -33,11 +27,12 @@ export default function MessengerSettingsPage() {
         verifyToken: verifyToken || undefined,
       }),
     });
-    const data: any = await res.json();
-    if (data.success) {
+    const d: any = await res.json();
+    if (d.success) {
       setStatus("Webhook set up successfully!");
+      refresh();
     } else {
-      setStatus(`Error: ${data.error}`);
+      setStatus(`Error: ${d.error}`);
     }
   };
 

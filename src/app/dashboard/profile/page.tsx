@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 export default function ProfilePage() {
   const { lang } = useLanguageStore();
+  const workerId = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
+  const { data: profileData, loading } = useSWRFetch<Record<string, any>>(
+    workerId ? `/api/workers/profile?workerId=${workerId}` : null,
+    { ttlMs: 180_000 }
+  );
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "", city: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -18,18 +23,13 @@ export default function ProfilePage() {
   const [membershipStatus, setMembershipStatus] = useState("");
 
   useEffect(() => {
-    const workerId = localStorage.getItem("worker_id");
-    if (!workerId) { setLoading(false); return; }
-    fetch(`/api/workers/profile?workerId=${workerId}`)
-      .then((r) => r.json() as Promise<{ workerId?: string; name?: string; phone?: string; email?: string; membershipStatus?: string }>)
-      .then((data: any) => {
-        if (data.workerId) {
-          setForm({ name: data.name || "", phone: data.phone || "", email: data.email || "", password: "", workerId: data.workerId, ageGroup: data.ageGroup || "", occupation: data.occupation || "", educationLevel: data.educationLevel || "", preferredLanguage: data.preferredLanguage || "bn", gender: data.gender || "", country: data.country || "", city: data.city || "", goal: data.goal || "", preferredLearningTime: data.preferredLearningTime || "", referralSource: data.referralSource || "", communicationPreference: data.communicationPreference || "whatsapp", budgetRange: data.budgetRange || "", religion: data.religion || "" });
-          if (data.membershipStatus) setMembershipStatus(data.membershipStatus);
-        }
-      })
-      .catch(() => setError("Failed to load profile"))
-      .finally(() => setLoading(false));
+    if (!profileData?.workerId) return;
+    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: profileData.country || "", city: profileData.city || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
+    if (profileData.membershipStatus) setMembershipStatus(profileData.membershipStatus);
+  }, [profileData]);
+
+  useEffect(() => {
+    if (!workerId) return;
     fetch(`/api/auth/biometric/auth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,7 +37,7 @@ export default function ProfilePage() {
     }).then((r) => {
       if (r.ok) setBioRegistered(true);
     }).catch(() => {});
-  }, []);
+  }, [workerId]);
 
   const handleSave = async () => {
     setSaving(true);
