@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       const db = await ensureDB();
       const { results: customers } = await db.prepare(`
         SELECT w.worker_id, w.name, w.phone, w.email, w.membership_status,
-               w.preferred_language, w.age_group, w.occupation, w.education_level,
+               w.preferred_language, w.age_group, w.occupation, w.education_level, w.religion,
                w.join_date, w.total_spent, w.total_earned, w.created_at,
                bs.segment, bs.lead_score, bs.lifetime_value
         FROM workers w

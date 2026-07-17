@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
-
-const STEPS = ["name", "details", "interests", "done"];
 
 const INTEREST_OPTIONS = [
   { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
@@ -19,102 +17,309 @@ const INTEREST_OPTIONS = [
   { en: "Business", bn: "ব্যবসা", icon: "📊" },
 ];
 
+type FieldKey =
+  | "ageGroup" | "occupation" | "educationLevel" | "gender"
+  | "country" | "city" | "goal" | "preferredLearningTime"
+  | "referralSource" | "communicationPreference" | "budgetRange" | "religion";
+
+interface FieldDef {
+  key: FieldKey;
+  labelEn: string;
+  labelBn: string;
+  type: "select" | "text";
+  options?: { value: string; en: string; bn: string }[];
+}
+
+const ALL_FIELDS: FieldDef[] = [
+  {
+    key: "ageGroup", labelEn: "Age Group", labelBn: "বয়স গ্রুপ", type: "select",
+    options: [
+      { value: "under_18", en: "Under 18", bn: "১৮ এর নিচে" },
+      { value: "18_24", en: "18-24", bn: "১৮-২৪" },
+      { value: "25_34", en: "25-34", bn: "২৫-৩৪" },
+      { value: "35_44", en: "35-44", bn: "৩৫-৪৪" },
+      { value: "45_plus", en: "45+", bn: "৪৫+" },
+    ],
+  },
+  {
+    key: "occupation", labelEn: "Occupation", labelBn: "পেশা", type: "select",
+    options: [
+      { value: "student", en: "Student", bn: "ছাত্র/ছাত্রী" },
+      { value: "employed", en: "Employed", bn: "চাকরিজীবী" },
+      { value: "freelancer", en: "Freelancer", bn: "ফ্রিল্যান্সার" },
+      { value: "business", en: "Business Owner", bn: "ব্যবসায়ী" },
+      { value: "homemaker", en: "Homemaker", bn: "গৃহিণী" },
+      { value: "unemployed", en: "Unemployed", bn: "বেকার" },
+    ],
+  },
+  {
+    key: "educationLevel", labelEn: "Education Level", labelBn: "শিক্ষাগত যোগ্যতা", type: "select",
+    options: [
+      { value: "ssc", en: "SSC / O-Level", bn: "এসএসসি / ও-লেভেল" },
+      { value: "hsc", en: "HSC / A-Level", bn: "এইচএসসি / এ-লেভেল" },
+      { value: "bachelor", en: "Bachelor's", bn: "স্নাতক" },
+      { value: "master", en: "Master's", bn: "স্নাতকোত্তর" },
+      { value: "phd", en: "PhD", bn: "পিএইচডি" },
+    ],
+  },
+  {
+    key: "gender", labelEn: "Gender", labelBn: "লিঙ্গ", type: "select",
+    options: [
+      { value: "male", en: "Male", bn: "পুরুষ" },
+      { value: "female", en: "Female", bn: "মহিলা" },
+      { value: "other", en: "Other", bn: "অন্যান্য" },
+    ],
+  },
+  {
+    key: "country", labelEn: "Country", labelBn: "দেশ", type: "text",
+  },
+  {
+    key: "city", labelEn: "City", labelBn: "শহর", type: "text",
+  },
+  {
+    key: "goal", labelEn: "Your Goal", labelBn: "আপনার লক্ষ্য", type: "select",
+    options: [
+      { value: "career", en: "Build a Career", bn: "ক্যারিয়ার গড়তে" },
+      { value: "freelancing", en: "Start Freelancing", bn: "ফ্রিল্যান্সিং শুরু করতে" },
+      { value: "business", en: "Start a Business", bn: "ব্যবসা করতে" },
+      { value: "skill", en: "Develop Skills", bn: "স্কিল ডেভেলপ করতে" },
+      { value: "job", en: "Get a Job", bn: "চাকরি পেতে" },
+    ],
+  },
+  {
+    key: "preferredLearningTime", labelEn: "Preferred Learning Time", labelBn: "পড়ার সময়", type: "select",
+    options: [
+      { value: "morning", en: "Morning", bn: "সকাল" },
+      { value: "afternoon", en: "Afternoon", bn: "দুপুর" },
+      { value: "evening", en: "Evening", bn: "বিকেল" },
+      { value: "night", en: "Night", bn: "রাত" },
+    ],
+  },
+  {
+    key: "referralSource", labelEn: "How did you find us?", labelBn: "কীভাবে জানতে পেরেছেন?", type: "select",
+    options: [
+      { value: "facebook", en: "Facebook", bn: "ফেসবুক" },
+      { value: "google", en: "Google", bn: "গুগল" },
+      { value: "youtube", en: "YouTube", bn: "ইউটিউব" },
+      { value: "whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ" },
+      { value: "friend", en: "Friend/Family", bn: "বন্ধুর মাধ্যমে" },
+      { value: "other", en: "Other", bn: "অন্যান্য" },
+    ],
+  },
+  {
+    key: "communicationPreference", labelEn: "Preferred Contact", labelBn: "যোগাযোগের মাধ্যম", type: "select",
+    options: [
+      { value: "whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ" },
+      { value: "email", en: "Email", bn: "ইমেইল" },
+      { value: "sms", en: "SMS", bn: "এসএমএস" },
+    ],
+  },
+  {
+    key: "budgetRange", labelEn: "Budget Range (per course)", labelBn: "বাজেট (প্রতি কোর্সে)", type: "select",
+    options: [
+      { value: "under_1000", en: "Under 1,000 ৳", bn: "১,০০০ এর নিচে" },
+      { value: "1000_3000", en: "1,000 - 3,000 ৳", bn: "১,০০০ - ৩,০০০" },
+      { value: "3000_5000", en: "3,000 - 5,000 ৳", bn: "৩,০০০ - ৫,০০০" },
+      { value: "5000_10000", en: "5,000 - 10,000 ৳", bn: "৫,০০০ - ১০,০০০" },
+      { value: "over_10000", en: "Above 10,000 ৳", bn: "১০,০০০ এর উপরে" },
+    ],
+  },
+  {
+    key: "religion", labelEn: "Religion", labelBn: "ধর্ম", type: "select",
+    options: [
+      { value: "islam", en: "▸ Islam", bn: "▸ ইসলাম" },
+      { value: "islam_sunni", en: "  Sunni", bn: "  সুন্নি" },
+      { value: "islam_shia", en: "  Shia", bn: "  শিয়া" },
+      { value: "islam_ahle_sunnat", en: "  Ahle Sunnat Wal Jamaat", bn: "  আহলে সুন্নাত ওয়াল জামাত" },
+      { value: "islam_ahle_hadith", en: "  Ahle Hadith", bn: "  আহলে হাদীস" },
+      { value: "islam_ahle_quran", en: "  Ahle Quran", bn: "  আহলে কোরআন" },
+      { value: "islam_sufi", en: "  Sufi", bn: "  সুফি" },
+      { value: "islam_deobandi", en: "  Deobandi", bn: "  দেওবন্দি" },
+      { value: "islam_ismaili", en: "  Ismaili", bn: "  ইসমাইলি" },
+      { value: "hindu", en: "▸ Hindu", bn: "▸ হিন্দু" },
+      { value: "hindu_vaishnav", en: "  Vaishnav", bn: "  বৈষ্ণব" },
+      { value: "hindu_shaiva", en: "  Shaiva", bn: "  শৈব" },
+      { value: "hindu_shakta", en: "  Shakta", bn: "  শাক্ত" },
+      { value: "buddhist", en: "▸ Buddhist", bn: "▸ বৌদ্ধ" },
+      { value: "buddhist_theravada", en: "  Theravada", bn: "  থেরবাদ" },
+      { value: "buddhist_mahayana", en: "  Mahayana", bn: "  মহাযান" },
+      { value: "christian", en: "▸ Christian", bn: "▸ খ্রিস্টান" },
+      { value: "christian_catholic", en: "  Catholic", bn: "  ক্যাথলিক" },
+      { value: "christian_orthodox", en: "  Orthodox", bn: "  অর্থোডক্স" },
+      { value: "christian_protestant", en: "  Protestant", bn: "  প্রোটেস্ট্যান্ট" },
+      { value: "atheist", en: "Atheist", bn: "নাস্তিক" },
+      { value: "agnostic", en: "Agnostic", bn: "সঞ্চয়বাদী" },
+      { value: "sanatan", en: "Sanatan", bn: "সনাতন" },
+      { value: "sarbabadi", en: "Sarbabadi", bn: "সর্ববাদী" },
+      { value: "lgbtq", en: "LGBTQ+", bn: "এলজিবিটি" },
+      { value: "other", en: "Other", bn: "অন্যান্য" },
+    ],
+  },
+];
+
+const TOTAL_STEPS = ALL_FIELDS.length + 1;
+
+function defaultValues(): Record<FieldKey, string> {
+  return {
+    ageGroup: "", occupation: "", educationLevel: "", gender: "",
+    country: "", city: "", goal: "", preferredLearningTime: "",
+    referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "",
+  };
+}
+
 export default function OnboardingPage() {
   const { lang } = useLanguageStore();
   const router = useRouter();
-  const [step, setStep] = useState(0);
   const [workerId, setWorkerId] = useState("");
-  const [name, setName] = useState("");
-  const [ageGroup, setAgeGroup] = useState("");
-  const [occupation, setOccup] = useState("");
-  const [educationLevel, setEdu] = useState("");
-  const [gender, setGender] = useState("");
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
-  const [goal, setGoal] = useState("");
-  const [preferredLearningTime, setLearningTime] = useState("");
-  const [referralSource, setReferralSource] = useState("");
-  const [communicationPreference, setCommPref] = useState("whatsapp");
-  const [budgetRange, setBudgetRange] = useState("");
-  const [religion, setReligion] = useState("");
-  const [interests, setInterests] = useState<string[]>([]);
+  const [values, setValues] = useState<Record<FieldKey, string>>(defaultValues());
+  const [suggestions, setSuggestions] = useState<Record<string, string | null>>({});
+  const [pendingFields, setPendingFields] = useState<FieldKey[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [showInterests, setShowInterests] = useState(false);
+  const [interestSaved, setInterestSaved] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
     if (!wid) { router.push("/login"); return; }
     setWorkerId(wid);
-    // Pre-fill existing name
-    fetch(`/api/workers/profile?workerId=${wid}`)
-      .then(r => r.json())
-      .then((d: any) => {
-        if (d.name && !d.name.startsWith("User")) setName(d.name);
-        if (d.gender) setGender(d.gender);
-        if (d.country) setCountry(d.country);
-        if (d.city) setCity(d.city);
-        if (d.goal) setGoal(d.goal);
-        if (d.preferredLearningTime) setLearningTime(d.preferredLearningTime);
-        if (d.referralSource) setReferralSource(d.referralSource);
-        if (d.communicationPreference) setCommPref(d.communicationPreference);
-        if (d.budgetRange) setBudgetRange(d.budgetRange);
-        if (d.religion) setReligion(d.religion);
-      })
-      .catch(() => {});
+
+    (async () => {
+      try {
+        const [profRes, sugRes] = await Promise.all([
+          fetch(`/api/workers/profile?workerId=${wid}`).then(r => r.json()),
+          fetch("/api/profile/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId: wid }) }).then(r => r.json()),
+        ]);
+
+        const existing = profRes as Record<string, any>;
+        const sug = sugRes as Record<string, any>;
+        setSuggestions(sug);
+
+        const vals = defaultValues();
+        const missing: FieldKey[] = [];
+
+        for (const field of ALL_FIELDS) {
+          const existingVal = existing[field.key] as string | undefined;
+          const suggestedVal = sug[field.key] as string | undefined;
+
+          if (existingVal) {
+            vals[field.key] = existingVal;
+          } else {
+            missing.push(field.key);
+            vals[field.key] = suggestedVal || "";
+          }
+        }
+
+        setValues(vals);
+
+        const storedIdx = sessionStorage.getItem("onboarding_idx");
+        if (missing.length > 0 && storedIdx) {
+          const idx = parseInt(storedIdx);
+          const savedHalfway = sessionStorage.getItem("onboarding_last_key");
+          const savedField = ALL_FIELDS.find(f => f.key === savedHalfway);
+          if (savedField && !existing[savedField.key]) {
+            const fieldIdx = missing.indexOf(savedField.key as FieldKey);
+            setCurrentIdx(fieldIdx >= 0 ? fieldIdx : 0);
+          } else {
+            setCurrentIdx(0);
+          }
+        } else {
+          setCurrentIdx(0);
+        }
+
+        if (missing.length === 0 && existing.profileCompleted) {
+          setDone(true);
+        } else {
+          setPendingFields(missing);
+        }
+      } catch {} finally { setLoading(false); }
+    })();
   }, [router]);
 
-  const toggleInterest = (key: string) => {
-    setInterests(prev => prev.includes(key) ? prev.filter(i => i !== key) : [...prev, key]);
+  const currentField = pendingFields[currentIdx];
+  const fieldDef = currentField ? ALL_FIELDS.find(f => f.key === currentField) : null;
+  const completedCount = TOTAL_STEPS - (pendingFields.length - currentIdx) - (showInterests ? 0 : 0);
+  const progressPct = Math.round((completedCount / TOTAL_STEPS) * 100);
+
+  const setValue = (key: FieldKey, val: string) => {
+    setValues(prev => ({ ...prev, [key]: val }));
   };
 
-  const saveAndNext = async () => {
+  const saveCurrent = useCallback(async () => {
+    if (!workerId || !currentField) return;
+    const val = values[currentField];
+    if (!val) return;
+
     setSaving(true);
     try {
-      const body: Record<string, string> = { workerId };
-      if (name) body.name = name;
-      if (ageGroup) body.ageGroup = ageGroup;
-      if (occupation) body.occupation = occupation;
-      if (educationLevel) body.educationLevel = educationLevel;
-      if (gender) body.gender = gender;
-      if (country) body.country = country;
-      if (city) body.city = city;
-      if (goal) body.goal = goal;
-      if (preferredLearningTime) body.preferredLearningTime = preferredLearningTime;
-      if (referralSource) body.referralSource = referralSource;
-      if (communicationPreference) body.communicationPreference = communicationPreference;
-      if (budgetRange) body.budgetRange = budgetRange;
-      if (religion) body.religion = religion;
+      await fetch("/api/workers/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, [currentField]: val }),
+      });
+      sessionStorage.setItem("onboarding_idx", String(currentIdx));
+      sessionStorage.setItem("onboarding_last_key", currentField);
+    } catch {} finally { setSaving(false); }
+  }, [workerId, currentField, values, currentIdx]);
 
-      if (Object.keys(body).length > 1) {
-        await fetch("/api/workers/profile", {
-          method: "PUT",
+  const handleNext = async () => {
+    await saveCurrent();
+
+    if (currentIdx < pendingFields.length - 1) {
+      setCurrentIdx(i => i + 1);
+    } else {
+      sessionStorage.removeItem("onboarding_idx");
+      sessionStorage.removeItem("onboarding_last_key");
+      setShowInterests(true);
+    }
+  };
+
+  const handleInterestDone = async () => {
+    setSaving(true);
+    try {
+      for (const interest of interests) {
+        await fetch("/api/track/event", {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
+          body: JSON.stringify({ workerId, eventType: "search", searchKeyword: interest, pageCategory: "onboarding" }),
+        }).catch(() => {});
       }
-
-      if (step === STEPS.length - 2 && interests.length > 0) {
-        // Trigger scoring with interest keywords
-        for (const interest of interests) {
-          await fetch("/api/track/event", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ workerId, eventType: "search", searchKeyword: interest, pageCategory: "onboarding" }),
-          }).catch(() => {});
-        }
-        await fetch(`/api/track/score?workerId=${workerId}`, { method: "POST" }).catch(() => {});
-      }
-
-      if (step < STEPS.length - 1) {
-        setStep(s => s + 1);
-      }
+      await fetch(`/api/track/score?workerId=${workerId}`, { method: "POST" }).catch(() => {});
+      setInterestSaved(true);
     } catch {} finally { setSaving(false); }
   };
 
-  const finish = () => {
+  const handleFinish = () => {
     router.push("/dashboard");
   };
 
-  const progress = ((step + 1) / STEPS.length) * 100;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (done) {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-gray-50">
+        <div className="w-full max-w-lg animate-fade-up bg-white rounded-2xl p-6 shadow-xl border border-border text-center space-y-4 py-8">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-primary">{lang === "bn" ? "প্রোফাইল সম্পূর্ণ!" : "Profile Complete!"}</h2>
+          <p className="text-sm text-text-secondary">{lang === "bn" ? "আপনার প্রোফাইল আগেই কমপ্লিট ছিল" : "Your profile was already complete"}</p>
+          <button onClick={handleFinish} className="btn-primary w-full">{lang === "bn" ? "ড্যাশবোর্ডে যান" : "Go to Dashboard"}</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-gray-50">
@@ -127,185 +332,74 @@ export default function OnboardingPage() {
             {lang === "bn" ? "আপনার প্রোফাইল কমপ্লিট করুন" : "Complete Your Profile"}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "আপনাকে আরও ভালোভাবে জানতে" : "So we can serve you better"}
+            {lang === "bn" ? "প্রত্যেকটি ধাপে একটি করে তথ্য দিন" : "One step at a time"}
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full h-2 bg-gray-200 rounded-full mb-8 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-action to-secondary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-action to-secondary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+          </div>
+          <span className="text-xs font-bold text-action whitespace-nowrap">{progressPct}%</span>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-xl border border-border">
-          {/* Step 0: Name */}
-          {step === 0 && (
+          {!showInterests && fieldDef && (
             <div className="space-y-4">
-              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "আপনার নাম কী?" : "What's your name?"}</h2>
-              <p className="text-sm text-text-secondary">{lang === "bn" ? "আমরা আপনাকে নাম ধরে ডাকতে চাই" : "We'd like to call you by your name"}</p>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="input-field text-lg"
-                placeholder={lang === "bn" ? "আপনার নাম লিখুন" : "Enter your name"}
-              />
-              <button onClick={saveAndNext} disabled={saving || !name.trim()} className="btn-primary w-full">
-                {saving ? "..." : lang === "bn" ? "পরবর্তী" : "Next"}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-text-secondary bg-gray-100 px-2 py-0.5 rounded-full">
+                  {currentIdx + 1} / {pendingFields.length}
+                </span>
+              </div>
+              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? fieldDef.labelBn : fieldDef.labelEn}</h2>
+
+              {fieldDef.type === "select" && fieldDef.options ? (
+                <select
+                  value={values[currentField]}
+                  onChange={e => setValue(currentField, e.target.value)}
+                  className="input-field text-base"
+                >
+                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
+                  {fieldDef.options.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {lang === "bn" ? opt.bn : opt.en}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={values[currentField]}
+                  onChange={e => setValue(currentField, e.target.value)}
+                  className="input-field text-base"
+                  placeholder={lang === "bn" ? "আপনার উত্তর লিখুন" : "Type your answer"}
+                />
+              )}
+
+              {suggestions[currentField] && !values[currentField] && (
+                <p className="text-xs text-action/70">
+                  {lang === "bn" ? "পরামর্শ" : "Suggested"}: {suggestions[currentField]}
+                </p>
+              )}
+
+              <button
+                onClick={handleNext}
+                disabled={saving || !values[currentField]?.trim()}
+                className="btn-primary w-full"
+              >
+                {saving ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {lang === "bn" ? "সংরক্ষণ..." : "Saving..."}
+                  </span>
+                ) : (
+                  lang === "bn" ? "পরবর্তী →" : "Next →"
+                )}
               </button>
             </div>
           )}
 
-          {/* Step 1: Details */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "আপনার সম্পর্কে কিছু তথ্য" : "Tell us about yourself"}</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বয়স গ্রুপ" : "Age Group"}</label>
-                  <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="input-field">
-                    <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                    <option value="under_18">Under 18</option>
-                    <option value="18_24">18-24</option>
-                    <option value="25_34">25-34</option>
-                    <option value="35_44">35-44</option>
-                    <option value="45_plus">45+</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "লিঙ্গ" : "Gender"}</label>
-                  <select value={gender} onChange={e => setGender(e.target.value)} className="input-field">
-                    <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                    <option value="male">{lang === "bn" ? "পুরুষ" : "Male"}</option>
-                    <option value="female">{lang === "bn" ? "মহিলা" : "Female"}</option>
-                    <option value="other">{lang === "bn" ? "অন্যান্য" : "Other"}</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "পেশা" : "Occupation"}</label>
-                <select value={occupation} onChange={e => setOccup(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="student">{lang === "bn" ? "ছাত্র/ছাত্রী" : "Student"}</option>
-                  <option value="employed">{lang === "bn" ? "চাকরিজীবী" : "Employed"}</option>
-                  <option value="freelancer">{lang === "bn" ? "ফ্রিল্যান্সার" : "Freelancer"}</option>
-                  <option value="business">{lang === "bn" ? "ব্যবসায়ী" : "Business Owner"}</option>
-                  <option value="homemaker">{lang === "bn" ? "গৃহিণী" : "Homemaker"}</option>
-                  <option value="unemployed">{lang === "bn" ? "বেকার" : "Unemployed"}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "শিক্ষাগত যোগ্যতা" : "Education Level"}</label>
-                <select value={educationLevel} onChange={e => setEdu(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="ssc">SSC / O-Level</option>
-                  <option value="hsc">HSC / A-Level</option>
-                  <option value="bachelor">{lang === "bn" ? "স্নাতক" : "Bachelor's"}</option>
-                  <option value="master">{lang === "bn" ? "স্নাতকোত্তর" : "Master's"}</option>
-                  <option value="phd">PhD</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ধর্ম" : "Religion"}</label>
-                <select value={religion} onChange={e => setReligion(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="islam">{lang === "bn" ? "▸ ইসলাম" : "▸ Islam"}</option>
-                  <option value="islam_sunni">{lang === "bn" ? "  সুন্নি" : "  Sunni"}</option>
-                  <option value="islam_shia">{lang === "bn" ? "  শিয়া" : "  Shia"}</option>
-                  <option value="islam_ahle_sunnat">{lang === "bn" ? "  আহলে সুন্নাত ওয়াল জামাত" : "  Ahle Sunnat Wal Jamaat"}</option>
-                  <option value="islam_ahle_hadith">{lang === "bn" ? "  আহলে হাদীস" : "  Ahle Hadith"}</option>
-                  <option value="islam_ahle_quran">{lang === "bn" ? "  আহলে কোরআন" : "  Ahle Quran"}</option>
-                  <option value="islam_sufi">{lang === "bn" ? "  সুফি" : "  Sufi"}</option>
-                  <option value="islam_deobandi">{lang === "bn" ? "  দেওবন্দি" : "  Deobandi"}</option>
-                  <option value="islam_ismaili">{lang === "bn" ? "  ইসমাইলি" : "  Ismaili"}</option>
-                  <option value="hindu">{lang === "bn" ? "▸ হিন্দু" : "▸ Hindu"}</option>
-                  <option value="hindu_vaishnav">{lang === "bn" ? "  বৈষ্ণব" : "  Vaishnav"}</option>
-                  <option value="hindu_shaiva">{lang === "bn" ? "  শৈব" : "  Shaiva"}</option>
-                  <option value="hindu_shakta">{lang === "bn" ? "  শাক্ত" : "  Shakta"}</option>
-                  <option value="buddhist">{lang === "bn" ? "▸ বৌদ্ধ" : "▸ Buddhist"}</option>
-                  <option value="buddhist_theravada">{lang === "bn" ? "  থেরবাদ" : "  Theravada"}</option>
-                  <option value="buddhist_mahayana">{lang === "bn" ? "  মহাযান" : "  Mahayana"}</option>
-                  <option value="christian">{lang === "bn" ? "▸ খ্রিস্টান" : "▸ Christian"}</option>
-                  <option value="christian_catholic">{lang === "bn" ? "  ক্যাথলিক" : "  Catholic"}</option>
-                  <option value="christian_orthodox">{lang === "bn" ? "  অর্থোডক্স" : "  Orthodox"}</option>
-                  <option value="christian_protestant">{lang === "bn" ? "  প্রোটেস্ট্যান্ট" : "  Protestant"}</option>
-                  <option value="atheist">{lang === "bn" ? "নাস্তিক" : "Atheist"}</option>
-                  <option value="agnostic">{lang === "bn" ? "সঞ্চয়বাদী" : "Agnostic"}</option>
-                  <option value="sanatan">{lang === "bn" ? "সনাতন" : "Sanatan"}</option>
-                  <option value="sarbabadi">{lang === "bn" ? "সর্ববাদী" : "Sarbabadi"}</option>
-                  <option value="lgbtq">{lang === "bn" ? "এলজিবিটি" : "LGBTQ+"}</option>
-                  <option value="other">{lang === "bn" ? "অন্যান্য" : "Other"}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কেন এই কোর্স? (আপনার লক্ষ্য)" : "Why this course? (Your Goal)"}</label>
-                <select value={goal} onChange={e => setGoal(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="career">{lang === "bn" ? "ক্যারিয়ার গড়তে" : "Build a Career"}</option>
-                  <option value="freelancing">{lang === "bn" ? "ফ্রিল্যান্সিং শুরু করতে" : "Start Freelancing"}</option>
-                  <option value="business">{lang === "bn" ? "ব্যবসা করতে" : "Start a Business"}</option>
-                  <option value="skill">{lang === "bn" ? "স্কিল ডেভেলপ করতে" : "Develop Skills"}</option>
-                  <option value="job">{lang === "bn" ? "চাকরি পেতে" : "Get a Job"}</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "দেশ" : "Country"}</label>
-                  <input type="text" value={country} onChange={e => setCountry(e.target.value)} className="input-field" placeholder={lang === "bn" ? "যেমন: বাংলাদেশ" : "e.g. Bangladesh"} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "শহর" : "City"}</label>
-                  <input type="text" value={city} onChange={e => setCity(e.target.value)} className="input-field" placeholder={lang === "bn" ? "যেমন: ঢাকা" : "e.g. Dhaka"} />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কখন পড়তে পছন্দ করেন?" : "Preferred Learning Time"}</label>
-                <select value={preferredLearningTime} onChange={e => setLearningTime(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="morning">{lang === "bn" ? "সকাল" : "Morning"}</option>
-                  <option value="afternoon">{lang === "bn" ? "দুপুর" : "Afternoon"}</option>
-                  <option value="evening">{lang === "bn" ? "বিকেল" : "Evening"}</option>
-                  <option value="night">{lang === "bn" ? "রাত" : "Night"}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কীভাবে জানতে পেরেছেন?" : "How did you find us?"}</label>
-                <select value={referralSource} onChange={e => setReferralSource(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="facebook">{lang === "bn" ? "ফেসবুক" : "Facebook"}</option>
-                  <option value="google">{lang === "bn" ? "গুগল" : "Google"}</option>
-                  <option value="youtube">{lang === "bn" ? "ইউটিউব" : "YouTube"}</option>
-                  <option value="whatsapp">{lang === "bn" ? "হোয়াটসঅ্যাপ" : "WhatsApp"}</option>
-                  <option value="friend">{lang === "bn" ? "বন্ধুর মাধ্যমে" : "Friend/Family"}</option>
-                  <option value="other">{lang === "bn" ? "অন্যান্য" : "Other"}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "যোগাযোগের মাধ্যম" : "Preferred Contact"}</label>
-                <select value={communicationPreference} onChange={e => setCommPref(e.target.value)} className="input-field">
-                  <option value="whatsapp">{lang === "bn" ? "হোয়াটসঅ্যাপ" : "WhatsApp"}</option>
-                  <option value="email">Email</option>
-                  <option value="sms">SMS</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "আপনার বাজেট (প্রতি কোর্সে)" : "Budget Range (per course)"}</label>
-                <select value={budgetRange} onChange={e => setBudgetRange(e.target.value)} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="under_1000">{lang === "bn" ? "১,০০০ এর নিচে" : "Under 1,000 ৳"}</option>
-                  <option value="1000_3000">{lang === "bn" ? "১,০০০ - ৩,০০০" : "1,000 - 3,000 ৳"}</option>
-                  <option value="3000_5000">{lang === "bn" ? "৩,০০০ - ৫,০০০" : "3,000 - 5,000 ৳"}</option>
-                  <option value="5000_10000">{lang === "bn" ? "৫,০০০ - ১০,০০০" : "5,000 - 10,000 ৳"}</option>
-                  <option value="over_10000">{lang === "bn" ? "১০,০০০ এর উপরে" : "Above 10,000 ৳"}</option>
-                </select>
-              </div>
-              <button onClick={saveAndNext} disabled={saving} className="btn-primary w-full">
-                {saving ? "..." : lang === "bn" ? "পরবর্তী" : "Next"}
-              </button>
-            </div>
-          )}
-
-          {/* Step 2: Interests */}
-          {step === 2 && (
+          {showInterests && !interestSaved && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "আপনার আগ্রহ কী?" : "What are you interested in?"}</h2>
               <p className="text-sm text-text-secondary">{lang === "bn" ? "এক বা একাধিক সিলেক্ট করুন" : "Select one or more topics"}</p>
@@ -315,11 +409,9 @@ export default function OnboardingPage() {
                   return (
                     <button
                       key={opt.en}
-                      onClick={() => toggleInterest(opt.en)}
+                      onClick={() => setInterests(prev => prev.includes(opt.en) ? prev.filter(i => i !== opt.en) : [...prev, opt.en])}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
-                        selected
-                          ? "border-action bg-action/10"
-                          : "border-border hover:border-action/50"
+                        selected ? "border-action bg-action/10" : "border-border hover:border-action/50"
                       }`}
                     >
                       <span className="text-2xl">{opt.icon}</span>
@@ -328,14 +420,13 @@ export default function OnboardingPage() {
                   );
                 })}
               </div>
-              <button onClick={saveAndNext} disabled={saving} className="btn-primary w-full">
+              <button onClick={handleInterestDone} disabled={saving || interests.length === 0} className="btn-primary w-full">
                 {saving ? "..." : lang === "bn" ? "সম্পন্ন" : "Finish"}
               </button>
             </div>
           )}
 
-          {/* Step 3: Done */}
-          {step === 3 && (
+          {interestSaved && (
             <div className="text-center space-y-4 py-4">
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
                 <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -344,21 +435,18 @@ export default function OnboardingPage() {
               </div>
               <h2 className="text-xl font-bold text-primary">{lang === "bn" ? "শুরু করা যাক!" : "Let's Get Started!"}</h2>
               <p className="text-sm text-text-secondary">
-                {lang === "bn"
-                  ? "আপনার প্রোফাইল কমপ্লিট। এখন আপনার জন্য ব্যক্তিগতকৃত অভিজ্ঞতা তৈরি করছি..."
-                  : "Your profile is complete. We're now personalizing your experience..."}
+                {lang === "bn" ? "আপনার প্রোফাইল কমপ্লিট। এখন আপনার জন্য ব্যক্তিগতকৃত অভিজ্ঞতা তৈরি করছি..." : "Profile complete! Personalizing your experience..."}
               </p>
-              <button onClick={finish} className="btn-primary w-full">
+              <button onClick={handleFinish} className="btn-primary w-full">
                 {lang === "bn" ? "ড্যাশবোর্ডে যান" : "Go to Dashboard"}
               </button>
             </div>
           )}
         </div>
 
-        {/* Step indicators */}
         <div className="flex justify-center gap-2 mt-6">
-          {STEPS.map((_, i) => (
-            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i <= step ? "bg-action" : "bg-gray-300"}`} />
+          {ALL_FIELDS.slice(0, 6).map((_, i) => (
+            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i <= currentIdx && !showInterests && i < pendingFields.length ? "bg-action" : "bg-gray-300"}`} />
           ))}
         </div>
       </div>
