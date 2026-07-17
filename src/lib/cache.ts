@@ -6,8 +6,7 @@ export async function getKV(): Promise<KVNamespace | null> {
   if (kvCache) return kvCache;
   try {
     const ctx = await getCloudflareContext({ async: true });
-    kvCache = (ctx.env as any).CACHE as KVNamespace | null;
-    if (!kvCache) kvCache = null;
+    kvCache = ((ctx.env as any).CACHE ?? null) as KVNamespace | null;
     return kvCache;
   } catch {
     return null;
