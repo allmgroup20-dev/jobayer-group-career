@@ -45,7 +45,6 @@ export default function CompanyProductsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [expandedDesc, setExpandedDesc] = useState<number | null>(null);
-  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
 
   const loadProducts = async () => {
     try {
@@ -223,7 +222,7 @@ export default function CompanyProductsPage() {
                   <th className="text-center p-4 text-sm font-semibold text-primary">AI</th>
                   <th className="text-center p-4 text-sm font-semibold text-primary">⭐</th>
                   <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
-                    <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "প্রিভিউ" : "Preview"}</th>
+                    <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "লিংক" : "Link"}</th>
                     <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "কাজ" : "Actions"}</th>
                 </tr>
               </thead>
@@ -282,7 +281,15 @@ export default function CompanyProductsPage() {
                       </span>
                     </td>
                     <td className="p-4 text-center">
-                      <button onClick={() => setPreviewProduct(p)} className="px-2 py-1 text-xs text-emerald-600 hover:bg-emerald-50 rounded font-medium" title={lang === "bn" ? "প্রিভিউ দেখুন" : "Preview"}>👁️</button>
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/checkout?product=${p.id}`;
+                          navigator.clipboard.writeText(link);
+                          alert(lang === "bn" ? `লিংক কপি হয়েছে:\n${link}` : `Link copied:\n${link}`);
+                        }}
+                        className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded font-medium"
+                        title={lang === "bn" ? "ক্রয় লিংক কপি করুন" : "Copy purchase link"}
+                      >🔗</button>
                     </td>
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-1">
@@ -305,92 +312,6 @@ export default function CompanyProductsPage() {
         </Card>
       </div>
 
-      {previewProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={() => setPreviewProduct(null)}>
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-primary text-lg">{lang === "bn" ? "পণ্য প্রিভিউ" : "Product Preview"}</h3>
-              <button onClick={() => setPreviewProduct(null)} className="p-1 hover:bg-gray-100 rounded-lg text-text-secondary">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {previewProduct.imageUrl && (
-              <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 bg-gray-100">
-                <img src={previewProduct.imageUrl} alt="" className="w-full h-full object-cover" />
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-xl font-bold text-primary">{previewProduct.name}</h2>
-                {previewProduct.nameBn && (
-                  <p className="text-base text-text-secondary mt-0.5">{previewProduct.nameBn}</p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-action">{formatCurrency(previewProduct.price)}</span>
-                {previewProduct.aiPriceEnabled === 1 && previewProduct.minPrice > 0 && (
-                  <span className="text-xs text-text-secondary bg-gray-100 px-2 py-0.5 rounded">
-                    AI: ৳{previewProduct.minPrice}–{previewProduct.maxPrice || previewProduct.price}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                  {previewProduct.currency}
-                </span>
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-purple-50 text-purple-600">
-                  {previewProduct.category}
-                </span>
-                {previewProduct.premiumMembership === 1 && (
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-50 text-amber-600">⭐ Premium</span>
-                )}
-              </div>
-
-              {previewProduct.description && (
-                <div className="pt-3 border-t border-border">
-                  <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">
-                    {lang === "bn" ? "বিবরণ" : "Description"}
-                  </h4>
-                  <p className="text-sm text-text-secondary whitespace-pre-line">
-                    {lang === "bn" && previewProduct.descriptionBn ? previewProduct.descriptionBn : previewProduct.description}
-                  </p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border text-sm">
-                <div>
-                  <span className="text-xs text-text-secondary">{lang === "bn" ? "কমিশন" : "Commission"}</span>
-                  <p className="font-medium">{previewProduct.enableCommission === 1 ? (lang === "bn" ? "সক্রিয়" : "Enabled") : (lang === "bn" ? "নিষ্ক্রিয়" : "Disabled")}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-text-secondary">COD</span>
-                  <p className="font-medium">{previewProduct.enableCod === 1 ? "ON" : "OFF"}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-text-secondary">SSL Commerz</span>
-                  <p className="font-medium">{previewProduct.enableSslcommerz === 1 ? "ON" : "OFF"}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-text-secondary">AI Pricing</span>
-                  <p className="font-medium">{previewProduct.aiPriceEnabled === 1 ? (lang === "bn" ? "সক্রিয়" : "Active") : (lang === "bn" ? "নিষ্ক্রিয়" : "Inactive")}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-4 pt-4 border-t border-border">
-              <Button variant="ghost" onClick={() => setPreviewProduct(null)}>
-                {lang === "bn" ? "বন্ধ করুন" : "Close"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
