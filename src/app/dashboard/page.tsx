@@ -6,6 +6,7 @@ import { useLanguageStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 interface Channel { id: string; label: string; labelBn: string; enabled?: boolean; status?: "active" | "paused" }
 const DEFAULT_CHANNELS: Channel[] = [
@@ -17,15 +18,7 @@ const DEFAULT_CHANNELS: Channel[] = [
 
 export default function WorkerDashboard() {
   const { lang } = useLanguageStore();
-  const [worker, setWorker] = useState<{
-    workerId: string; name: string; phone: string; balance: number;
-    totalEarned: number; totalTeamMembers: number; level: number;
-    levelName?: string; levelNameBn?: string | null; joinDate: string; membershipStatus?: string;
-    goal?: string; ageGroup?: string; occupation?: string; educationLevel?: string;
-    gender?: string; country?: string; city?: string; preferredLanguage?: string;
-    preferredLearningTime?: string;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [workerId, setWorkerId] = useState<string | null>(null);
   const [channels, setChannels] = useState(DEFAULT_CHANNELS);
   const [minWithdraw, setMinWithdraw] = useState(500);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -47,36 +40,68 @@ export default function WorkerDashboard() {
   } | null>(null);
 
   useEffect(() => {
-    const workerId = localStorage.getItem("worker_id");
-    if (!workerId) { setLoading(false); return; }
-
-    Promise.all([
-      fetch(`/api/workers/profile?workerId=${workerId}`).then(r => r.json() as Promise<Record<string, unknown>>),
-      fetch("/api/company/settings").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => ({} as Record<string, unknown>)),
-      fetch("/api/company/payment-schedule").then(r => r.json()).catch(() => ({})),
-      fetch(`/api/recommendations?workerId=${workerId}&limit=4`).then(r => r.json()).catch(() => null),
-      fetch(`/api/track/analytics?workerId=${workerId}`).then(r => r.json()).catch(() => null),
-    ]).then(([profile, settings, schedule, recs, analyticsData]: [any, any, any, any, any]) => {
-      if (profile?.workerId) setWorker(profile as any);
-      const s = settings && typeof settings.settings === "object" ? (settings.settings as Record<string, string>) : {};
-      const mw = parseInt(s.min_withdrawal || "500");
-      setMinWithdraw(isNaN(mw) ? 500 : mw);
-      try {
-        const bcStr = s.banking_channels;
-        if (bcStr) {
-          const saved = JSON.parse(bcStr);
-          if (Array.isArray(saved)) setChannels(saved);
-        }
-      } catch {}
-      if (schedule && typeof schedule.systemActive === "boolean") {
-        setPaySysActive(schedule.systemActive as boolean);
-        setNextPayDate((schedule.nextPaymentDate as string) || "");
-        setPayInterval(schedule.intervalDays as number || 7);
-      }
-      if (recs && recs.courses) setRecommendations(recs);
-      if (analyticsData) setAnalytics(analyticsData);
-    }).catch(() => {}).finally(() => setLoading(false));
+    const wid = localStorage.getItem("worker_id");
+    setWorkerId(wid);
   }, []);
+
+  const { data: profileData, loading: profileLoading } = useSWRFetch<Record<string, unknown> | null>(
+    workerId ? `/api/workers/profile?workerId=${workerId}` : null,
+    { ttlMs: 180_000, cacheKey: `profile_${workerId}` }
+  );
+
+  const { data: settingsData } = useSWRFetch<{ settings?: Record<string, string> } | null>(
+    "/api/company/settings",
+    { ttlMs: 300_000 }
+  );
+
+  const { data: scheduleData } = useSWRFetch<Record<string, unknown> | null>(
+    "/api/company/payment-schedule",
+    { ttlMs: 300_000 }
+  );
+
+  const { data: recsData } = useSWRFetch<{ courses?: unknown[] } | null>(
+    workerId ? `/api/recommendations?workerId=${workerId}&limit=4` : null,
+    { ttlMs: 120_000, cacheKey: `recs_${workerId}` }
+  );
+
+  const { data: analyticsData } = useSWRFetch<Record<string, unknown> | null>(
+    workerId ? `/api/track/analytics?workerId=${workerId}` : null,
+    { ttlMs: 60_000, cacheKey: `analytics_${workerId}` }
+  );
+
+  const worker = profileData?.workerId ? profileData as any : null;
+  const loading = !workerId || profileLoading;
+
+  useEffect(() => {
+    if (!settingsData?.settings) return;
+    const s = settingsData.settings;
+    const mw = parseInt(s.min_withdrawal || "500");
+    setMinWithdraw(isNaN(mw) ? 500 : mw);
+    try {
+      const bcStr = s.banking_channels;
+      if (bcStr) {
+        const saved = JSON.parse(bcStr);
+        if (Array.isArray(saved)) setChannels(saved);
+      }
+    } catch {}
+  }, [settingsData]);
+
+  useEffect(() => {
+    if (!scheduleData) return;
+    if (typeof scheduleData.systemActive === "boolean") {
+      setPaySysActive(scheduleData.systemActive as boolean);
+      setNextPayDate((scheduleData.nextPaymentDate as string) || "");
+      setPayInterval(scheduleData.intervalDays as number || 7);
+    }
+  }, [scheduleData]);
+
+  useEffect(() => {
+    if (recsData && (recsData as any).courses) setRecommendations(recsData as any);
+  }, [recsData]);
+
+  useEffect(() => {
+    if (analyticsData) setAnalytics(analyticsData as any);
+  }, [analyticsData]);
 
   const doWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
