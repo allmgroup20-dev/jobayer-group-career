@@ -1,4 +1,4 @@
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const CACHE = `jgcareer-v${CACHE_VERSION}`;
 const RUNTIME = `jgcareer-runtime-v${CACHE_VERSION}`;
 const IMAGE_CACHE = `jgcareer-images-v${CACHE_VERSION}`;
@@ -28,23 +28,42 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+async function fetchWithETag(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+
+  const headers = new Headers(request.headers);
+  const cachedEtag = cached?.headers.get("ETag");
+  if (cachedEtag) {
+    headers.set("If-None-Match", cachedEtag);
+  }
+
+  const conditional = new Request(request, { headers });
+
+  try {
+    const res = await fetch(conditional);
+
+    if (res.status === 304 && cached) {
+      return cached;
+    }
+
+    if (res.ok) {
+      const clone = res.clone();
+      cache.put(request, clone);
+    }
+    return res;
+  } catch {
+    return cached || new Response("Offline", { status: 502 });
+  }
+}
+
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // API calls — network first, cache on success, fallback to cache on failure
+  // API calls — network first with ETag/304
   if (url.pathname.startsWith("/api/") && e.request.method === "GET") {
-    e.respondWith(
-      fetch(e.request)
-        .then((res) => {
-          if (res.ok) {
-            const clone = res.clone();
-            caches.open(API_CACHE).then((c) => c.put(e.request, clone));
-          }
-          return res;
-        })
-        .catch(() => caches.match(e.request))
-    );
+    e.respondWith(fetchWithETag(e.request, API_CACHE));
     return;
   }
 
@@ -72,30 +91,14 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Navigation — network first, cache fallback, then offline page
+  // Navigation — network first with ETag/304, offline fallback
   if (e.request.mode === "navigate") {
     e.respondWith(
-      fetch(e.request)
-        .then((res) => {
-          const clone = res.clone();
-          caches.open(RUNTIME).then((c) => c.put(e.request, clone));
-          return res;
-        })
-        .catch(() =>
-          caches.match(e.request).then((r) => r || caches.match("/offline"))
-        )
+      fetchWithETag(e.request, RUNTIME).catch(() => caches.match("/offline"))
     );
     return;
   }
 
-  // Everything else — network first
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const clone = res.clone();
-        caches.open(RUNTIME).then((c) => c.put(e.request, clone));
-        return res;
-      })
-      .catch(() => caches.match(e.request))
-  );
+  // Everything else — network first with ETag/304
+  e.respondWith(fetchWithETag(e.request, RUNTIME));
 });
