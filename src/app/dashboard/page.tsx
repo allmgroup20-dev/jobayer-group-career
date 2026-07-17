@@ -9,12 +9,14 @@ import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
 
-interface Channel { id: string; label: string; labelBn: string; enabled?: boolean; status?: "active" | "paused" }
+interface Channel { id: string; label: string; labelBn: string; enabled?: boolean; status?: "active" | "paused"; recommended?: boolean }
+interface SavedAccount { id: number; worker_id: string; account_type: string; account_number: string; account_name: string | null; is_default: number; created_at: string }
+
 const DEFAULT_CHANNELS: Channel[] = [
-  { id: "bkash", label: "bKash", labelBn: "বিকাশ" },
-  { id: "nagad", label: "Nagad", labelBn: "নগদ" },
-  { id: "rocket", label: "Rocket", labelBn: "রকেট" },
-  { id: "bank", label: "Bank", labelBn: "ব্যাংক" },
+  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true, status: "active", recommended: false },
+  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true, status: "active", recommended: true },
+  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true, status: "active", recommended: false },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false, status: "active", recommended: false },
 ];
 
 export default function WorkerDashboard() {
@@ -22,12 +24,19 @@ export default function WorkerDashboard() {
   const [workerId, setWorkerId] = useState<string | null>(null);
   const [channels, setChannels] = useState(DEFAULT_CHANNELS);
   const [minWithdraw, setMinWithdraw] = useState(500);
+  const [premiumMinWithdraw, setPremiumMinWithdraw] = useState(200);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawChannel, setWithdrawChannel] = useState("bkash");
   const [withdrawAccount, setWithdrawAccount] = useState("");
   const [paySysActive, setPaySysActive] = useState(true);
   const [nextPayDate, setNextPayDate] = useState("");
   const [payInterval, setPayInterval] = useState(7);
+  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [newAccType, setNewAccType] = useState("nagad");
+  const [newAccNumber, setNewAccNumber] = useState("");
+  const [newAccName, setNewAccName] = useState("");
+  const [selectedAccId, setSelectedAccId] = useState<number | null>(null);
   const [recommendations, setRecommendations] = useState<{
     courses: { title: string; description: string; url: string; icon: string; category: string; score: number }[];
     products: { id: number; name: string; nameBn: string | null; price: number; imageUrl: string | null; score: number }[];
@@ -85,6 +94,8 @@ export default function WorkerDashboard() {
     const s = settingsData.settings;
     const mw = parseInt(s.min_withdrawal || "500");
     setMinWithdraw(isNaN(mw) ? 500 : mw);
+    const pmw = parseInt(s.min_withdrawal_premium || "200");
+    setPremiumMinWithdraw(isNaN(pmw) ? 200 : pmw);
     try {
       const bcStr = s.banking_channels;
       if (bcStr) {
@@ -111,16 +122,30 @@ export default function WorkerDashboard() {
     if (analyticsData) setAnalytics(analyticsData as any);
   }, [analyticsData]);
 
-  const doWithdraw = async () => {
+  useEffect(() => {
+    if (!workerId) return;
+    fetch(`/api/accounts?workerId=${workerId}`)
+      .then(r => r.json() as Promise<{ accounts: SavedAccount[] }>)
+      .then(d => { setSavedAccounts(d.accounts || []); if (d.accounts?.length) setSelectedAccId(d.accounts[0].id); })
+      .catch(() => {});
+  }, [workerId]);
+
+  const isPremium = worker?.membershipStatus === "premium";
+
+  const doWithdraw = async (autoAccount?: SavedAccount) => {
     const amount = parseFloat(withdrawAmount);
     if (!amount || amount <= 0) return alert(lang === "bn" ? "সঠিক পরিমাণ দিন" : "Enter valid amount");
-    if (amount < minWithdraw) return alert(lang === "bn" ? `ন্যূনতম উইথড্র: ৳${minWithdraw}` : `Min withdrawal: ৳${minWithdraw}`);
+    const effectiveMin = isPremium ? premiumMinWithdraw : minWithdraw;
+    if (amount < effectiveMin) return alert(lang === "bn" ? `ন্যূনতম উইথড্র: ৳${effectiveMin}` : `Min withdrawal: ৳${effectiveMin}`);
     if (amount > (worker?.balance || 0)) return alert(lang === "bn" ? "পর্যাপ্ত ব্যালেন্স নেই" : "Insufficient balance");
-    if (!withdrawAccount) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
+    const acc = autoAccount || savedAccounts.find(a => a.id === selectedAccId);
+    const finalAccount = acc?.account_number || withdrawAccount;
+    const finalChannel = acc?.account_type || withdrawChannel;
+    if (!finalAccount) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
     const res = await fetch("/api/withdrawals", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workerId: worker!.workerId, amount, paymentMethod: withdrawChannel, accountNumber: withdrawAccount }),
+      body: JSON.stringify({ workerId: worker!.workerId, amount, paymentMethod: finalChannel, accountNumber: finalAccount }),
     });
     const data = await res.json() as { error?: string };
     if (res.ok) {
@@ -130,6 +155,40 @@ export default function WorkerDashboard() {
     } else {
       alert(data.error || "Failed");
     }
+  };
+
+  const saveAccount = async () => {
+    if (!newAccNumber) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
+    const isDefault = savedAccounts.length === 0 ? 1 : 0;
+    const res = await fetch("/api/accounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workerId: worker!.workerId, accountType: newAccType, accountNumber: newAccNumber, accountName: newAccName || null, isDefault }),
+    });
+    if (res.ok) {
+      const updated = await fetch(`/api/accounts?workerId=${worker!.workerId}`).then(r => r.json() as Promise<{ accounts: SavedAccount[] }>);
+      setSavedAccounts(updated.accounts || []);
+      if (updated.accounts?.length && !selectedAccId) setSelectedAccId(updated.accounts[0].id);
+      setNewAccNumber("");
+      setNewAccName("");
+      setShowAddAccount(false);
+    } else {
+      alert("Failed to save account");
+    }
+  };
+
+  const deleteAccount = async (id: number) => {
+    if (!confirm(lang === "bn" ? "অ্যাকাউন্টটি ডিলিট করবেন?" : "Delete this account?")) return;
+    const res = await fetch("/api/accounts", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    if (res.ok) {
+      setSavedAccounts(prev => prev.filter(a => a.id !== id));
+      if (selectedAccId === id) setSelectedAccId(savedAccounts.length > 1 ? savedAccounts[0].id === id ? (savedAccounts[1]?.id || null) : savedAccounts[0].id : null);
+    }
+  };
+
+  const setDefaultAccount = async (id: number) => {
+    await fetch("/api/accounts", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, workerId: worker!.workerId, isDefault: 1 }) });
+    setSavedAccounts(prev => prev.map(a => ({ ...a, is_default: a.id === id ? 1 : 0 })));
   };
 
   if (loading) {
@@ -499,77 +558,241 @@ export default function WorkerDashboard() {
 
         <div className="mt-6">
           <Card>
-            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "দ্রুত উইথড্র" : "Quick Withdraw"}</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                  {lang === "bn" ? "পরিমাণ" : "Amount"}
-                </label>
-                <input
-                  type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder={lang === "bn" ? "পরিমাণ" : "Amount"}
-                  className="input-field w-full"
-                />
+            <h3 className="font-bold text-primary mb-4">
+              {lang === "bn" ? "📤 উইথড্র" : "📤 Withdraw"}
+              {paySysActive ? (
+                <span className="ml-2 text-xs font-normal text-green-600">● {lang === "bn" ? "রিকোয়েস্ট মোড" : "Request Mode"}</span>
+              ) : (
+                <span className="ml-2 text-xs font-normal text-amber-600">● {lang === "bn" ? "অটো-পে-আউট মোড" : "Auto Payout Mode"}</span>
+              )}
+            </h3>
+
+            {!paySysActive && (
+              <div className="p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+                <p className="font-semibold">{lang === "bn" ? "⚡ অটোমেটিক পে-আউট সক্রিয়" : "⚡ Auto Payout Active"}</p>
+                <p className="mt-1 text-xs">{lang === "bn"
+                  ? "উইথড্রয়াল রিকোয়েস্ট সিস্টেম বন্ধ রয়েছে। আপনার সম্পূর্ণ ব্যালেন্স স্বয়ংক্রিয়ভাবে উত্তোলন করা হবে।"
+                  : "Withdrawal request system is disabled. Your full balance will be automatically withdrawn."}</p>
+                <p className="mt-2 text-lg font-bold text-amber-900">{lang === "bn" ? "বর্তমান ব্যালেন্স:" : "Current Balance:"} ৳{worker?.balance?.toLocaleString() || 0}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                  {lang === "bn" ? "অ্যাকাউন্ট নাম্বার" : "Account Number"}
-                </label>
-                <input
-                  type="text"
-                  value={withdrawAccount}
-                  onChange={(e) => setWithdrawAccount(e.target.value)}
-                  placeholder={lang === "bn" ? "আপনার অ্যাকাউন্ট নাম্বার দিন" : "Enter your account number"}
-                  className="input-field w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                  {lang === "bn" ? "পেমেন্ট চ্যানেল" : "Payment Channel"}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {channels.filter((ch) => ch.enabled !== false).map((ch) => {
-                    const isPaused = ch.status === "paused";
-                    return (
-                      <button
-                        key={ch.id}
-                        type="button"
-                        onClick={() => !isPaused && setWithdrawChannel(ch.id)}
-                        disabled={isPaused}
-                        title={isPaused ? (lang === "bn" ? "এই চ্যানেলটি সাময়িকভাবে বন্ধ রয়েছে" : "This channel is temporarily paused") : ""}
-                        className={`py-2 px-3 rounded-xl text-sm font-medium border transition-all ${
-                          isPaused
-                            ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed line-through"
-                            : withdrawChannel === ch.id
-                              ? "border-action bg-action/10 text-action"
-                              : "border-border text-text-secondary hover:border-action/50"
-                        }`}
-                      >
-                        {lang === "bn" ? ch.labelBn || ch.label : ch.label}
-                      </button>
-                    );
-                  })}
+            )}
+
+            {paySysActive && (
+              <>
+                {/* Saved Accounts */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                    {lang === "bn" ? "আপনার অ্যাকাউন্ট" : "Your Accounts"}
+                  </label>
+                  {savedAccounts.length > 0 && (
+                    <div className="space-y-2 mb-3">
+                      {savedAccounts.map(acc => (
+                        <div
+                          key={acc.id}
+                          onClick={() => {
+                            setSelectedAccId(acc.id);
+                            setWithdrawAccount(acc.account_number);
+                            setWithdrawChannel(acc.account_type);
+                          }}
+                          className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                            selectedAccId === acc.id
+                              ? "border-action bg-action/5"
+                              : "border-border hover:border-action/40 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{acc.account_type === "nagad" ? "💚" : acc.account_type === "bkash" ? "🩷" : acc.account_type === "rocket" ? "🚀" : "🏦"}</span>
+                            <div>
+                              <p className="text-sm font-medium text-primary">
+                                {lang === "bn"
+                                  ? channels.find(c => c.id === acc.account_type)?.labelBn || acc.account_type
+                                  : channels.find(c => c.id === acc.account_type)?.label || acc.account_type}
+                                {acc.is_default ? <span className="ml-1.5 text-[10px] text-action font-semibold">({lang === "bn" ? "ডিফল্ট" : "Default"})</span> : ""}
+                              </p>
+                              <p className="text-xs font-mono text-text-secondary">{acc.account_number}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {!acc.is_default && (
+                              <button onClick={e => { e.stopPropagation(); setDefaultAccount(acc.id); }}
+                                className="p-1.5 text-[10px] text-action hover:bg-action/10 rounded-lg" title={lang === "bn" ? "ডিফল্ট করুন" : "Set default"}>
+                                {lang === "bn" ? "ডিফল্ট" : "Default"}
+                              </button>
+                            )}
+                            <button onClick={e => { e.stopPropagation(); deleteAccount(acc.id); }}
+                              className="p-1.5 text-[10px] text-red-500 hover:bg-red-50 rounded-lg" title={lang === "bn" ? "ডিলিট" : "Delete"}>
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!showAddAccount ? (
+                    <button onClick={() => setShowAddAccount(true)}
+                      className="text-sm text-action hover:text-action-light font-medium flex items-center gap-1">
+                      + {lang === "bn" ? "নতুন অ্যাকাউন্ট যোগ করুন" : "Add New Account"}
+                    </button>
+                  ) : (
+                    <div className="p-3 bg-gray-50 rounded-xl space-y-2">
+                      <div className="flex gap-2">
+                        {["nagad", "bkash", "rocket", "bank"].map(type => (
+                          <button key={type} onClick={() => setNewAccType(type)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
+                              newAccType === type ? "bg-action text-white" : "bg-white text-text-secondary border border-border"
+                            }`}>
+                            {lang === "bn"
+                              ? ({ nagad: "নগদ", bkash: "বিকাশ", rocket: "রকেট", bank: "ব্যাংক" } as Record<string, string>)[type] || type
+                              : type}
+                          </button>
+                        ))}
+                      </div>
+                      <input type="text" value={newAccNumber} onChange={e => setNewAccNumber(e.target.value)}
+                        placeholder={lang === "bn" ? "অ্যাকাউন্ট নাম্বার" : "Account Number"}
+                        className="input-field w-full text-sm" />
+                      <input type="text" value={newAccName} onChange={e => setNewAccName(e.target.value)}
+                        placeholder={lang === "bn" ? "অ্যাকাউন্টের নাম (optional)" : "Account Label (optional)"}
+                        className="input-field w-full text-sm" />
+                      <div className="flex gap-2">
+                        <button onClick={saveAccount} className="btn-primary text-xs !py-2 flex-1">
+                          {lang === "bn" ? "সেভ করুন" : "Save Account"}
+                        </button>
+                        <button onClick={() => setShowAddAccount(false)} className="px-4 py-2 text-xs text-text-secondary hover:text-primary rounded-lg border border-border">
+                          {lang === "bn" ? "বাতিল" : "Cancel"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+
+                {/* Amount Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    {lang === "bn" ? "পরিমাণ" : "Amount"}
+                  </label>
+                  <input
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder={lang === "bn" ? "পরিমাণ" : "Amount"}
+                    className="input-field w-full"
+                  />
+                </div>
+
+                {/* Channel Selection */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    {lang === "bn" ? "পেমেন্ট চ্যানেল" : "Payment Channel"}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {channels.map((ch) => {
+                      const isPaused = ch.status === "paused";
+                      const isRecommended = ch.recommended;
+                      const isSelected = withdrawChannel === ch.id;
+                      return (
+                        <button
+                          key={ch.id}
+                          type="button"
+                          onClick={() => !isPaused && setWithdrawChannel(ch.id)}
+                          disabled={isPaused}
+                          title={isPaused ? (lang === "bn" ? "এই চ্যানেলটি সাময়িকভাবে বন্ধ রয়েছে" : "This channel is temporarily paused") : ""}
+                          className={`relative py-3 px-3 rounded-xl text-sm font-medium border transition-all ${
+                            isPaused
+                              ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed opacity-60"
+                              : isSelected
+                                ? "border-action bg-action/10 text-action"
+                                : "border-border text-text-secondary hover:border-action/50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-1.5">
+                            {ch.id === "nagad" && <span>💚</span>}
+                            {ch.id === "bkash" && <span>🩷</span>}
+                            {ch.id === "rocket" && <span>🚀</span>}
+                            {ch.id === "bank" && <span>🏦</span>}
+                            <span>{lang === "bn" ? ch.labelBn || ch.label : ch.label}</span>
+                            {isRecommended && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">
+                                {lang === "bn" ? "সেরা পছন্দ" : "Best"}
+                              </span>
+                            )}
+                          </div>
+                          {isPaused && (
+                            <div className="text-[10px] text-gray-400 mt-1">
+                              {lang === "bn" ? "⏸ সাময়িকভাবে বন্ধ" : "⏸ Temporarily paused"}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Account Number (manual override) */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    {lang === "bn" ? "অ্যাকাউন্ট নাম্বার" : "Account Number"} {savedAccounts.length > 0 && <span className="text-xs text-text-secondary">({lang === "bn" ? "অথবা উপরের অ্যাকাউন্ট সিলেক্ট করুন" : "or select from above"})</span>}
+                  </label>
+                  <input
+                    type="text"
+                    value={withdrawAccount}
+                    onChange={(e) => setWithdrawAccount(e.target.value)}
+                    placeholder={lang === "bn" ? "আপনার অ্যাকাউন্ট নাম্বার দিন" : "Enter your account number"}
+                    className="input-field w-full"
+                  />
+                </div>
+
+                {/* Min withdrawal info */}
+                <div className="mb-4 p-3 rounded-xl bg-gray-50 text-sm">
+                  {!isPremium && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-secondary">{lang === "bn" ? "সাধারণ সদস্য:" : "Regular:"}</span>
+                      <span className="font-semibold text-primary">ন্যূনতম ৳{minWithdraw}</span>
+                    </div>
+                  )}
+                  <div className={`flex items-center justify-between ${!isPremium ? "mt-1" : ""}`}>
+                    <span className="text-text-secondary">
+                      {lang === "bn" ? "প্রিমিয়াম সদস্য:" : "Premium:"} ⭐
+                      {!isPremium && (
+                        <Link href="/membership" className="ml-2 text-xs text-action hover:underline">
+                          {lang === "bn" ? "আপগ্রেড করুন →" : "Upgrade →"}
+                        </Link>
+                      )}
+                    </span>
+                    <span className="font-semibold text-primary">ন্যূনতম ৳{premiumMinWithdraw}</span>
+                  </div>
+                  {!isPremium && (
+                    <p className="mt-2 text-xs text-amber-600">
+                      {lang === "bn"
+                        ? `প্রিমিয়ামে আপগ্রেড করে মাত্র ৳${premiumMinWithdraw} থেকে উত্তোলন শুরু করুন!`
+                        : `Upgrade to Premium and withdraw from just ৳${premiumMinWithdraw}!`}
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit button */}
+                <button
+                  onClick={() => doWithdraw()}
+                  className="w-full btn-primary !py-3 text-sm"
+                >
+                  {lang === "bn" ? "✅ উইথড্র করুন" : "✅ Withdraw"}
+                </button>
+              </>
+            )}
+
+            {!paySysActive && (
               <button
-                onClick={doWithdraw}
-                disabled={!paySysActive}
-                className={`w-full text-xs !py-3 rounded-xl font-medium transition-all ${
-                  !paySysActive
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "btn-primary"
-                }`}
+                onClick={async () => {
+                  if (!confirm(lang === "bn" ? "আপনার সম্পূর্ণ ব্যালেন্স উত্তোলন হবে, নিশ্চিত?" : "Your full balance will be withdrawn. Confirm?")) return;
+                  const acc = savedAccounts.find(a => a.id === selectedAccId);
+                  if (!acc && !withdrawAccount) return alert(lang === "bn" ? "অনুগ্রহ করে একটি অ্যাকাউন্ট সিলেক্ট বা যোগ করুন" : "Please select or add an account");
+                  await doWithdraw(acc || undefined);
+                }}
+                className="w-full btn-primary !py-3 text-sm mt-2"
               >
-                {!paySysActive
-                  ? (lang === "bn" ? "পেমেন্ট সিস্টেম বন্ধ" : "Payment Disabled")
-                  : (lang === "bn" ? "উইথড্র" : "Withdraw")}
+                {lang === "bn" ? "⚡ অটো উইথড্র" : "⚡ Auto Withdraw"}
               </button>
-            </div>
-            <p className="text-xs text-text-secondary mt-2">
-              {lang === "bn" ? `ন্যূনতম উইথড্র: ৳${minWithdraw}` : `Min withdrawal: ৳${minWithdraw}`}
-            </p>
+            )}
           </Card>
         </div>
       </div>

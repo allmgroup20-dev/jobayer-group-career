@@ -143,6 +143,16 @@ export const withdrawals = sqliteTable("withdrawals", {
   processedAt: text("processed_at"),
 });
 
+export const savedAccounts = sqliteTable("saved_accounts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  workerId: text("worker_id").notNull(),
+  accountType: text("account_type").notNull(),
+  accountNumber: text("account_number").notNull(),
+  accountName: text("account_name"),
+  isDefault: integer("is_default").default(0),
+  createdAt: text("created_at"),
+});
+
 export const currencies = sqliteTable("currencies", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   code: text("code").unique().notNull(),

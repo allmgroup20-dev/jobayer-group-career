@@ -24,13 +24,14 @@ interface Channel {
   labelBn: string;
   enabled: boolean;
   status?: "active" | "paused";
+  recommended?: boolean;
 }
 
 const DEFAULT_CHANNELS: Channel[] = [
-  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true, status: "active" },
-  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true, status: "active" },
-  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true, status: "active" },
-  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false, status: "active" },
+  { id: "bkash", label: "bKash", labelBn: "বিকাশ", enabled: true, status: "active", recommended: false },
+  { id: "nagad", label: "Nagad", labelBn: "নগদ", enabled: true, status: "active", recommended: true },
+  { id: "rocket", label: "Rocket", labelBn: "রকেট", enabled: true, status: "active", recommended: false },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক", enabled: false, status: "active", recommended: false },
 ];
 
 const WEEKDAYS = [
@@ -348,6 +349,7 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
   const [saved, setSaved] = useState(false);
 
   const [minWithdrawal, setMinWithdrawal] = useState("500");
+  const [premiumMinWithdrawal, setPremiumMinWithdrawal] = useState("200");
   const [registrationBonus, setRegistrationBonus] = useState("0");
   const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
 
@@ -365,6 +367,7 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
       if (data.settings) {
         const s = data.settings;
         setMinWithdrawal(s.min_withdrawal || "500");
+        setPremiumMinWithdrawal(s.min_withdrawal_premium || "200");
         setRegistrationBonus(s.registration_bonus || "0");
         try {
           const bc = (s as any).banking_channels ? JSON.parse((s as any).banking_channels) : null;
@@ -396,10 +399,19 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
     );
   };
 
+  const toggleRecommended = (id: string) => {
+    setChannels((prev) =>
+      prev.map((ch) =>
+        ch.id === id ? { ...ch, recommended: !ch.recommended } : ch
+      )
+    );
+  };
+
   const handleSave = async () => {
     setSaving(true);
     const settings = [
       { key: "min_withdrawal", value: minWithdrawal },
+      { key: "min_withdrawal_premium", value: premiumMinWithdrawal },
       { key: "registration_bonus", value: registrationBonus },
       { key: "banking_channels", value: JSON.stringify(channels) },
     ];
@@ -444,8 +456,12 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
         <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "ফাইন্যান্স" : "Finance"}</h3>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ন্যূনতম উইথড্র" : "Min Withdrawal"} (৳)</label>
+            <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "সাধারণের জন্য ন্যূনতম উইথড্র" : "Regular Min Withdrawal"} (৳)</label>
             <input type="number" value={minWithdrawal} onChange={(e) => setMinWithdrawal(e.target.value)} className="input-field" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "প্রিমিয়ামের জন্য ন্যূনতম উইথড্র" : "Premium Min Withdrawal"} (৳) ⭐</label>
+            <input type="number" value={premiumMinWithdrawal} onChange={(e) => setPremiumMinWithdrawal(e.target.value)} className="input-field" />
           </div>
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "রেজিস্ট্রেশন বোনাস" : "Registration Bonus"} (৳)</label>
@@ -563,6 +579,22 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
                 </span>
               </div>
               <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => toggleRecommended(ch.id)}
+                  disabled={!ch.enabled}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                    !ch.enabled
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : ch.recommended
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-white text-text-secondary border border-border"
+                  }`}
+                >
+                  {ch.recommended
+                    ? (lang === "bn" ? "★ রিকমেন্ডেড" : "★ Recommended")
+                    : (lang === "bn" ? "রিকমেন্ড" : "Recommend")}
+                </button>
                 <button
                   type="button"
                   onClick={() => toggleChannelStatus(ch.id)}

@@ -15,16 +15,14 @@ export async function POST(request: NextRequest) {
 
     const env = await getDB();
 
-    // Check if payment system is active
+    // Check payment system mode
     const paySetting = await query<{ setting_value: string }>(
       env, "SELECT setting_value FROM company_settings WHERE setting_key = 'payment_system_active'"
     );
-    if (paySetting.length > 0 && paySetting[0].setting_value === "0") {
-      return NextResponse.json({ error: "Payment system is currently disabled" }, { status: 400 });
-    }
+    const isAutoMode = paySetting.length > 0 && paySetting[0].setting_value === "0";
 
-    const worker = await query<{ worker_id: string; balance: number; name: string; phone: string }>(
-      env, "SELECT worker_id, balance, name, phone FROM workers WHERE worker_id = ?", [workerId]
+    const worker = await query<{ worker_id: string; balance: number; name: string; phone: string; membership_status: string }>(
+      env, "SELECT worker_id, balance, name, phone, membership_status FROM workers WHERE worker_id = ?", [workerId]
     );
 
     if (!worker || worker.length === 0) {
@@ -35,12 +33,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
+    // Membership-based min withdrawal check
+    const isPremium = worker[0].membership_status === "premium";
+    const minSetting = await query<{ setting_value: string }>(
+      env, `SELECT setting_value FROM company_settings WHERE setting_key = ?`,
+      [isPremium ? "min_withdrawal_premium" : "min_withdrawal"]
+    );
+    const minAmount = minSetting.length > 0 ? parseFloat(minSetting[0].setting_value) : (isPremium ? 200 : 500);
+    if (amount < minAmount) {
+      return NextResponse.json({ error: `Minimum withdrawal is ৳${minAmount}` }, { status: 400 });
+    }
+
+    const status = isAutoMode ? "completed" : "pending";
+    const processedAt = isAutoMode ? "datetime('now')" : "NULL";
+
     const withdrawalId = `WTH${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     await execute(env,
-      `INSERT INTO withdrawals (withdrawal_id, worker_id, amount, currency, payment_method, account_number, status)
-       VALUES (?, ?, ?, 'BDT', ?, ?, 'pending')`,
-      [withdrawalId, workerId, amount, paymentMethod || "bkash", accountNumber || null]
+      `INSERT INTO withdrawals (withdrawal_id, worker_id, amount, currency, payment_method, account_number, status, processed_at)
+       VALUES (?, ?, ?, 'BDT', ?, ?, ?, ${processedAt})`,
+      [withdrawalId, workerId, amount, paymentMethod || "bkash", accountNumber || null, status]
     );
 
     try {

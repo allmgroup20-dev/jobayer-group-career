@@ -161,6 +161,15 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now')),
       processed_at TEXT
     )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS saved_accounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      worker_id TEXT NOT NULL,
+      account_type TEXT NOT NULL,
+      account_number TEXT NOT NULL,
+      account_name TEXT,
+      is_default INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS currencies (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       code TEXT UNIQUE NOT NULL,
@@ -194,7 +203,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type) VALUES
       ('company_name', 'Jobayer Group Career', 'text'),
-      ('site_description', 'A premium JG Career and e-commerce platform for career growth', 'text')
+      ('site_description', 'A premium JG Career and e-commerce platform for career growth', 'text'),
+      ('min_withdrawal_premium', '200', 'number')
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO company_users (username, password, name, role) VALUES
       ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Company Admin', 'superadmin')
