@@ -1,5 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import { getCached, setCached, deleteCached } from "./client-cache";
+
+const isBrowser = typeof window !== "undefined" && typeof indexedDB !== "undefined";
+
+async function getCached<T>(key: string, ttlMs: number): Promise<T | null> {
+  if (!isBrowser) return null;
+  const { getCached: gc } = await import("./client-cache");
+  return gc<T>(key, ttlMs);
+}
+
+async function setCached(key: string, data: unknown): Promise<void> {
+  if (!isBrowser) return;
+  const { setCached: sc } = await import("./client-cache");
+  return sc(key, data);
+}
+
+export async function deleteCached(key: string): Promise<void> {
+  if (!isBrowser) return;
+  const { deleteCached: dc } = await import("./client-cache");
+  return dc(key);
+}
 
 interface SWROptions<T> {
   ttlMs?: number;
