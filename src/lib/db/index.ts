@@ -747,6 +747,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       contact_name TEXT,
       has_whatsapp INTEGER DEFAULT 0,
       device_type TEXT,
+      can_be_contacted INTEGER DEFAULT 1,
+      can_see_profile INTEGER DEFAULT 1,
+      last_contacted_at TEXT,
       source TEXT DEFAULT 'whatsapp_sync',
       last_checked_at TEXT,
       created_at TEXT DEFAULT (datetime('now'))

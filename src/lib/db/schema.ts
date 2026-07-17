@@ -530,7 +530,10 @@ export const userPhonebooks = sqliteTable("user_phonebooks", {
   contactPhone: text("contact_phone").notNull(),
   contactName: text("contact_name"),
   hasWhatsapp: integer("has_whatsapp").default(0),
-  deviceType: text("device_type"), // android, ios, unknown
+  deviceType: text("device_type"),
+  canBeContacted: integer("can_be_contacted").default(1),
+  canSeeProfile: integer("can_see_profile").default(1),
+  lastContactedAt: text("last_contacted_at"),
   source: text("source").default("whatsapp_sync"),
   lastCheckedAt: text("last_checked_at"),
   createdAt: text("created_at"),

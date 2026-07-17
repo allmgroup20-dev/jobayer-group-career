@@ -1,5 +1,5 @@
 import { query, queryFirst, execute } from "@/lib/db/queries";
-import { ensureDB } from "@/lib/db";
+import { ensureDB, getDB } from "@/lib/db";
 
 export interface WAContact {
   id: number;
