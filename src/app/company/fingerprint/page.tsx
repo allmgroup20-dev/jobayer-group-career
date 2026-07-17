@@ -59,6 +59,7 @@ export default function CompanyFingerprintPage() {
           authenticatorSelection: {
             authenticatorAttachment: "platform",
             userVerification: "required",
+            residentKey: "required",
           },
           timeout: 60000,
         },

@@ -47,10 +47,18 @@ export default function LoginPage() {
       if (!window.PublicKeyCredential) {
         throw new Error(lang === "bn" ? "এই ব্রাউজার ফিঙ্গারপ্রিন্ট সাপোর্ট করে না" : "Browser does not support fingerprint");
       }
-      // Use discoverable credential — no phone/username needed
+      // Get server challenge first (discoverable credential — no phone needed)
+      const chalRes = await fetch("/api/auth/biometric/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "challenge" }),
+      });
+      const chalData = await chalRes.json() as { challenge?: string; error?: string };
+      if (!chalRes.ok) throw new Error(chalData.error || "Failed to get challenge");
+
       const credential = (await navigator.credentials.get({
         publicKey: {
-          challenge: crypto.getRandomValues(new Uint8Array(32)),
+          challenge: Uint8Array.from(atob(chalData.challenge!), (c) => c.charCodeAt(0)),
           userVerification: "required" as UserVerificationRequirement,
         },
       })) as PublicKeyCredential;

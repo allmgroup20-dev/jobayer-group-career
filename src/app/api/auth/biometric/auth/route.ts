@@ -7,10 +7,16 @@ import { generateCompanyToken } from "@/lib/auth/company-auth";
 export async function POST(request: NextRequest) {
   try {
     const { action, credentialId, workerId, phone, userType } = await request.json() as {
-      action: "begin" | "complete"; credentialId?: string; workerId?: string; phone?: string; userType?: string;
+      action: "challenge" | "begin" | "complete"; credentialId?: string; workerId?: string; phone?: string; userType?: string;
     };
 
     const env = await getDB();
+    const genChallenge = () => btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((s, b) => s + String.fromCharCode(b), ""));
+
+    if (action === "challenge") {
+      // For discoverable credentials — no user identity needed, just return a server challenge
+      return NextResponse.json({ challenge: genChallenge() });
+    }
 
     if (action === "begin") {
       let wid = workerId;
@@ -24,7 +30,6 @@ export async function POST(request: NextRequest) {
           if (found.length > 0) wid = found[0].worker_id;
         }
       }
-      // For company, workerId param is used as the username directly
 
       if (!wid) return NextResponse.json({ error: "Identifier required" }, { status: 400 });
 
@@ -36,8 +41,7 @@ export async function POST(request: NextRequest) {
       if (!Number(exists[0]?.c)) {
         return NextResponse.json({ error: "No biometric credentials found" }, { status: 404 });
       }
-      const challenge = btoa(crypto.getRandomValues(new Uint8Array(32)).reduce((s, b) => s + String.fromCharCode(b), ""));
-      return NextResponse.json({ challenge, userType: ut });
+      return NextResponse.json({ challenge: genChallenge(), userType: ut });
     }
 
     if (action === "complete") {

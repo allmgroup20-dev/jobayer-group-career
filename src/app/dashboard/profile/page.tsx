@@ -79,7 +79,7 @@ export default function ProfilePage() {
       const publicKeyJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
       const publicKeyStr = JSON.stringify(publicKeyJwk);
 
-      // Create WebAuthn credential
+      // Create WebAuthn credential (discoverable = residentKey)
       const credential = await navigator.credentials.create({
         publicKey: {
           challenge: rawId,
@@ -93,6 +93,7 @@ export default function ProfilePage() {
           authenticatorSelection: {
             authenticatorAttachment: "platform",
             userVerification: "required",
+            residentKey: "required",
           },
           timeout: 60000,
         },
