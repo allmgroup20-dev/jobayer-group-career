@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import SmartInstall from "@/components/home/SmartInstall";
+import { CookieConsentBanner } from "@/components/privacy/CookieConsentBanner";
 import { useLanguageStore } from "@/lib/store";
 import { useTracker } from "@/lib/tracking/tracker";
 
@@ -82,6 +83,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <Footer />
       <BottomNav />
       {!isHome && <SmartInstall />}
+      <CookieConsentBanner />
     </>
   );
 }

@@ -65,6 +65,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/fingerprint", en: "Fingerprint", bn: "ফিঙ্গারপ্রিন্ট", icon: "🔐" },
       { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪" },
       { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄" },
+      { href: "/company/privacy", en: "Privacy", bn: "গোপনীয়তা", icon: "🔒" },
     ],
   },
 ];
