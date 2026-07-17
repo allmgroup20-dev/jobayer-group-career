@@ -1,53 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguageStore, useCartStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { ReviewList } from "@/components/reviews/ReviewList";
-import { StarDisplay } from "@/components/reviews/StarRating";
 
-const sampleProducts = [
-  { id: 1, name: "Starter Business Kit", nameBn: "স্টার্টার বিজনেস কিট", price: 2990, currency: "BDT", category: "business", image: "📦", commission: 10, premium: false, productType: "physical" },
-  { id: 2, name: "Premium Career Package", nameBn: "প্রিমিয়াম ক্যারিয়ার প্যাকেজ", price: 9990, currency: "BDT", category: "career", image: "🎯", commission: 15, premium: true, productType: "physical" },
-  { id: 3, name: "Elite Success Bundle", nameBn: "এলিট সাকসেস বান্ডেল", price: 24990, currency: "BDT", category: "elite", image: "👑", commission: 20, premium: true, productType: "physical" },
-  { id: 4, name: "Digital Marketing Course", nameBn: "ডিজিটাল মার্কেটিং কোর্স", price: 1990, currency: "BDT", category: "education", image: "📚", commission: 25, premium: false, productType: "virtual" },
-  { id: 5, name: "Team Building Workshop", nameBn: "টিম বিল্ডিং ওয়ার্কশপ", price: 4990, currency: "BDT", category: "business", image: "🤝", commission: 12, premium: false, productType: "physical" },
-  { id: 6, name: "Leadership Program", nameBn: "লিডারশিপ প্রোগ্রাম", price: 14990, currency: "BDT", category: "career", image: "⭐", commission: 18, premium: true, productType: "physical" },
-  { id: 7, name: "Smart Business Pack", nameBn: "স্মার্ট বিজনেস প্যাক", price: 7990, currency: "BDT", category: "business", image: "💼", commission: 15, premium: false, productType: "physical" },
-  { id: 8, name: "Annual Membership", nameBn: "বার্ষিক মেম্বারশিপ", price: 19990, currency: "BDT", category: "elite", image: "🏆", commission: 22, premium: true, productType: "virtual" },
-  { id: 9, name: "Communication Skills Pro", nameBn: "কমিউনিকেশন স্কিলস প্রো", price: 3990, currency: "BDT", category: "education", image: "🎤", commission: 20, premium: false, productType: "virtual" },
-  { id: 10, name: "Global Business Access", nameBn: "গ্লোবাল বিজনেস অ্যাক্সেস", price: 49990, currency: "BDT", category: "elite", image: "🌍", commission: 30, premium: true, productType: "virtual" },
-  { id: 11, name: "Facebook Ads Mastery", nameBn: "ফেসবুক এডস মাস্টারি", price: 5990, currency: "BDT", category: "education", image: "📱", commission: 20, premium: false, productType: "virtual" },
-  { id: 12, name: "Entrepreneur Starter", nameBn: "এন্টারপ্রেনার স্টার্টার", price: 999, currency: "BDT", category: "business", image: "🚀", commission: 10, premium: false, productType: "virtual" },
-];
+interface Product {
+  id: number; name: string; nameBn: string | null; price: number;
+  currency: string; commissionPercentage: number; imageUrl: string | null;
+  category: string | null; stock: number; premiumMembership: number;
+  productType: string;
+}
+
+const categoryKeys = ["business", "career", "elite", "education"];
+const categoryLabels: Record<string, { en: string; bn: string }> = {
+  all: { en: "All Products", bn: "সব পণ্য" },
+  business: { en: "Business", bn: "ব্যবসা" },
+  career: { en: "Career", bn: "ক্যারিয়ার" },
+  elite: { en: "Elite", bn: "এলিট" },
+  education: { en: "Education", bn: "শিক্ষা" },
+};
+
+const emojiFallback: Record<string, string> = {
+  business: "📦", career: "🎯", elite: "👑", education: "📚",
+};
 
 export default function ProductsPage() {
   const { lang } = useLanguageStore();
   const addItem = useCartStore((s) => s.addItem);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCat, setSelectedCat] = useState("all");
   const [addedMsg, setAddedMsg] = useState<number | null>(null);
-  const [reviewProduct, setReviewProduct] = useState<typeof sampleProducts[0] | null>(null);
+  const [reviewProduct, setReviewProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(r => r.json() as Promise<{ products?: Product[] }>)
+      .then(data => { if (data.products) setProducts(data.products); })
+      .catch(() => {});
+  }, []);
 
   const getWorkerId = () => { try { return localStorage.getItem("worker_id") || ""; } catch { return ""; } };
 
   const categories = [
-    { key: "all", en: "All Products", bn: "সব পণ্য" },
-    { key: "business", en: "Business", bn: "ব্যবসা" },
-    { key: "career", en: "Career", bn: "ক্যারিয়ার" },
-    { key: "elite", en: "Elite", bn: "এলিট" },
-    { key: "education", en: "Education", bn: "শিক্ষা" },
+    { key: "all", ...categoryLabels.all },
+    ...categoryKeys.map(k => ({ key: k, ...categoryLabels[k] })),
   ];
 
-  const filtered = selectedCat === "all" ? sampleProducts : sampleProducts.filter((p) => p.category === selectedCat);
+  const filtered = selectedCat === "all" ? products : products.filter(p => p.category === selectedCat);
 
-  const handleAddToCart = (product: typeof sampleProducts[0]) => {
+  const handleAddToCart = (product: Product) => {
     addItem({
       productId: product.id,
-      name: lang === "bn" ? product.nameBn : product.name,
+      name: lang === "bn" && product.nameBn ? product.nameBn : product.name,
       price: product.price,
-      currency: product.currency,
+      currency: product.currency || "BDT",
       quantity: 1,
       productType: product.productType,
     });
@@ -63,7 +72,7 @@ export default function ProductsPage() {
             {lang === "bn" ? "আমাদের পণ্য" : "Our Products"}
           </h1>
           <p className="text-text-secondary">
-            {lang === "bn" ? "পণ্য কিনুন এবং কমিশন উপার্জন করুন" : "Buy products and earn commissions"}
+            {lang === "bn" ? "পণ্য কিনুন" : "Buy products"}
           </p>
         </div>
 
@@ -86,24 +95,27 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filtered.map((product) => (
             <div key={product.id} className="card hover:shadow-xl hover:-translate-y-1 group animate-fade-up">
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 relative">
-                {product.image}
-                {product.premium && (
-                  <span className="absolute -top-2 -right-2 bg-amber-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+              <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300 relative">
+                {product.imageUrl ? (
+                  <img src={product.imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-5xl">{emojiFallback[product.category || ""] || "📦"}</span>
+                )}
+                {product.premiumMembership === 1 && (
+                  <span className="absolute top-2 right-2 bg-amber-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                     ⭐ PREMIUM
                   </span>
                 )}
                 {product.productType === "virtual" && (
-                  <span className="absolute -bottom-2 -left-2 bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                  <span className="absolute bottom-2 left-2 bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                     {lang === "bn" ? "ডিজিটাল" : "DIGITAL"}
                   </span>
                 )}
               </div>
-              <h3 className="font-bold text-primary mb-2">{lang === "bn" ? product.nameBn : product.name}</h3>
-              <p className="text-2xl font-bold text-action mb-2">{formatCurrency(product.price, product.currency)}</p>
-              <p className="text-xs text-text-secondary mb-4">
-                {lang === "bn" ? `কমিশন: ${product.commission}%` : `Commission: ${product.commission}%`}
-              </p>
+              <h3 className="font-bold text-primary mb-2">
+                {lang === "bn" && product.nameBn ? product.nameBn : product.name}
+              </h3>
+              <p className="text-2xl font-bold text-action mb-4">{formatCurrency(product.price, product.currency || "BDT")}</p>
               <div className="flex gap-2">
                 <button onClick={() => handleAddToCart(product)} className="btn-primary text-xs !px-4 !py-2.5 flex-1">
                   {addedMsg === product.id
@@ -122,31 +134,29 @@ export default function ProductsPage() {
               </button>
             </div>
           ))}
+          {filtered.length === 0 && (
+            <div className="col-span-full text-center py-16 text-text-secondary">
+              {lang === "bn" ? "কোনো পণ্য পাওয়া যায়নি" : "No products found"}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Review Modal */}
       {reviewProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setReviewProduct(null)}>
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-primary">
-                ⭐ {lang === "bn" ? reviewProduct.nameBn : reviewProduct.name}
+                ⭐ {lang === "bn" && reviewProduct.nameBn ? reviewProduct.nameBn : reviewProduct.name}
               </h3>
               <button onClick={() => setReviewProduct(null)} className="text-text-secondary hover:text-primary text-xl">✕</button>
             </div>
-
             <ReviewList productId={String(reviewProduct.id)} productType="product" />
-
             <div className="mt-6 pt-6 border-t border-border">
               <h4 className="font-semibold text-sm text-primary mb-3">
                 {lang === "bn" ? "আপনার রিভিউ দিন" : "Write a Review"}
               </h4>
-              <ReviewForm
-                productId={String(reviewProduct.id)}
-                productType="product"
-                workerId={getWorkerId()}
-              />
+              <ReviewForm productId={String(reviewProduct.id)} productType="product" workerId={getWorkerId()} />
             </div>
           </div>
         </div>
