@@ -12,6 +12,7 @@ interface Product {
   currency: string; commissionPercentage: number; imageUrl: string | null;
   category: string | null; stock: number; premiumMembership: number;
   productType: string; directBuy: number;
+  minPrice?: number; maxPrice?: number; aiPriceEnabled?: number;
 }
 
 const categoryKeys = ["business", "career", "elite", "education"];
@@ -34,12 +35,33 @@ export default function ProductsPage() {
   const [selectedCat, setSelectedCat] = useState("all");
   const [addedMsg, setAddedMsg] = useState<number | null>(null);
   const [reviewProduct, setReviewProduct] = useState<Product | null>(null);
+  const [aiPrices, setAiPrices] = useState<Record<number, { aiPrice: number; basePrice: number; message: string }>>({});
+  const [priceLoading, setPriceLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/products")
       .then(r => r.json() as Promise<{ products?: Product[] }>)
-      .then(data => { if (data.products) setProducts(data.products); })
-      .catch(() => {});
+      .then(data => {
+        if (data.products) {
+          setProducts(data.products);
+          const wid = localStorage.getItem("worker_id");
+          if (wid) {
+            const ids = data.products.map((p: Product) => p.id);
+            fetch("/api/ai-price", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ workerId: wid, productIds: ids }),
+            })
+              .then(r => r.json() as Promise<{ prices?: Record<number, { aiPrice: number; basePrice: number; message: string }> }>)
+              .then(d => { if (d.prices) setAiPrices(d.prices); })
+              .catch(() => {})
+              .finally(() => setPriceLoading(false));
+          } else {
+            setPriceLoading(false);
+          }
+        }
+      })
+      .catch(() => { setPriceLoading(false); });
   }, []);
 
   const getWorkerId = () => { try { return localStorage.getItem("worker_id") || ""; } catch { return ""; } };
@@ -51,11 +73,17 @@ export default function ProductsPage() {
 
   const filtered = selectedCat === "all" ? products : products.filter(p => p.category === selectedCat);
 
+  const getPrice = (product: Product) => {
+    if (aiPrices[product.id]) return aiPrices[product.id].aiPrice;
+    return product.price;
+  };
+
   const handleAddToCart = (product: Product) => {
+    const price = getPrice(product);
     addItem({
       productId: product.id,
       name: lang === "bn" && product.nameBn ? product.nameBn : product.name,
-      price: product.price,
+      price,
       currency: product.currency || "BDT",
       quantity: 1,
       productType: product.productType,
@@ -115,10 +143,27 @@ export default function ProductsPage() {
               <h3 className="font-bold text-primary mb-2">
                 {lang === "bn" && product.nameBn ? product.nameBn : product.name}
               </h3>
-              <p className="text-2xl font-bold text-action mb-4">{formatCurrency(product.price, product.currency || "BDT")}</p>
+              {product.aiPriceEnabled === 1 && aiPrices[product.id] ? (
+                <div className="mb-4">
+                  <p className="text-2xl font-bold text-action">{formatCurrency(aiPrices[product.id].aiPrice, product.currency || "BDT")}</p>
+                  {aiPrices[product.id].aiPrice < product.price && (
+                    <p className="text-xs text-text-secondary line-through">{formatCurrency(product.price, product.currency || "BDT")}</p>
+                  )}
+                  {aiPrices[product.id].message && (
+                    <p className="text-xs text-green-600 font-medium mt-0.5">{aiPrices[product.id].message}</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-2xl font-bold text-action mb-4">{formatCurrency(product.price, product.currency || "BDT")}</p>
+              )}
+              {priceLoading && product.aiPriceEnabled === 1 && (
+                <div className="mb-4">
+                  <div className="h-7 w-24 bg-gray-200 animate-pulse rounded" />
+                </div>
+              )}
               <div className="flex gap-2">
                 {product.directBuy === 1 ? (
-                  <button onClick={() => { window.location.href = `/checkout?product=${product.id}`; }} className="btn-primary text-xs !px-4 !py-2.5 w-full">
+                  <button onClick={() => { window.location.href = `/checkout?product=${product.id}&aiPrice=${getPrice(product)}`; }} className="btn-primary text-xs !px-4 !py-2.5 w-full">
                     {lang === "bn" ? "কিনুন" : "Buy"}
                   </button>
                 ) : (
@@ -128,7 +173,7 @@ export default function ProductsPage() {
                         ? (lang === "bn" ? "✓ যোগ হয়েছে" : "✓ Added")
                         : (lang === "bn" ? "কার্টে যোগ করুন" : "Add to Cart")}
                     </button>
-                    <button onClick={() => { handleAddToCart(product); window.location.href = `/checkout?product=${product.id}`; }} className="btn-secondary text-sm !px-6 !py-2.5 flex-1 font-semibold">
+                    <button onClick={() => { handleAddToCart(product); window.location.href = `/checkout?product=${product.id}&aiPrice=${getPrice(product)}`; }} className="btn-secondary text-sm !px-6 !py-2.5 flex-1 font-semibold">
                       {lang === "bn" ? "কিনুন" : "Buy"}
                     </button>
                   </>

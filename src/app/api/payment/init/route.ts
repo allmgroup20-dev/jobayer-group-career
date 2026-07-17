@@ -1,9 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execute, queryFirst } from "@/lib/db/queries";
+import { execute, query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { SslcommerzService } from "@/lib/payment/sslcommerz";
+import { getPriceForCustomer, type ProductPricing, type CustomerProfile } from "@/lib/ai/pricing-engine";
 
 const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+
+async function computeAiPrice(env: { DB: D1Database }, productId: number, workerId: string): Promise<number | null> {
+  const product = await queryFirst<any>(
+    env,
+    `SELECT id, price, min_price as minPrice, max_price as maxPrice,
+            ai_price_enabled as aiPriceEnabled, category
+     FROM products WHERE id = ? AND is_active = 1`,
+    [productId],
+  );
+  if (!product || product.aiPriceEnabled !== 1 || !product.minPrice || product.minPrice <= 0) return null;
+
+  const orders = await query<{ total: number; spent: number; lastDate: string | null }>(
+    env,
+    `SELECT COUNT(*) as total, COALESCE(SUM(total_amount), 0) as spent,
+            MAX(created_at) as lastDate
+     FROM orders WHERE worker_id = ? AND payment_status IN ('paid','completed')`,
+    [workerId],
+  );
+
+  const worker = await queryFirst<{ referral_source: string | null }>(
+    env, "SELECT referral_source FROM workers WHERE worker_id = ?", [workerId],
+  );
+
+  const behavior = await queryFirst<{ purchase_intent: number; segment: string }>(
+    env, "SELECT purchase_intent, segment FROM user_behavior_scores WHERE worker_id = ?", [workerId],
+  );
+
+  const interests = await queryFirst<{ category_scores: string }>(
+    env, "SELECT category_scores FROM user_interests WHERE worker_id = ?", [workerId],
+  );
+
+  const orderRow = orders[0] || { total: 0, spent: 0, lastDate: null };
+  const categoryScores = interests?.category_scores ? JSON.parse(interests.category_scores) : {};
+  const purchaseIntent = behavior?.purchase_intent ?? 0;
+  const productCategory = product.category || "";
+  const categoryInterest = Object.entries(categoryScores).reduce((max, [k, v]) => {
+    if (k.toLowerCase().includes(productCategory) || productCategory.includes(k.toLowerCase())) {
+      return Math.max(max, v as number);
+    }
+    return max;
+  }, 0);
+
+  const highIntent = purchaseIntent >= 50 || categoryInterest >= 70 || behavior?.segment === "vip";
+  const mediumIntent = purchaseIntent >= 20 || categoryInterest >= 30 || orderRow.total > 0;
+
+  let sentiment: CustomerProfile["sentiment"];
+  if (highIntent) sentiment = "high_interest";
+  else if (mediumIntent) sentiment = "interested";
+  else if (orderRow.total === 0) sentiment = "cold";
+  else sentiment = "neutral";
+
+  const profile: CustomerProfile = {
+    totalOrders: orderRow.total,
+    totalSpent: orderRow.spent,
+    referralCount: worker?.referral_source ? 1 : 0,
+    avgResponseTimeMs: 0,
+    previousBargainRounds: 0,
+    sentiment,
+    isReturningCustomer: orderRow.total > 0,
+    lastPurchaseDays: orderRow.lastDate
+      ? Math.floor((Date.now() - new Date(orderRow.lastDate).getTime()) / (1000 * 60 * 60 * 24))
+      : undefined,
+  };
+
+  const pricing: ProductPricing = {
+    price: product.price,
+    minPrice: product.minPrice,
+    maxPrice: product.maxPrice,
+    aiPriceEnabled: true,
+  };
+
+  return getPriceForCustomer(pricing, profile).offeredPrice;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,13 +114,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    let finalAmount = totalAmount;
+
+    if (productId) {
+      const aiPrice = await computeAiPrice(env, productId, workerId);
+      if (aiPrice !== null) {
+        finalAmount = aiPrice;
+      }
+    }
+
     const pm = paymentMethod || "sslcommerz";
     const orderId = `ORD${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     await execute(env,
       `INSERT INTO orders (order_id, worker_id, product_id, product_name, quantity, total_amount, currency, payment_method, payment_status, order_status, shipping_address)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?)`,
-      [orderId, workerId, productId || null, productName || null, quantity || 1, totalAmount, currency || "BDT", pm, shippingAddress || null]
+      [orderId, workerId, productId || null, productName || null, quantity || 1, finalAmount, currency || "BDT", pm, shippingAddress || null]
     );
 
     if (pm === "cod") {
@@ -55,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     const service = await SslcommerzService.fromDB(env);
     const gatewayUrl = await service.initPayment({
-      total_amount: totalAmount,
+      total_amount: finalAmount,
       currency: currency || "BDT",
       tran_id: orderId,
       success_url: `${siteUrl}/api/payment/success`,

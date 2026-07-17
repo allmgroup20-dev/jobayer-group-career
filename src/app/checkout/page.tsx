@@ -47,18 +47,33 @@ function CheckoutContent() {
       .catch(() => {})
       .finally(() => {
         const productId = searchParams.get("product");
+        const aiPriceParam = searchParams.get("aiPrice");
         if (productId) {
           useCartStore.getState().clearCart();
           (async () => {
             try {
               const res = await fetch("/api/products");
-              const data = await res.json() as { products?: { id: number; name: string; nameBn?: string; price: number; currency: string; productType: string; directBuy: number }[] };
+              const data = await res.json() as { products?: { id: number; name: string; nameBn?: string; price: number; currency: string; productType: string; directBuy: number; aiPriceEnabled?: number }[] };
               const p = data.products?.find(x => x.id === parseInt(productId));
               if (p) {
+                let usePrice = p.price;
+                if (aiPriceParam) {
+                  usePrice = parseFloat(aiPriceParam);
+                } else if (p.aiPriceEnabled === 1 && wid) {
+                  try {
+                    const aiRes = await fetch("/api/ai-price", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ workerId: wid, productIds: [p.id] }),
+                    });
+                    const aiData = await aiRes.json() as { prices?: Record<number, { aiPrice: number }> };
+                    if (aiData.prices?.[p.id]) usePrice = aiData.prices[p.id].aiPrice;
+                  } catch {}
+                }
                 useCartStore.getState().addItem({
                   productId: p.id,
                   name: lang === "bn" && p.nameBn ? p.nameBn : p.name,
-                  price: p.price,
+                  price: usePrice,
                   currency: p.currency || "BDT",
                   quantity: 1,
                   productType: p.productType,
