@@ -1,0 +1,43 @@
+import { NextRequest, NextResponse } from "next/server";
+import { ensureDB } from "@/lib/db";
+
+export async function GET(req: NextRequest) {
+  try {
+    const workerId = req.nextUrl.searchParams.get("workerId");
+    const eventType = req.nextUrl.searchParams.get("eventType");
+    const search = req.nextUrl.searchParams.get("search");
+    const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"));
+    const limit = Math.min(100, parseInt(req.nextUrl.searchParams.get("limit") || "30"));
+    const offset = (page - 1) * limit;
+
+    const db = await ensureDB();
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+
+    if (workerId) { conditions.push("worker_id = ?"); params.push(workerId); }
+    if (eventType) { conditions.push("event_type = ?"); params.push(eventType); }
+    if (search) {
+      conditions.push("(page_url LIKE ? OR search_keyword LIKE ? OR page_category LIKE ?)");
+      const p = `%${search}%`;
+      params.push(p, p, p);
+    }
+
+    const where = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+    const allParams = [...params];
+    const countParams = [...params];
+
+    const [rows, countResult] = await Promise.all([
+      db.prepare(`SELECT * FROM user_events ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(...allParams, limit, offset).all() as Promise<{ results: Record<string, unknown>[] }>,
+      db.prepare(`SELECT COUNT(*) as count FROM user_events ${where}`).bind(...countParams).first() as Promise<{ count: number } | undefined>,
+    ]);
+
+    return NextResponse.json({
+      events: rows.results || [],
+      total: countResult?.count || 0,
+      page, limit,
+    });
+  } catch (err) {
+    console.error("Events list error:", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
