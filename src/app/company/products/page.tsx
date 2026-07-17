@@ -241,7 +241,7 @@ export default function CompanyProductsPage() {
                   <tr key={p.id} className="border-b border-border last:border-0 hover:bg-gray-50/50">
                     <td className="p-4 text-sm font-medium text-primary">
                       <div className="flex items-center gap-2">
-                        {p.imageUrl && <img src={p.imageUrl} alt="" className="w-8 h-8 rounded object-cover" />}
+                        {p.imageUrl && <img src={p.imageUrl} alt="" loading="lazy" className="w-8 h-8 rounded object-cover" />}
                         <div>
                           <span>{lang === "bn" && p.nameBn ? p.nameBn : p.name}</span>
                           <span className={`ml-2 inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium ${

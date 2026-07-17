@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -74,6 +74,19 @@ export default function AIPredictionsPage() {
     }
   };
 
+  const churnCounts = useMemo(() => ({
+    critical: churnData.filter(c => c.riskLevel === "critical").length,
+    high: churnData.filter(c => c.riskLevel === "high").length,
+    medium: churnData.filter(c => c.riskLevel === "medium").length,
+    low: churnData.filter(c => c.riskLevel === "low").length,
+  }), [churnData]);
+
+  const ltvSums = useMemo(() => ({
+    d30: ltvData.reduce((s, l) => s + l.predictedLTV.d30, 0),
+    d60: ltvData.reduce((s, l) => s + l.predictedLTV.d60, 0),
+    d90: ltvData.reduce((s, l) => s + l.predictedLTV.d90, 0),
+  }), [ltvData]);
+
   return (
     <div className="min-h-screen bg-bg py-8 px-4">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -114,10 +127,10 @@ export default function AIPredictionsPage() {
             {churnData.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: lang === "bn" ? "ক্রিটিক্যাল" : "Critical", count: churnData.filter(c => c.riskLevel === "critical").length, color: "text-red-600" },
-                  { label: lang === "bn" ? "হাই রিস্ক" : "High Risk", count: churnData.filter(c => c.riskLevel === "high").length, color: "text-orange-600" },
-                  { label: lang === "bn" ? "মিডিয়াম" : "Medium", count: churnData.filter(c => c.riskLevel === "medium").length, color: "text-yellow-600" },
-                  { label: lang === "bn" ? "লো রিস্ক" : "Low Risk", count: churnData.filter(c => c.riskLevel === "low").length, color: "text-green-600" },
+                  { label: lang === "bn" ? "ক্রিটিক্যাল" : "Critical", count: churnCounts.critical, color: "text-red-600" },
+                  { label: lang === "bn" ? "হাই রিস্ক" : "High Risk", count: churnCounts.high, color: "text-orange-600" },
+                  { label: lang === "bn" ? "মিডিয়াম" : "Medium", count: churnCounts.medium, color: "text-yellow-600" },
+                  { label: lang === "bn" ? "লো রিস্ক" : "Low Risk", count: churnCounts.low, color: "text-green-600" },
                 ].map((s, i) => (
                   <Card key={i} className="text-center">
                     <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>
@@ -179,9 +192,9 @@ export default function AIPredictionsPage() {
             {ltvData.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { label: lang === "bn" ? "মোট পূর্বানুমান (৩০ দিন)" : "Total 30d LTV", value: ltvData.reduce((s, l) => s + l.predictedLTV.d30, 0), color: "text-blue-600" },
-                  { label: lang === "bn" ? "মোট পূর্বানুমান (৬০ দিন)" : "Total 60d LTV", value: ltvData.reduce((s, l) => s + l.predictedLTV.d60, 0), color: "text-indigo-600" },
-                  { label: lang === "bn" ? "মোট পূর্বানুমান (৯০ দিন)" : "Total 90d LTV", value: ltvData.reduce((s, l) => s + l.predictedLTV.d90, 0), color: "text-purple-600" },
+                  { label: lang === "bn" ? "মোট পূর্বানুমান (৩০ দিন)" : "Total 30d LTV", value: ltvSums.d30, color: "text-blue-600" },
+                  { label: lang === "bn" ? "মোট পূর্বানুমান (৬০ দিন)" : "Total 60d LTV", value: ltvSums.d60, color: "text-indigo-600" },
+                  { label: lang === "bn" ? "মোট পূর্বানুমান (৯০ দিন)" : "Total 90d LTV", value: ltvSums.d90, color: "text-purple-600" },
                 ].map((s, i) => (
                   <Card key={i} className="text-center">
                     <p className={`text-2xl font-bold ${s.color}`}>{s.value.toLocaleString()} TK</p>

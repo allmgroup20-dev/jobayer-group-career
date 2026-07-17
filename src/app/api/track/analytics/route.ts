@@ -50,12 +50,22 @@ export async function GET(req: NextRequest) {
 
     const db = await ensureDB();
 
-    const [segments, totalWorkers, topInterests, eventStats, totalEvents] = await Promise.all([
+    const [segments, totalWorkers, topInterests, eventStats, totalEvents, predictionStats] = await Promise.all([
       db.prepare("SELECT segment, COUNT(*) as count FROM user_behavior_scores GROUP BY segment ORDER BY count DESC").bind().all() as Promise<{ results: { segment: string; count: number }[] }>,
       db.prepare("SELECT COUNT(*) as c FROM workers WHERE membership_status = 'active'").bind().first() as Promise<{ c: number } | undefined>,
       db.prepare("SELECT category_scores FROM user_interests WHERE category_scores IS NOT NULL AND category_scores != '{}'").bind().all() as Promise<{ results: { category_scores: string }[] }>,
       db.prepare("SELECT event_type, COUNT(*) as count FROM user_events GROUP BY event_type ORDER BY count DESC").bind().all() as Promise<{ results: { event_type: string; count: number }[] }>,
       db.prepare("SELECT COUNT(*) as c FROM user_events").bind().first() as Promise<{ c: number } | undefined>,
+      db.prepare(`SELECT
+        COUNT(*) as total_scored,
+        SUM(CASE WHEN churn_probability >= 50 THEN 1 ELSE 0 END) as churn_risk,
+        SUM(CASE WHEN purchase_intent >= 60 THEN 1 ELSE 0 END) as high_intent,
+        SUM(CASE WHEN lead_score >= 60 THEN 1 ELSE 0 END) as high_lead,
+        SUM(CASE WHEN lifetime_value >= 5000 THEN 1 ELSE 0 END) as high_ltv,
+        AVG(churn_probability) as avg_churn,
+        AVG(purchase_intent) as avg_intent,
+        AVG(lead_score) as avg_lead
+      FROM user_behavior_scores`).bind().first() as Promise<Record<string, any> | undefined>,
     ]);
 
     const interestAgg: Record<string, { total: number; count: number }> = {};
@@ -87,6 +97,7 @@ export async function GET(req: NextRequest) {
       topInterestCategories,
       eventStats: eventStats.results || [],
       totalEvents: totalEvents?.c || 0,
+      predictions: predictionStats || { total_scored: 0, churn_risk: 0, high_intent: 0, high_lead: 0, high_ltv: 0, avg_churn: 0, avg_intent: 0, avg_lead: 0 },
     });
   } catch (err) {
     console.error("Analytics error:", err);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDebounce } from "@/lib/use-debounce";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +38,7 @@ export default function CompanyOrdersPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
   const [statusFilter, setStatusFilter] = useState("");
   const [payFilter, setPayFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -45,11 +47,17 @@ export default function CompanyOrdersPage() {
   const limit = 20;
   const totalPages = Math.ceil(total / limit);
 
+  const orderStatusCounts = useMemo(() => ({
+    pending: orders.filter(o => o.order_status === "pending").length,
+    processing: orders.filter(o => o.order_status === "processing").length,
+    delivered: orders.filter(o => o.order_status === "delivered").length,
+  }), [orders]);
+
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       if (statusFilter) params.set("status", statusFilter);
       if (payFilter) params.set("paymentStatus", payFilter);
       const res = await fetch(`/api/company/orders?${params}`);
@@ -57,7 +65,7 @@ export default function CompanyOrdersPage() {
       if (data.orders) setOrders(data.orders);
       if (data.total !== undefined) setTotal(data.total);
     } catch {} finally { setLoading(false); }
-  }, [page, search, statusFilter, payFilter]);
+  }, [page, debouncedSearch, statusFilter, payFilter]);
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
 
@@ -112,9 +120,9 @@ export default function CompanyOrdersPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: lang === "bn" ? "মোট" : "Total", count: total, color: "text-primary" },
-            { label: lang === "bn" ? "পেন্ডিং" : "Pending", count: orders.filter(o => o.order_status === "pending").length, color: "text-yellow-600" },
-            { label: lang === "bn" ? "প্রসেসিং" : "Processing", count: orders.filter(o => o.order_status === "processing").length, color: "text-blue-600" },
-            { label: lang === "bn" ? "ডেলিভারড" : "Delivered", count: orders.filter(o => o.order_status === "delivered").length, color: "text-green-600" },
+            { label: lang === "bn" ? "পেন্ডিং" : "Pending", count: orderStatusCounts.pending, color: "text-yellow-600" },
+            { label: lang === "bn" ? "প্রসেসিং" : "Processing", count: orderStatusCounts.processing, color: "text-blue-600" },
+            { label: lang === "bn" ? "ডেলিভারড" : "Delivered", count: orderStatusCounts.delivered, color: "text-green-600" },
           ].map((s, i) => (
             <Card key={i} className="text-center">
               <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>

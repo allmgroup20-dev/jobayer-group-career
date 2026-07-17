@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import { useDebounce } from "@/lib/use-debounce";
 import { courses, categoryOrder, categoryNames } from "@/data/courses-data";
 
 const iconMap: Record<string, string> = {
@@ -191,6 +192,7 @@ const categoryIcons: Record<string, string> = {
 
 export default function CoursesPage() {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
   const [activeCat, setActiveCat] = useState("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -206,8 +208,8 @@ export default function CoursesPage() {
     if (activeCat !== "all") {
       result = result.filter((c) => c.cat === activeCat);
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       result = result.filter(
         (c) =>
           c.title.toLowerCase().includes(q) ||
@@ -217,9 +219,17 @@ export default function CoursesPage() {
       );
     }
     return result;
-  }, [search, activeCat]);
+  }, [debouncedSearch, activeCat]);
 
   const totalCount = courses.length;
+
+  const countsByCat = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const c of courses) {
+      map[c.cat] = (map[c.cat] || 0) + 1;
+    }
+    return map;
+  }, []);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -283,7 +293,7 @@ export default function CoursesPage() {
               <span>সব ({totalCount})</span>
             </button>
             {categoryOrder.map((cat) => {
-              const count = courses.filter((c) => c.cat === cat).length;
+              const count = countsByCat[cat] || 0;
               const icon = categoryIcons[cat] || "\uF15B";
               return (
                 <button

@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card, StatCard } from "@/components/ui/Card";
 
 interface AgentStats { total: number; active: number; error: number; totalReports: number; totalSubmissions: number; }
 interface SegmentItem { segment: string; count: number }
 interface EventStat { event_type: string; count: number }
+interface Predictions { total_scored: number; churn_risk: number; high_intent: number; high_lead: number; high_ltv: number; avg_churn: number; avg_intent: number; avg_lead: number; }
 
 const adminLinks = [
   { href: "/company/members", en: "All Members", bn: "সকল সদস্য", icon: "👥", color: "bg-blue-50 text-blue-600" },
@@ -23,6 +24,9 @@ const adminLinks = [
   { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄", color: "bg-teal-50 text-teal-600" },
   { href: "/company/whatsapp", en: "WhatsApp Hub", bn: "হোয়াটসঅ্যাপ", icon: "💬", color: "bg-green-50 text-green-600" },
   { href: "/company/ai", en: "AI Hub", bn: "এআই", icon: "🤖", color: "bg-indigo-50 text-indigo-600" },
+  { href: "/company/automation", en: "Automation", bn: "অটোমেশন", icon: "⚡", color: "bg-amber-50 text-amber-600" },
+  { href: "/company/sentiment", en: "Sentiment", bn: "সেন্টিমেন্ট", icon: "📊", color: "bg-rose-50 text-rose-600" },
+  { href: "/dashboard/ai-predictions", en: "Predictions", bn: "প্রেডিকশন", icon: "🔮", color: "bg-violet-50 text-violet-600" },
 ];
 
 const segmentColors: Record<string, string> = {
@@ -38,6 +42,7 @@ export default function CompanyDashboard() {
   const [totalWorkers, setTotalWorkers] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
   const [memberCount, setMemberCount] = useState(0);
+  const [predictions, setPredictions] = useState<Predictions | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -51,6 +56,7 @@ export default function CompanyDashboard() {
         if (analyticsData.eventStats) setEventStats(analyticsData.eventStats as EventStat[]);
         setTotalWorkers(analyticsData.totalWorkers as number || 0);
         setTotalEvents(analyticsData.totalEvents as number || 0);
+        if (analyticsData.predictions) setPredictions(analyticsData.predictions as Predictions);
       }
     }).catch(() => {});
     fetch("/api/company/members?limit=1")
@@ -59,7 +65,10 @@ export default function CompanyDashboard() {
   }, []);
 
   const maxSegment = Math.max(...segments.map(s => s.count), 1);
-  const scoredWorkers = segments.filter(s => s.segment !== "unscored").reduce((s, r) => s + r.count, 0);
+  const scoredWorkers = useMemo(() =>
+    segments.filter(s => s.segment !== "unscored").reduce((s, r) => s + r.count, 0),
+    [segments]
+  );
   const totalMembers = memberCount || totalWorkers;
 
   return (
@@ -122,6 +131,46 @@ export default function CompanyDashboard() {
               <div className="text-xs text-text-secondary">{lang === "bn" ? "সাবমিশন" : "Submissions"}</div>
             </div>
           </div>
+        )}
+
+        {/* Predictions & Insights */}
+        {predictions && predictions.total_scored > 0 && (
+          <Card className="mb-6">
+            <h3 className="font-bold text-primary mb-3 text-sm flex items-center gap-2">
+              <span>🔮</span>
+              {lang === "bn" ? "প্রেডিকশন ও ইনসাইট" : "Predictions & Insights"}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-red-700">{lang === "bn" ? "চার্ন রিস্ক" : "Churn Risk"}</span>
+                  <span className="text-lg font-bold text-red-600">{predictions.churn_risk}</span>
+                </div>
+                <p className="text-[10px] text-red-500 mt-1">{lang === "bn" ? `গড় ${Math.round(predictions.avg_churn)}%` : `Avg ${Math.round(predictions.avg_churn)}%`}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-green-50 border border-green-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-green-700">{lang === "bn" ? "উচ্চ ক্রয় আগ্রহ" : "High Intent"}</span>
+                  <span className="text-lg font-bold text-green-600">{predictions.high_intent}</span>
+                </div>
+                <p className="text-[10px] text-green-500 mt-1">{lang === "bn" ? `গড় ${Math.round(predictions.avg_intent)}%` : `Avg ${Math.round(predictions.avg_intent)}%`}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-blue-700">{lang === "bn" ? "উচ্চ লিড স্কোর" : "High Lead Score"}</span>
+                  <span className="text-lg font-bold text-blue-600">{predictions.high_lead}</span>
+                </div>
+                <p className="text-[10px] text-blue-500 mt-1">{lang === "bn" ? `গড় ${Math.round(predictions.avg_lead)}%` : `Avg ${Math.round(predictions.avg_lead)}%`}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-purple-50 border border-purple-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-purple-700">{lang === "bn" ? "উচ্চ LTV" : "High LTV"}</span>
+                  <span className="text-lg font-bold text-purple-600">{predictions.high_ltv}</span>
+                </div>
+                <p className="text-[10px] text-purple-500 mt-1">{lang === "bn" ? `${predictions.total_scored} স্কোরকৃত` : `${predictions.total_scored} scored`}</p>
+              </div>
+            </div>
+          </Card>
         )}
 
         {eventStats.length > 0 && (

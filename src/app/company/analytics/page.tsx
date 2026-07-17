@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 
@@ -16,6 +16,11 @@ export default function CompanyAnalyticsPage() {
   const [totalWorkers, setTotalWorkers] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const scoredWorkers = useMemo(() =>
+    segments.filter(s => s.segment !== "unscored").reduce((s, r) => s + r.count, 0),
+    [segments]
+  );
 
   useEffect(() => {
     fetch("/api/track/analytics")
@@ -71,7 +76,7 @@ export default function CompanyAnalyticsPage() {
           </Card>
           <Card>
             <p className="text-xs text-text-secondary uppercase tracking-wider font-semibold">{lang === "bn" ? "স্কোরকৃত সদস্য" : "Scored Workers"}</p>
-            <p className="text-3xl font-bold text-primary mt-1">{segments.filter(s => s.segment !== "unscored").reduce((s, r) => s + r.count, 0)}</p>
+            <p className="text-3xl font-bold text-primary mt-1">{scoredWorkers}</p>
           </Card>
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useDebounce } from "@/lib/use-debounce";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,12 @@ const defaultTranslations = [
 export default function CompanyTranslationsPage() {
   const { lang } = useLanguageStore();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
+
+  const filtered = useMemo(() =>
+    defaultTranslations.filter((t) => t.key.includes(debouncedSearch) || t.en.toLowerCase().includes(debouncedSearch.toLowerCase())),
+    [debouncedSearch]
+  );
 
   return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
@@ -39,7 +46,7 @@ export default function CompanyTranslationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {defaultTranslations.filter((t) => t.key.includes(search) || t.en.toLowerCase().includes(search.toLowerCase())).map((t) => (
+                {filtered.map((t) => (
                   <tr key={t.key} className="border-b border-border last:border-0 hover:bg-gray-50/50">
                     <td className="p-4 text-sm font-mono text-text-secondary">{t.key}</td>
                     <td className="p-4 text-sm text-primary">{t.en}</td>
