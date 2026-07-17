@@ -873,29 +873,31 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
-    // Insert default notification preferences for all workers (idempotent)
-    await env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
+    g[DONE_FLAG] = true;
+    g[DONE_LOCK] = false;
+
+    // Run indexes and data migrations asynchronously (don't block first request)
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_worker ON orders(worker_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_commissions_worker ON commissions(worker_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_commissions_order ON commissions(order_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_events_worker ON user_events(worker_id, created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_notifications_worker ON notifications(worker_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active)`).run().catch(() => {});
+
+    env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
       SELECT w.worker_id, 'whatsapp', 'promotional', 1 FROM workers w
     `).run().catch(() => {});
-    await env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
+    env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
       SELECT w.worker_id, 'whatsapp', 'transactional', 1 FROM workers w
     `).run().catch(() => {});
-    await env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
+    env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
       SELECT w.worker_id, 'push', 'reminder', 1 FROM workers w
     `).run().catch(() => {});
-
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_worker ON orders(worker_id)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_commissions_worker ON commissions(worker_id)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_commissions_order ON commissions(order_id)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_events_worker ON user_events(worker_id, created_at)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_notifications_worker ON notifications(worker_id)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)`).run().catch(() => {});
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active)`).run().catch(() => {});
-
-    g[DONE_FLAG] = true;
   } catch (e) {
     g[DONE_FLAG] = false;
+    g[DONE_LOCK] = false;
     throw e;
   } finally {
     g[DONE_LOCK] = false;
