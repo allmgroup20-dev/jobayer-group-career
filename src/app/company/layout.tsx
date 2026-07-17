@@ -39,6 +39,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/ai-conversations", en: "Conversations", bn: "কথোপকথন", icon: "💬" },
       { href: "/company/ai", en: "AI", bn: "এআই", icon: "🤖" },
       { href: "/company/automation", en: "Automation", bn: "অটোমেশন", icon: "⚡" },
+      { href: "/company/sentiment", en: "Sentiment", bn: "সেন্টিমেন্ট", icon: "📊" },
     ],
   },
   {
