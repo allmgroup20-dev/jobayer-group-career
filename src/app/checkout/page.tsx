@@ -56,13 +56,16 @@ function CheckoutContent() {
     }
   }, []);
 
+  const [sslEnabled, setSslEnabled] = useState(true);
+  const [codEnabled, setCodEnabled] = useState(true);
+  const [orderPlaced, setOrderPlaced] = useState<string | null>(null);
+
   useEffect(() => {
     if (items.length > 0) {
       (async () => {
-        const ids = items.map(i => i.productId).join(",");
         try {
           const res = await fetch("/api/products");
-          const data = await res.json() as { products?: { id: number; productType: string }[] };
+          const data = await res.json() as { products?: { id: number; productType: string; enableSslcommerz: number; enableCod: number }[] };
           const types: Record<number, string> = {};
           let physical = false;
           if (data.products) {
@@ -79,6 +82,11 @@ function CheckoutContent() {
               types[item.productId] = t;
               if (t === "physical") physical = true;
             });
+            const first = data.products.find(x => x.id === items[0].productId);
+            if (first) {
+              setSslEnabled(first.enableSslcommerz === 1);
+              setCodEnabled(first.enableCod === 1);
+            }
           } else {
             items.forEach(() => { physical = true; });
           }
@@ -91,8 +99,7 @@ function CheckoutContent() {
     }
   }, [items]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doPayment = async (paymentMethod: string) => {
     if (!workerId) {
       toast.error(lang === "bn" ? "দয়া করে লগইন করুন" : "Please login first");
       router.push("/login");
@@ -125,14 +132,21 @@ function CheckoutContent() {
           cusName: form.name || "",
           cusPhone: form.phone || "",
           cusEmail: form.email || "",
+          paymentMethod,
         }),
       });
 
-      const data = await res.json() as { gatewayUrl?: string; error?: string };
+      const data = await res.json() as { gatewayUrl?: string; orderId?: string; method?: string; error?: string };
       if (!res.ok) throw new Error(data.error || "Payment init failed");
 
       clearCart();
-      window.location.href = data.gatewayUrl!;
+      if (paymentMethod === "cod") {
+        setOrderPlaced(data.orderId || "N/A");
+      } else if (data.gatewayUrl) {
+        window.location.href = data.gatewayUrl;
+      } else {
+        toast.success(lang === "bn" ? "অর্ডার সফল হয়েছে!" : "Order placed!");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -213,18 +227,84 @@ function CheckoutContent() {
               </Card>
             )}
 
-            <Card>
-              <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "পেমেন্ট মেথড" : "Payment Method"}</h3>
-              <div className="p-3 rounded-xl border-2 border-action bg-action/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-action flex items-center justify-center text-white text-xs font-bold">SSL</div>
-                  <span className="font-medium text-sm text-primary">SSLCommerz</span>
+            {orderPlaced ? (
+              <Card>
+                <div className="text-center py-6">
+                  <div className="text-5xl mb-3">✅</div>
+                  <h3 className="font-bold text-primary mb-2">
+                    {lang === "bn" ? "অর্ডার কনফার্মড!" : "Order Confirmed!"}
+                  </h3>
+                  <p className="text-sm text-text-secondary mb-2">
+                    {lang === "bn" ? "আপনার অর্ডার নম্বর:" : "Your order ID:"}
+                  </p>
+                  <p className="text-xl font-bold text-action">{orderPlaced}</p>
+                  <p className="text-xs text-text-secondary mt-3">
+                    {lang === "bn"
+                      ? "ক্যাশ অন ডেলিভারি নির্বাচিত হয়েছে। পণ্য হাতে পেয়ে পেমেন্ট করুন।"
+                      : "Cash on Delivery selected. Pay when you receive the product."}
+                  </p>
+                  <Link href="/">
+                    <Button className="mt-4">{lang === "bn" ? "হোম পেইজে ফিরুন" : "Back to Home"}</Button>
+                  </Link>
                 </div>
-                <p className="text-xs text-text-secondary mt-2 ml-11">
-                  {lang === "bn" ? "ক্রেডিট/ডেবিট কার্ড, মোবাইল ব্যাংকিং, ইন্টারনেট ব্যাংকিং" : "Credit/Debit Card, Mobile Banking, Internet Banking"}
-                </p>
-              </div>
-            </Card>
+              </Card>
+            ) : (
+              <Card>
+                <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "পেমেন্ট মেথড" : "Payment Method"}</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => doPayment("sslcommerz")}
+                    disabled={loading || !sslEnabled}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      sslEnabled ? "border-action bg-action/5 hover:bg-action/10 cursor-pointer" : "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-action flex items-center justify-center text-white text-sm font-bold shrink-0">SSL</div>
+                      <div>
+                        <div className="font-semibold text-sm text-primary">SSLCommerz</div>
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {lang === "bn" ? "ক্রেডিট/ডেবিট কার্ড, মোবাইল ব্যাংকিং" : "Credit/Debit Card, Mobile Banking"}
+                        </p>
+                      </div>
+                      <div className="ml-auto">
+                        <div className="animate-pulse w-2 h-2 rounded-full bg-action" />
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => doPayment("cod")}
+                    disabled={loading || !codEnabled}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      codEnabled ? "border-green-400 bg-green-50 hover:bg-green-100 cursor-pointer" : "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shrink-0">৳</div>
+                      <div>
+                        <div className="font-semibold text-sm text-primary">{lang === "bn" ? "ক্যাশ অন ডেলিভারি" : "Cash on Delivery"}</div>
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {lang === "bn" ? "পণ্য হাতে পেয়ে পেমেন্ট করুন" : "Pay when you receive"}
+                        </p>
+                      </div>
+                      <div className="ml-auto">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                      </div>
+                    </div>
+                  </button>
+                  {!sslEnabled && (
+                    <p className="text-xs text-red-500 text-center">
+                      {lang === "bn" ? "এই পণ্যের জন্য SSLCommerz পেমেন্ট উপলব্ধ নেই" : "SSLCommerz not available for this product"}
+                    </p>
+                  )}
+                  {!codEnabled && (
+                    <p className="text-xs text-red-500 text-center">
+                      {lang === "bn" ? "এই পণ্যের জন্য ক্যাশ অন ডেলিভারি উপলব্ধ নেই" : "COD not available for this product"}
+                    </p>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
 
           <div className="md:col-span-2">
@@ -252,9 +332,6 @@ function CheckoutContent() {
                     <span className="font-bold text-primary">{lang === "bn" ? "মোট" : "Total"}</span>
                     <span className="font-bold text-lg text-action">{formatCurrency(items.reduce((s, i) => s + i.price * i.quantity, 0))}</span>
                   </div>
-                  <Button onClick={handleSubmit} loading={loading} className="w-full !py-4">
-                    {lang === "bn" ? "SSLCommerz দিয়ে পেমেন্ট করুন" : "Pay with SSLCommerz"}
-                  </Button>
                 </>
               )}
             </Card>
