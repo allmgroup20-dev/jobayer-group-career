@@ -31,6 +31,11 @@ export default function WorkerDashboard() {
   const [paySysActive, setPaySysActive] = useState(true);
   const [nextPayDate, setNextPayDate] = useState("");
   const [payInterval, setPayInterval] = useState(7);
+  const [recommendations, setRecommendations] = useState<{
+    courses: { title: string; description: string; url: string; icon: string; category: string; score: number }[];
+    products: { id: number; name: string; nameBn: string | null; price: number; imageUrl: string | null; score: number }[];
+    topCategories: string[];
+  } | null>(null);
 
   useEffect(() => {
     const workerId = localStorage.getItem("worker_id");
@@ -40,7 +45,8 @@ export default function WorkerDashboard() {
       fetch(`/api/workers/profile?workerId=${workerId}`).then(r => r.json() as Promise<Record<string, unknown>>),
       fetch("/api/company/settings").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => ({} as Record<string, unknown>)),
       fetch("/api/company/payment-schedule").then(r => r.json()).catch(() => ({})),
-    ]).then(([profile, settings, schedule]: [any, any, any]) => {
+      fetch(`/api/recommendations?workerId=${workerId}&limit=4`).then(r => r.json()).catch(() => null),
+    ]).then(([profile, settings, schedule, recs]: [any, any, any, any]) => {
       if (profile?.workerId) setWorker(profile as any);
       const s = settings && typeof settings.settings === "object" ? (settings.settings as Record<string, string>) : {};
       const mw = parseInt(s.min_withdrawal || "500");
@@ -57,6 +63,7 @@ export default function WorkerDashboard() {
         setNextPayDate((schedule.nextPaymentDate as string) || "");
         setPayInterval(schedule.intervalDays as number || 7);
       }
+      if (recs && recs.courses) setRecommendations(recs);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -235,6 +242,75 @@ export default function WorkerDashboard() {
             </div>
           </Card>
         </div>
+
+        {recommendations && (recommendations.courses.length > 0 || recommendations.products.length > 0) && (
+          <div className="mt-6 space-y-6">
+            <Card>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-primary flex items-center gap-2">
+                  <svg className="w-5 h-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  {lang === "bn" ? "আপনার জন্য সুপারিশ" : "Recommended for You"}
+                </h3>
+              </div>
+
+              {recommendations.courses.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+                    {lang === "bn" ? "কোর্স" : "Courses"}
+                  </h4>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {recommendations.courses.map((c, i) => (
+                      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                          <i className={`fas ${c.icon} text-sm`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-primary group-hover:text-action transition-colors truncate">{c.title}</p>
+                          <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{c.description}</p>
+                          <span className="text-[10px] text-accent font-medium mt-1 inline-block">{c.category}</span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {recommendations.products.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+                    {lang === "bn" ? "পণ্য" : "Products"}
+                  </h4>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {recommendations.products.map((p) => (
+                      <Link key={p.id} href={`/products?id=${p.id}`}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-primary/5 transition-all group"
+                      >
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-action/10 flex items-center justify-center text-action shrink-0">
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+                              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-primary truncate">{lang === "bn" && p.nameBn ? p.nameBn : p.name}</p>
+                          <p className="text-xs font-semibold text-action mt-0.5">৳{p.price}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+          </div>
+        )}
 
         <div className="mt-6">
           <Card>
