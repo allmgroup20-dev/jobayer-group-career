@@ -109,6 +109,7 @@ export default function CoursesPage() {
   const [isPremium, setIsPremium] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInterests, setUserInterests] = useState<string[]>([]);
+  const [freeCourseUrls, setFreeCourseUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -139,28 +140,33 @@ export default function CoursesPage() {
       .catch(() => {});
   }, []);
 
-  // For non-premium: pick 8 least relevant courses (categories not in user interests)
-  const freeCourses = useMemo(() => {
-    if (isPremium || !isLoggedIn) return [];
+  // Pick 8 LEAST relevant courses once per device and persist
+  useEffect(() => {
+    if (!isLoggedIn || isPremium) return;
+    const wid = localStorage.getItem("worker_id") || "anon";
+    const storageKey = "courses_free_" + wid;
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try { setFreeCourseUrls(JSON.parse(stored) as string[]); return; }
+      catch {}
+    }
     const interestedSet = new Set(userInterests.map(i => i.toLowerCase()));
     const scored = courses.map(c => ({
-      ...c,
-      relevance: (interestedSet.has(c.cat.toLowerCase()) || interestedSet.has(c.catBn.toLowerCase())) ? 1 : 0,
+      url: c.url,
+      score: userInterests.length === 0
+        ? 1
+        : (interestedSet.has(c.cat.toLowerCase()) || interestedSet.has(c.catBn.toLowerCase())) ? 0 : 1,
     }));
-    const low = scored.filter(c => c.relevance === 0);
-    const high = scored.filter(c => c.relevance === 1);
-    // Pick 8 from low-relevance, or fallback to shuffled high
-    const pool = low.length >= 8 ? low : [...low, ...high.sort(() => Math.random() - 0.5)];
-    return pool.sort(() => Math.random() - 0.5).slice(0, 8);
+    scored.sort((a, b) => b.score - a.score);
+    const selected = scored.slice(0, 8).map(c => c.url);
+    localStorage.setItem(storageKey, JSON.stringify(selected));
+    setFreeCourseUrls(selected);
   }, [isPremium, isLoggedIn, userInterests]);
 
-  const visibleCourses = useMemo(() => {
-    if (isPremium || !isLoggedIn) return courses;
-    return freeCourses;
-  }, [isPremium, isLoggedIn, freeCourses]);
+  const isFree = (url: string) => isPremium || (isLoggedIn && freeCourseUrls.includes(url));
 
   const filtered = useMemo(() => {
-    let result = visibleCourses;
+    let result = [...courses];
     if (activeCat !== "all") {
       result = result.filter((c) => c.cat === activeCat);
     }
@@ -175,7 +181,7 @@ export default function CoursesPage() {
       );
     }
     return result;
-  }, [debouncedSearch, activeCat, visibleCourses]);
+  }, [debouncedSearch, activeCat]);
 
   const totalCount = courses.length;
 
@@ -202,14 +208,14 @@ export default function CoursesPage() {
               ) : isPremium ? (
                 <span>👑 মোট {totalCount}টি রিসোর্স — প্রিমিয়াম এক্সেস</span>
               ) : (
-                <span>🎁 মোট {totalCount}টি রিসোর্স — {freeCourses.length}টি ফ্রি কোর্স</span>
+                <span>🎁 মোট {totalCount}টি রিসোর্স — {freeCourseUrls.length}টি ফ্রি</span>
               )}
             </div>
             <h1 className="text-2xl md:text-4xl font-black text-white leading-tight">
               {isPremium ? "👑 সকল কোর্স, সফটওয়্যার &amp; রিসোর্স" : !isLoggedIn ? "📚 কোর্স, সফটওয়্যার &amp; রিসোর্স" : "🎁 ফ্রি কোর্স সমূহ"}
             </h1>
             <p className="text-white/80 font-semibold mt-3 max-w-xl mx-auto text-sm md:text-base">
-              {loading ? "তথ্য লোড হচ্ছে..." : !isLoggedIn ? `লগইন করে ${totalCount}টি রিসোর্স এক্সেস করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${totalCount}টি রিসোর্স এক্সেস করুন` : `প্রিমিয়াম মেম্বারশিপ নিয়ে ${totalCount}টি রিসোর্স এক্সেস করুন — এখনই ${freeCourses.length}টি ফ্রি কোর্স দেখুন`}
+              {loading ? "তথ্য লোড হচ্ছে..." : !isLoggedIn ? `লগইন করে ${totalCount}টি রিসোর্স এক্সেস করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${totalCount}টি রিসোর্স এক্সেস করুন` : `প্রিমিয়াম মেম্বারশিপ নিয়ে ${totalCount}টি রিসোর্স এক্সেস করুন — এখনই ${freeCourseUrls.length}টি ফ্রি কোর্স দেখুন`}
             </p>
 
             {/* Search */}
@@ -255,8 +261,8 @@ export default function CoursesPage() {
               <span>🏠</span>
               <span>সব ({totalCount})</span>
             </button>
-            {categoryOrder.filter(cat => isPremium || isLoggedIn === false || visibleCourses.some(vc => vc.cat === cat)).map((cat) => {
-              const count = isPremium || !isLoggedIn ? (countsByCat[cat] || 0) : visibleCourses.filter(vc => vc.cat === cat).length;
+            {categoryOrder.map((cat) => {
+              const count = countsByCat[cat] || 0;
               const emoji = catEmoji[cat] || "📌";
               return (
                 <button
@@ -283,11 +289,9 @@ export default function CoursesPage() {
         {/* Count badge */}
         <div className="text-center mb-6">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-primary font-bold text-xs">
-            {isPremium || !isLoggedIn
-              ? (activeCat === "all" ? `মোট ${filtered.length} টি রিসোর্স` : `${categoryNames[activeCat] || activeCat} — ${filtered.length} টি`)
-              : (activeCat === "all" ? `${filtered.length} টি ফ্রি কোর্স (মোট ${totalCount}টি)` : `${categoryNames[activeCat] || activeCat} — ${filtered.length} টি`)}
+            {activeCat === "all" ? `মোট ${filtered.length} টি রিসোর্স` : `${categoryNames[activeCat] || activeCat} — ${filtered.length} টি`}
             {!isPremium && isLoggedIn && activeCat === "all" && (
-              <span className="ml-1">🎁</span>
+              <span className="ml-1">🎁 {freeCourseUrls.length}টি ফ্রি</span>
             )}
           </span>
         </div>
@@ -311,17 +315,21 @@ export default function CoursesPage() {
                 item.url.includes("mega.nz") ||
                 item.url.includes("freecoursebd");
 
+              const free = isFree(item.url);
+              const Tag = free ? "a" : "div";
               return (
-                <a
+                <Tag
                   key={i}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block bg-white rounded-2xl border border-border p-4 transition-all duration-200 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98]"
+                  {...(free ? { href: item.url, target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className={`block bg-white rounded-2xl border p-4 transition-all duration-200 ${
+                    free
+                      ? "border-border hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98] group cursor-pointer"
+                      : "border-border/60 opacity-85"
+                  }`}
                 >
                   <div className="flex items-start gap-3.5">
                     <div
-                      className={`w-11 h-11 rounded-xl bg-gradient-to-br ${bgColor} flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3`}
+                      className={`w-11 h-11 rounded-xl bg-gradient-to-br ${bgColor} flex items-center justify-center text-lg shrink-0 transition-transform ${free ? "group-hover:scale-110 group-hover:rotate-3" : ""}`}
                     >
                       <span className="text-lg">{emoji}</span>
                     </div>
@@ -330,13 +338,18 @@ export default function CoursesPage() {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/60">
                           {item.catBn || item.cat}
                         </span>
-                        {isExternal && (
+                        {!free && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[9px] font-bold">
+                            👑 PREMIUM
+                          </span>
+                        )}
+                        {free && isExternal && (
                           <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/5 text-primary/60 font-bold">
                             📥
                           </span>
                         )}
                       </div>
-                      <h3 className="font-bold text-sm text-text leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                      <h3 className={`font-bold text-sm leading-snug line-clamp-2 ${free ? "text-text group-hover:text-primary transition-colors" : "text-text"}`}>
                         {item.title}
                       </h3>
                       {item.desc && (
@@ -346,7 +359,7 @@ export default function CoursesPage() {
                       )}
                     </div>
                   </div>
-                </a>
+                </Tag>
               );
             })}
           </div>
@@ -366,7 +379,7 @@ export default function CoursesPage() {
         {/* Footer */}
         <div className="text-center mt-6 pt-6 border-t border-border">
           <p className="text-xs font-semibold text-text-secondary/60">
-            {isPremium ? `👑 প্রিমিয়াম — ${totalCount} টি রিসোর্স` : isLoggedIn ? `🎁 ${freeCourses.length} টি ফ্রি • প্রিমিয়ামে ${totalCount} টি` : `📚 মোট ${totalCount} টি রিসোর্স`}
+            {isPremium ? `👑 প্রিমিয়াম — ${totalCount} টি রিসোর্স` : isLoggedIn ? `🎁 ${freeCourseUrls.length} টি ফ্রি • প্রিমিয়ামে ${totalCount} টি` : `📚 মোট ${totalCount} টি রিসোর্স`}
           </p>
         </div>
       </div>
