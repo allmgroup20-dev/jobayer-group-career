@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLanguageStore, useCartStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { ReviewList } from "@/components/reviews/ReviewList";
+import { StarDisplay } from "@/components/reviews/StarRating";
 
 const sampleProducts = [
   { id: 1, name: "Starter Business Kit", nameBn: "স্টার্টার বিজনেস কিট", price: 2990, currency: "BDT", category: "business", image: "📦", commission: 10, premium: false },
@@ -25,6 +28,9 @@ export default function ProductsPage() {
   const addItem = useCartStore((s) => s.addItem);
   const [selectedCat, setSelectedCat] = useState("all");
   const [addedMsg, setAddedMsg] = useState<number | null>(null);
+  const [reviewProduct, setReviewProduct] = useState<typeof sampleProducts[0] | null>(null);
+
+  const getWorkerId = () => { try { return localStorage.getItem("worker_id") || ""; } catch { return ""; } };
 
   const categories = [
     { key: "all", en: "All Products", bn: "সব পণ্য" },
@@ -102,10 +108,43 @@ export default function ProductsPage() {
                   {lang === "bn" ? "কিনুন" : "Buy"}
                 </Link>
               </div>
+              <button
+                onClick={() => setReviewProduct(product)}
+                className="mt-3 w-full text-xs text-text-secondary hover:text-primary transition-colors border border-border rounded-lg py-2"
+              >
+                ⭐ {lang === "bn" ? "রিভিউ দেখুন" : "View Reviews"}
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Review Modal */}
+      {reviewProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setReviewProduct(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-primary">
+                ⭐ {lang === "bn" ? reviewProduct.nameBn : reviewProduct.name}
+              </h3>
+              <button onClick={() => setReviewProduct(null)} className="text-text-secondary hover:text-primary text-xl">✕</button>
+            </div>
+
+            <ReviewList productId={String(reviewProduct.id)} productType="product" />
+
+            <div className="mt-6 pt-6 border-t border-border">
+              <h4 className="font-semibold text-sm text-primary mb-3">
+                {lang === "bn" ? "আপনার রিভিউ দিন" : "Write a Review"}
+              </h4>
+              <ReviewForm
+                productId={String(reviewProduct.id)}
+                productType="product"
+                workerId={getWorkerId()}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

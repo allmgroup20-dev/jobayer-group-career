@@ -115,6 +115,28 @@ export async function computeWorkerInterests(workerId: string): Promise<void> {
     }
   }
 
+  // Boost interests from product reviews (high ratings = strong interest)
+  const reviews = await db.prepare(
+    "SELECT product_id, product_type, rating FROM product_reviews WHERE worker_id = ? AND is_approved = 1"
+  ).bind(workerId).all() as { results: { product_id: string; product_type: string; rating: number }[] };
+
+  for (const rv of reviews.results) {
+    const boost = rv.rating >= 4 ? 30 : rv.rating >= 3 ? 15 : 0;
+    if (boost > 0) {
+      const pid = rv.product_id.toLowerCase().replace(/[^a-z0-9_]/g, "_");
+      categories[`review_${pid}`] = (categories[`review_${pid}`] || 0) + boost;
+      // Also boost related category based on product type
+      if (rv.product_type === "course") {
+        categories.courses = (categories.courses || 0) + boost;
+      } else if (rv.product_type === "product") {
+        categories.product_browsing = (categories.product_browsing || 0) + boost;
+      }
+    }
+  }
+
+  // Update workers.interests_updated_at
+  await db.prepare("UPDATE workers SET interests_updated_at = ? WHERE worker_id = ?").bind(now, workerId).run().catch(() => {});
+
   const maxScore = Math.max(...Object.values(categories), 1);
   const normalized: Record<string, number> = {};
   for (const [cat, score] of Object.entries(categories)) {
