@@ -17,8 +17,6 @@ interface Product {
   maxPrice: number;
   aiPriceEnabled: number;
   currency: string;
-  commissionPercentage: number;
-  commissionFixed: number;
   category: string | null;
   stock: number;
   imageUrl: string | null;
@@ -27,21 +25,14 @@ interface Product {
   enableCommission: number;
   enableCod: number;
   enableSslcommerz: number;
-  commissionOverride: string | null;
   premiumMembership: number;
   createdAt: string;
 }
 
-interface LevelOverride {
-  levelNumber: number;
-  percentage: number;
-  fixedAmount: number;
-}
-
 const emptyForm = () => ({
   name: "", nameBn: "", description: "", descriptionBn: "", price: "", minPrice: "", maxPrice: "", aiPriceEnabled: 1,
-  currency: "BDT", commissionPercentage: "0", commissionFixed: "0", category: "business", stock: "-1",
-  enableCommission: 1, enableCod: 1, enableSslcommerz: 1, imageUrl: "", images: "[]", commissionOverride: "",
+  currency: "BDT", category: "business", stock: "-1",
+  enableCommission: 1, enableCod: 1, enableSslcommerz: 1, imageUrl: "", images: "[]",
   premiumMembership: 0,
 });
 
@@ -53,8 +44,6 @@ export default function CompanyProductsPage() {
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [levelOverrides, setLevelOverrides] = useState<LevelOverride[]>([]);
-  const [globalLevels, setGlobalLevels] = useState<LevelOverride[]>([]);
   const [expandedDesc, setExpandedDesc] = useState<number | null>(null);
 
   const loadProducts = async () => {
@@ -65,38 +54,22 @@ export default function CompanyProductsPage() {
     } catch {}
   };
 
-  const loadGlobalLevels = async () => {
-    try {
-      const res = await fetch("/api/mlm/levels");
-      const data = await res.json() as { levels?: any[] };
-      if (data.levels) {
-        setGlobalLevels(data.levels.map((l: any) => ({
-          levelNumber: l.levelNumber, percentage: l.percentage, fixedAmount: l.fixedAmount,
-        })));
-      }
-    } catch {}
-  };
-
-  useEffect(() => { loadProducts(); loadGlobalLevels(); }, []);
+  useEffect(() => { loadProducts(); }, []);
 
   const resetForm = () => {
-    setForm(emptyForm()); setLevelOverrides([]); setEditingId(null); setShowAdd(false); setError("");
+    setForm(emptyForm()); setEditingId(null); setShowAdd(false); setError("");
   };
 
   const startEdit = (p: Product) => {
-    let overrides: LevelOverride[] = [];
-    if (p.commissionOverride) { try { overrides = JSON.parse(p.commissionOverride); } catch {} }
     setForm({
       name: p.name, nameBn: p.nameBn || "", description: p.description || "", descriptionBn: p.descriptionBn || "",
       price: String(p.price), minPrice: String(p.minPrice || 0), maxPrice: String(p.maxPrice || 0),
       aiPriceEnabled: p.aiPriceEnabled, currency: p.currency || "BDT",
-      commissionPercentage: String(p.commissionPercentage || 0), commissionFixed: String(p.commissionFixed || 0),
       category: p.category || "business", stock: String(p.stock),
       enableCommission: p.enableCommission, enableCod: p.enableCod, enableSslcommerz: p.enableSslcommerz,
-      imageUrl: p.imageUrl || "", images: p.images || "[]", commissionOverride: p.commissionOverride || "",
+      imageUrl: p.imageUrl || "", images: p.images || "[]",
       premiumMembership: p.premiumMembership,
     });
-    setLevelOverrides(overrides.length > 0 ? overrides : globalLevels.map(l => ({ ...l })));
     setEditingId(p.id); setShowAdd(true); setError("");
   };
 
@@ -108,11 +81,9 @@ export default function CompanyProductsPage() {
         descriptionBn: form.descriptionBn || null, price: parseFloat(form.price) || 0,
         minPrice: parseFloat(form.minPrice) || 0, maxPrice: parseFloat(form.maxPrice) || 0,
         aiPriceEnabled: form.aiPriceEnabled,
-        currency: form.currency, commissionPercentage: parseFloat(form.commissionPercentage) || 0,
-        commissionFixed: parseFloat(form.commissionFixed) || 0, category: form.category || null,
+        currency: form.currency, category: form.category || null,
         stock: parseInt(form.stock) || -1, imageUrl: form.imageUrl || null, images: form.images || null,
         enableCommission: form.enableCommission, enableCod: form.enableCod, enableSslcommerz: form.enableSslcommerz,
-        commissionOverride: levelOverrides.length > 0 ? JSON.stringify(levelOverrides) : null,
         premiumMembership: form.premiumMembership,
       };
 
@@ -137,8 +108,6 @@ export default function CompanyProductsPage() {
     fetch(`/api/products/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [field]: value }) })
       .then(() => loadProducts()).catch(() => {});
   };
-
-  const syncLevelsFromGlobal = () => setLevelOverrides(globalLevels.map(l => ({ ...l })));
 
   return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
@@ -232,33 +201,6 @@ export default function CompanyProductsPage() {
               )}
             </div>
 
-            {form.enableCommission === 1 && (
-              <div className="border-t border-border pt-4 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-sm text-primary">{lang === "bn" ? "কমিশন লেভেল ওভাররাইড" : "Commission Level Override"}</h4>
-                  <button onClick={syncLevelsFromGlobal} className="text-xs text-blue-600 hover:underline">
-                    {lang === "bn" ? "গ্লোবাল লেভেল সিঙ্ক" : "Sync from Global"}
-                  </button>
-                </div>
-                <p className="text-xs text-text-secondary mb-2">
-                  {lang === "bn" ? "খালি রাখলে গ্লোবাল কমিশন লেভেল ব্যবহার হবে।" : "Leave empty to use global commission levels."}
-                </p>
-                {levelOverrides.length > 0 && (
-                  <div className="space-y-1.5">
-                    {levelOverrides.map((lvl, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm">
-                        <span className="w-16 font-medium text-text-secondary">L{lvl.levelNumber}</span>
-                        <input type="number" value={lvl.percentage} onChange={(e) => { const u = [...levelOverrides]; u[i].percentage = parseFloat(e.target.value) || 0; setLevelOverrides(u); }} className="w-16 input-field !py-1 text-xs text-center" min="0" max="100" step="0.5" placeholder="%" />
-                        <span className="text-text-secondary">%</span>
-                        <input type="number" value={lvl.fixedAmount} onChange={(e) => { const u = [...levelOverrides]; u[i].fixedAmount = parseFloat(e.target.value) || 0; setLevelOverrides(u); }} className="w-16 input-field !py-1 text-xs text-center" min="0" step="1" placeholder="৳" />
-                        <span className="text-text-secondary">৳</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="flex gap-2 justify-end border-t border-border pt-4">
               <Button variant="ghost" onClick={resetForm}>{lang === "bn" ? "বাতিল" : "Cancel"}</Button>
               <Button onClick={handleSave} disabled={saving || !form.name}>
@@ -275,8 +217,6 @@ export default function CompanyProductsPage() {
                 <tr className="bg-gray-50 border-b border-border">
                   <th className="text-left p-4 text-sm font-semibold text-primary">{lang === "bn" ? "পণ্য" : "Product"}</th>
                   <th className="text-right p-4 text-sm font-semibold text-primary">{lang === "bn" ? "মূল্য" : "Price"}</th>
-                  <th className="text-center p-4 text-sm font-semibold text-primary">%</th>
-                  <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "কমিশন" : "Comm."}</th>
                   <th className="text-center p-4 text-sm font-semibold text-primary">COD</th>
                   <th className="text-center p-4 text-sm font-semibold text-primary">SSL</th>
                   <th className="text-center p-4 text-sm font-semibold text-primary">AI</th>
@@ -311,12 +251,6 @@ export default function CompanyProductsPage() {
                       {p.aiPriceEnabled && p.minPrice > 0 && (
                         <div className="text-xs text-text-secondary">৳{p.minPrice}–{p.maxPrice || p.price}</div>
                       )}
-                    </td>
-                    <td className="p-4 text-sm text-center">{p.commissionPercentage}%</td>
-                    <td className="p-4 text-center">
-                      <button onClick={() => toggleField(p.id, "enableCommission", p.enableCommission ? 0 : 1)} className={`px-2 py-0.5 rounded text-xs font-medium ${p.enableCommission ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-400"}`}>
-                        {p.enableCommission ? "ON" : "OFF"}
-                      </button>
                     </td>
                     <td className="p-4 text-center">
                       <button onClick={() => toggleField(p.id, "enableCod", p.enableCod ? 0 : 1)} className={`px-2 py-0.5 rounded text-xs font-medium ${p.enableCod ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-400"}`}>
@@ -355,7 +289,7 @@ export default function CompanyProductsPage() {
                 ))}
                 {products.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="p-8 text-center text-text-secondary text-sm">
+                    <td colSpan={8} className="p-8 text-center text-text-secondary text-sm">
                       {lang === "bn" ? "কোনো পণ্য নেই। উপরে \"নতুন পণ্য\" বাটনে ক্লিক করে পণ্য যোগ করুন।" : "No products found. Click \"Add Product\" above to create one."}
                     </td>
                   </tr>
