@@ -36,6 +36,12 @@ export default function WorkerDashboard() {
     products: { id: number; name: string; nameBn: string | null; price: number; imageUrl: string | null; score: number }[];
     topCategories: string[];
   } | null>(null);
+  const [analytics, setAnalytics] = useState<{
+    interests: { categoryScores: Record<string, number>; topCategories: string[] } | null;
+    behavior: Record<string, unknown> | null;
+    totalEvents: number;
+    recentEvents: { event_type: string; page_category: string | null; created_at: string }[];
+  } | null>(null);
 
   useEffect(() => {
     const workerId = localStorage.getItem("worker_id");
@@ -46,7 +52,8 @@ export default function WorkerDashboard() {
       fetch("/api/company/settings").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => ({} as Record<string, unknown>)),
       fetch("/api/company/payment-schedule").then(r => r.json()).catch(() => ({})),
       fetch(`/api/recommendations?workerId=${workerId}&limit=4`).then(r => r.json()).catch(() => null),
-    ]).then(([profile, settings, schedule, recs]: [any, any, any, any]) => {
+      fetch(`/api/track/analytics?workerId=${workerId}`).then(r => r.json()).catch(() => null),
+    ]).then(([profile, settings, schedule, recs, analyticsData]: [any, any, any, any, any]) => {
       if (profile?.workerId) setWorker(profile as any);
       const s = settings && typeof settings.settings === "object" ? (settings.settings as Record<string, string>) : {};
       const mw = parseInt(s.min_withdrawal || "500");
@@ -64,6 +71,7 @@ export default function WorkerDashboard() {
         setPayInterval(schedule.intervalDays as number || 7);
       }
       if (recs && recs.courses) setRecommendations(recs);
+      if (analyticsData) setAnalytics(analyticsData);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -242,6 +250,54 @@ export default function WorkerDashboard() {
             </div>
           </Card>
         </div>
+
+        {analytics?.interests && (
+          <div className="mt-6">
+            <Card>
+              <h3 className="font-bold text-primary flex items-center gap-2 mb-4">
+                <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
+                </svg>
+                {lang === "bn" ? "আপনার আগ্রহ" : "Your Interests"}
+              </h3>
+              <div className="space-y-2">
+                {Object.entries(analytics.interests.categoryScores).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([cat, score]) => (
+                  <div key={cat} className="flex items-center gap-3">
+                    <span className="text-xs font-medium text-text-secondary w-28 truncate shrink-0 text-right">{cat.replace(/_/g, " ")}</span>
+                    <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${score}%` }} />
+                    </div>
+                    <span className="text-xs font-semibold text-primary w-8 text-right">{score}</span>
+                  </div>
+                ))}
+              </div>
+              {analytics.behavior && (
+                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-border">
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                    (analytics.behavior.segment as string) === "vip" ? "bg-amber-50 text-amber-700" :
+                    (analytics.behavior.segment as string) === "active" ? "bg-green-50 text-green-700" :
+                    (analytics.behavior.segment as string) === "at_risk" ? "bg-orange-50 text-orange-700" :
+                    (analytics.behavior.segment as string) === "churned" ? "bg-red-50 text-red-700" :
+                    "bg-gray-50 text-gray-700"
+                  }`}>
+                    {lang === "bn" ? "সেগমেন্ট" : "Segment"}: {analytics.behavior.segment as string}
+                  </span>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+                    {lang === "bn" ? "লিড স্কোর" : "Lead"}: {analytics.behavior.lead_score as number}
+                  </span>
+                  {analytics.behavior.purchase_intent !== undefined && (
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-medium">
+                      {lang === "bn" ? "ক্রয় আগ্রহ" : "Purchase"}: {analytics.behavior.purchase_intent as number}
+                    </span>
+                  )}
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 font-medium">
+                    {analytics.totalEvents} {lang === "bn" ? "ইভেন্ট" : "events"}
+                  </span>
+                </div>
+              )}
+            </Card>
+          </div>
+        )}
 
         {recommendations && (recommendations.courses.length > 0 || recommendations.products.length > 0) && (
           <div className="mt-6 space-y-6">
