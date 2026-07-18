@@ -33,6 +33,7 @@ export default function CompanyCustomersPage() {
   );
   const customers = data?.customers ?? [];
   const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const filtered = customers.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -88,7 +89,7 @@ export default function CompanyCustomersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c) => (
+                  {filtered.slice(0, showAll ? filtered.length : 50).map((c) => (
                     <tr key={c.worker_id} className="border-b border-border last:border-0 hover:bg-gray-50/50">
                       <td className="p-3">
                         <div className="font-medium text-sm text-primary">{c.name}</div>
@@ -117,6 +118,11 @@ export default function CompanyCustomersPage() {
                   ))}
                 </tbody>
               </table>
+              {!showAll && filtered.length > 50 && (
+                <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  {lang === "bn" ? `আরও ${filtered.length - 50}টি দেখুন` : `Show ${filtered.length - 50} more`}
+                </button>
+              )}
             </div>
           </Card>
         )}

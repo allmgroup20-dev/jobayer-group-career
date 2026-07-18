@@ -34,6 +34,7 @@ export default function SentimentPage() {
   const [filter, setFilter] = useState<"all" | "reviews" | "communication">("all");
   const [stats, setStats] = useState({ total: 0, positive: 0, negative: 0, neutral: 0 });
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -99,7 +100,7 @@ export default function SentimentPage() {
             <Card><div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div></Card>
           ) : filtered.length === 0 ? (
             <Card><div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন ডেটা নেই" : "No data"}</div></Card>
-          ) : filtered.map((item, i) => (
+          ) : filtered.slice(0, showAll ? filtered.length : 50).map((item, i) => (
             <Card key={`${item.source}-${item.id}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -127,6 +128,11 @@ export default function SentimentPage() {
               </div>
             </Card>
           ))}
+          {!showAll && filtered.length > 50 && (
+            <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+              {lang === "bn" ? `আরও ${filtered.length - 50}টি দেখুন` : `Show ${filtered.length - 50} more`}
+            </button>
+          )}
         </div>
       </div>
     </div>

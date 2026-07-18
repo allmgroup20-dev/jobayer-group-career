@@ -92,6 +92,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [workerNames, setWorkerNames] = useState<Record<string, string>>({});
+  const [showAll, setShowAll] = useState(false);
 
   const fetchWithdrawals = useCallback(async () => {
     try {
@@ -187,7 +188,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
               </tr>
             </thead>
             <tbody>
-              {withdrawals.map((w) => (
+              {withdrawals.slice(0, showAll ? withdrawals.length : 50).map((w) => (
                 <tr key={w.id} className="border-b border-border last:border-b-0 hover:bg-gray-50/50 transition-colors">
                   <td className="px-4 py-3 font-mono text-xs text-text-secondary">{w.withdrawal_id}</td>
                   <td className="px-4 py-3">
@@ -252,6 +253,11 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
               ))}
             </tbody>
           </table>
+          {!showAll && withdrawals.length > 50 && (
+            <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+              {lang === "bn" ? `আরও ${withdrawals.length - 50}টি দেখুন` : `Show ${withdrawals.length - 50} more`}
+            </button>
+          )}
         </div>
       )}
 

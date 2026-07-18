@@ -32,16 +32,21 @@ function buildTree(members: TreeNode[], rootId: string): TreeNode | null {
   return root;
 }
 
+const MAX_DEPTH = 3;
+
 function TreeNodeView({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(depth < MAX_DEPTH);
+  const [showAllChildren, setShowAllChildren] = useState(false);
   const { lang } = useLanguageStore();
+  const isDepthLimited = depth >= MAX_DEPTH && !expanded;
+  const visibleChildren = showAllChildren ? node.children : node.children.slice(0, 30);
 
   return (
     <div>
       <div className="flex items-center gap-3 py-2">
-        {depth > 0 && node.children.length > 0 && (
+        {(depth > 0 || node.children.length > 0) && (
           <button onClick={() => setExpanded(!expanded)} className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-xs text-text-secondary">
-            {expanded ? "−" : "+"}
+            {isDepthLimited ? "🔒" : expanded ? "−" : "+"}
           </button>
         )}
         {depth > 0 && node.children.length === 0 && <div className="w-5" />}
@@ -55,12 +60,22 @@ function TreeNodeView({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
           <p className="text-xs text-text-secondary">ID: {node.worker_id} | {lang === "bn" ? "সহযোগী" : "Associates"}: {node.total_team_members}</p>
         </div>
       </div>
-      {expanded && node.children.length > 0 && (
+      {!isDepthLimited && expanded && visibleChildren.length > 0 && (
         <div className="ml-8 border-l-2 border-gray-100 pl-4">
-          {node.children.map((child) => (
+          {visibleChildren.map((child) => (
             <TreeNodeView key={child.worker_id} node={child} depth={depth + 1} />
           ))}
+          {node.children.length > 30 && !showAllChildren && (
+            <button onClick={() => setShowAllChildren(true)} className="text-xs text-action hover:underline mt-1">
+              {lang === "bn" ? `আরও দেখুন (${node.children.length - 30})` : `Show more (${node.children.length - 30})`}
+            </button>
+          )}
         </div>
+      )}
+      {isDepthLimited && (
+        <button onClick={() => setExpanded(true)} className="ml-8 text-xs text-action hover:underline mt-1">
+          {lang === "bn" ? "সম্প্রসারিত করুন" : "Expand"}
+        </button>
       )}
     </div>
   );

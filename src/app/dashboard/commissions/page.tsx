@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { formatCurrency, formatDate, getStatusColor, getStatusBadge } from "@/lib/utils";
@@ -19,6 +20,7 @@ export default function CommissionsPage() {
     { ttlMs: 300_000 }
   );
   const commissions = data?.commissions ?? [];
+  const [showAll, setShowAll] = useState(false);
 
   const { data: profile } = useSWRFetch<{ demoBonus?: number; demoBonusOriginal?: number }>(
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
@@ -84,7 +86,7 @@ export default function CommissionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {commissions.map((c) => (
+                  {commissions.slice(0, showAll ? commissions.length : 30).map((c) => (
                     <tr key={c.commission_id} className="border-b border-border last:border-0 hover:bg-gray-50/50 transition-colors">
                       <td className="p-4 text-sm font-medium text-primary">{c.from_name || "Unknown"}</td>
                       <td className="p-4 text-sm text-text-secondary">Level {c.level_number}</td>
@@ -101,6 +103,13 @@ export default function CommissionsPage() {
                 </tbody>
               </table>
             </div>
+            {commissions.length > 30 && !showAll && (
+              <div className="p-4 text-center">
+                <button onClick={() => setShowAll(true)} className="text-sm text-action hover:underline">
+                  {lang === "bn" ? "আরও দেখুন" : "Show More"}
+                </button>
+              </div>
+            )}
           </Card>
         )}
       </div>

@@ -29,6 +29,7 @@ interface Props {
 export function ReviewList({ productId, productType = "course" }: Props) {
   const { lang } = useLanguageStore();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +89,7 @@ export function ReviewList({ productId, productType = "course" }: Props) {
       )}
 
       <div className="space-y-3">
-        {reviews.map((r) => (
+        {reviews.slice(0, showAll ? reviews.length : 30).map((r) => (
           <div key={r.id} className="bg-gray-50 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-sm text-primary">{r.worker_name || r.worker_id}</span>
@@ -98,6 +99,11 @@ export function ReviewList({ productId, productType = "course" }: Props) {
             {r.review_text && <p className="text-sm text-text-secondary mt-1">{r.review_text}</p>}
           </div>
         ))}
+        {reviews.length > 30 && !showAll && (
+          <button onClick={() => setShowAll(true)} className="w-full text-center text-sm text-action hover:underline py-2">
+            {lang === "bn" ? "আরও দেখুন" : "Show More"}
+          </button>
+        )}
       </div>
     </div>
   );

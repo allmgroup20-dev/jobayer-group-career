@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { formatCurrency, formatDate, getStatusColor, getStatusBadge } from "@/lib/utils";
@@ -24,6 +25,7 @@ export default function OrdersPage() {
     { ttlMs: 300_000 }
   );
   const orders = data?.orders ?? [];
+  const [showAll, setShowAll] = useState(false);
 
   return (
     <div className="min-h-screen py-24 px-4">
@@ -41,7 +43,7 @@ export default function OrdersPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {orders.map((order) => (
+            {orders.slice(0, showAll ? orders.length : 30).map((order) => (
               <Card key={order.order_id} className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-lg">📦</div>
                 <div className="flex-1 min-w-0">
@@ -59,6 +61,11 @@ export default function OrdersPage() {
                 </div>
               </Card>
             ))}
+            {orders.length > 30 && !showAll && (
+              <button onClick={() => setShowAll(true)} className="w-full text-center text-sm text-action hover:underline py-2">
+                {lang === "bn" ? "আরও দেখুন" : "Show More"}
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -47,23 +47,15 @@ export default function AIAgentsPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [agentsRes, logsRes, reportsRes, configRes] = await Promise.all([
-        fetch("/api/ai/agents"),
-        fetch("/api/ai/agents/logs"),
-        fetch("/api/ai/agents/reports"),
-        fetch("/api/ai/agents/global-config"),
-      ]);
-      const agentsData = await agentsRes.json() as { tree?: AgentTreeNode[]; agents?: Agent[]; stats?: AgentStats };
-      const logsData = await logsRes.json() as { logs?: AgentLog[] };
-      const reportsData = await reportsRes.json() as { reports?: AgentReport[] };
-      const configData = await configRes.json() as { config?: GlobalAgentConfig };
+      const res = await fetch("/api/ai/agents/summary");
+      const data = await res.json() as { agents?: Agent[]; tree?: AgentTreeNode[]; logs?: AgentLog[]; reports?: AgentReport[]; config?: GlobalAgentConfig; stats?: AgentStats };
 
-      setTree(agentsData.tree || []);
-      setAgents(agentsData.agents || []);
-      setStats(agentsData.stats || null);
-      setLogs(logsData.logs || []);
-      setReports(reportsData.reports || []);
-      setGlobalConfig(configData.config || null);
+      setTree(data.tree || []);
+      setAgents(data.agents || []);
+      setStats(data.stats || null);
+      setLogs(data.logs || []);
+      setReports(data.reports || []);
+      setGlobalConfig(data.config || null);
     } catch (e) {
       console.error("Failed to fetch agent data:", e);
     } finally {

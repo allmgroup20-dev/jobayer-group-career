@@ -36,6 +36,7 @@ export default function CompanySessionsPage() {
   const [search, setSearch] = useState("");
   const [selectedSession, setSelectedSession] = useState<SessionDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -123,7 +124,7 @@ export default function CompanySessionsPage() {
               ) : filtered.length === 0 ? (
                 <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন সেশন নেই" : "No sessions"}</div>
               ) : (
-                filtered.map((s) => (
+                filtered.slice(0, showAll ? filtered.length : 50).map((s) => (
                   <button
                     key={s.id}
                     onClick={() => loadSessionDetail(s.session_start)}
@@ -145,6 +146,11 @@ export default function CompanySessionsPage() {
                     <div className="text-xs text-gray-400 mt-1">{formatDate(s.session_start)}</div>
                   </button>
                 ))
+              )}
+              {!showAll && filtered.length > 50 && (
+                <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  {lang === "bn" ? `আরও ${filtered.length - 50}টি দেখুন` : `Show ${filtered.length - 50} more`}
+                </button>
               )}
             </Card>
           </div>

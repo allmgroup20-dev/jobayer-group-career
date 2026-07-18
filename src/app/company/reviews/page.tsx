@@ -21,6 +21,7 @@ export default function CompanyReviewsPage() {
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("pending");
+  const [showAll, setShowAll] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -98,7 +99,7 @@ export default function CompanyReviewsPage() {
           <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "কোনো রিভিউ নেই" : "No reviews"}</div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((r) => (
+            {filtered.slice(0, showAll ? filtered.length : 50).map((r) => (
               <Card key={r.id} className={`!p-4 ${!r.is_approved ? "border-l-4 border-l-orange-400" : ""}`}>
                 <div className="flex items-start gap-4">
                   <div className="text-center shrink-0">
@@ -131,6 +132,11 @@ export default function CompanyReviewsPage() {
                 </div>
               </Card>
             ))}
+            {!showAll && filtered.length > 50 && (
+              <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                {lang === "bn" ? `আরও ${filtered.length - 50}টি দেখুন` : `Show ${filtered.length - 50} more`}
+              </button>
+            )}
           </div>
         )}
       </div>

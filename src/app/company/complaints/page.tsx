@@ -25,6 +25,7 @@ export default function ComplaintsPage() {
     { ttlMs: 30_000 }
   );
   const complaints = data?.complaints ?? [];
+  const [showAll, setShowAll] = useState(false);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [adminNote, setAdminNote] = useState("");
@@ -92,7 +93,7 @@ export default function ComplaintsPage() {
                 </tr>
               </thead>
               <tbody>
-                {complaints.map((c) => (
+                {complaints.slice(0, showAll ? complaints.length : 50).map((c) => (
                   <tr key={c.id} className="border-b border-border last:border-0 hover:bg-gray-50/50">
                     <td className="p-4 text-sm font-mono text-text-secondary">#{c.id}</td>
                     <td className="p-4 text-sm font-medium text-primary">{c.workerId}</td>
@@ -137,6 +138,17 @@ export default function ComplaintsPage() {
                   </td></tr>
                 )}
               </tbody>
+              {!showAll && complaints.length > 50 && (
+                <tfoot>
+                  <tr>
+                    <td colSpan={7}>
+                      <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        {lang === "bn" ? `আরও ${complaints.length - 50}টি দেখুন` : `Show ${complaints.length - 50} more`}
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </Card>

@@ -18,6 +18,8 @@ export default function CompanyNotificationsPage() {
   const [result, setResult] = useState("");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [workerSearch, setWorkerSearch] = useState("");
 
   useEffect(() => {
     fetch("/api/track/analytics?allCustomers=1")
@@ -82,9 +84,10 @@ export default function CompanyNotificationsPage() {
               <label className="block text-sm font-medium text-primary mb-1">
                 {lang === "bn" ? "গ্রাহক (ফাঁকা রাখলে সবাই)" : "Target (leave empty for all)"}
               </label>
+              <input type="text" value={workerSearch} onChange={e => { setWorkerSearch(e.target.value); setSelectedWorker(""); }} placeholder={lang === "bn" ? "গ্রাহক খুঁজুন..." : "Search customer..."} className="w-full px-4 py-2 rounded-xl border border-border bg-white text-sm mb-2" />
               <select value={selectedWorker} onChange={e => setSelectedWorker(e.target.value)} className="w-full px-4 py-2 rounded-xl border border-border bg-white text-sm">
                 <option value="">{lang === "bn" ? "সব গ্রাহক" : "All customers"} ({workers.length})</option>
-                {workers.map(w => (
+                {workers.filter(w => w.name?.toLowerCase().includes(workerSearch.toLowerCase()) || w.phone?.includes(workerSearch)).slice(0, 20).map(w => (
                   <option key={w.worker_id} value={w.worker_id}>{w.name} ({w.phone})</option>
                 ))}
               </select>
@@ -120,16 +123,23 @@ export default function CompanyNotificationsPage() {
             ) : notifications.length === 0 ? (
               <div className="text-center py-8 text-text-secondary">{lang === "bn" ? "কোনো বিজ্ঞপ্তি নেই" : "No notifications"}</div>
             ) : (
-              notifications.map((n: any) => (
-                <Card key={n.id} className="!p-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span>{n.type === "success" ? "✅" : n.type === "warning" ? "⚠️" : n.type === "alert" ? "🔴" : "ℹ️"}</span>
-                    <span className="font-medium text-primary">{n.title}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{new Date(n.created_at).toLocaleString()}</span>
-                  </div>
-                  <p className="text-xs text-text-secondary mt-1">To: {n.worker_id} {n.is_read ? "✓" : "○"}</p>
-                </Card>
-              ))
+              <>
+                {notifications.slice(0, showAll ? notifications.length : 50).map((n: any) => (
+                  <Card key={n.id} className="!p-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span>{n.type === "success" ? "✅" : n.type === "warning" ? "⚠️" : n.type === "alert" ? "🔴" : "ℹ️"}</span>
+                      <span className="font-medium text-primary">{n.title}</span>
+                      <span className="text-xs text-gray-400 ml-auto">{new Date(n.created_at).toLocaleString()}</span>
+                    </div>
+                    <p className="text-xs text-text-secondary mt-1">To: {n.worker_id} {n.is_read ? "✓" : "○"}</p>
+                  </Card>
+                ))}
+                {!showAll && notifications.length > 50 && (
+                  <button onClick={() => setShowAll(true)} className="w-full py-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    {lang === "bn" ? `আরও ${notifications.length - 50}টি দেখুন` : `Show ${notifications.length - 50} more`}
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
