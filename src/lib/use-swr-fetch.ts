@@ -20,6 +20,17 @@ export async function deleteCached(key: string): Promise<void> {
   return dc(key);
 }
 
+export async function fetchWithCache<T>(url: string, ttlMs = 120000): Promise<T> {
+  if (!isBrowser) return fetch(url).then(r => r.json()) as Promise<T>;
+  const { getCached: gc, setCached: sc } = await import("./client-cache");
+  const cached = await gc<T>(url, ttlMs);
+  if (cached !== null) return cached;
+  const res = await fetch(url);
+  const data = await res.json() as T;
+  await sc(url, data);
+  return data;
+}
+
 interface SWROptions<T> {
   ttlMs?: number;
   onData?: (data: T) => void;

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { fetchWithCache } from "@/lib/use-swr-fetch";
 
 interface Withdrawal {
   id: number;
@@ -289,10 +290,11 @@ function WithdrawalStatsTab({ lang }: { lang: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/company/finance").then((r) => r.json()),
-      fetch("/api/withdrawals").then((r) => r.json()),
-    ]).then(([finance, wd]: [any, any]) => {
+    const load = async () => {
+      const [finance, wd] = await Promise.all([
+        fetchWithCache<any>("/api/company/finance", 300000),
+        fetchWithCache<any>("/api/withdrawals", 300000),
+      ]);
       const list: Withdrawal[] = wd.withdrawals || [];
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -303,7 +305,8 @@ function WithdrawalStatsTab({ lang }: { lang: string }) {
         thisMonth: list.filter((w) => w.created_at >= monthStart).reduce((s, w) => s + w.amount, 0),
       });
       setLoading(false);
-    }).catch(() => setLoading(false));
+    };
+    load().catch(() => setLoading(false));
   }, []);
 
   if (loading) return (
@@ -358,11 +361,12 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
   const [nextPaymentDate, setNextPaymentDate] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/company/settings").then((r) => r.json() as Promise<{ settings?: Record<string, string> }>),
-      fetch("/api/company/payment-schedule").then((r) => r.json()).catch(() => ({})),
-    ]).then(([data, schedule]: [any, any]) => {
-      if (data.settings) {
+    const load = async () => {
+      const [data, schedule] = await Promise.all([
+        fetchWithCache<{ settings?: Record<string, string> }>("/api/company/settings", 300000),
+        fetchWithCache<any>("/api/company/payment-schedule", 300000).catch(() => ({})),
+      ]);
+      if (data?.settings) {
         const s = data.settings;
         setMinWithdrawal(s.min_withdrawal || "500");
         setRegistrationBonus(s.registration_bonus || "0");
@@ -377,7 +381,8 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
         setSystemActive(schedule.systemActive as boolean);
         setNextPaymentDate((schedule.nextPaymentDate as string) || "");
       }
-    }).catch(() => {}).finally(() => setLoading(false));
+    };
+    load().catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const toggleChannel = (id: string) => {

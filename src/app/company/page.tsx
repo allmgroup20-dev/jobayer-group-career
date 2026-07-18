@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card, StatCard } from "@/components/ui/Card";
+import { fetchWithCache } from "@/lib/use-swr-fetch";
 
 interface AgentStats { total: number; active: number; error: number; totalReports: number; totalSubmissions: number; }
 interface SegmentItem { segment: string; count: number }
@@ -74,12 +75,18 @@ export default function CompanyDashboard() {
   const [memberCount, setMemberCount] = useState(0);
   const [predictions, setPredictions] = useState<Predictions | null>(null);
 
+  const loadedRef = useRef(false);
+
   useEffect(() => {
-    Promise.all([
-      fetch("/api/ai/agents/stats").then(r => r.json()).catch(() => null),
-      fetch("/api/track/analytics").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => null),
-    ]).then(([agentData, analyticsData]) => {
-      if (agentData) setAgentStats(agentData as AgentStats);
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+
+    const load = async () => {
+      const [agentData, analyticsData] = await Promise.all([
+        fetchWithCache<AgentStats | null>("/api/ai/agents/stats", 300000).catch(() => null),
+        fetchWithCache<Record<string, unknown> | null>("/api/track/analytics", 300000).catch(() => null),
+      ]);
+      if (agentData) setAgentStats(agentData);
       if (analyticsData) {
         if (analyticsData.segments) setSegments(analyticsData.segments as SegmentItem[]);
         if (analyticsData.eventStats) setEventStats(analyticsData.eventStats as EventStat[]);
@@ -87,10 +94,10 @@ export default function CompanyDashboard() {
         setTotalEvents(analyticsData.totalEvents as number || 0);
         if (analyticsData.predictions) setPredictions(analyticsData.predictions as Predictions);
       }
-    }).catch(() => {});
-    fetch("/api/company/members?limit=1")
-      .then(async (r) => { const d = await r.json() as { total?: number }; if (d.total) setMemberCount(d.total); })
-      .catch(() => {});
+      const memberRes = await fetchWithCache<{ total?: number }>("/api/company/members?limit=1", 300000).catch(() => null);
+      if (memberRes?.total) setMemberCount(memberRes.total);
+    };
+    load();
   }, []);
 
   const maxSegment = Math.max(...segments.map(s => s.count), 1);
