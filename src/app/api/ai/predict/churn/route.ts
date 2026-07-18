@@ -62,7 +62,7 @@ async function predictWorker(db: D1Database, workerId: string) {
 }
 
 async function predictAllWorkers(db: D1Database) {
-  const workers = await db.prepare("SELECT worker_id, name, phone, membership_status FROM workers WHERE membership_status = 'active'").bind().all() as { results: WorkerData[] };
+  const workers = await db.prepare("SELECT worker_id, name, phone, membership_status FROM workers WHERE membership_status = 'active' LIMIT 500").bind().all() as { results: WorkerData[] };
   const predictions: any[] = [];
   for (const w of workers.results) {
     try {

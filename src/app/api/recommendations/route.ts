@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       if (scores) {
         const db = await getDB();
         const allProducts = await query<any>(db,
-          "SELECT id, name, name_bn as nameBn, price, image_url as imageUrl, category FROM products WHERE is_active = 1 ORDER BY created_at DESC"
+          "SELECT id, name, name_bn as nameBn, price, image_url as imageUrl, category FROM products WHERE is_active = 1 ORDER BY created_at DESC LIMIT 100"
         );
         products = getRecommendedProducts(scores, allProducts, limit);
       }

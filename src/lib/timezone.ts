@@ -1,5 +1,3 @@
-"use server";
-
 const DEFAULT_TIMEZONE = "Asia/Dhaka";
 
 export function getSystemTimezone(): string {
@@ -15,6 +13,21 @@ export function getLocalTime(timezone?: string): Date {
 }
 
 function getTimezoneOffset(tz: string): number {
+  const offsets: Record<string, number> = {
+    "Asia/Dhaka": 360, "Asia/Kolkata": 330, "Asia/Karachi": 300,
+    "Asia/Kathmandu": 345, "Asia/Shanghai": 480, "Asia/Tokyo": 540,
+    "Asia/Dubai": 240, "Asia/Bangkok": 420, "Asia/Singapore": 480,
+    "Asia/Riyadh": 180, "Asia/Baghdad": 180, "Asia/Tehran": 210,
+    "Asia/Yangon": 390, "America/New_York": -300, "America/Chicago": -360,
+    "America/Denver": -420, "America/Los_Angeles": -480, "America/Toronto": -300,
+    "America/Sao_Paulo": -180, "Europe/London": 60, "Europe/Berlin": 120,
+    "Europe/Paris": 120, "Europe/Moscow": 180, "Europe/Istanbul": 180,
+    "Australia/Sydney": 660, "Australia/Melbourne": 660, "Pacific/Auckland": 780,
+    "Pacific/Fiji": 720, "Africa/Cairo": 120, "Africa/Lagos": 60,
+    "Africa/Johannesburg": 120,
+  };
+  return offsets[tz] || 360;
+}
   const offsets: Record<string, number> = {
     "Asia/Dhaka": 360,
     "Asia/Kolkata": 330,

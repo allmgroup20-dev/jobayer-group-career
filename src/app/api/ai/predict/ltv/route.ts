@@ -106,7 +106,7 @@ async function computeLTV(db: D1Database, workerId: string) {
 }
 
 async function computeAllLTVs(db: D1Database) {
-  const workers = await db.prepare("SELECT worker_id FROM workers WHERE membership_status = 'active'").bind().all() as { results: { worker_id: string }[] };
+  const workers = await db.prepare("SELECT worker_id FROM workers WHERE membership_status = 'active' LIMIT 500").bind().all() as { results: { worker_id: string }[] };
   const results: any[] = [];
   for (const w of workers.results) {
     try { results.push(await computeLTV(db, w.worker_id)); } catch {}

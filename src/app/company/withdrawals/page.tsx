@@ -9,6 +9,7 @@ interface Withdrawal {
   id: number;
   withdrawal_id: string;
   worker_id: string;
+  workerName?: string;
   amount: number;
   currency: string;
   payment_method: string;
@@ -99,18 +100,11 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
       const list: Withdrawal[] = data.withdrawals || [];
       setWithdrawals(list);
 
-      // fetch worker names
-      const ids = [...new Set(list.map((w: Withdrawal) => w.worker_id))];
+      // worker names now come via JOIN from the API
       const nameMap: Record<string, string> = {};
-      await Promise.all(
-        ids.map(async (id) => {
-          try {
-            const r = await fetch(`/api/workers/profile?workerId=${id}`);
-            const d = await r.json() as { name?: string; workerId?: string };
-            nameMap[id] = d.name || d.workerId || id;
-          } catch { nameMap[id] = id; }
-        })
-      );
+      for (const w of list) {
+        if (w.workerName) nameMap[w.worker_id] = w.workerName;
+      }
       setWorkerNames(nameMap);
     } catch {}
     setLoading(false);

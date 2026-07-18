@@ -117,8 +117,14 @@ export async function GET(request: NextRequest) {
 
   try {
     const sql = workerId
-      ? "SELECT * FROM withdrawals WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20"
-      : "SELECT * FROM withdrawals ORDER BY created_at DESC LIMIT 50";
+      ? `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
+         FROM withdrawals w
+         LEFT JOIN workers wr ON w.worker_id = wr.worker_id
+         WHERE w.worker_id = ? ORDER BY w.created_at DESC LIMIT 20`
+      : `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
+         FROM withdrawals w
+         LEFT JOIN workers wr ON w.worker_id = wr.worker_id
+         ORDER BY w.created_at DESC LIMIT 50`;
     const params = workerId ? [workerId] : [];
     const withdrawals = await query(await getDB(), sql, params);
     return NextResponse.json({ withdrawals });

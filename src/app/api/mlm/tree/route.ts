@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
        FROM workers w 
        INNER JOIN mlm_tree t ON w.worker_id = t.worker_id 
        WHERE w.membership_status = 'active'
-       ORDER BY t.level_number ASC`,
+        ORDER BY t.level_number ASC
+        LIMIT 1000`,
       []
     );
 
