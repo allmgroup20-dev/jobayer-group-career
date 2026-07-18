@@ -9,7 +9,7 @@ export async function GET() {
       "SELECT account_id, phone, provider, status, daily_limit, daily_sent, total_sent, config, session_data IS NOT NULL as has_session, last_used_at, created_at FROM wa_accounts ORDER BY created_at ASC"
     );
     const warmups = await query(env,
-      "SELECT * FROM wa_warmup ORDER BY account_id ASC"
+      "SELECT id, account_id, day_count, current_limit, started_at, last_increment_at FROM wa_warmup ORDER BY account_id ASC"
     );
     return NextResponse.json({ accounts, warmups });
   } catch (error) {

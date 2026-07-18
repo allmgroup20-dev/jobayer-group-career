@@ -34,13 +34,13 @@ export async function GET(request: NextRequest) {
     const db = await getDB();
 
     if (id) {
-      const flows = await query<Flow>(db, `SELECT * FROM custom_flows WHERE id = ?`, [parseInt(id)]);
+      const flows = await query<Flow>(db, `SELECT id, name, description, steps, department_ids, created_by, is_active, run_count, last_run_at, created_at, updated_at FROM custom_flows WHERE id = ?`, [parseInt(id)]);
       if (flows.length === 0) return NextResponse.json({ error: "Flow not found" }, { status: 404 });
       const flow = flows[0];
       return NextResponse.json({ flow: { ...flow, steps: JSON.parse(flow.steps || "[]") } });
     }
 
-    const flows = await query<Flow>(db, `SELECT * FROM custom_flows ORDER BY updated_at DESC`);
+    const flows = await query<Flow>(db, `SELECT id, name, description, steps, department_ids, created_by, is_active, run_count, last_run_at, created_at, updated_at FROM custom_flows ORDER BY updated_at DESC`);
     return NextResponse.json({
       flows: flows.map(f => ({ ...f, steps: JSON.parse(f.steps || "[]") })),
     });
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       if (!body.flow_id || !body.phone || !body.text) {
         return NextResponse.json({ error: "flow_id, phone, text required" }, { status: 400 });
       }
-      const flows = await query<Flow>(db, `SELECT * FROM custom_flows WHERE id = ?`, [body.flow_id]);
+      const flows = await query<Flow>(db, `SELECT id, name, description, steps, department_ids, created_by, is_active, run_count, last_run_at, created_at, updated_at FROM custom_flows WHERE id = ?`, [body.flow_id]);
       if (flows.length === 0) return NextResponse.json({ error: "Flow not found" }, { status: 404 });
       const flow = flows[0];
       const steps: FlowStep[] = JSON.parse(flow.steps || "[]");

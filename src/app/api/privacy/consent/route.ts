@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
     const db = await ensureDB();
     const { results: consents } = await db.prepare(
-      "SELECT * FROM privacy_consent WHERE worker_id = ? ORDER BY created_at DESC"
+      "SELECT id, worker_id, consent_type, is_granted, ip_address, user_agent, granted_at, revoked_at, created_at FROM privacy_consent WHERE worker_id = ? ORDER BY created_at DESC"
     ).bind(workerId).all() as { results: any[] };
 
     return NextResponse.json({ consents: consents || [] });

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
   try {
     const rows = await query(await getDB(),
-      "SELECT * FROM saved_accounts WHERE worker_id = ? ORDER BY is_default DESC, created_at ASC",
+      "SELECT id, worker_id, account_type, account_number, account_name, is_default, created_at FROM saved_accounts WHERE worker_id = ? ORDER BY is_default DESC, created_at ASC",
       [workerId]
     );
     return NextResponse.json({ accounts: rows });

@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const env = await getDB();
     const campaigns = await query(env,
-      "SELECT * FROM wa_campaigns ORDER BY created_at DESC LIMIT 20"
+      "SELECT id, name, message, status, target_filter, total_targets, sent_count, replied_count, started_at, completed_at, created_by, created_at FROM wa_campaigns ORDER BY created_at DESC LIMIT 20"
     );
     return NextResponse.json({ campaigns });
   } catch (error) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       }
 
       const campaign = await queryFirst<{ message: string; target_filter: string | null }>(
-        env, "SELECT * FROM wa_campaigns WHERE id = ?", [campaignId]
+        env, "SELECT id, message, target_filter FROM wa_campaigns WHERE id = ?", [campaignId]
       );
       if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
 

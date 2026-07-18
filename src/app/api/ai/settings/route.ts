@@ -16,7 +16,7 @@ export async function GET() {
       ),
       query(
         { DB: db },
-        "SELECT * FROM ai_model_failover_state WHERE id = 1"
+        "SELECT id, current_key_slot, current_model_index, exhausted_models, total_responses, today_responses, last_reset_date, updated_at FROM ai_model_failover_state WHERE id = 1"
       ),
     ]);
 

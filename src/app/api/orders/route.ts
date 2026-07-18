@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const sql = workerId
-      ? "SELECT * FROM orders WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20"
-      : "SELECT * FROM orders ORDER BY created_at DESC LIMIT 50";
+      ? "SELECT id, order_id, worker_id, product_id, product_name, quantity, total_amount, currency, payment_method, payment_status, commission_status, order_status, shipping_address, transaction_id, created_at FROM orders WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20"
+      : "SELECT id, order_id, worker_id, product_id, product_name, quantity, total_amount, currency, payment_method, payment_status, commission_status, order_status, shipping_address, transaction_id, created_at FROM orders ORDER BY created_at DESC LIMIT 50";
 
     const params = workerId ? [workerId] : [];
     const orders = await query(await getDB(), sql, params);

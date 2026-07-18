@@ -5,14 +5,14 @@ import type { Agent, AgentReport, AgentSubmission, AgentLog, AgentTreeNode, Agen
 export async function getAllAgents(): Promise<Agent[]> {
   const db = await ensureDB();
   return query<Agent>({ DB: db },
-    "SELECT * FROM ai_agents ORDER BY level DESC, agent_id ASC"
+    "SELECT id, agent_id, name_bn, name_en, level, sector, parent_agent_id, status, model_id, provider, cron_interval, last_run_at, next_run_at, created_at, updated_at FROM ai_agents ORDER BY level DESC, agent_id ASC"
   );
 }
 
 export async function getAgent(agentId: string): Promise<Agent | null> {
   const db = await ensureDB();
   return queryFirst<Agent>({ DB: db },
-    "SELECT * FROM ai_agents WHERE agent_id = ?", [agentId]
+    "SELECT id, agent_id, name_bn, name_en, level, sector, parent_agent_id, status, model_id, provider, cron_interval, last_run_at, next_run_at, created_at, updated_at FROM ai_agents WHERE agent_id = ?", [agentId]
   );
 }
 
@@ -72,7 +72,7 @@ export async function getAgentTree(): Promise<AgentTreeNode[]> {
 export async function getLatestReport(agentId: string): Promise<AgentReport | null> {
   const db = await ensureDB();
   return queryFirst<AgentReport>({ DB: db },
-    "SELECT * FROM ai_agent_reports WHERE agent_id = ? ORDER BY created_at DESC LIMIT 1",
+    "SELECT id, agent_id, title_bn, summary_bn, findings, recommendations, metrics, submitted_at, created_at FROM ai_agent_reports WHERE agent_id = ? ORDER BY created_at DESC LIMIT 1",
     [agentId]
   );
 }
@@ -80,7 +80,7 @@ export async function getLatestReport(agentId: string): Promise<AgentReport | nu
 export async function getAgentReports(agentId: string, limit = 20): Promise<AgentReport[]> {
   const db = await ensureDB();
   return query<AgentReport>({ DB: db },
-    "SELECT * FROM ai_agent_reports WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?",
+    "SELECT id, agent_id, title_bn, summary_bn, findings, recommendations, metrics, submitted_at, created_at FROM ai_agent_reports WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?",
     [agentId, limit]
   );
 }
@@ -88,7 +88,7 @@ export async function getAgentReports(agentId: string, limit = 20): Promise<Agen
 export async function getAllReports(limit = 50): Promise<AgentReport[]> {
   const db = await ensureDB();
   return query<AgentReport>({ DB: db },
-    "SELECT * FROM ai_agent_reports ORDER BY created_at DESC LIMIT ?", [limit]
+    "SELECT id, agent_id, title_bn, summary_bn, findings, recommendations, metrics, submitted_at, created_at FROM ai_agent_reports ORDER BY created_at DESC LIMIT ?", [limit]
   );
 }
 
@@ -100,7 +100,7 @@ export async function getAgentSubmissions(
   const db = await ensureDB();
   const col = direction === "from" ? "from_agent_id" : "to_agent_id";
   return query<AgentSubmission>({ DB: db },
-    `SELECT * FROM ai_agent_submissions WHERE ${col} = ? ORDER BY created_at DESC LIMIT ?`,
+    `SELECT id, from_agent_id, to_agent_id, submission_type, title_bn, content, status, reviewed_at, created_at FROM ai_agent_submissions WHERE ${col} = ? ORDER BY created_at DESC LIMIT ?`,
     [agentId, limit]
   );
 }
@@ -108,7 +108,7 @@ export async function getAgentSubmissions(
 export async function getAllSubmissions(limit = 100): Promise<AgentSubmission[]> {
   const db = await ensureDB();
   return query<AgentSubmission>({ DB: db },
-    "SELECT * FROM ai_agent_submissions ORDER BY created_at DESC LIMIT ?", [limit]
+    "SELECT id, from_agent_id, to_agent_id, submission_type, title_bn, content, status, reviewed_at, created_at FROM ai_agent_submissions ORDER BY created_at DESC LIMIT ?", [limit]
   );
 }
 
@@ -162,14 +162,14 @@ export async function logActivity(
 export async function getActivityLogs(limit = 100): Promise<AgentLog[]> {
   const db = await ensureDB();
   return query<AgentLog>({ DB: db },
-    "SELECT * FROM ai_agent_logs ORDER BY created_at DESC LIMIT ?", [limit]
+    "SELECT id, agent_id, action, detail_bn, metadata, created_at FROM ai_agent_logs ORDER BY created_at DESC LIMIT ?", [limit]
   );
 }
 
 export async function getAgentActivityLogs(agentId: string, limit = 50): Promise<AgentLog[]> {
   const db = await ensureDB();
   return query<AgentLog>({ DB: db },
-    "SELECT * FROM ai_agent_logs WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?",
+    "SELECT id, agent_id, action, detail_bn, metadata, created_at FROM ai_agent_logs WHERE agent_id = ? ORDER BY created_at DESC LIMIT ?",
     [agentId, limit]
   );
 }
@@ -177,7 +177,7 @@ export async function getAgentActivityLogs(agentId: string, limit = 50): Promise
 export async function getGlobalConfig(): Promise<GlobalAgentConfig | null> {
   const db = await ensureDB();
   return queryFirst<GlobalAgentConfig>({ DB: db },
-    "SELECT * FROM ai_agent_global_config WHERE id = 1"
+    "SELECT id, mode, provider, model_id, updated_at FROM ai_agent_global_config WHERE id = 1"
   );
 }
 

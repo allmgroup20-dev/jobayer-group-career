@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const db = await ensureDB();
 
     const [session, events] = await Promise.all([
-      db.prepare("SELECT * FROM user_sessions WHERE session_start = ?").bind(id).first() as Promise<any>,
+      db.prepare("SELECT id, worker_id, session_start, session_end, duration_seconds, ip_address, user_agent, device_type, browser, os, screen_resolution, referrer, city, country, timezone, language, utm_source, utm_campaign, created_at FROM user_sessions WHERE session_start = ?").bind(id).first() as Promise<any>,
       db.prepare(
         "SELECT event_type, page_url, page_category, time_spent_seconds, product_category, search_keyword, created_at FROM user_events WHERE session_id = ? ORDER BY created_at ASC"
       ).bind(id).all() as Promise<any>,

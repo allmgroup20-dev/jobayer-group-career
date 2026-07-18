@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const db = await getDB();
 
     // Count rows to be deleted
-    const countRes = await db.prepare(
+    const countRes = await db.DB.prepare(
       `SELECT COUNT(*) as cnt FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
     ).bind().first() as { cnt: number } | undefined;
     const rowsToDelete = countRes?.cnt || 0;

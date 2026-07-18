@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "50");
     const offset = parseInt(request.nextUrl.searchParams.get("offset") || "0");
 
-    let sql = "SELECT * FROM wa_contacts";
+    let sql = "SELECT id, phone, name, status, priority_score, source, assigned_account, last_contacted_at, last_reply, notes, created_at, updated_at FROM wa_contacts";
     const params: unknown[] = [];
     const conditions: string[] = [];
 

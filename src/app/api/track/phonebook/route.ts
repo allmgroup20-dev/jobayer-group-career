@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     }
 
     const db = await ensureDB();
-    let sql = "SELECT * FROM user_phonebooks WHERE worker_id = ?";
+    let sql = "SELECT id, worker_id, contact_phone, contact_name, has_whatsapp, device_type, can_be_contacted, can_see_profile, last_contacted_at, source, last_checked_at, created_at FROM user_phonebooks WHERE worker_id = ?";
     const params: unknown[] = [workerId];
 
     if (search) {

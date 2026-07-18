@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     for (const table of TABLES) {
       try {
-        const countRes = await db.prepare(
+        const countRes = await db.DB.prepare(
           `SELECT COUNT(*) as cnt FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
         ).bind().first() as { cnt: number } | undefined;
         const rows = countRes?.cnt || 0;

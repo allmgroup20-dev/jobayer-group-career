@@ -11,7 +11,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     };
 
     const db = await ensureDB();
-    const existing = await db.prepare("SELECT * FROM user_phonebooks WHERE id = ?").bind(id).first() as Record<string, unknown> | undefined;
+    const existing = await db.prepare("SELECT id FROM user_phonebooks WHERE id = ?").bind(id).first() as Record<string, unknown> | undefined;
     if (!existing) {
       return NextResponse.json({ error: "Contact not found" }, { status: 404 });
     }

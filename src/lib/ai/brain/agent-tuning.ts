@@ -85,17 +85,17 @@ export async function getTuningDashboard(env: { DB: D1Database }): Promise<Tunin
 
   const versions = await query<Record<string, any>>(
     env,
-    `SELECT * FROM agent_prompt_versions ORDER BY created_at DESC LIMIT 50`,
+    `SELECT id, agent_id, version, prompt, source, active, avg_rating_before, avg_rating_after, total_feedback_before, total_feedback_after, created_at FROM agent_prompt_versions ORDER BY created_at DESC LIMIT 50`,
   );
 
   const abTests = await query<Record<string, any>>(
     env,
-    `SELECT * FROM agent_ab_tests ORDER BY started_at DESC LIMIT 20`,
+    `SELECT id, agent_id, version_a, version_b, a_avg_rating, b_avg_rating, a_count, b_count, winner, status, started_at, ended_at FROM agent_ab_tests ORDER BY started_at DESC LIMIT 20`,
   );
 
   const logs = await query<Record<string, any>>(
     env,
-    `SELECT * FROM agent_tuning_log ORDER BY created_at DESC LIMIT 50`,
+    `SELECT id, agent_id, action, details, rating_before, rating_after, created_at FROM agent_tuning_log ORDER BY created_at DESC LIMIT 50`,
   );
 
   return {

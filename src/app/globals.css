@@ -24,7 +24,7 @@
   --color-orange: #FF6B35;
   --color-orange-dark: #E85D2C;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-bengali: 'Hind Siliguri', 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
+  --font-bengali: var(--font-hind-siliguri), 'Noto Sans Bengali', 'Inter', system-ui, sans-serif;
 }
 
 @layer base {

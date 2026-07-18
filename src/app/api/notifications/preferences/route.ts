@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
     const db = await ensureDB();
     const { results: prefs } = await db.prepare(
-      "SELECT * FROM notification_preferences WHERE worker_id = ? ORDER BY channel, category"
+      "SELECT id, worker_id, channel, category, enabled, updated_at FROM notification_preferences WHERE worker_id = ? ORDER BY channel, category"
     ).bind(workerId).all() as { results: any[] };
 
     return NextResponse.json({ preferences: prefs || [] });

@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./client-layout";
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-hind-siliguri",
+});
 
 export const metadata: Metadata = {
   title: "Jobayer Group Career - Build Your Career With Us",
@@ -37,13 +45,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="bn">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link rel="preload" href="/favicon.svg" as="image" />
         <link rel="dns-prefetch" href="https://jgcareer.pages.dev" />
       </head>
-      <body className="min-h-screen bg-bg">
+      <body className={`${hindSiliguri.variable} min-h-screen bg-bg`}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

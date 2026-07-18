@@ -41,20 +41,20 @@ export async function GET(request: Request) {
         if (agentIds.length === 0) {
           feedback = await query(
             { DB: db },
-            "SELECT * FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
+            "SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
           );
         } else {
           const placeholders = agentIds.map(() => "?").join(",");
           feedback = await query(
             { DB: db },
-            `SELECT * FROM psychologist_feedback WHERE resolved = 0 AND agent_id IN (${placeholders}) ORDER BY created_at DESC LIMIT 50`,
+            `SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 AND agent_id IN (${placeholders}) ORDER BY created_at DESC LIMIT 50`,
             agentIds
           );
         }
       } else {
         feedback = await query(
           { DB: db },
-          "SELECT * FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
+          "SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
         );
       }
       return NextResponse.json({ feedback });
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
     if (action === "skills") {
       const skills = await query(
         { DB: db },
-        "SELECT * FROM ai_skills ORDER BY category ASC, created_at DESC LIMIT 200"
+        "SELECT id, keywords, question, answer, usage_count, category, created_at, updated_at FROM ai_skills ORDER BY category ASC, created_at DESC LIMIT 200"
       );
       return NextResponse.json({ skills });
     }

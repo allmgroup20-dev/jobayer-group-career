@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     if (allSessions) {
       const db = await ensureDB();
       const { results: sessions } = await db.prepare(
-        "SELECT * FROM user_sessions ORDER BY created_at DESC LIMIT 200"
+        "SELECT id, worker_id, session_start, session_end, duration_seconds, ip_address, user_agent, device_type, browser, os, screen_resolution, referrer, city, country, timezone, language, utm_source, utm_campaign, created_at FROM user_sessions ORDER BY created_at DESC LIMIT 200"
       ).bind().all() as { results: any[] };
       return NextResponse.json({ sessions: sessions || [] });
     }
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
       const [interests, behavior, eventCount, recentEvents] = await Promise.all([
         db.prepare("SELECT category_scores, top_categories, last_calculated_at FROM user_interests WHERE worker_id = ?").bind(workerId).first() as Promise<{ category_scores: string; top_categories: string; last_calculated_at: string } | undefined>,
-        db.prepare("SELECT * FROM user_behavior_scores WHERE worker_id = ?").bind(workerId).first() as Promise<Record<string, unknown> | undefined>,
+        db.prepare("SELECT id, worker_id, lead_score, churn_probability, purchase_intent, rfm_recency, rfm_frequency, rfm_monetary, segment, lifetime_value, last_updated FROM user_behavior_scores WHERE worker_id = ?").bind(workerId).first() as Promise<Record<string, unknown> | undefined>,
         db.prepare("SELECT COUNT(*) as c FROM user_events WHERE worker_id = ?").bind(workerId).first() as Promise<{ c: number } | undefined>,
         db.prepare("SELECT event_type, page_category, created_at FROM user_events WHERE worker_id = ? ORDER BY created_at DESC LIMIT 10").bind(workerId).all() as Promise<{ results: { event_type: string; page_category: string | null; created_at: string }[] }>,
       ]);

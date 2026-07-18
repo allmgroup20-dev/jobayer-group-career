@@ -30,11 +30,11 @@ export async function GET(req: NextRequest) {
     const db = await (await import("@/lib/db")).ensureDB();
 
     const interests = await db.prepare(
-      "SELECT * FROM user_interests WHERE worker_id = ?"
+      "SELECT id, worker_id, category_scores, top_categories, last_calculated_at, created_at, updated_at FROM user_interests WHERE worker_id = ?"
     ).bind(workerId).first();
 
     const behavior = await db.prepare(
-      "SELECT * FROM user_behavior_scores WHERE worker_id = ?"
+      "SELECT id, worker_id, lead_score, churn_probability, purchase_intent, rfm_recency, rfm_frequency, rfm_monetary, segment, lifetime_value, last_updated FROM user_behavior_scores WHERE worker_id = ?"
     ).bind(workerId).first();
 
     return NextResponse.json({ interests: interests || null, behavior: behavior || null });

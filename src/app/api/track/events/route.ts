@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const countParams = [...params];
 
     const [rows, countResult] = await Promise.all([
-      db.prepare(`SELECT * FROM user_events ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(...allParams, limit, offset).all() as Promise<{ results: Record<string, unknown>[] }>,
+      db.prepare(`SELECT id, worker_id, event_type, page_url, page_category, search_keyword, product_id, product_category, time_spent_seconds, device_info, session_id, metadata, created_at FROM user_events ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(...allParams, limit, offset).all() as Promise<{ results: Record<string, unknown>[] }>,
       db.prepare(`SELECT COUNT(*) as count FROM user_events ${where}`).bind(...countParams).first() as Promise<{ count: number } | undefined>,
     ]);
 

@@ -23,13 +23,21 @@ export async function GET(req: NextRequest) {
       ),
       query<any>(
         env,
-        `SELECT w.worker_id, w.level, w.name, w.sponsor_id, w.total_team_members,
+        `WITH RECURSIVE subtree AS (
+           SELECT worker_id, parent_id FROM mlm_tree WHERE worker_id = ?
+           UNION ALL
+           SELECT t.worker_id, t.parent_id
+           FROM mlm_tree t
+           INNER JOIN subtree s ON t.parent_id = s.worker_id
+         )
+         SELECT w.worker_id, w.level, w.name, w.sponsor_id, w.total_team_members,
                 t.parent_id
          FROM workers w
-         LEFT JOIN mlm_tree t ON t.worker_id = w.worker_id
+         INNER JOIN mlm_tree t ON t.worker_id = w.worker_id
          WHERE w.membership_status = 'active'
-         ORDER BY w.created_at ASC
-         LIMIT 2000`
+         AND w.worker_id IN (SELECT worker_id FROM subtree)
+         ORDER BY w.created_at ASC`,
+        [workerId]
       ),
       query<any>(
         env,

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
 
     const db = await ensureDB();
-    let query = "SELECT * FROM notifications WHERE worker_id = ?";
+    let query = "SELECT id, worker_id, title, message, type, link, is_read, created_at FROM notifications WHERE worker_id = ?";
     const params: unknown[] = [workerId];
     if (unreadOnly) { query += " AND is_read = 0"; }
     query += " ORDER BY created_at DESC LIMIT ?";

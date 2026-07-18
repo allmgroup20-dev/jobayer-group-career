@@ -14,6 +14,8 @@ export const useLanguageStore = create<LanguageState>((set) => ({
   },
 }));
 
+export const useLang = () => useLanguageStore((s) => s.lang);
+
 interface CartItem {
   productId: number;
   name: string;
@@ -65,6 +67,9 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 }));
 
+export const useCartItems = () => useCartStore((s) => s.items);
+export const useCartTotal = () => useCartStore((s) => s.total());
+
 interface TestModeState {
   isActive: boolean;
   toggle: () => void;
@@ -74,3 +79,5 @@ export const useTestModeStore = create<TestModeState>((set) => ({
   isActive: false,
   toggle: () => set((state) => ({ isActive: !state.isActive })),
 }));
+
+export const useTestMode = () => useTestModeStore((s) => s.isActive);

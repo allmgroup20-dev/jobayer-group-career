@@ -7,17 +7,39 @@ export async function GET(request: NextRequest) {
   const workerId = searchParams.get("workerId");
 
   try {
-    const members = await query(
-      await getDB(),
-      `SELECT w.worker_id, w.name, w.phone, w.level, w.join_date, 
-              w.total_team_members, t.parent_id
-       FROM workers w 
-       INNER JOIN mlm_tree t ON w.worker_id = t.worker_id 
-       WHERE w.membership_status = 'active'
-        ORDER BY t.level_number ASC
-        LIMIT 1000`,
-      []
-    );
+    let members;
+    if (workerId) {
+      members = await query(
+        await getDB(),
+        `WITH RECURSIVE subtree AS (
+           SELECT worker_id, parent_id FROM mlm_tree WHERE worker_id = ?
+           UNION ALL
+           SELECT t.worker_id, t.parent_id
+           FROM mlm_tree t
+           INNER JOIN subtree s ON t.parent_id = s.worker_id
+         )
+         SELECT w.worker_id, w.name, w.phone, w.level, w.join_date, 
+                w.total_team_members, t.parent_id
+         FROM workers w 
+         INNER JOIN mlm_tree t ON w.worker_id = t.worker_id 
+         WHERE w.membership_status = 'active'
+         AND w.worker_id IN (SELECT worker_id FROM subtree)
+         ORDER BY t.level_number ASC`,
+        [workerId]
+      );
+    } else {
+      members = await query(
+        await getDB(),
+        `SELECT w.worker_id, w.name, w.phone, w.level, w.join_date, 
+                w.total_team_members, t.parent_id
+         FROM workers w 
+         INNER JOIN mlm_tree t ON w.worker_id = t.worker_id 
+         WHERE w.membership_status = 'active'
+         ORDER BY t.level_number ASC
+         LIMIT 1000`,
+        []
+      );
+    }
 
     return NextResponse.json({ members, total: members.length });
   } catch (error) {

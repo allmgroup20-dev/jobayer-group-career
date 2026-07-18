@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const env = await getDB();
     const templates = await query(env,
-      "SELECT * FROM wa_templates ORDER BY usage_count DESC, category ASC"
+      "SELECT id, name, content, category, variables, usage_count, created_at, updated_at FROM wa_templates ORDER BY usage_count DESC, category ASC"
     );
     return NextResponse.json({ templates });
   } catch (error) {

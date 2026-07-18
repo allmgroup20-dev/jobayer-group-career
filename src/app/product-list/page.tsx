@@ -127,6 +127,7 @@ export default function ProductsPage() {
             <div key={product.id} className="card hover:shadow-xl hover:-translate-y-1 group animate-fade-up">
               <div className="w-full h-40 mb-4 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-300 relative">
                 {product.imageUrl ? (
+                  /* eslint-disable @next/next/no-img-element */
                   <img src={product.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-5xl">{emojiFallback[product.category || ""] || "📦"}</span>
