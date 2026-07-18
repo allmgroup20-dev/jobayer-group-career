@@ -64,6 +64,10 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<CourseCategory[]>([]);
+  const [workerId, setWorkerId] = useState<string | null>(null);
+  const [unlockedCourseIds, setUnlockedCourseIds] = useState<Set<number>>(new Set());
+  const [unlockLimit, setUnlockLimit] = useState<number | null>(null);
+  const [unlockCount, setUnlockCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 600);
@@ -86,20 +90,41 @@ export default function CoursesPage() {
         setCourses(coursesData.courses ?? []);
         setCategories(catsData.categories?.filter(c => c.icon) ?? catsData.categories ?? []);
 
+        let wid: string | null = null;
         if (profile.workerId || profile.username) {
           setIsLoggedIn(true);
+          wid = profile.workerId || null;
           if (profile.membershipStatus === "premium" || profile.role === "premium") {
             setIsPremium(true);
           }
         }
 
-        const wid = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
-        if (wid && !profile.workerId) {
+        const localWid = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
+        if (localWid && !profile.workerId) {
           setIsLoggedIn(true);
+          wid = localWid;
           try {
-            const pRes = await fetch(`/api/workers/profile?workerId=${wid}`);
+            const pRes = await fetch(`/api/workers/profile?workerId=${localWid}`);
             const pData = await pRes.json() as Record<string, any>;
             if (pData.membershipStatus === "premium") setIsPremium(true);
+          } catch {}
+        }
+
+        if (wid) {
+          setWorkerId(wid);
+          try {
+            const [unlocksRes, limitsRes] = await Promise.all([
+              fetch(`/api/unlocks?workerId=${encodeURIComponent(wid)}`),
+              fetch(`/api/unlocks/limits?workerId=${encodeURIComponent(wid)}`),
+            ]);
+            const [unlocksData, limitsData] = await Promise.all([
+              unlocksRes.json() as Promise<{ unlocks?: { courseId: number }[] }>,
+              limitsRes.json() as Promise<{ limits?: { maxUnlocks: number }[] }>,
+            ]);
+            const ids = new Set<number>((unlocksData.unlocks || []).map(u => u.courseId));
+            setUnlockedCourseIds(ids);
+            setUnlockCount(ids.size);
+            if (limitsData.limits?.[0]) setUnlockLimit(limitsData.limits[0].maxUnlocks);
           } catch {}
         }
       } catch (e) {
@@ -193,7 +218,31 @@ export default function CoursesPage() {
   const canAccess = (course: Course) => {
     if (!isLoggedIn) return false;
     if (isPremium) return true;
+    if (unlockedCourseIds.has(course.id)) return true;
     return course.isPremium === 0;
+  };
+
+  const handleUnlock = async (courseId: number) => {
+    if (!workerId) return;
+    try {
+      const res = await fetch("/api/unlocks", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, courseId, unlockedBy: "user" }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) {
+        if (res.status === 403) {
+          alert("আনলক লিমিট পূর্ণ হয়েছে। প্রিমিয়াম মেম্বারশিপ নিন।");
+        } else {
+          throw new Error(data.error || "Failed");
+        }
+        return;
+      }
+      setUnlockedCourseIds(prev => new Set(prev).add(courseId));
+      setUnlockCount(prev => prev + 1);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "আনলক করতে ব্যর্থ");
+    }
   };
 
   const freeCount = courses.filter(c => c.isPremium === 0).length;
@@ -212,8 +261,8 @@ export default function CoursesPage() {
                 <span>📚 মোট {courses.length}টি রিসোর্স — লগইন করে এক্সেস করুন</span>
               ) : isPremium ? (
                 <span>👑 মোট {courses.length}টি রিসোর্স — প্রিমিয়াম এক্সেস</span>
-              ) : (
-                <span>🎁 {freeCount}টি ফ্রি + {premiumCount}টি প্রিমিয়াম — লগইন করেছেন</span>
+              ) : isPremium ? null : (
+                <span>🎁 {freeCount}টি ফ্রি + {premiumCount}টি প্রিমিয়াম{unlockLimit !== null ? ` — আনলক ${unlockCount}/${unlockLimit}` : unlockCount > 0 ? ` — আনলক ${unlockCount}টি` : ''}</span>
               )}
             </div>
             <h1 className="text-2xl md:text-4xl font-black text-white leading-tight">
@@ -343,11 +392,30 @@ export default function CoursesPage() {
                       </div>
                     </div>
                   </a>
-                  {!access && isLoggedIn && item.isPremium === 1 && (
-                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <a href="/dashboard/profile" className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg hover:bg-amber-600 transition-all">
-                        👑 প্রিমিয়াম হোন
-                      </a>
+                  {isLoggedIn && !isPremium && item.isPremium === 1 && (
+                    unlockedCourseIds.has(item.id) ? (
+                      <div className="absolute top-2 right-2 px-2 py-1 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg">
+                        ✅ আনলক করা
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        {unlockLimit === null || unlockCount < unlockLimit ? (
+                          <button onClick={(e) => { e.preventDefault(); handleUnlock(item.id); }}
+                            className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-lg hover:bg-primary/90 transition-all cursor-pointer">
+                            🔓 আনলক করুন
+                          </button>
+                        ) : (
+                          <a href="/dashboard/profile"
+                            className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg hover:bg-amber-600 transition-all">
+                            👑 প্রিমিয়াম হোন
+                          </a>
+                        )}
+                      </div>
+                    )
+                  )}
+                  {!isLoggedIn && item.isPremium === 1 && (
+                    <div className="absolute top-2 right-2 px-2 py-1 bg-gray-500/80 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg">
+                      🔒 প্রিমিয়াম
                     </div>
                   )}
                 </div>
