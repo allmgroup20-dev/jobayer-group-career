@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, execute } from "@/lib/db/queries";
+import { query, queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getSystemTimezone, isScheduledTime } from "@/lib/timezone";
 
@@ -37,9 +37,10 @@ export async function GET() {
 
     for (const table of TABLES) {
       try {
-        const countRes = await db.prepare(
+        const countRes = await queryFirst<{ cnt: number }>(
+          db,
           `SELECT COUNT(*) as cnt FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
-        ).bind().first() as { cnt: number } | undefined;
+        );
         const rows = countRes?.cnt || 0;
         if (rows > 0) {
           await execute(db, `DELETE FROM ${table} WHERE created_at < datetime('now', '-${days} days')`);
