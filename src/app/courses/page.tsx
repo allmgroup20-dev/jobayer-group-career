@@ -345,7 +345,6 @@ export default function CoursesPage() {
             {filtered.map((item) => {
               const emoji = getCourseEmoji(item.icon, (item.categoryNames || [])[0]);
               const bgColor = getEmojiBg(emoji);
-              const url = item.fileUrl || "#";
               const access = canAccess(item);
               const firstCatId = (item.categoryIds || [])[0];
               const catDisplay = firstCatId
@@ -355,9 +354,7 @@ export default function CoursesPage() {
               return (
                 <div key={item.id} className="relative">
                   <a
-                    href={access ? url : "#"}
-                    target={access ? "_blank" : undefined}
-                    rel={access ? "noopener noreferrer" : undefined}
+                    href={`/courses/${item.id}`}
                     className={`block bg-white rounded-2xl border p-4 transition-all duration-200 ${
                       access
                         ? "border-border hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98] group cursor-pointer"

@@ -1,7 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execute, queryFirst, batch } from "@/lib/db/queries";
+import { execute, query, queryFirst, batch } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { invalidateCache } from "@/lib/cache";
+import { invalidateCache, getCached, setCached } from "@/lib/cache";
+
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const db = await getDB();
+
+    const cached = await getCached(`course:${id}`);
+    if (cached) return NextResponse.json(cached, {
+      headers: { "Cache-Control": "public, max-age=30" }
+    });
+
+    const course = await queryFirst<any>(db,
+      `SELECT c.id, c.title, c.title_bn as titleBn, c.description, c.description_bn as descriptionBn,
+              c.is_new as isNew, c.is_visible as isVisible, c.icon, c.price, c.is_premium as isPremium,
+              c.created_at as createdAt, c.updated_at as updatedAt,
+              COALESCE((SELECT json_group_array(m.category_id) FROM course_category_map m WHERE m.course_id = c.id), '[]') as categoryIds,
+              COALESCE((SELECT json_group_array(cat.name) FROM course_category_map m JOIN course_categories cat ON cat.id = m.category_id WHERE m.course_id = c.id), '[]') as categoryNames,
+              COALESCE((SELECT json_group_array(cat.name_bn) FROM course_category_map m JOIN course_categories cat ON cat.id = m.category_id WHERE m.course_id = c.id), '[]') as categoryNamesBn
+       FROM courses c WHERE c.id = ?`,
+      [parseInt(id)]
+    );
+    if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
+
+    const files = await query<any>(db,
+      `SELECT id, course_id as courseId, label, label_bn as labelBn, url, file_type as fileType, sort_order as sortOrder, created_at as createdAt
+       FROM course_files WHERE course_id = ? ORDER BY sort_order ASC, id ASC`,
+      [parseInt(id)]
+    );
+
+    const result = { course, files };
+    await setCached(`course:${id}`, result);
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "public, max-age=30" }
+    });
+  } catch (error) {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

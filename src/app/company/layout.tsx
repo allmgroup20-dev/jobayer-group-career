@@ -80,6 +80,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/sentiment", en: "Sentiment", bn: "সেন্টিমেন্ট", icon: "📈", desc: "সেন্টিমেন্ট এনালাইসিস — ইউজার মেসেজের অনুভূতি বিশ্লেষণ" },
       { href: "/company/skills", en: "Skills", bn: "দক্ষতা", icon: "🧠", desc: "এআই স্কিলস — কীওয়ার্ড-ভিত্তিক স্বয়ংক্রিয় উত্তর" },
       { href: "/company/ai-conversations", en: "Conversations", bn: "কথোপকথন", icon: "💬", desc: "এআই কনভার্সেশন — ইউজারদের সাথে এআই-এর কথোপকথনের লগ" },
+      { href: "/company/courses/ai-pricing", en: "AI Pricing", bn: "এআই প্রাইসিং", icon: "💰", desc: "এআই-ভিত্তিক রিসোর্স প্রাইসিং — অটোমেটিক প্রাইস ও প্রিমিয়াম সাজেশন" },
     ],
   },
   {

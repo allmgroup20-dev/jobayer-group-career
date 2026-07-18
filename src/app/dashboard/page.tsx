@@ -231,7 +231,7 @@ export default function WorkerDashboard() {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-fade-up">
           {/* Onboarding prompt for new users */}
-          {worker.name.startsWith("User") && (
+          {worker.name?.startsWith("User") && (
             <Link href="/onboarding" className="col-span-full p-4 rounded-xl bg-gradient-to-r from-action/10 to-secondary/10 border border-action/20 flex items-center gap-3 hover:shadow-lg transition-all">
               <span className="text-2xl">👋</span>
               <div className="flex-1">
@@ -243,7 +243,7 @@ export default function WorkerDashboard() {
           )}
           <div>
             <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
-              {lang === "bn" ? "স্বাগতম" : "Welcome"}, {worker.name}
+              {settingsData?.settings?.company_name || "Jobayer Group Career"}
               {worker.membershipStatus === "premium" ? (
                 <span className="text-xs bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full">⭐ PREMIUM</span>
               ) : (
@@ -251,7 +251,7 @@ export default function WorkerDashboard() {
               )}
             </h1>
             <p className="text-sm text-text-secondary mt-1">
-              {lang === "bn" ? "সদস্য আইডি" : "Member ID"}: {worker.workerId}
+              {lang === "bn" ? "স্বাগতম" : "Welcome"}, {worker.name} | {lang === "bn" ? "সদস্য আইডি" : "ID"}: {worker.workerId}
             </p>
           </div>
         </div>
