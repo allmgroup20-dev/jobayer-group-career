@@ -351,6 +351,8 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
   const [minWithdrawal, setMinWithdrawal] = useState("500");
   const [premiumMinWithdrawal, setPremiumMinWithdrawal] = useState("200");
   const [registrationBonus, setRegistrationBonus] = useState("0");
+  const [demoBonusEnabled, setDemoBonusEnabled] = useState(false);
+  const [demoBonusDeduction, setDemoBonusDeduction] = useState("10");
   const [channels, setChannels] = useState<Channel[]>(DEFAULT_CHANNELS);
 
   // Payment schedule state
@@ -369,6 +371,8 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
         setMinWithdrawal(s.min_withdrawal || "500");
         setPremiumMinWithdrawal(s.min_withdrawal_premium || "200");
         setRegistrationBonus(s.registration_bonus || "0");
+        setDemoBonusEnabled(s.demo_bonus_enabled === "1");
+        setDemoBonusDeduction(s.demo_bonus_deduction_percent || "10");
         try {
           const bc = (s as any).banking_channels ? JSON.parse((s as any).banking_channels) : null;
           if (bc && Array.isArray(bc)) setChannels(bc);
@@ -413,6 +417,8 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
       { key: "min_withdrawal", value: minWithdrawal },
       { key: "min_withdrawal_premium", value: premiumMinWithdrawal },
       { key: "registration_bonus", value: registrationBonus },
+      { key: "demo_bonus_enabled", value: demoBonusEnabled ? "1" : "0" },
+      { key: "demo_bonus_deduction_percent", value: demoBonusDeduction },
       { key: "banking_channels", value: JSON.stringify(channels) },
     ];
     try {
@@ -467,6 +473,32 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
             <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "রেজিস্ট্রেশন বোনাস" : "Registration Bonus"} (৳)</label>
             <input type="number" value={registrationBonus} onChange={(e) => setRegistrationBonus(e.target.value)} className="input-field" />
           </div>
+          <div className="sm:col-span-2 flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-border">
+            <button
+              type="button"
+              onClick={() => setDemoBonusEnabled(!demoBonusEnabled)}
+              className={`relative w-12 h-6 rounded-full transition-all ${demoBonusEnabled ? "bg-amber-500" : "bg-gray-300"}`}
+            >
+              <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all shadow-sm ${demoBonusEnabled ? "left-6" : "left-0.5"}`} />
+            </button>
+            <span className="text-sm font-medium text-primary flex-1">
+              {lang === "bn" ? "ফেক/ডেমো বোনাস (শুধু দেখানো হবে, তোলা যাবে না)" : "Fake/Demo Bonus (display only, non-withdrawable)"}
+            </span>
+          </div>
+          {demoBonusEnabled && (
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                {lang === "bn" ? "উইথড্রে কাটার %" : "Deduction % on Withdrawal"}
+              </label>
+              <div className="flex items-center gap-2">
+                <input type="number" value={demoBonusDeduction} onChange={(e) => setDemoBonusDeduction(e.target.value)} className="input-field w-24" min="0" max="100" />
+                <span className="text-xs text-text-secondary">%</span>
+                <p className="text-xs text-text-secondary ml-2">
+                  {lang === "bn" ? "প্রতিবার রিয়েল কমিশন উত্তোলনে এই % ডেমো বোনাস থেকে কাটা হবে" : "This % deducted from demo bonus on each real commission withdrawal"}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 

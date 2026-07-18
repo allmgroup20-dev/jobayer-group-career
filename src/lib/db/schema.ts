@@ -33,6 +33,8 @@ export const workers = sqliteTable("workers", {
   budgetRange: text("budget_range"),
   religion: text("religion"),
   interestsUpdatedAt: text("interests_updated_at"),
+  demoBonus: real("demo_bonus").default(0),
+  demoBonusOriginal: real("demo_bonus_original").default(0),
   createdAt: text("created_at"),
   updatedAt: text("updated_at"),
 });
@@ -112,6 +114,7 @@ export const orders = sqliteTable("orders", {
   orderStatus: text("order_status").default("pending"),
   shippingAddress: text("shipping_address"),
   transactionId: text("transaction_id"),
+  deliveryNotes: text("delivery_notes"),
   createdAt: text("created_at"),
 });
 
