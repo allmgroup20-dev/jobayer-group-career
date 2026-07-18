@@ -348,8 +348,8 @@ export default function WorkerDashboard() {
           </Link>
         </div>
 
-        {/* Team Progress */}
-        {workerId && <TeamProgress workerId={workerId} lang={lang} />}
+        {/* Income Progress */}
+        {workerId && <IncomeProgress workerId={workerId} lang={lang} />}
 
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -803,17 +803,18 @@ export default function WorkerDashboard() {
 interface LevelProgress {
   levelNumber: number; levelName: string; levelNameBn: string | null;
   percentage: number; fixedAmount: number;
-  requiredMembers: number; actualMembers: number;
+  requiredMembers: number;
+  targetIncome: number; actualIncome: number;
   isUnlocked: boolean; progressPct: number;
 }
 
-function TeamProgress({ workerId, lang }: { workerId: string; lang: string }) {
-  const [data, setData] = useState<{ levels: LevelProgress[]; minReferralBase: number; totalTeamMembers: number } | null>(null);
+function IncomeProgress({ workerId, lang }: { workerId: string; lang: string }) {
+  const [data, setData] = useState<{ levels: LevelProgress[]; totalEarned: number; currentLevel: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`/api/mlm/team-stats?workerId=${workerId}`)
-      .then(r => r.json() as Promise<{ levels: LevelProgress[]; minReferralBase: number; totalTeamMembers: number }>)
+      .then(r => r.json() as Promise<{ levels: LevelProgress[]; totalEarned: number; currentLevel: number }>)
       .then(d => setData(d))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -832,14 +833,16 @@ function TeamProgress({ workerId, lang }: { workerId: string; lang: string }) {
 
   if (!data || !data.levels || data.levels.length === 0) return null;
 
+  const format = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-primary">
-          {lang === "bn" ? "টিম অগ্রগতি" : "Team Progress"}
+          {lang === "bn" ? "আয়ের অগ্রগতি" : "Income Progress"}
         </h2>
-        <Link href="/dashboard/tree" className="text-xs text-action hover:underline font-medium">
-          {lang === "bn" ? "সম্পূর্ণ টিম দেখুন →" : "View Full Team →"}
+        <Link href="/dashboard/commissions" className="text-xs text-action hover:underline font-medium">
+          {lang === "bn" ? "কমিশন বিস্তারিত →" : "Commission Details →"}
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -875,9 +878,7 @@ function TeamProgress({ workerId, lang }: { workerId: string; lang: string }) {
                   {lang === "bn" ? (level.levelNameBn || `লেভেল ${level.levelNumber}`) : level.levelName}
                 </p>
                 <p className="text-xs text-text-secondary">
-                  {lang === "bn"
-                    ? `${level.percentage}% + ৳${level.fixedAmount}`
-                    : `${level.percentage}% + ৳${level.fixedAmount}`}
+                  {`${level.percentage}% + ৳${level.fixedAmount}`}
                 </p>
               </div>
             </div>
@@ -885,10 +886,10 @@ function TeamProgress({ workerId, lang }: { workerId: string; lang: string }) {
             <div className="mb-2">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-text-secondary">
-                  {lang === "bn" ? "প্রয়োজন" : "Required"}: <strong>{level.requiredMembers}</strong>
+                  {lang === "bn" ? "টার্গেট" : "Target"}: <strong>{format(level.targetIncome)} ৳</strong>
                 </span>
-                <span className={level.actualMembers >= level.requiredMembers ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
-                  {lang === "bn" ? "আছে" : "Have"}: <strong>{level.actualMembers}</strong>
+                <span className={level.actualIncome >= level.targetIncome ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
+                  {lang === "bn" ? "আয়" : "Earned"}: <strong>{format(level.actualIncome)} ৳</strong>
                 </span>
               </div>
               <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -903,10 +904,10 @@ function TeamProgress({ workerId, lang }: { workerId: string; lang: string }) {
 
             <p className="text-xs text-text-secondary mt-1">
               {level.isUnlocked
-                ? (lang === "bn" ? "✔ আনলক করা হয়েছে" : "✔ Unlocked")
+                ? (lang === "bn" ? "✔ সম্পন্ন — পরবর্তী লেভেলে যান" : "✔ Completed — Move to next level")
                 : (lang === "bn"
-                    ? `আরো ${level.requiredMembers - level.actualMembers} জন প্রয়োজন`
-                    : `${level.requiredMembers - level.actualMembers} more needed`)}
+                    ? `আরো ${format(level.targetIncome - level.actualIncome)} ৳ প্রয়োজন`
+                    : `${format(level.targetIncome - level.actualIncome)} ৳ more needed`)}
             </p>
           </div>
         ))}

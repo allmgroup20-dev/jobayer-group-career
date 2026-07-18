@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query } from "@/lib/db/queries";
+import { query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached } from "@/lib/cache";
 
@@ -10,75 +10,51 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "workerId required" }, { status: 400 });
     }
 
-    const cacheKey = `team_stats_${workerId}`;
+    const cacheKey = `income_progress_${workerId}`;
     const cached = await getCached<any>(cacheKey, 60);
     if (cached) return NextResponse.json(cached);
 
     const env = await getDB();
 
-    const [levelRows, members, worker] = await Promise.all([
+    const avgOrder = await queryFirst<{ a: number }>(
+      env, "SELECT COALESCE(AVG(total_amount), 500) as a FROM orders WHERE payment_status = 'completed'"
+    );
+    const avgOrderAmount = avgOrder?.a || 500;
+
+    const [levelRows, allCommissions, worker] = await Promise.all([
       query<any>(
         env,
         "SELECT level_number as levelNumber, level_name as levelName, level_name_bn as levelNameBn, percentage, fixed_amount as fixedAmount, currency, is_active as isActive, COALESCE(commission_type, 'both') as commissionType, COALESCE(min_referral_base, 3) as minReferralBase FROM commission_levels ORDER BY level_number ASC"
       ),
       query<any>(
         env,
-        `SELECT w.worker_id, w.level, w.name, w.sponsor_id, w.total_team_members,
-                t.parent_id
-         FROM workers w
-         LEFT JOIN mlm_tree t ON t.worker_id = w.worker_id
-         WHERE w.membership_status = 'active'
-         ORDER BY w.created_at ASC`
+        `SELECT level_number as levelNumber, COALESCE(SUM(total_amount), 0) as totalEarned
+         FROM commissions WHERE to_worker_id = ? AND status = 'paid'
+         GROUP BY level_number`,
+        [workerId]
       ),
       query<any>(
         env,
-        "SELECT worker_id, level, total_team_members FROM workers WHERE worker_id = ?",
+        "SELECT worker_id, level, total_team_members, total_earned FROM workers WHERE worker_id = ?",
         [workerId],
       ),
     ]);
 
+    const earnedByLevel = new Map<number, number>();
+    for (const c of allCommissions) {
+      earnedByLevel.set(c.levelNumber, c.totalEarned);
+    }
+
     const base = levelRows.length > 0 ? (levelRows[0].minReferralBase || 3) : 3;
-
-    const memberMap = new Map<string, any>();
-    for (const m of members) {
-      memberMap.set(m.worker_id, m);
-    }
-
-    const childrenMap = new Map<string, string[]>();
-    for (const m of members) {
-      if (m.parent_id) {
-        if (!childrenMap.has(m.parent_id)) childrenMap.set(m.parent_id, []);
-        childrenMap.get(m.parent_id)!.push(m.worker_id);
-      }
-    }
-
-    function countAtDepth(nodeId: string, targetDepth: number, currentDepth: number): number {
-      if (currentDepth > targetDepth) return 0;
-      let count = 0;
-      if (currentDepth === targetDepth && nodeId !== workerId) count++;
-      const children = childrenMap.get(nodeId) || [];
-      for (const childId of children) {
-        count += countAtDepth(childId, targetDepth, currentDepth + 1);
-      }
-      return count;
-    }
-
-    function countUpToDepth(nodeId: string, maxDepth: number, currentDepth: number): number {
-      if (currentDepth > maxDepth) return 0;
-      let count = 0;
-      if (nodeId !== workerId && currentDepth <= maxDepth) count++;
-      const children = childrenMap.get(nodeId) || [];
-      for (const childId of children) {
-        count += countUpToDepth(childId, maxDepth, currentDepth + 1);
-      }
-      return count;
-    }
 
     const levels = levelRows.map((r: any) => {
       const n = r.levelNumber;
       const requiredMembers = Math.pow(base, n);
-      const actualMembers = countUpToDepth(workerId, n, 0);
-      const isUnlocked = actualMembers >= requiredMembers;
+      const commissionPerPerson = (r.percentage / 100) * avgOrderAmount + (r.fixedAmount || 0);
+      const targetIncome = Math.round(requiredMembers * commissionPerPerson);
+      const actualIncome = earnedByLevel.get(n) || 0;
+      const isUnlocked = actualIncome >= targetIncome;
+
       return {
         levelNumber: r.levelNumber,
         levelName: r.levelName,
@@ -88,19 +64,34 @@ export async function GET(req: NextRequest) {
         commissionType: r.commissionType || "both",
         minReferralBase: base,
         requiredMembers,
-        actualMembers,
+        targetIncome,
+        actualIncome,
         isUnlocked,
-        progressPct: Math.min(100, Math.round((actualMembers / requiredMembers) * 100)),
+        progressPct: Math.min(100, targetIncome > 0 ? Math.round((actualIncome / targetIncome) * 100) : 100),
       };
     });
 
     const totalTeam = worker.length > 0 ? worker[0].total_team_members || 0 : 0;
+    const totalEarned = worker.length > 0 ? worker[0].total_earned || 0 : 0;
 
-    const result = { levels, minReferralBase: base, totalTeamMembers: totalTeam };
+    const currentLevelIndex = levels.findIndex((l: any) => !l.isUnlocked);
+    const currentLevel = currentLevelIndex >= 0
+      ? levels[currentLevelIndex].levelNumber
+      : levels.length > 0 ? levels[levels.length - 1].levelNumber : 1;
+
+    const result = {
+      levels,
+      minReferralBase: base,
+      totalTeamMembers: totalTeam,
+      totalEarned,
+      avgOrderAmount,
+      currentLevel,
+    };
+
     await setCached(cacheKey, result);
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Team stats error:", error);
+    console.error("Income progress error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
