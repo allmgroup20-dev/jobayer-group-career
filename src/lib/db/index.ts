@@ -364,6 +364,41 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
+    // ── Courses Module Tables ──
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      name_bn TEXT,
+      icon TEXT DEFAULT '📌',
+      is_visible INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS courses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      title_bn TEXT,
+      description TEXT,
+      description_bn TEXT,
+      category_id INTEGER,
+      is_new INTEGER DEFAULT 1,
+      is_visible INTEGER DEFAULT 1,
+      icon TEXT DEFAULT '📌',
+      price REAL DEFAULT 0,
+      is_premium INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_files (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL,
+      label TEXT,
+      label_bn TEXT,
+      url TEXT NOT NULL,
+      file_type TEXT DEFAULT 'link',
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     // AI response cache — same query → same answer (0 tokens on repeat)
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS ai_response_cache (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

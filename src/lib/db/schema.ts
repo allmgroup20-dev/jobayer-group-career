@@ -668,6 +668,43 @@ export const userPhonebooks = sqliteTable("user_phonebooks", {
   createdAt: text("created_at"),
 });
 
+// ── Courses Module ──
+export const courseCategories = sqliteTable("course_categories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  nameBn: text("name_bn"),
+  icon: text("icon").default("📌"),
+  isVisible: integer("is_visible").default(1),
+  createdAt: text("created_at"),
+});
+
+export const courses = sqliteTable("courses", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  titleBn: text("title_bn"),
+  description: text("description"),
+  descriptionBn: text("description_bn"),
+  categoryId: integer("category_id"),
+  isNew: integer("is_new").default(1),
+  isVisible: integer("is_visible").default(1),
+  icon: text("icon").default("📌"),
+  price: real("price").default(0),
+  isPremium: integer("is_premium").default(0),
+  createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
+});
+
+export const courseFiles = sqliteTable("course_files", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  courseId: integer("course_id").notNull(),
+  label: text("label"),
+  labelBn: text("label_bn"),
+  url: text("url").notNull(),
+  fileType: text("file_type").default("link"),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: text("created_at"),
+});
+
 export const aiLeads = sqliteTable("ai_leads", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   phone: text("phone").unique().notNull(),
