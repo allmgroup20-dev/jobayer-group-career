@@ -24,10 +24,14 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [workerLoggedIn, setWorkerLoggedIn] = useState(false);
   const [companyLoggedIn, setCompanyLoggedIn] = useState(false);
+  const [workerName, setWorkerName] = useState("");
+  const [companyName, setCompanyName] = useState("");
 
   useEffect(() => {
     setWorkerLoggedIn(!!localStorage.getItem("worker_token"));
     setCompanyLoggedIn(document.cookie.includes("company_user"));
+    setWorkerName(localStorage.getItem("worker_name") || "");
+    fetch("/api/company/settings").then(r => r.json() as Promise<{ settings?: Record<string, string> }>).then(d => { if (d.settings?.company_name) setCompanyName(d.settings.company_name); }).catch(() => {});
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -105,7 +109,7 @@ export default function Navbar() {
                 <>
                   <div className="hidden sm:block"><NotificationBell /></div>
                   <Link href="/dashboard" className={`hidden sm:inline-flex ${btnBase} ${btnPrimary}`}>
-                    {lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "User Dashboard"}
+                    {workerName || (lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -122,7 +126,7 @@ export default function Navbar() {
                     {lang === "bn" ? "লগইন" : "Login"}
                   </Link>
                   <Link href="/company" className={`hidden sm:inline-flex ${btnBase} ${btnPrimary}`}>
-                    {lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Company Dashboard"}
+                    {companyName || (lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -137,10 +141,10 @@ export default function Navbar() {
                 <>
                   <div className="hidden sm:block"><NotificationBell /></div>
                   <Link href="/dashboard" className={`hidden sm:inline-flex ${btnBase} ${btnPrimary}`}>
-                    {lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "User Dashboard"}
+                    {workerName || (lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <Link href="/company" className={`hidden sm:inline-flex ${btnBase} border border-accent/40 text-accent hover:bg-accent/5`}>
-                    {lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Company Dashboard"}
+                    {companyName || (lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -199,7 +203,7 @@ export default function Navbar() {
               {workerLoggedIn && !companyLoggedIn && (
                 <>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn-primary text-center text-sm">
-                    {lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "User Dashboard"}
+                    {workerName || (lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={() => { setMobileOpen(false); handleLogout(); }}
@@ -215,7 +219,7 @@ export default function Navbar() {
                     {lang === "bn" ? "লগইন" : "Login"}
                   </Link>
                   <Link href="/company" onClick={() => setMobileOpen(false)} className="btn-primary text-center text-sm !bg-accent/10 !text-accent !border-accent/30">
-                    {lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Company Dashboard"}
+                    {companyName || (lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={() => { setMobileOpen(false); handleLogout(); }}
@@ -228,10 +232,10 @@ export default function Navbar() {
               {workerLoggedIn && companyLoggedIn && (
                 <>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn-primary text-center text-sm">
-                    {lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "User Dashboard"}
+                    {workerName || (lang === "bn" ? "ইউজার ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <Link href="/company" onClick={() => setMobileOpen(false)} className="btn-primary text-center text-sm !bg-accent/10 !text-accent !border-accent/30">
-                    {lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Company Dashboard"}
+                    {companyName || (lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Dashboard")}
                   </Link>
                   <button
                     onClick={() => { setMobileOpen(false); handleLogout(); }}

@@ -73,10 +73,8 @@ export default function CompanyDashboard() {
   const [totalEvents, setTotalEvents] = useState(0);
   const [memberCount, setMemberCount] = useState(0);
   const [predictions, setPredictions] = useState<Predictions | null>(null);
-  const [settings, setSettings] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
-    fetch("/api/company/settings").then(r => r.json() as Promise<{ settings?: Record<string, string> }>).then(d => { if (d.settings) setSettings(d.settings); }).catch(() => {});
     Promise.all([
       fetch("/api/ai/agents/stats").then(r => r.json()).catch(() => null),
       fetch("/api/track/analytics").then(r => r.json() as Promise<Record<string, unknown>>).catch(() => null),
@@ -107,10 +105,10 @@ export default function CompanyDashboard() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 animate-fade-up">
           <h1 className="text-2xl font-bold text-primary">
-            {settings?.company_name || "Jobayer Group Career"}
+            {lang === "bn" ? "কোম্পানি ড্যাশবোর্ড" : "Company Dashboard"}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "কোম্পানি প্যানেল" : "Company Panel"}
+            {lang === "bn" ? "সমস্ত কার্যক্রমের সারসংক্ষেপ" : "Full activity overview"}
           </p>
         </div>
 

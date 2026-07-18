@@ -243,7 +243,7 @@ export default function WorkerDashboard() {
           )}
           <div>
             <h1 className="text-2xl font-bold text-primary flex items-center gap-3">
-              {settingsData?.settings?.company_name || "Jobayer Group Career"}
+              {lang === "bn" ? "স্বাগতম" : "Welcome"}, {worker.name}
               {worker.membershipStatus === "premium" ? (
                 <span className="text-xs bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full">⭐ PREMIUM</span>
               ) : (
@@ -251,7 +251,7 @@ export default function WorkerDashboard() {
               )}
             </h1>
             <p className="text-sm text-text-secondary mt-1">
-              {lang === "bn" ? "স্বাগতম" : "Welcome"}, {worker.name} | {lang === "bn" ? "সদস্য আইডি" : "ID"}: {worker.workerId}
+              {lang === "bn" ? "সদস্য আইডি" : "Member ID"}: {worker.workerId}
             </p>
           </div>
         </div>
