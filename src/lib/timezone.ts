@@ -13,7 +13,7 @@ export function getLocalTime(timezone?: string): Date {
 }
 
 function getTimezoneOffset(tz: string): number {
-  const offsets = {
+  const offsets: Record<string, number> = {
     "Asia/Dhaka": 360,
     "Asia/Kolkata": 330,
     "Asia/Karachi": 300,
@@ -46,7 +46,7 @@ function getTimezoneOffset(tz: string): number {
     "Africa/Lagos": 60,
     "Africa/Johannesburg": 120,
   };
-  return offsets[tz] || 360;
+  return offsets[tz] ?? 360;
 }
 
 export function formatLocalTime(date: Date | string, timezone?: string): string {
