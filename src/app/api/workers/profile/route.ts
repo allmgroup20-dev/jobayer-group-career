@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       workerId: worker.worker_id,
-      name: worker.name,
+      name: worker.name || "",
       phone: worker.phone,
       email: worker.email,
       sponsorId: worker.sponsor_id,
@@ -45,10 +45,10 @@ export async function GET(request: NextRequest) {
       levelName: worker.level_name || `Level ${worker.level}`,
       levelNameBn: worker.level_name_bn || null,
       joinDate: worker.join_date,
-      balance: worker.balance,
-      totalEarned: worker.total_earned,
-      totalSpent: worker.total_spent,
-      totalTeamMembers: worker.total_team_members,
+      balance: worker.balance ?? 0,
+      totalEarned: worker.total_earned ?? 0,
+      totalSpent: worker.total_spent ?? 0,
+      totalTeamMembers: worker.total_team_members ?? 0,
       membershipStatus: worker.membership_status,
       preferredLanguage: worker.preferred_language || "bn",
       ageGroup: worker.age_group || null,
