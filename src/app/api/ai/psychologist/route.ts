@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     if (action === "psychologists") {
       const psychologists = await query<{ phone: string; role: string; priority: number; created_at: string }>(
         { DB: db },
-        "SELECT phone, role, priority, created_at FROM employee_roles WHERE role = 'psychologist' ORDER BY created_at DESC"
+        "SELECT phone, role, priority, created_at FROM employee_roles WHERE role = 'psychologist' ORDER BY created_at DESC LIMIT 200"
       );
       return NextResponse.json({ psychologists });
     }
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     if (action === "employees") {
       const employees = await query<{ phone: string; role: string; priority: number; created_at: string }>(
         { DB: db },
-        "SELECT phone, role, priority, created_at FROM employee_roles ORDER BY priority DESC, created_at DESC"
+        "SELECT phone, role, priority, created_at FROM employee_roles ORDER BY priority DESC, created_at DESC LIMIT 200"
       );
       return NextResponse.json({ employees });
     }

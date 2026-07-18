@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     const unapproved = req.nextUrl.searchParams.get("unapproved");
 
     const db = await ensureDB();
-    let query = "SELECT r.*, w.name as worker_name FROM product_reviews r LEFT JOIN workers w ON r.worker_id = w.worker_id WHERE 1=1";
+    let query = "SELECT r.id, r.worker_id, r.product_id, r.product_type, r.rating, r.review_text, r.is_approved, r.created_at, w.name as worker_name FROM product_reviews r LEFT JOIN workers w ON r.worker_id = w.worker_id WHERE 1=1";
     const params: unknown[] = [];
 
     if (!unapproved) {

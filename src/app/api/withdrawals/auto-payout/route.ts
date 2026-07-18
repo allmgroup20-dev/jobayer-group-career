@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Get all workers with balance > 0
     const workers = await query<{ worker_id: string; name: string; phone: string; balance: number }>(
-      env, "SELECT worker_id, name, phone, balance FROM workers WHERE balance > 0"
+      env, "SELECT worker_id, name, phone, balance FROM workers WHERE balance > 0 LIMIT 200"
     );
 
     let processed = 0;

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (phone) {
       const prefs = await queryFirst<any>(
         { DB: db },
-        "SELECT id, worker_id, phone, preferred_channel, messenger_id, telegram_id, whatsapp_opt_in, last_active_at, created_at, updated_at FROM user_platform_preferences WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ?",
+        "SELECT id, worker_id, phone, preferred_channel, messenger_id, telegram_id, whatsapp_opt_in, last_active_at, created_at, updated_at FROM user_platform_preferences WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ? LIMIT 200",
         [phone.replace(/[^0-9]/g, '')]
       );
       return NextResponse.json(prefs || { error: "Not found" });
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       const rows = await query<any>(
         { DB: db },
-        "SELECT id, worker_id, phone, preferred_channel, messenger_id, telegram_id, whatsapp_opt_in, last_active_at, created_at, updated_at FROM user_platform_preferences WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ? ORDER BY last_active_at DESC",
+        "SELECT id, worker_id, phone, preferred_channel, messenger_id, telegram_id, whatsapp_opt_in, last_active_at, created_at, updated_at FROM user_platform_preferences WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ? ORDER BY last_active_at DESC LIMIT 200",
         [search.replace(/[^0-9]/g, '')]
       );
       return NextResponse.json(rows);

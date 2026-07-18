@@ -16,10 +16,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ work
       db.prepare("SELECT event_type, page_category, page_url, product_category, created_at FROM user_events WHERE worker_id = ? ORDER BY created_at DESC LIMIT 50").bind(workerId).all() as Promise<any>,
       db.prepare("SELECT search_query, search_type, result_count, created_at FROM user_searches WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20").bind(workerId).all() as Promise<any>,
       db.prepare("SELECT id, order_id, worker_id, product_id, product_name, quantity, total_amount, currency, payment_method, payment_status, commission_status, order_status, shipping_address, transaction_id, created_at FROM orders WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20").bind(workerId).all() as Promise<any>,
-      db.prepare("SELECT id, worker_id, device_type, browser, os, user_agent, screen_resolution, ip_address, city, country, timezone, language, is_active, last_seen_at, first_seen_at, created_at FROM user_devices WHERE worker_id = ? ORDER BY last_seen_at DESC").bind(workerId).all() as Promise<any>,
+      db.prepare("SELECT id, worker_id, device_type, browser, os, user_agent, screen_resolution, ip_address, city, country, timezone, language, is_active, last_seen_at, first_seen_at, created_at FROM user_devices WHERE worker_id = ? ORDER BY last_seen_at DESC LIMIT 200").bind(workerId).all() as Promise<any>,
       db.prepare("SELECT id, worker_id, product_id, product_type, rating, review_text, is_approved, created_at FROM product_reviews WHERE worker_id = ? ORDER BY created_at DESC LIMIT 20").bind(workerId).all() as Promise<any>,
       db.prepare("SELECT id, worker_id, channel, direction, message, status, reference_id, metadata, sent_at, created_at FROM communication_history WHERE worker_id = ? ORDER BY created_at DESC LIMIT 50").bind(workerId).all() as Promise<any>,
-      db.prepare("SELECT id, worker_id, channel, utm_source, utm_medium, utm_campaign, referrer, landing_page, first_visit_at, converted, converted_at, created_at FROM attribution_log WHERE worker_id = ? ORDER BY created_at DESC").bind(workerId).all() as Promise<any>,
+      db.prepare("SELECT id, worker_id, channel, utm_source, utm_medium, utm_campaign, referrer, landing_page, first_visit_at, converted, converted_at, created_at FROM attribution_log WHERE worker_id = ? ORDER BY created_at DESC LIMIT 200").bind(workerId).all() as Promise<any>,
     ]);
 
     return NextResponse.json({

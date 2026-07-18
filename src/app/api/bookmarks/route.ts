@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       `SELECT b.id, b.course_id as courseId, b.created_at as createdAt,
               c.title, c.title_bn as titleBn, c.icon, c.is_premium as isPremium, c.price
        FROM course_bookmarks b JOIN courses c ON c.id = b.course_id
-       WHERE b.worker_id = ? ORDER BY b.created_at DESC`,
+       WHERE b.worker_id = ? ORDER BY b.created_at DESC LIMIT 200`,
       [workerId]
     );
     return NextResponse.json({ bookmarks });

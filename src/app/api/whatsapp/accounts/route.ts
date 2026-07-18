@@ -6,10 +6,10 @@ export async function GET() {
   try {
     const env = await getDB();
     const accounts = await query(env,
-      "SELECT account_id, phone, provider, status, daily_limit, daily_sent, total_sent, config, session_data IS NOT NULL as has_session, last_used_at, created_at FROM wa_accounts ORDER BY created_at ASC"
+      "SELECT account_id, phone, provider, status, daily_limit, daily_sent, total_sent, config, session_data IS NOT NULL as has_session, last_used_at, created_at FROM wa_accounts ORDER BY created_at ASC LIMIT 200"
     );
     const warmups = await query(env,
-      "SELECT id, account_id, day_count, current_limit, started_at, last_increment_at FROM wa_warmup ORDER BY account_id ASC"
+      "SELECT id, account_id, day_count, current_limit, started_at, last_increment_at FROM wa_warmup ORDER BY account_id ASC LIMIT 200"
     );
     return NextResponse.json({ accounts, warmups });
   } catch (error) {

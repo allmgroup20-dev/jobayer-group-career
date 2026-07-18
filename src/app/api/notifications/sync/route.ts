@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     // Sync ai_conversations → communication_history
     const convos = await db.prepare(
-      "SELECT phone, messages, created_at FROM ai_conversations WHERE created_at > (SELECT COALESCE(MAX(created_at), '2000-01-01') FROM communication_history WHERE channel = 'ai_assistant') ORDER BY created_at ASC LIMIT 200"
+      "SELECT phone, substr(COALESCE(messages, ''), 1, 500) as messages, created_at FROM ai_conversations WHERE created_at > (SELECT COALESCE(MAX(created_at), '2000-01-01') FROM communication_history WHERE channel = 'ai_assistant') ORDER BY created_at ASC LIMIT 200"
     ).bind().all() as { results: any[] };
 
     for (const c of convos.results) {

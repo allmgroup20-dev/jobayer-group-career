@@ -30,13 +30,14 @@ export async function getWorkersBySegment(segment: string): Promise<{ workerId: 
 
   if (segment === "unscored") {
     rows = await db.prepare(
-      `SELECT w.worker_id as workerId, w.name, w.phone FROM workers w
-       WHERE w.membership_status = 'active'
-       AND w.worker_id NOT IN (SELECT worker_id FROM user_behavior_scores)`
+       `SELECT w.worker_id as workerId, w.name, w.phone FROM workers w
+        WHERE w.membership_status = 'active'
+        AND w.worker_id NOT IN (SELECT worker_id FROM user_behavior_scores)
+        LIMIT 200`
     ).bind().all() as typeof rows;
   } else if (segment === "all") {
     rows = await db.prepare(
-      "SELECT worker_id as workerId, name, phone FROM workers WHERE membership_status = 'active'"
+      "SELECT worker_id as workerId, name, phone FROM workers WHERE membership_status = 'active' LIMIT 200"
     ).bind().all() as typeof rows;
   } else {
     rows = await db.prepare(

@@ -54,7 +54,7 @@ interface DynamicEmployee {
 }
 
 export async function getAllPatterns(env: { DB: D1Database }): Promise<NegativityPattern[]> {
-  const rows = await query<Record<string, any>>(env, "SELECT id, trigger_word, category, severity, context_notes, alternative_wording, detected_count, last_detected_at, created_at FROM negativity_patterns ORDER BY severity DESC, detected_count DESC");
+  const rows = await query<Record<string, any>>(env, "SELECT id, trigger_word, category, severity, context_notes, alternative_wording, detected_count, last_detected_at, created_at FROM negativity_patterns ORDER BY severity DESC, detected_count DESC LIMIT 200");
   return rows.map((r: any) => ({
     id: r.id, triggerWord: r.trigger_word, category: r.category,
     severity: r.severity, contextNotes: r.context_notes,
@@ -94,7 +94,7 @@ export async function logDetection(env: { DB: D1Database }, data: { phone: strin
 }
 
 export async function getKnowledgeBase(env: { DB: D1Database }): Promise<NegativityKnowledge[]> {
-  const rows = await query<Record<string, any>>(env, "SELECT id, topic, trigger_words, sentiment_analysis, safe_approach, unsafe_phrases, recommended_wording, severity, detection_count, last_updated FROM negativity_knowledge ORDER BY detection_count DESC");
+  const rows = await query<Record<string, any>>(env, "SELECT id, topic, trigger_words, sentiment_analysis, safe_approach, unsafe_phrases, recommended_wording, severity, detection_count, last_updated FROM negativity_knowledge ORDER BY detection_count DESC LIMIT 200");
   return rows.map((r: any) => ({
     id: r.id, topic: r.topic, triggerWords: r.trigger_words,
     sentimentAnalysis: r.sentiment_analysis, safeApproach: r.safe_approach,
@@ -106,9 +106,9 @@ export async function getKnowledgeBase(env: { DB: D1Database }): Promise<Negativ
 export async function getDynamicEmployees(env: { DB: D1Database }, status?: string): Promise<DynamicEmployee[]> {
   let rows: any[];
   if (status) {
-    rows = await query<Record<string, any>>(env, "SELECT id, parent_employee_id, employee_id, name, name_bn, description, expertise, prompt_template, primary_model, status, created_at FROM dynamic_employees WHERE status = ? ORDER BY created_at DESC", [status]);
+    rows = await query<Record<string, any>>(env, "SELECT id, parent_employee_id, employee_id, name, name_bn, description, expertise, prompt_template, primary_model, status, created_at FROM dynamic_employees WHERE status = ? ORDER BY created_at DESC LIMIT 200", [status]);
   } else {
-    rows = await query<Record<string, any>>(env, "SELECT id, parent_employee_id, employee_id, name, name_bn, description, expertise, prompt_template, primary_model, status, created_at FROM dynamic_employees ORDER BY created_at DESC");
+    rows = await query<Record<string, any>>(env, "SELECT id, parent_employee_id, employee_id, name, name_bn, description, expertise, prompt_template, primary_model, status, created_at FROM dynamic_employees ORDER BY created_at DESC LIMIT 200");
   }
   return rows.map((r: any) => ({
     id: r.id, parentEmployeeId: r.parent_employee_id, employeeId: r.employee_id,

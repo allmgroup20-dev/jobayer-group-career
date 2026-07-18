@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     const orders = await query<any>(
       db,
-      `SELECT o.*, w.name as worker_name, w.phone as worker_phone
+      `SELECT o.id, o.order_id, o.worker_id, o.product_id, o.product_name, o.quantity, o.total_amount, o.currency, o.payment_method, o.payment_status, o.commission_status, o.order_status, o.created_at, w.name as worker_name, w.phone as worker_phone
        FROM orders o
        LEFT JOIN workers w ON o.worker_id = w.worker_id
        ${where}

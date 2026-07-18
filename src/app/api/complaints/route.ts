@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     if (status) { sql += " AND c.status = ?"; params.push(status); }
     if (workerId) { sql += " AND c.worker_id = ?"; params.push(workerId); }
 
-    sql += " ORDER BY c.created_at DESC";
+    sql += " ORDER BY c.created_at DESC LIMIT 200";
 
     const complaints = await query<any>(await getDB(), sql, params);
     return NextResponse.json({ complaints });

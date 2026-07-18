@@ -24,8 +24,9 @@ export async function GET(request: NextRequest) {
          INNER JOIN mlm_tree t ON w.worker_id = t.worker_id 
          WHERE w.membership_status = 'active'
          AND w.worker_id IN (SELECT worker_id FROM subtree)
-         ORDER BY t.level_number ASC`,
-        [workerId]
+          ORDER BY t.level_number ASC
+          LIMIT 1000`,
+         [workerId]
       );
     } else {
       members = await query(

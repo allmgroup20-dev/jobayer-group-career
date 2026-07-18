@@ -69,7 +69,7 @@ export async function getSchedules(
   const params: unknown[] = [];
   if (phone) { sql += ` AND phone = ?`; params.push(phone); }
   if (enabledOnly) { sql += ` AND enabled = 1`; }
-  sql += ` ORDER BY next_run_at ASC`;
+  sql += ` ORDER BY next_run_at ASC LIMIT 200`;
   return query<ScheduleEntry>(db, sql, params);
 }
 

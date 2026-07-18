@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const sql = workerId
-      ? `SELECT c.*, w.name as from_name FROM commissions c 
+      ? `SELECT c.id, c.from_worker_id, c.to_worker_id, c.amount, c.rate, c.status, c.order_id, c.created_at, w.name as from_name FROM commissions c 
          LEFT JOIN workers w ON c.from_worker_id = w.worker_id 
          WHERE c.to_worker_id = ? ORDER BY c.created_at DESC LIMIT 50`
-      : `SELECT c.*, w.name as from_name FROM commissions c 
+      : `SELECT c.id, c.from_worker_id, c.to_worker_id, c.amount, c.rate, c.status, c.order_id, c.created_at, w.name as from_name FROM commissions c 
          LEFT JOIN workers w ON c.from_worker_id = w.worker_id 
          ORDER BY c.created_at DESC LIMIT 50`;
 

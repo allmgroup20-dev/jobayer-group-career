@@ -54,11 +54,13 @@ export async function GET(request: Request) {
     // Fallback for SQLite without JSON_LENGTH
     if (convs.length === 0) {
       const fallback = await query<{
-        phone: string; messages: string; summary: string;
+        phone: string; message_count: number; summary: string;
         language: string; source: string; updated_at: string;
       }>(
         { DB: db },
-        `SELECT phone, messages, COALESCE(NULLIF(summary, ''), 'কোন সামারি নেই') as summary,
+        `SELECT phone,
+                json_array_length(COALESCE(messages, '[]')) as message_count,
+                COALESCE(NULLIF(summary, ''), 'কোন সামারি নেই') as summary,
                 language, source, updated_at
          FROM ai_conversations
          ORDER BY updated_at DESC
@@ -67,11 +69,9 @@ export async function GET(request: Request) {
       const grouped = new Map<string, any>();
       for (const c of fallback) {
         if (!grouped.has(c.phone)) {
-          let count = 0;
-          try { count = JSON.parse(c.messages || "[]").length; } catch {}
           grouped.set(c.phone, {
             phone: c.phone, summary: c.summary, language: c.language,
-            source: c.source, message_count: count, updated_at: c.updated_at,
+            source: c.source, message_count: c.message_count, updated_at: c.updated_at,
           });
         }
       }
