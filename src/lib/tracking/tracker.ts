@@ -142,6 +142,24 @@ async function trackSessionEnd() {
   } catch {}
 }
 
+const eventQueue: Record<string, unknown>[] = [];
+let batchTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function flushEvents() {
+  if (eventQueue.length === 0) return;
+  const batch = eventQueue.splice(0);
+  const workerId = getWorkerId();
+  if (!workerId) return;
+  try {
+    await fetch("/api/track/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workerId, events: batch }),
+      keepalive: true,
+    });
+  } catch {}
+}
+
 async function sendEvent(data: Record<string, unknown>) {
   if (isCompanyLoggedIn()) return;
   const workerId = getWorkerId();
@@ -153,12 +171,10 @@ async function sendEvent(data: Record<string, unknown>) {
       sessionId,
       workerId,
     };
-    fetch("/api/track/event", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    }).catch(() => {});
+    eventQueue.push(payload);
+    if (batchTimer) clearTimeout(batchTimer);
+    batchTimer = setTimeout(flushEvents, 2000);
+    if (eventQueue.length >= 10) flushEvents();
   } catch {}
 }
 

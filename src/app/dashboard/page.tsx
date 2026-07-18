@@ -8,7 +8,6 @@ import { useLanguageStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 const IncomeProgress = dynamic(() => import("@/components/dashboard/IncomeProgress"), {
   loading: () => (
@@ -34,6 +33,8 @@ const DEFAULT_CHANNELS: Channel[] = [
 export default function WorkerDashboard() {
   const { lang } = useLanguageStore();
   const [workerId, setWorkerId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [worker, setWorker] = useState<any>(null);
   const [channels, setChannels] = useState(DEFAULT_CHANNELS);
   const [minWithdraw, setMinWithdraw] = useState(500);
   const [premiumMinWithdraw, setPremiumMinWithdraw] = useState(200);
@@ -49,17 +50,14 @@ export default function WorkerDashboard() {
   const [newAccNumber, setNewAccNumber] = useState("");
   const [newAccName, setNewAccName] = useState("");
   const [selectedAccId, setSelectedAccId] = useState<number | null>(null);
+  const [analytics, setAnalytics] = useState<{
+    totalPageViews: number;
+    totalSessions: number;
+  } | null>(null);
   const [recommendations, setRecommendations] = useState<{
     courses: { title: string; description: string; url: string; icon: string; category: string; score: number }[];
     products: { id: number; name: string; nameBn: string | null; price: number; imageUrl: string | null; score: number }[];
     topCategories: string[];
-  } | null>(null);
-  // Dashboard analytics state
-  const [analytics, setAnalytics] = useState<{
-    interests: { categoryScores: Record<string, number>; topCategories: string[] } | null;
-    behavior: Record<string, unknown> | null;
-    totalEvents: number;
-    recentEvents: { event_type: string; page_category: string | null; created_at: string }[];
   } | null>(null);
 
   useEffect(() => {
@@ -67,81 +65,47 @@ export default function WorkerDashboard() {
     setWorkerId(wid);
   }, []);
 
-  const { data: profileData, loading: profileLoading } = useSWRFetch<Record<string, unknown> | null>(
-    workerId ? `/api/workers/profile?workerId=${workerId}` : null,
-    { ttlMs: 180_000, cacheKey: `profile_${workerId}` }
-  );
-
   const router = useRouter();
+
   useEffect(() => {
-    if (profileData && !(profileData as any).profileCompleted) {
-      router.replace("/onboarding");
+    if (!workerId) {
+      setLoading(false);
+      return;
     }
-  }, [profileData, router]);
-
-  const { data: settingsData } = useSWRFetch<{ settings?: Record<string, string> } | null>(
-    "/api/company/settings",
-    { ttlMs: 300_000 }
-  );
-
-  const { data: scheduleData } = useSWRFetch<Record<string, unknown> | null>(
-    "/api/company/payment-schedule",
-    { ttlMs: 300_000 }
-  );
-
-  const { data: recsData } = useSWRFetch<{ courses?: unknown[] } | null>(
-    workerId ? `/api/recommendations?workerId=${workerId}&limit=4` : null,
-    { ttlMs: 120_000, cacheKey: `recs_${workerId}` }
-  );
-
-  const { data: analyticsData } = useSWRFetch<Record<string, unknown> | null>(
-    workerId ? `/api/track/analytics?workerId=${workerId}` : null,
-    { ttlMs: 60_000, cacheKey: `analytics_${workerId}` }
-  );
-
-  const worker = profileData?.workerId ? profileData as any : null;
-  const loading = !workerId || profileLoading;
-
-  useEffect(() => {
-    if (!settingsData?.settings) return;
-    const s = settingsData.settings;
-    const mw = parseInt(s.min_withdrawal || "500");
-    setMinWithdraw(isNaN(mw) ? 500 : mw);
-    const pmw = parseInt(s.min_withdrawal_premium || "200");
-    setPremiumMinWithdraw(isNaN(pmw) ? 200 : pmw);
-    try {
-      const bcStr = s.banking_channels;
-      if (bcStr) {
-        const saved = JSON.parse(bcStr);
-        if (Array.isArray(saved)) setChannels(saved);
-      }
-    } catch {}
-  }, [settingsData]);
-
-  useEffect(() => {
-    if (!scheduleData) return;
-    if (typeof scheduleData.systemActive === "boolean") {
-      setPaySysActive(scheduleData.systemActive as boolean);
-      setNextPayDate((scheduleData.nextPaymentDate as string) || "");
-      setPayInterval(scheduleData.intervalDays as number || 7);
-    }
-  }, [scheduleData]);
-
-  useEffect(() => {
-    if (recsData && (recsData as any).courses) setRecommendations(recsData as any);
-  }, [recsData]);
-
-  useEffect(() => {
-    if (analyticsData) setAnalytics(analyticsData as any);
-  }, [analyticsData]);
-
-  useEffect(() => {
-    if (!workerId) return;
-    fetch(`/api/accounts?workerId=${workerId}`)
-      .then(r => r.json() as Promise<{ accounts: SavedAccount[] }>)
-      .then(d => { setSavedAccounts(d.accounts || []); if (d.accounts?.length) setSelectedAccId(d.accounts[0].id); })
-      .catch(() => {});
-  }, [workerId]);
+    setLoading(true);
+    fetch(`/api/dashboard/summar?workerId=${workerId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setLoading(false); return; }
+        const p = data.profile;
+        if (p) {
+          setWorker(p);
+          if (!p.profileCompleted) {
+            router.replace("/onboarding");
+            setLoading(false);
+            return;
+          }
+        }
+        const s = data.settings || {};
+        const mw = parseInt(s.min_withdrawal || "500");
+        setMinWithdraw(isNaN(mw) ? 500 : mw);
+        const pmw = parseInt(s.min_withdrawal_premium || "200");
+        setPremiumMinWithdraw(isNaN(pmw) ? 200 : pmw);
+        try {
+          const bcStr = s.banking_channels;
+          if (bcStr) {
+            const saved = JSON.parse(bcStr);
+            if (Array.isArray(saved)) setChannels(saved);
+          }
+        } catch {}
+        const accounts = data.accounts || [];
+        setSavedAccounts(accounts);
+        if (accounts.length) setSelectedAccId(accounts[0].id);
+        if (data.analytics) setAnalytics(data.analytics);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [workerId, router]);
 
   const isPremium = worker?.membershipStatus === "premium";
 
@@ -450,50 +414,25 @@ export default function WorkerDashboard() {
           </Card>
         </div>
 
-        {analytics?.interests && (
+        {analytics && (analytics.totalPageViews > 0 || analytics.totalSessions > 0) && (
           <div className="mt-6">
             <Card>
               <h3 className="font-bold text-primary flex items-center gap-2 mb-4">
                 <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
                 </svg>
-                {lang === "bn" ? "আপনার আগ্রহ" : "Your Interests"}
+                {lang === "bn" ? "আপনার কার্যকলাপ" : "Your Activity"}
               </h3>
-              <div className="space-y-2">
-                {Object.entries(analytics.interests.categoryScores).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([cat, score]) => (
-                  <div key={cat} className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-text-secondary w-28 truncate shrink-0 text-right">{cat.replace(/_/g, " ")}</span>
-                    <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style={{ width: `${score}%` }} />
-                    </div>
-                    <span className="text-xs font-semibold text-primary w-8 text-right">{score}</span>
-                  </div>
-                ))}
-              </div>
-              {analytics.behavior && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-border">
-                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                    (analytics.behavior.segment as string) === "vip" ? "bg-amber-50 text-amber-700" :
-                    (analytics.behavior.segment as string) === "active" ? "bg-green-50 text-green-700" :
-                    (analytics.behavior.segment as string) === "at_risk" ? "bg-orange-50 text-orange-700" :
-                    (analytics.behavior.segment as string) === "churned" ? "bg-red-50 text-red-700" :
-                    "bg-gray-50 text-gray-700"
-                  }`}>
-                    {lang === "bn" ? "সেগমেন্ট" : "Segment"}: {analytics.behavior.segment as string}
-                  </span>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
-                    {lang === "bn" ? "লিড স্কোর" : "Lead"}: {analytics.behavior.lead_score as number}
-                  </span>
-                  {analytics.behavior.purchase_intent !== undefined && (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-medium">
-                      {lang === "bn" ? "ক্রয় আগ্রহ" : "Purchase"}: {analytics.behavior.purchase_intent as number}
-                    </span>
-                  )}
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 font-medium">
-                    {analytics.totalEvents} {lang === "bn" ? "ইভেন্ট" : "events"}
-                  </span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-gray-50">
+                  <p className="text-xs text-text-secondary">{lang === "bn" ? "পৃষ্ঠা দেখা" : "Page Views"}</p>
+                  <p className="text-2xl font-bold text-primary mt-1">{analytics.totalPageViews}</p>
                 </div>
-              )}
+                <div className="p-4 rounded-xl bg-gray-50">
+                  <p className="text-xs text-text-secondary">{lang === "bn" ? "সেশন" : "Sessions"}</p>
+                  <p className="text-2xl font-bold text-primary mt-1">{analytics.totalSessions}</p>
+                </div>
+              </div>
             </Card>
           </div>
         )}

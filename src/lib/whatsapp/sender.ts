@@ -7,7 +7,7 @@ async function getActiveAccount(): Promise<WhatsAppAccount | null> {
   const db = await ensureDB();
   const row = await queryFirst<WhatsAppAccountRow>(
     { DB: db },
-    "SELECT * FROM wa_accounts WHERE status = 'connected' ORDER BY daily_sent ASC LIMIT 1"
+    "SELECT id, account_id, phone, provider, status, daily_limit, daily_sent, total_sent, config, session_data, last_used_at FROM wa_accounts WHERE status = 'connected' ORDER BY daily_sent ASC LIMIT 1"
   );
   return row ? mapRowToAccount(row) : null;
 }

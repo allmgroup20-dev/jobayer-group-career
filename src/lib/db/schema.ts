@@ -741,6 +741,23 @@ export const courseDownloads = sqliteTable("course_downloads", {
   downloadedAt: text("downloaded_at"),
 });
 
+export const courseBookmarks = sqliteTable("course_bookmarks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  courseId: integer("course_id").notNull(),
+  workerId: text("worker_id").notNull(),
+  createdAt: text("created_at"),
+});
+
+export const courseProgress = sqliteTable("course_progress", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  courseId: integer("course_id").notNull(),
+  workerId: text("worker_id").notNull(),
+  fileId: integer("file_id"),
+  completed: integer("completed").default(0),
+  completedAt: text("completed_at"),
+  createdAt: text("created_at"),
+});
+
 export const courseCategoryMap = sqliteTable("course_category_map", {
   courseId: integer("course_id").notNull(),
   categoryId: integer("category_id").notNull(),

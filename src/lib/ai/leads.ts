@@ -13,7 +13,7 @@ export async function getOrCreateLead(phone: string): Promise<Lead | null> {
   const db = await ensureDB();
   let lead = await queryFirst<Lead>(
     { DB: db },
-    "SELECT * FROM ai_leads WHERE phone = ?", [phone]
+    "SELECT id, phone, name, status, priority_score, source, gender_guess, age_group_guess, sector, language, pain_points, interests, total_chats, last_chat_at, notes, created_at, updated_at FROM ai_leads WHERE phone = ?", [phone]
   );
   if (!lead) {
     await execute({ DB: db },
@@ -22,7 +22,7 @@ export async function getOrCreateLead(phone: string): Promise<Lead | null> {
     );
     lead = await queryFirst<Lead>(
       { DB: db },
-      "SELECT * FROM ai_leads WHERE phone = ?", [phone]
+      "SELECT id, phone, name, status, priority_score, source, gender_guess, age_group_guess, sector, language, pain_points, interests, total_chats, last_chat_at, notes, created_at, updated_at FROM ai_leads WHERE phone = ?", [phone]
     );
   }
   return lead;
@@ -55,7 +55,7 @@ export async function getLeads(options: {
   );
   const leads = await query<Lead>(
     { DB: db },
-    `SELECT * FROM ai_leads ${where} ORDER BY priority_score DESC, last_chat_at DESC LIMIT ? OFFSET ?`,
+    `SELECT id, phone, name, status, priority_score, source, gender_guess, age_group_guess, sector, language, pain_points, interests, total_chats, last_chat_at, notes, created_at, updated_at FROM ai_leads ${where} ORDER BY priority_score DESC, last_chat_at DESC LIMIT ? OFFSET ?`,
     [...params, options.limit || 50, options.offset || 0]
   );
   return { leads, total: total?.count || 0 };

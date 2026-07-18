@@ -268,7 +268,7 @@ export async function completeABTest(
 ): Promise<{ winner: string }> {
   const test = await queryFirst<Record<string, any>>(
     env,
-    `SELECT * FROM agent_ab_tests WHERE id = ?`,
+    `SELECT id, a_count, b_count, a_avg_rating, b_avg_rating FROM agent_ab_tests WHERE id = ?`,
     [testId],
   );
 

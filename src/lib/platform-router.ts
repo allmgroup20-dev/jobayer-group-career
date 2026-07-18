@@ -29,7 +29,7 @@ export async function getPlatformPref(phone: string): Promise<PlatformUser | nul
   const row = await queryFirst<{
     phone: string; preferred_platform: string;
     last_active_platform: string | null; platforms_tried: string; last_active_at: string | null;
-  }>({ DB: db }, "SELECT * FROM user_platform_preferences WHERE phone = ?", [phone]);
+  }>({ DB: db }, "SELECT phone, preferred_platform, last_active_platform, platforms_tried, last_active_at FROM user_platform_preferences WHERE phone = ?", [phone]);
   if (!row) return null;
   return {
     phone: row.phone,

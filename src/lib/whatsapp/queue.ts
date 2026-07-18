@@ -29,7 +29,7 @@ export async function processQueue(batchSize = 3): Promise<number> {
   const db = await ensureDB();
   const items = await query<MessageQueueItem>(
     { DB: db },
-    `SELECT * FROM wa_message_queue WHERE status = 'queued'
+    `SELECT id, to_phone AS to, text_content AS text, priority, status, account_id, campaign_id, message_type, attempts, error, scheduled_at, sent_at, created_at FROM wa_message_queue WHERE status = 'queued'
      ORDER BY priority DESC, created_at ASC LIMIT ?`,
     [batchSize]
   );
@@ -67,7 +67,7 @@ export async function getPendingWebMessages(accountId: string, limit = 10): Prom
   const db = await ensureDB();
   return query<MessageQueueItem>(
     { DB: db },
-    `SELECT * FROM wa_message_queue WHERE status = 'pending_web' AND account_id = ?
+    `SELECT id, to_phone AS to, text_content AS text, priority, status, account_id, campaign_id, message_type, attempts, error, scheduled_at, sent_at, created_at FROM wa_message_queue WHERE status = 'pending_web' AND account_id = ?
      ORDER BY priority DESC, created_at ASC LIMIT ?`,
     [accountId, limit]
   );

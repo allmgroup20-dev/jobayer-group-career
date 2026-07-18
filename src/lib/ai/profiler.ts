@@ -51,7 +51,7 @@ export async function getOrCreateProfile(phone: string): Promise<PhoneProfile | 
   const db = await ensureDB();
   let profile = await queryFirst<PhoneProfile>(
     { DB: db },
-    "SELECT * FROM ai_phone_profiles WHERE phone = ?",
+    "SELECT phone, name_guess, gender_guess, age_group_guess, sector, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
     [phone]
   );
 
@@ -63,7 +63,7 @@ export async function getOrCreateProfile(phone: string): Promise<PhoneProfile | 
     );
     profile = await queryFirst<PhoneProfile>(
       { DB: db },
-      "SELECT * FROM ai_phone_profiles WHERE phone = ?",
+      "SELECT phone, name_guess, gender_guess, age_group_guess, sector, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
       [phone]
     );
   }

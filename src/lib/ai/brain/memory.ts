@@ -19,7 +19,7 @@ export async function getMemory(
   agent_id?: string,
   category?: string,
 ): Promise<MemoryEntry[]> {
-  let sql = `SELECT * FROM agent_memory WHERE phone = ? AND (expires_at IS NULL OR expires_at > datetime('now'))`;
+  let sql = `SELECT id, phone, agent_id, key, value, category, priority, expires_at, created_at, updated_at FROM agent_memory WHERE phone = ? AND (expires_at IS NULL OR expires_at > datetime('now'))`;
   const params: unknown[] = [phone];
 
   if (agent_id) { sql += ` AND agent_id = ?`; params.push(agent_id); }

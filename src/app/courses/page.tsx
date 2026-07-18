@@ -69,6 +69,7 @@ export default function CoursesPage() {
   const [unlockedCourseIds, setUnlockedCourseIds] = useState<Set<number>>(new Set());
   const [unlockLimit, setUnlockLimit] = useState<number | null>(null);
   const [unlockCount, setUnlockCount] = useState(0);
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 600);
@@ -114,18 +115,21 @@ export default function CoursesPage() {
         if (wid) {
           setWorkerId(wid);
           try {
-            const [unlocksRes, limitsRes] = await Promise.all([
+            const [unlocksRes, limitsRes, bookmarksRes] = await Promise.all([
               fetch(`/api/unlocks?workerId=${encodeURIComponent(wid)}`),
               fetch(`/api/unlocks/limits?workerId=${encodeURIComponent(wid)}`),
+              fetch(`/api/bookmarks?workerId=${encodeURIComponent(wid)}`),
             ]);
-            const [unlocksData, limitsData] = await Promise.all([
+            const [unlocksData, limitsData, bookmarksData] = await Promise.all([
               unlocksRes.json() as Promise<{ unlocks?: { courseId: number }[] }>,
               limitsRes.json() as Promise<{ limits?: { maxUnlocks: number }[] }>,
+              bookmarksRes.json() as Promise<{ bookmarks?: { courseId: number }[] }>,
             ]);
             const ids = new Set<number>((unlocksData.unlocks || []).map(u => u.courseId));
             setUnlockedCourseIds(ids);
             setUnlockCount(ids.size);
             if (limitsData.limits?.[0]) setUnlockLimit(limitsData.limits[0].maxUnlocks);
+            setBookmarkedIds(new Set((bookmarksData.bookmarks || []).map(b => b.courseId)));
           } catch {}
         }
       } catch (e) {
@@ -244,6 +248,18 @@ export default function CoursesPage() {
     } catch (err) {
       alert(err instanceof Error ? err.message : "আনলক করতে ব্যর্থ");
     }
+  };
+
+  const handleBookmark = async (courseId: number) => {
+    if (!workerId) return;
+    const isBookmarked = bookmarkedIds.has(courseId);
+    try {
+      await fetch(`/api/courses/${courseId}/bookmarks`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, action: isBookmarked ? "remove" : "add" }),
+      });
+      setBookmarkedIds(prev => { const n = new Set(prev); isBookmarked ? n.delete(courseId) : n.add(courseId); return n; });
+    } catch {}
   };
 
   const freeCount = courses.filter(c => c.isPremium === 0).length;
@@ -392,6 +408,13 @@ export default function CoursesPage() {
                         )}
                       </div>
                     </div>
+                    {isLoggedIn && (
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBookmark(item.id); }}
+                        className="absolute top-3 right-3 w-7 h-7 rounded-lg flex items-center justify-center text-sm hover:bg-black/5 transition-all cursor-pointer"
+                        title={bookmarkedIds.has(item.id) ? "বুকমার্কেড" : "বুকমার্ক করুন"}>
+                        {bookmarkedIds.has(item.id) ? "🔖" : "📑"}
+                      </button>
+                    )}
                   </a>
                   {isLoggedIn && !isPremium && item.isPremium === 1 && (
                     unlockedCourseIds.has(item.id) ? (

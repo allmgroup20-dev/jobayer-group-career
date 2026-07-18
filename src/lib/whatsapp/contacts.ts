@@ -19,7 +19,7 @@ export async function getContact(phone: string): Promise<WAContact | null> {
   const db = await ensureDB();
   return queryFirst<WAContact>(
     { DB: db },
-    "SELECT * FROM wa_contacts WHERE phone = ?",
+    "SELECT id, phone, name, status, priority_score, source, assigned_account, last_contacted_at, last_reply, notes FROM wa_contacts WHERE phone = ?",
     [phone]
   );
 }

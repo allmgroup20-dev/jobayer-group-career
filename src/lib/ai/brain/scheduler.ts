@@ -65,7 +65,7 @@ export async function getSchedules(
   phone?: string,
   enabledOnly = true,
 ): Promise<ScheduleEntry[]> {
-  let sql = `SELECT * FROM agent_schedule WHERE 1=1`;
+  let sql = `SELECT id, phone, agent_id, task_type, cron_expression, params, enabled, last_run_at, next_run_at, created_at FROM agent_schedule WHERE 1=1`;
   const params: unknown[] = [];
   if (phone) { sql += ` AND phone = ?`; params.push(phone); }
   if (enabledOnly) { sql += ` AND enabled = 1`; }
@@ -108,7 +108,7 @@ export async function deleteSchedule(db: any, id: number): Promise<void> {
 export async function getDueSchedules(db: any): Promise<ScheduleEntry[]> {
   return query<ScheduleEntry>(
     db,
-    `SELECT * FROM agent_schedule WHERE enabled = 1 AND next_run_at <= datetime('now') ORDER BY next_run_at ASC LIMIT 20`,
+    `SELECT id, phone, agent_id, task_type, cron_expression, params, enabled, last_run_at, next_run_at, created_at FROM agent_schedule WHERE enabled = 1 AND next_run_at <= datetime('now') ORDER BY next_run_at ASC LIMIT 20`,
   );
 }
 

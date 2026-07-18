@@ -123,7 +123,7 @@ async function recordCooldown(db: D1Database, modelKey: string, cooldowns: Recor
 
 async function getState(db: D1Database): Promise<FailoverState> {
   let s = await queryFirst<FailoverState>({ DB: db },
-    "SELECT * FROM ai_model_failover_state WHERE id = 1"
+    "SELECT total_responses, today_responses, exhausted_models, last_reset_date FROM ai_model_failover_state WHERE id = 1"
   );
   if (!s) {
     await execute({ DB: db },

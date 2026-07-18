@@ -21,7 +21,7 @@ export async function getHistory(phone: string): Promise<{ role: string; content
   const db = await ensureDB();
   const conv = await queryFirst<Conversation>(
     { DB: db },
-    "SELECT * FROM ai_conversations WHERE phone = ? ORDER BY updated_at DESC LIMIT 1",
+    "SELECT id, messages, summary, updated_at FROM ai_conversations WHERE phone = ? ORDER BY updated_at DESC LIMIT 1",
     [phone]
   );
 
@@ -60,7 +60,7 @@ export async function saveMessage(
   const db = await ensureDB();
   let conv = await queryFirst<Conversation>(
     { DB: db },
-    "SELECT * FROM ai_conversations WHERE phone = ? ORDER BY updated_at DESC LIMIT 1",
+    "SELECT id, messages, summary, updated_at FROM ai_conversations WHERE phone = ? ORDER BY updated_at DESC LIMIT 1",
     [phone]
   );
 
