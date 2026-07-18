@@ -9,7 +9,7 @@ export async function GET() {
       `SELECT id, name, name_bn as nameBn, price,
               enable_commission as enableCommission,
               commission_override as commissionOverride
-       FROM products WHERE is_active = 1 ORDER BY name ASC`
+       FROM products WHERE is_active = 1 ORDER BY name ASC LIMIT 200`
     );
     const levels = await query<any>(db,
       "SELECT level_number as levelNumber, percentage, fixed_amount as fixedAmount FROM commission_levels WHERE is_active = 1 ORDER BY level_number ASC"

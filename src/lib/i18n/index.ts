@@ -6,7 +6,7 @@ let bnTranslations: TranslationMap = {};
 export async function loadTranslations(env?: { DB: D1Database }): Promise<void> {
   if (!env?.DB) return;
 
-  const stmt = env.DB.prepare("SELECT translation_key, en_text, bn_text FROM translations WHERE bn_text IS NOT NULL");
+  const stmt = env.DB.prepare("SELECT translation_key, en_text, bn_text FROM translations WHERE bn_text IS NOT NULL LIMIT 1000");
   const result = await stmt.all();
 
   for (const row of (result.results || []) as { translation_key: string; en_text: string; bn_text: string }[]) {

@@ -11,7 +11,7 @@ export async function getKnowledgeContext(): Promise<string> {
   const db = await ensureDB();
   const pages = await query<KnowledgePage>(
     { DB: db },
-    "SELECT title, content, category FROM ai_knowledge_pages WHERE is_active = 1 ORDER BY category ASC"
+    "SELECT title, content, category FROM ai_knowledge_pages WHERE is_active = 1 ORDER BY category ASC LIMIT 200"
   );
 
   if (!pages.length) return "";

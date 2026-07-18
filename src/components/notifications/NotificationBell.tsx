@@ -56,7 +56,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     if (!open) return;
-    const iv = setInterval(load, 30000);
+    const iv = setInterval(load, 120000);
     return () => clearInterval(iv);
   }, [open, workerId]);
 

@@ -1,6 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureDB } from "@/lib/db";
 
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json() as { workerId: string; events: Record<string, unknown>[] };
+    if (!body.workerId || !body.events?.length) {
+      return NextResponse.json({ error: "workerId and events required" }, { status: 400 });
+    }
+    const db = await ensureDB();
+    const stmt = db.prepare(
+      `INSERT INTO user_events (worker_id, event_type, page_url, page_category, search_keyword, product_id, product_category, time_spent_seconds, device_info, session_id, metadata)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    );
+    for (const ev of body.events) {
+      await stmt.bind(
+        body.workerId,
+        ev.eventType || "",
+        ev.pageUrl || null,
+        ev.pageCategory || null,
+        ev.searchKeyword || null,
+        ev.productId || null,
+        ev.productCategory || null,
+        ev.timeSpentSeconds || null,
+        ev.deviceInfo || null,
+        ev.sessionId || null,
+        ev.metadata ? JSON.stringify(ev.metadata) : null
+      ).run();
+    }
+    return NextResponse.json({ ok: true, count: body.events.length });
+  } catch (err) {
+    console.error("Batch events error:", err);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const workerId = req.nextUrl.searchParams.get("workerId");
