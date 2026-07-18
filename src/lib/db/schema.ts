@@ -724,6 +724,23 @@ export const complaints = sqliteTable("complaints", {
   resolvedAt: text("resolved_at"),
 });
 
+export const courseRatings = sqliteTable("course_ratings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  courseId: integer("course_id").notNull(),
+  workerId: text("worker_id").notNull(),
+  rating: integer("rating").notNull(),
+  review: text("review"),
+  createdAt: text("created_at"),
+});
+
+export const courseDownloads = sqliteTable("course_downloads", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  courseId: integer("course_id").notNull(),
+  workerId: text("worker_id"),
+  fileId: integer("file_id"),
+  downloadedAt: text("downloaded_at"),
+});
+
 export const courseCategoryMap = sqliteTable("course_category_map", {
   courseId: integer("course_id").notNull(),
   categoryId: integer("category_id").notNull(),

@@ -25,7 +25,9 @@ export async function GET(request: NextRequest) {
               COALESCE(json_group_array(DISTINCT cat.name) FILTER (WHERE cat.name IS NOT NULL), '[]') as categoryNames,
               COALESCE(json_group_array(DISTINCT cat.name_bn) FILTER (WHERE cat.name_bn IS NOT NULL), '[]') as categoryNamesBn,
               (SELECT cf.url FROM course_files cf WHERE cf.course_id = c.id ORDER BY cf.sort_order ASC, cf.id ASC LIMIT 1) as fileUrl,
-              (SELECT COUNT(*) FROM course_files cf WHERE cf.course_id = c.id) as fileCount
+              (SELECT COUNT(*) FROM course_files cf WHERE cf.course_id = c.id) as fileCount,
+              COALESCE((SELECT ROUND(AVG(r.rating), 1) FROM course_ratings r WHERE r.course_id = c.id), 0) as avgRating,
+              (SELECT COUNT(*) FROM course_ratings r WHERE r.course_id = c.id) as ratingCount
               FROM courses c
               LEFT JOIN course_category_map m ON c.id = m.course_id
               LEFT JOIN course_categories cat ON m.category_id = cat.id

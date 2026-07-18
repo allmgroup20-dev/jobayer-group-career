@@ -58,6 +58,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/products", en: "Products", bn: "পণ্য", icon: "📦", desc: "পণ্য ব্যবস্থাপনা — কোর্স/প্রোডাক্ট যোগ, সম্পাদনা, সক্রিয়/নিষ্ক্রিয়" },
       { href: "/company/courses", en: "Resources", bn: "রিসোর্সসমূহ", icon: "🎓", desc: "রিসোর্স ব্যবস্থাপনা — রিসোর্স যোগ, সম্পাদনা, ডিলিট, ভিজিবিলিটি কন্ট্রোল" },
       { href: "/company/courses/categories", en: "Resource Categories", bn: "রিসোর্স ক্যাটাগরি", icon: "📂", desc: "রিসোর্স ক্যাটাগরি — নতুন/সাব-ক্যাটাগরি ও প্যারেন্ট পরিবর্তন" },
+      { href: "/company/course-stats", en: "Course Stats", bn: "রিসোর্স পরিসংখ্যান", icon: "📊", desc: "আনলক, ডাউনলোড, রেটিং, কমপ্লেইন — সম্পূর্ণ পরিসংখ্যান" },
       { href: "/company/orders", en: "Orders", bn: "অর্ডার", icon: "📋", desc: "অর্ডার তালিকা — স্ট্যাটাস আপডেট, পেমেন্ট ভেরিফিকেশন" },
       { href: "/company/reviews", en: "Reviews", bn: "রিভিউ", icon: "⭐", desc: "গ্রাহক রিভিউ — মডারেট ও অনুমোদন" },
       { href: "/company/levels", en: "Commission Levels", bn: "কমিশন লেভেল", icon: "📊", desc: "কমিশন সেটিংস — লেভেলভিত্তিক কমিশন ও বোনাস কনফিগার" },
@@ -105,7 +106,6 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/privacy", en: "Privacy", bn: "প্রাইভেসি", icon: "🔒", desc: "গোপনীয়তা — ইউজার কনসেন্ট ও ডেটা সুরক্ষা তথ্য" },
       { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪", desc: "টেস্ট মোড — মক ডেটা দিয়ে ফিচার টেস্টিং" },
       { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄", desc: "আপডেট লগ — প্ল্যাটফর্মের নতুন ফিচার ও চেঞ্জলগ" },
-      { href: "/company/maintenance", en: "Maintenance", bn: "রক্ষণাবেক্ষণ", icon: "🔧", desc: "সিস্টেম মেইনটেন্যান্স — ডাটাবেজ ক্লিনআপ, ক্যাশে ও পারফরম্যান্স" },
     ],
   },
 ];

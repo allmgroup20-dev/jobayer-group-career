@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
 interface CourseFile {
@@ -14,6 +14,25 @@ interface Course {
   description: string | null; descriptionBn: string | null;
   icon: string; price: number; isPremium: number; isNew: number; isVisible: number;
   categoryIds: number[]; categoryNames: string[]; categoryNamesBn: string[];
+}
+
+interface RatingData {
+  count: number; avgRating: number;
+  distribution: Record<number, number>;
+  reviews: { id: number; rating: number; review: string | null; createdAt: string; workerId: string }[];
+}
+
+function StarRating({ value, onChange, size = "md" }: { value: number; onChange?: (v: number) => void; size?: "sm" | "md" }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map(s => (
+        <button key={s} onClick={() => onChange?.(s)} disabled={!onChange}
+          className={`${size === "sm" ? "text-sm" : "text-xl"} transition-all ${onChange ? "cursor-pointer hover:scale-125" : "cursor-default"} ${s <= value ? "text-amber-400" : "text-gray-200"}`}>
+          {s <= value ? "★" : "☆"}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export default function CourseDetailPage() {
@@ -32,18 +51,25 @@ export default function CourseDetailPage() {
   const [complaintOpen, setComplaintOpen] = useState(false);
   const [complaintDesc, setComplaintDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [ratings, setRatings] = useState<RatingData | null>(null);
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState("");
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const [courseRes, profileRes] = await Promise.all([
+        const [courseRes, profileRes, ratingsRes] = await Promise.all([
           fetch(`/api/courses/${id}`),
           fetch("/api/auth/me").catch(() => new Response("{}")),
+          fetch(`/api/courses/${id}/ratings`).catch(() => new Response("{}")),
         ]);
         if (!courseRes.ok) { setError("Course not found"); return; }
         const courseData = await courseRes.json() as { course: Course; files: CourseFile[] };
         setCourse(courseData.course);
         setFiles(courseData.files || []);
+
+        try { setRatings(await ratingsRes.json() as RatingData); } catch {}
 
         const profile: any = await profileRes.json().catch(() => ({}));
         let wid: string | null = profile.workerId || null;
@@ -116,6 +142,25 @@ export default function CourseDetailPage() {
     finally { setSubmitting(false); }
   };
 
+  const handleTrackDownload = async (fileId?: number) => {
+    if (!workerId) return;
+    try { await fetch(`/api/courses/${id}/track-download`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId, fileId }) }); } catch {}
+  };
+
+  const handleSubmitRating = async () => {
+    if (!workerId || !course || userRating === 0) return;
+    try {
+      const res = await fetch(`/api/courses/${id}/ratings`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, rating: userRating, review: userReview || undefined }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setRatingSubmitted(true);
+      const r = await fetch(`/api/courses/${id}/ratings`);
+      setRatings(await r.json() as RatingData);
+    } catch { alert("রেটিং দিতে ব্যর্থ"); }
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
       <div className="text-center"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" /><p className="mt-4 text-text-secondary font-semibold">লোড হচ্ছে...</p></div>
@@ -142,11 +187,16 @@ export default function CourseDetailPage() {
               {catDisplay && <p className="text-white/70 text-sm font-semibold mt-1">{catDisplay}</p>}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="flex flex-wrap items-center gap-2 mt-4">
             {course.isNew === 1 && <span className="px-3 py-1 rounded-full bg-green-400/20 text-green-100 text-xs font-bold">🆕 NEW</span>}
             {course.isPremium === 1 && <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-100 text-xs font-bold">👑 PREMIUM</span>}
             {isUnlocked && <span className="px-3 py-1 rounded-full bg-green-400/20 text-green-100 text-xs font-bold">✅ আনলক করা</span>}
             {isPremium && <span className="px-3 py-1 rounded-full bg-purple-400/20 text-purple-100 text-xs font-bold">👑 প্রিমিয়াম</span>}
+            {ratings && ratings.count > 0 && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-400/20 text-amber-100 text-xs font-bold">
+                ⭐ {ratings.avgRating} ({ratings.count})
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -166,6 +216,7 @@ export default function CourseDetailPage() {
               {files.map((f, i) => (
                 <a key={f.id} href={canAccess ? f.url : "#"} target={canAccess ? "_blank" : undefined}
                   rel={canAccess ? "noopener noreferrer" : undefined}
+                  onClick={() => canAccess && handleTrackDownload(f.id)}
                   className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
                     canAccess ? "border-border hover:border-primary/30 hover:bg-primary/5 cursor-pointer" : "border-border/60 opacity-60"
                   }`}
@@ -207,6 +258,63 @@ export default function CourseDetailPage() {
             আপনার আনলক কোটা: {unlockCount}/{unlockLimit}
           </div>
         )}
+
+        {ratings && ratings.count > 0 && (
+          <div className="mt-8 bg-white rounded-2xl border border-border p-5">
+            <h3 className="text-sm font-bold text-primary mb-4">⭐ রেটিং ও রিভিউ</h3>
+            <div className="flex items-start gap-6 mb-4">
+              <div className="text-center">
+                <p className="text-3xl font-black text-primary">{ratings.avgRating}</p>
+                <StarRating value={Math.round(ratings.avgRating)} size="sm" />
+                <p className="text-xs text-text-secondary mt-1">{ratings.count}টি রেটিং</p>
+              </div>
+              <div className="flex-1 space-y-1">
+                {[5, 4, 3, 2, 1].map(s => (
+                  <div key={s} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-right font-bold text-text-secondary">{s}</span>
+                    <span className="text-amber-400">★</span>
+                    <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+                      <div className="h-full rounded-full bg-amber-400" style={{ width: `${ratings.count > 0 ? (ratings.distribution[s] || 0) / ratings.count * 100 : 0}%` }} />
+                    </div>
+                    <span className="w-6 text-right text-text-secondary/60">{ratings.distribution[s] || 0}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {ratings.reviews.length > 0 && (
+              <div className="space-y-3 border-t border-border pt-4">
+                {ratings.reviews.map(r => (
+                  <div key={r.id} className="p-3 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold text-text-secondary">{r.workerId.slice(0, 8)}...</span>
+                      <StarRating value={r.rating} size="sm" />
+                    </div>
+                    {r.review && <p className="text-sm text-text-secondary">{r.review}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isLoggedIn && (
+          <div className="mt-6 bg-white rounded-2xl border border-border p-5">
+            <h3 className="text-sm font-bold text-primary mb-4">{ratingSubmitted ? "✅ আপনার রেটিং দেওয়া হয়েছে" : "আপনার রেটিং দিন"}</h3>
+            {!ratingSubmitted && (
+              <>
+                <StarRating value={userRating} onChange={setUserRating} />
+                {userRating > 0 && (
+                  <div className="mt-3 space-y-3">
+                    <textarea value={userReview} onChange={e => setUserReview(e.target.value)}
+                      placeholder="আপনার মতামত জানান (ঐচ্ছিক)..."
+                      className="input-field min-h-[80px] resize-none" />
+                    <Button onClick={handleSubmitRating}>⭐ রেটিং দিন</Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {complaintOpen && (
@@ -220,9 +328,7 @@ export default function CourseDetailPage() {
               placeholder="আপনার সমস্যা জানান..."
               className="input-field min-h-[120px] resize-none mb-4" />
             <div className="flex gap-3">
-              <Button onClick={handleComplaint} loading={submitting} disabled={!complaintDesc.trim()}>
-                পাঠান
-              </Button>
+              <Button onClick={handleComplaint} loading={submitting} disabled={!complaintDesc.trim()}>পাঠান</Button>
               <Button variant="ghost" onClick={() => setComplaintOpen(false)}>বাতিল</Button>
             </div>
           </div>

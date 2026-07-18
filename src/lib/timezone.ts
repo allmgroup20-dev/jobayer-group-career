@@ -1,3 +1,5 @@
+"use server";
+
 const DEFAULT_TIMEZONE = "Asia/Dhaka";
 
 export function getSystemTimezone(): string {
@@ -46,7 +48,7 @@ function getTimezoneOffset(tz: string): number {
     "Africa/Lagos": 60,
     "Africa/Johannesburg": 120,
   };
-  return offsets[tz] ?? 360;
+  return offsets[tz] || 360;
 }
 
 export function formatLocalTime(date: Date | string, timezone?: string): string {
@@ -59,7 +61,7 @@ export function formatLocalTime(date: Date | string, timezone?: string): string 
   }
 }
 
-export function isScheduledTime(scheduleHour: number, timezone?: string): boolean {
+export function isScheduledTime(hourUTC: number, scheduleHour: number, timezone?: string): boolean {
   const tz = timezone || DEFAULT_TIMEZONE;
   const now = getLocalTime(tz);
   return now.getHours() === scheduleHour && now.getMinutes() < 5;

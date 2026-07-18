@@ -14,6 +14,7 @@ interface Course {
   icon: string; price: number; isPremium: number;
   categoryNames: string[]; categoryNamesBn: string[];
   fileUrl: string | null; fileCount: number;
+  avgRating: number; ratingCount: number;
 }
 
 function getCourseEmoji(icon: string, catName?: string): string {
@@ -385,6 +386,9 @@ export default function CoursesPage() {
                         )}
                         {item.fileCount > 1 && (
                           <p className="text-xs text-text-secondary/50 mt-1">+{item.fileCount - 1} more files</p>
+                        )}
+                        {item.ratingCount > 0 && (
+                          <p className="text-xs text-amber-600/70 mt-1">⭐ {item.avgRating} ({item.ratingCount})</p>
                         )}
                       </div>
                     </div>

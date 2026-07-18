@@ -404,6 +404,24 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_unlocks_worker ON user_unlocks(worker_id)`).run().catch(() => {});
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_complaints_status ON complaints(status)`).run().catch(() => {});
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_ratings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL,
+      worker_id TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+      review TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(course_id, worker_id)
+    )`).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_ratings_course ON course_ratings(course_id)`).run().catch(() => {});
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_downloads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      course_id INTEGER NOT NULL,
+      worker_id TEXT,
+      file_id INTEGER,
+      downloaded_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_downloads_course ON course_downloads(course_id)`).run().catch(() => {});
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_category_map (
       course_id INTEGER NOT NULL,
       category_id INTEGER NOT NULL,
