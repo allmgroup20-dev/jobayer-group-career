@@ -66,14 +66,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Global referral code tracker — saves last ?ref= to localStorage
+  // Global referral code tracker — saves last ?ref= to localStorage (once)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
     if (ref) {
       localStorage.setItem("referral_code", ref);
     }
-  }, [pathname]);
+  }, []);
 
   return (
     <>

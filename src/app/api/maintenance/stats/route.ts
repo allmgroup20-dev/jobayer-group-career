@@ -17,19 +17,14 @@ export async function GET() {
 
   try {
     const db = await getDB();
-    const tableStats: { name: string; rows: number }[] = [];
+    const results = await Promise.all(TABLES.map(table =>
+      query<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM ${table}`)
+        .then(res => ({ name: table, rows: res[0]?.cnt || 0 }))
+        .catch(() => ({ name: table, rows: -1 }))
+    ));
 
-    for (const table of TABLES) {
-      try {
-        const res = await query<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM ${table}`);
-        tableStats.push({ name: table, rows: res[0]?.cnt || 0 });
-      } catch {
-        tableStats.push({ name: table, rows: -1 });
-      }
-    }
-
-    await setCached("maintenance:stats", tableStats);
-    return NextResponse.json({ tables: tableStats });
+    await setCached("maintenance:stats", results);
+    return NextResponse.json({ tables: results });
   } catch (error) {
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

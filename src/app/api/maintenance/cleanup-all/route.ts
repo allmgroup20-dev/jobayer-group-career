@@ -15,27 +15,24 @@ export async function POST(request: NextRequest) {
     const { olderThanDays } = await request.json() as { olderThanDays?: number };
     const days = olderThanDays || 90;
     const db = await getDB();
-    const results: { table: string; rowsDeleted: number }[] = [];
 
-    for (const table of TABLES) {
+    const results = await Promise.all(TABLES.map(async (table) => {
       try {
-        const countRes = await db.DB.prepare(
-          `SELECT COUNT(*) as cnt FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
-        ).bind().first() as { cnt: number } | undefined;
-        const rows = countRes?.cnt || 0;
-
+        const delResult = await execute(db,
+          `DELETE FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
+        );
+        const rows = delResult.meta?.changes || 0;
         if (rows > 0) {
-          await execute(db, `DELETE FROM ${table} WHERE created_at < datetime('now', '-${days} days')`);
           await execute(db,
             `INSERT INTO maintenance_log (action, table_name, rows_deleted, status, details) VALUES (?, ?, ?, 'success', ?)`,
             ["cleanup-all", table, rows, `Bulk cleanup: rows older than ${days} days`]
           );
         }
-        results.push({ table, rowsDeleted: rows });
+        return { table, rowsDeleted: rows };
       } catch {
-        results.push({ table, rowsDeleted: -1 });
+        return { table, rowsDeleted: -1 };
       }
-    }
+    }));
 
     const total = results.reduce((s, r) => s + (r.rowsDeleted > 0 ? r.rowsDeleted : 0), 0);
     await invalidateCache("maintenance:stats");

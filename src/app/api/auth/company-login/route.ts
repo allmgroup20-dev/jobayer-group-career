@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     const admin = await queryFirst<{ username: string; name: string; password: string; role: string }>(
       await getDB(),
-      "SELECT username, name, password, role FROM company_users WHERE LOWER(username) = LOWER(?)",
+      "SELECT username, name, password, role FROM company_users WHERE username = ? COLLATE NOCASE",
       [username]
     );
 

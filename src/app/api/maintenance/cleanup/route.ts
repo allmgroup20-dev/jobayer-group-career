@@ -27,16 +27,11 @@ export async function POST(request: NextRequest) {
 
     const db = await getDB();
 
-    // Count rows to be deleted
-    const countRes = await db.DB.prepare(
-      `SELECT COUNT(*) as cnt FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
-    ).bind().first() as { cnt: number } | undefined;
-    const rowsToDelete = countRes?.cnt || 0;
-
-    // Delete
-    await execute(db,
+    // Delete and get count from result
+    const delResult = await execute(db,
       `DELETE FROM ${table} WHERE created_at < datetime('now', '-${days} days')`
     );
+    const rowsToDelete = delResult.meta?.changes || 0;
 
     // Log the action
     await execute(db,

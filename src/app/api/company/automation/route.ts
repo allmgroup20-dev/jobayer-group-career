@@ -116,6 +116,8 @@ export async function POST(request: NextRequest) {
     const now = Date.now();
     let affected = 0;
 
+    const db2 = await ensureDB();
+
     for (const w of (pendingTriggers as any[] || [])) {
       const lastAct = w.last_activity ? new Date(w.last_activity).getTime() : 0;
       const daysSinceActivity = (now - lastAct) / 86400000;
@@ -129,8 +131,6 @@ export async function POST(request: NextRequest) {
       if (triggerType === "churn_risk" && (w.churn_probability || 0) >= 50) matches = true;
 
       if (!matches) continue;
-
-      const db2 = await ensureDB();
       const title = NOTIFICATION_TITLES[triggerType] || "Update";
       const bodyMsg = message || NOTIFICATION_BODIES[triggerType] || "Check out our latest updates.";
 

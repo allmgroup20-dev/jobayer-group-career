@@ -36,18 +36,30 @@ const COURSE_INTEREST_MAP: Record<string, string[]> = {
   data_science: ["data_science", "programming"],
 };
 
+async function getRandomRows(db: D1Database, category: string, limit: number = 4) {
+  const isCourse = category === "course";
+  const where = isCourse
+    ? "category = 'course' AND is_active = 1"
+    : "(category IS NULL OR category != 'course') AND is_active = 1";
+
+  const countRes = await db.prepare(`SELECT COUNT(*) as cnt FROM products WHERE ${where}`).first() as { cnt: number } | null;
+  const total = countRes?.cnt || 0;
+  if (total === 0) return { results: [] };
+
+  const offset = Math.max(0, Math.floor(Math.random() * total) - limit + 1);
+  return db.prepare(
+    `SELECT id, name, name_bn, price, image_url FROM products WHERE ${where} ORDER BY ROWID LIMIT ? OFFSET ?`
+  ).bind(limit, Math.min(offset, Math.max(0, total - limit))).all() as any;
+}
+
 async function getPopularCourses(db: D1Database, limit: number = 4) {
-  const courses = await db.prepare(
-    "SELECT id, name, name_bn, price, image_url FROM products WHERE category = 'course' AND is_active = 1 ORDER BY RANDOM() LIMIT ?"
-  ).bind(limit).all() as { results: { id: number; name: string; name_bn: string | null; price: number; image_url: string | null }[] };
-  return courses.results;
+  const result = await getRandomRows(db, "course", limit);
+  return result.results;
 }
 
 async function getPopularProducts(db: D1Database, limit: number = 4) {
-  const products = await db.prepare(
-    "SELECT id, name, name_bn, price, image_url FROM products WHERE (category IS NULL OR category != 'course') AND is_active = 1 ORDER BY RANDOM() LIMIT ?"
-  ).bind(limit).all() as { results: { id: number; name: string; name_bn: string | null; price: number; image_url: string | null }[] };
-  return products.results;
+  const result = await getRandomRows(db, "non-course", limit);
+  return result.results;
 }
 
 export async function GET(request: Request) {

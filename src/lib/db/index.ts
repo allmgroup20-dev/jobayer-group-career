@@ -1070,6 +1070,15 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_saved_accounts_worker ON saved_accounts(worker_id)`).run().catch(() => {});
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_brain_usage_created ON brain_usage(created_at)`).run().catch(() => {});
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_agent_feedback_created ON agent_feedback(created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_commissions_to_worker ON commissions(to_worker_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_workers_google_id ON workers(google_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_workers_facebook_id ON workers(facebook_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_biometric_worker ON biometric_credentials(worker_id, user_type)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_orders_worker_payment ON orders(worker_id, payment_status)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_events_worker_type ON user_events(worker_id, event_type)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_sessions_created ON user_sessions(created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_communication_created ON communication_history(created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at)`).run().catch(() => {});
 
     env.DB.prepare(`INSERT OR IGNORE INTO notification_preferences (worker_id, channel, category, enabled)
       SELECT w.worker_id, 'whatsapp', 'promotional', 1 FROM workers w
