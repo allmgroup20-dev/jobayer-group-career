@@ -12,18 +12,11 @@ interface CheckoutModalProps {
 
 const BASE_PRICE = 99;
 
-const packs = [
-  { count: 1, label: "1টি রিসোর্স", price: 99 },
-  { count: 3, label: "3টি রিসোর্স", price: 297 },
-  { count: 5, label: "5টি রিসোর্স", price: 495 },
-  { count: 10, label: "10টি রিসোর্স", price: 990 },
-];
-
 export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, onClose }: CheckoutModalProps) {
   const [step, setStep] = useState<"select" | "bargain" | "pay">("select");
-  const [selectedPack, setSelectedPack] = useState(packs[0]);
-  const [finalAmount, setFinalAmount] = useState(selectedPack.price);
-  const [finalCount, setFinalCount] = useState(selectedPack.count);
+  const [customCount, setCustomCount] = useState(2);
+  const [finalAmount, setFinalAmount] = useState(BASE_PRICE);
+  const [finalCount, setFinalCount] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,6 +25,9 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
   const [userPriceInput, setUserPriceInput] = useState("");
   const [canBargain, setCanBargain] = useState(true);
 
+  const isSingle = finalCount === 1;
+  const totalPrice = finalCount * BASE_PRICE;
+
   const handleStartBargain = async () => {
     setLoading(true);
     setError("");
@@ -39,7 +35,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
       const res = await fetch("/api/ai/bargain", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workerId, resourceCount: selectedPack.count }),
+        body: JSON.stringify({ workerId, resourceCount: finalCount }),
       });
       const data = await res.json() as { sessionId: number; currentOffer: number; message: string; canBargain: boolean; error?: string };
       if (!res.ok) throw new Error(data.error || "Failed");
@@ -57,8 +53,8 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
 
   const handleBargainRespond = async () => {
     const desiredPrice = parseInt(userPriceInput);
-    if (!desiredPrice || desiredPrice < 50 || desiredPrice > finalAmount) {
-      setError("দয়া করে একটি বৈধ মূল্য লিখুন (৫০-বর্তমান অফারের মধ্যে)");
+    if (!desiredPrice || desiredPrice < totalPrice * 0.5 || desiredPrice > finalAmount) {
+      setError(`দয়া করে একটি বৈধ মূল্য লিখুন (${(totalPrice * 0.5).toFixed(0)}-${finalAmount} ৳)`);
       return;
     }
     setLoading(true);
@@ -148,52 +144,80 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
         <div className="bg-gradient-to-r from-primary to-primary/80 p-5 text-white sticky top-0 z-10">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold">
-              {step === "bargain" ? "💰 দাম দরকরুন" : step === "pay" ? "💳 পেমেন্ট" : "🛒 রিসোর্স আনলক প্যাকেজ"}
+              {step === "bargain" ? "💰 দাম দরকরুন" : step === "pay" ? "💳 পেমেন্ট" : "🛒 রিসোর্স কিনুন"}
             </h2>
             <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors text-lg">✕</button>
           </div>
-          <p className="text-white/80 text-sm mt-1">
-            {step === "select" ? `প্রতি রিসোর্স মাত্র ${BASE_PRICE} ৳` : `${finalCount}টি রিসোর্স = ৳${finalAmount.toLocaleString()}`}
-          </p>
+          <p className="text-white/80 text-sm mt-1">প্রতি রিসোর্স মাত্র {BASE_PRICE} ৳</p>
         </div>
 
-        <div className="p-5 space-y-3">
+        <div className="p-5 space-y-4">
           {step === "select" && (
             <>
-              {packs.map((pack) => (
+              <div className="bg-primary/5 rounded-2xl p-5 text-center border-2 border-primary/20">
+                <p className="text-sm text-text-secondary mb-1">১টি রিসোর্স</p>
+                <p className="text-3xl font-black text-primary">{BASE_PRICE} ৳</p>
+                <p className="text-xs text-text-secondary mt-1">ফিক্সড প্রাইস — কোনো দরদর নেই</p>
                 <button
-                  key={pack.count}
-                  onClick={() => { setSelectedPack(pack); setFinalAmount(pack.price); setFinalCount(pack.count); }}
-                  className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                    selectedPack.count === pack.count
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  onClick={() => { setFinalCount(1); setFinalAmount(BASE_PRICE); setStep("pay"); }}
+                  className="mt-3 w-full py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all text-sm"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-bold text-text">{pack.label}</span>
-                      <p className="text-xs text-text-secondary mt-0.5">{pack.price / pack.count} ৳/রিসোর্স</p>
-                    </div>
-                    <span className="text-xl font-black text-primary">{pack.price.toLocaleString()} ৳</span>
-                  </div>
+                  💳 {BASE_PRICE} ৳ - সরাসরি কিনুন
                 </button>
-              ))}
+              </div>
 
-              <button
-                onClick={handleStartBargain}
-                disabled={loading}
-                className="w-full py-3 bg-amber-50 border-2 border-amber-200 text-amber-700 font-bold rounded-xl hover:bg-amber-100 transition-all disabled:opacity-50"
-              >
-                💰 দাম দরকরুন
-              </button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+                <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-text-secondary">অথবা</span></div>
+              </div>
 
-              <button
-                onClick={() => setStep("pay")}
-                className="w-full py-3.5 bg-gradient-to-r from-primary to-primary/80 text-white font-bold rounded-xl text-lg hover:shadow-lg hover:shadow-primary/30 transition-all"
-              >
-                💳 {selectedPack.price.toLocaleString()} ৳ পেমেন্ট করুন
-              </button>
+              <div>
+                <label className="block text-sm font-bold text-text mb-2">একাধিক রিসোর্স — আপনার পছন্দমত সংখ্যা দিন</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCustomCount(Math.max(2, customCount - 1))}
+                    className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg font-bold hover:bg-gray-200 transition-colors"
+                  >−</button>
+                  <input
+                    type="number"
+                    value={customCount}
+                    min={2}
+                    max={100}
+                    onChange={e => {
+                      const v = parseInt(e.target.value) || 2;
+                      setCustomCount(Math.max(2, Math.min(100, v)));
+                    }}
+                    className="flex-1 text-center text-2xl font-black text-text py-2 border-2 border-gray-200 rounded-xl outline-none focus:border-primary"
+                  />
+                  <button
+                    onClick={() => setCustomCount(Math.min(100, customCount + 1))}
+                    className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg font-bold hover:bg-gray-200 transition-colors"
+                  >+</button>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-secondary">{customCount} × {BASE_PRICE} ৳</span>
+                  <span className="font-bold text-text">{(customCount * BASE_PRICE).toLocaleString()} ৳</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setFinalCount(customCount); setFinalAmount(customCount * BASE_PRICE); handleStartBargain(); }}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-amber-50 border-2 border-amber-200 text-amber-700 font-bold rounded-xl hover:bg-amber-100 transition-all disabled:opacity-50 text-sm"
+                >
+                  💰 দাম দরকরুন
+                </button>
+                <button
+                  onClick={() => { setFinalCount(customCount); setFinalAmount(customCount * BASE_PRICE); setStep("pay"); }}
+                  className="flex-1 py-3 bg-gradient-to-r from-primary to-primary/80 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all text-sm"
+                >
+                  💳 সরাসরি কিনুন
+                </button>
+              </div>
             </>
           )}
 
@@ -221,7 +245,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
                     onChange={(e) => setUserPriceInput(e.target.value)}
                     placeholder="আপনার প্রস্তাবিত মূল্য (৳)"
                     className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-primary"
-                    min={50}
+                    min={Math.max(99, Math.floor(totalPrice * 0.5))}
                     max={finalAmount}
                   />
                   <button
@@ -263,9 +287,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm font-medium">
-              {error}
-            </div>
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm font-medium">{error}</div>
           )}
 
           <p className="text-center text-xs text-text-secondary">SSLCommerz এর মাধ্যমে নিরাপদ পেমেন্ট</p>

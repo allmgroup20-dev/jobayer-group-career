@@ -49,10 +49,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const stepReduction = Math.min(
-      Math.floor((session.current_offer - priceFloor) / 3),
-      30 + Math.floor(Math.random() * 20)
-    );
+    const stepReduction = 5 + Math.floor(Math.random() * 11);
     const newOffer = Math.max(priceFloor, session.current_offer - stepReduction);
 
     const messages = [
