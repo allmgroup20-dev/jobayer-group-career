@@ -214,7 +214,18 @@ export default function CompanyTrainersPage() {
                 onDrop={e => handleDrop(e, t.id)}
                 onDragEnd={() => setDragOverIdx(null)}
                 className={`border-t border-border transition-colors ${dragOverIdx === i ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"} cursor-grab active:cursor-grabbing`}>
-                <td className="p-3 font-medium text-primary">{lang === "bn" ? t.name_bn || t.name : t.name}</td>
+                <td className="p-3">
+                  <div className="flex items-center gap-2.5">
+                    {t.image_url ? (
+                      <img src={t.image_url} alt={t.name} className="w-9 h-9 rounded-full object-cover border border-border" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        {(lang === "bn" ? t.name_bn || t.name : t.name).charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="font-medium text-primary">{lang === "bn" ? t.name_bn || t.name : t.name}</span>
+                  </div>
+                </td>
                 <td className="p-3 text-text-secondary">{lang === "bn" ? t.credential_bn || t.specialty_bn : t.credential_en || t.specialty_en}</td>
                 <td className="p-3 text-text-secondary">{t.institution_name || "-"}</td>
                 <td className="p-3 text-text-secondary">{t.experience_years}y</td>
