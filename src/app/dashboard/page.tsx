@@ -384,11 +384,11 @@ export default function WorkerDashboard() {
             <div className="flex gap-2">
               <input
                 readOnly
-                value={`https://career.jobayergroup.com/register?ref=${worker.workerId}`}
+                value={`${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${worker.workerId}`}
                 className="input-field text-xs flex-1"
               />
               <button
-                onClick={() => navigator.clipboard.writeText(`https://career.jobayergroup.com/register?ref=${worker.workerId}`)}
+                onClick={() => navigator.clipboard.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${worker.workerId}`)}
                 className="btn-primary text-xs !px-4 !py-2.5"
               >
                 {lang === "bn" ? "কপি" : "Copy"}
