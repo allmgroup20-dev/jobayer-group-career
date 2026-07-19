@@ -16,7 +16,7 @@ export default function ReportsPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/system/reports?page=${page}&limit=${limit}`);
-      const data = await res.json();
+      const data = await res.json() as { reports: any[]; total: number };
       setReports(data.reports || []);
       setTotal(data.total || 0);
     } catch { setReports([]); }
@@ -35,7 +35,7 @@ export default function ReportsPage() {
   const loadDetail = async (id: number) => {
     try {
       const res = await fetch(`/api/system/reports?limit=1&page=1`);
-      const data = await res.json();
+      const data = await res.json() as { reports: any[] };
       const report = data.reports?.find((r: any) => r.id === id);
       if (report) setDetail(report);
     } catch {}

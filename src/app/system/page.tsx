@@ -23,7 +23,7 @@ export default function SystemDashboard() {
         fetch("/api/system/logs?limit=10&page=1"),
         fetch("/api/system/logs?limit=1&page=1"),
       ]);
-      const logsData = await logsRes.json();
+      const logsData = await logsRes.json() as { logs: any[]; total: number };
       const errors = (logsData.logs || []).filter((l: any) => l.log_type === "error" || l.log_type === "warning");
       setStats({
         totalLogs: logsData.total || 0,
@@ -42,7 +42,7 @@ export default function SystemDashboard() {
     setActionMsg("Analyzing...");
     try {
       const res = await fetch("/api/system/analyze", { method: "POST" });
-      const data = await res.json();
+      const data = await res.json() as { reportId?: number; ok?: boolean; error?: string };
       setActionMsg(data.reportId ? `Analysis complete (report #${data.reportId})` : "No errors to analyze");
     } catch { setActionMsg("Analysis failed"); }
     setTimeout(() => setActionMsg(""), 4000);
@@ -52,7 +52,7 @@ export default function SystemDashboard() {
     setActionMsg("Generating perf snapshot...");
     try {
       const res = await fetch("/api/system/perf", { method: "POST" });
-      const data = await res.json();
+      const data = await res.json() as { ok?: boolean; rows?: number; error?: string };
       setActionMsg(data.ok ? `Snapshot saved (${data.rows} routes)` : "Snapshot failed");
     } catch { setActionMsg("Snapshot failed"); }
     setTimeout(() => setActionMsg(""), 4000);

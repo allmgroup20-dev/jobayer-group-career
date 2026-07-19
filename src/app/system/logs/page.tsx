@@ -27,7 +27,7 @@ export default function LogsPage() {
       if (logType) params.set("logType", logType);
       if (search) params.set("search", search);
       const res = await fetch(`/api/system/logs?${params}`);
-      const data = await res.json();
+      const data = await res.json() as { logs: any[]; total: number };
       setLogs(data.logs || []);
       setTotal(data.total || 0);
     } catch { setLogs([]); }
