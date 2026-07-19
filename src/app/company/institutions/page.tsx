@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 interface Institution {
   id: number; name: string; name_bn: string | null;
@@ -85,7 +86,7 @@ export default function CompanyInstitutionsPage() {
             <div className="space-y-3">
               <div><label className="text-xs font-medium text-text-secondary">Name *</label><input value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} className="input-field w-full text-sm" /></div>
               <div><label className="text-xs font-medium text-text-secondary">Name (BN)</label><input value={form.nameBn} onChange={e => setForm(p => ({...p, nameBn: e.target.value}))} className="input-field w-full text-sm" /></div>
-              <div><label className="text-xs font-medium text-text-secondary">Logo URL</label><input value={form.logoUrl} onChange={e => setForm(p => ({...p, logoUrl: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><ImageUpload value={form.logoUrl} onChange={v => setForm(p => ({...p, logoUrl: v}))} label={lang === "bn" ? "লোগো" : "Logo"} /></div>
               <div><label className="text-xs font-medium text-text-secondary">Website URL</label><input value={form.websiteUrl} onChange={e => setForm(p => ({...p, websiteUrl: e.target.value}))} className="input-field w-full text-sm" /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-xs font-medium text-text-secondary">Sort Order</label><input type="number" value={form.sortOrder} onChange={e => setForm(p => ({...p, sortOrder: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm" /></div>

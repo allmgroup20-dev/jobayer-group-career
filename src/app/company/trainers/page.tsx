@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 interface Trainer {
   id: number; name: string; name_bn: string | null;
@@ -131,7 +132,7 @@ export default function CompanyTrainersPage() {
               <div><label className="text-xs font-medium text-text-secondary">Specialty (BN)</label><input value={form.specialtyBn} onChange={e => setForm(p => ({...p, specialtyBn: e.target.value}))} className="input-field w-full text-sm" /></div>
               <div><label className="text-xs font-medium text-text-secondary">Credential (EN)</label><input value={form.credentialEn} onChange={e => setForm(p => ({...p, credentialEn: e.target.value}))} className="input-field w-full text-sm" /></div>
               <div><label className="text-xs font-medium text-text-secondary">Credential (BN)</label><input value={form.credentialBn} onChange={e => setForm(p => ({...p, credentialBn: e.target.value}))} className="input-field w-full text-sm" /></div>
-              <div className="col-span-2"><label className="text-xs font-medium text-text-secondary">Image URL</label><input value={form.imageUrl} onChange={e => setForm(p => ({...p, imageUrl: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div className="col-span-2"><ImageUpload value={form.imageUrl} onChange={v => setForm(p => ({...p, imageUrl: v}))} label={lang === "bn" ? "ছবি" : "Image"} /></div>
               <div><label className="text-xs font-medium text-text-secondary">Experience (years)</label><input type="number" value={form.experienceYears} onChange={e => setForm(p => ({...p, experienceYears: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm" /></div>
               <div><label className="text-xs font-medium text-text-secondary">Sort Order</label><input type="number" value={form.sortOrder} onChange={e => setForm(p => ({...p, sortOrder: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm" /></div>
               <div><label className="text-xs font-medium text-text-secondary">Institution</label>
