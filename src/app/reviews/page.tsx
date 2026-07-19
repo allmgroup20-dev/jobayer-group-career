@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
-import { testimonials, chatTestimonials, gridTestimonials } from "@/data/landing-page-data";
+import { testimonials, chatTestimonials, gridTestimonials, faqs } from "@/data/landing-page-data";
 
 export default function ReviewsPage() {
   const { lang } = useLanguageStore();
   const [showAllGrid, setShowAllGrid] = useState(false);
   const [sliderIdx, setSliderIdx] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const visibleGrid = showAllGrid ? gridTestimonials : gridTestimonials.slice(0, 16);
 
@@ -132,6 +133,39 @@ export default function ReviewsPage() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* FAQ Section */}
+        <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
+          <div className="section-header mb-5">
+            <div className="badge mx-auto mb-3">🤔 {lang === "bn" ? "আপনার মনে কি প্রশ্ন আছে?" : "Have Questions?"}</div>
+            <h3 className="text-lg md:text-xl font-black text-text">
+              {lang === "bn" ? "সচরাচর জিজ্ঞাসা" : "Frequently Asked Questions"}
+            </h3>
+            <p className="text-sm font-semibold text-text-secondary mt-1">
+              {lang === "bn" ? "আপনার মনে প্রশ্ন আসা স্বাভাবিক। নিচের উত্তরগুলো দেখে নিন।" : "Questions are natural. Check the answers below."}
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {faqs.map((faq, i) => (
+              <div key={i} className="rounded-xl bg-bg border border-border overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
+                  className="w-full flex items-center justify-between p-4 md:p-5 text-sm font-bold text-text bg-transparent border-none cursor-pointer text-left font-[inherit] hover:bg-primary/5 transition-colors"
+                >
+                  <span>{lang === "bn" ? faq.qBn : faq.qEn}</span>
+                  <span className={`text-text-secondary text-xs transition-transform duration-200 flex-shrink-0 ml-3 ${openFaq === i ? "rotate-180" : ""}`}>▼</span>
+                </button>
+                <div
+                  className="overflow-hidden transition-all duration-300 ease-in-out"
+                  style={{ maxHeight: openFaq === i ? "300px" : "0px", padding: openFaq === i ? "0 16px 16px" : "0 16px" }}
+                >
+                  <p className="text-sm text-text-secondary leading-relaxed m-0">{lang === "bn" ? faq.aBn : faq.aEn}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
