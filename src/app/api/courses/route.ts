@@ -21,6 +21,9 @@ export async function GET(request: NextRequest) {
     let sql = `SELECT c.id, c.title, c.title_bn as titleBn, c.description, c.description_bn as descriptionBn,
               c.category_id as categoryId, c.is_new as isNew, c.is_visible as isVisible,
               c.icon, c.price, c.is_premium as isPremium, c.created_at as createdAt, c.updated_at as updatedAt,
+              c.trainer_id as trainerId, c.institution_id as institutionId,
+              t.name as trainerName, t.name_bn as trainerNameBn, t.image_url as trainerImageUrl,
+              i.name as institutionName, i.name_bn as institutionNameBn, i.logo_url as institutionLogoUrl,
               COALESCE(json_group_array(DISTINCT m.category_id) FILTER (WHERE m.category_id IS NOT NULL), '[]') as categoryIds,
               COALESCE(json_group_array(DISTINCT cat.name) FILTER (WHERE cat.name IS NOT NULL), '[]') as categoryNames,
               COALESCE(json_group_array(DISTINCT cat.name_bn) FILTER (WHERE cat.name_bn IS NOT NULL), '[]') as categoryNamesBn,
@@ -31,6 +34,8 @@ export async function GET(request: NextRequest) {
               FROM courses c
               LEFT JOIN course_category_map m ON c.id = m.course_id
               LEFT JOIN course_categories cat ON m.category_id = cat.id
+              LEFT JOIN trainers t ON t.id = c.trainer_id
+              LEFT JOIN institutions i ON i.id = c.institution_id
               WHERE 1=1`;
     const params: unknown[] = [];
 
@@ -65,6 +70,7 @@ export async function POST(request: NextRequest) {
       title: string; titleBn?: string; description?: string; descriptionBn?: string;
       categoryIds?: number[]; isNew?: number; isVisible?: number; icon?: string;
       price?: number; isPremium?: number;
+      trainerId?: number | null; institutionId?: number | null;
     };
 
     if (!body.title) {
@@ -75,12 +81,13 @@ export async function POST(request: NextRequest) {
     await invalidateCache("courses");
     const result = await execute(db,
       `INSERT INTO courses (title, title_bn, description, description_bn,
-        is_new, is_visible, icon, price, is_premium)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        is_new, is_visible, icon, price, is_premium, trainer_id, institution_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         body.title, body.titleBn || null, body.description || null, body.descriptionBn || null,
         body.isNew ?? 1, body.isVisible ?? 1,
         body.icon || "📌", body.price || 0, body.isPremium ?? 1,
+        body.trainerId ?? null, body.institutionId ?? null,
       ]
     );
 

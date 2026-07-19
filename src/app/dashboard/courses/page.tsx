@@ -91,7 +91,15 @@ export default function MyCoursesPage() {
             ) : bookmarks.map((b: any) => (
               <a key={b.id} href={`/courses/${b.courseId}`}
                 className="flex items-center gap-3 bg-white rounded-2xl border border-border p-4 hover:shadow-md transition-all">
-                <span className="text-2xl">{b.icon || "🔖"}</span>
+                <span className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 text-lg shrink-0">
+                  {b.trainerImageUrl ? (
+                    <img src={b.trainerImageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : b.institutionLogoUrl ? (
+                    <img src={b.institutionLogoUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{b.icon || "🔖"}</span>
+                  )}
+                </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-text truncate">{b.titleBn || b.title}</p>
                   <p className="text-xs text-text-secondary/60">{b.isPremium ? `👑 ${b.price}৳` : "🆓 ফ্রি"}</p>

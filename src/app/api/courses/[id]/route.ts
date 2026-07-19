@@ -17,10 +17,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       `SELECT c.id, c.title, c.title_bn as titleBn, c.description, c.description_bn as descriptionBn,
               c.is_new as isNew, c.is_visible as isVisible, c.icon, c.price, c.is_premium as isPremium,
               c.created_at as createdAt, c.updated_at as updatedAt,
+              c.trainer_id as trainerId, c.institution_id as institutionId,
+              t.name as trainerName, t.name_bn as trainerNameBn, t.image_url as trainerImageUrl,
+              i.name as institutionName, i.name_bn as institutionNameBn, i.logo_url as institutionLogoUrl,
               COALESCE((SELECT json_group_array(m.category_id) FROM course_category_map m WHERE m.course_id = c.id), '[]') as categoryIds,
               COALESCE((SELECT json_group_array(cat.name) FROM course_category_map m JOIN course_categories cat ON cat.id = m.category_id WHERE m.course_id = c.id), '[]') as categoryNames,
               COALESCE((SELECT json_group_array(cat.name_bn) FROM course_category_map m JOIN course_categories cat ON cat.id = m.category_id WHERE m.course_id = c.id), '[]') as categoryNamesBn
-       FROM courses c WHERE c.id = ?`,
+       FROM courses c
+       LEFT JOIN trainers t ON t.id = c.trainer_id
+       LEFT JOIN institutions i ON i.id = c.institution_id
+       WHERE c.id = ?`,
       [parseInt(id)]
     );
     if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
@@ -48,6 +54,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       title?: string; titleBn?: string; description?: string; descriptionBn?: string;
       categoryIds?: number[]; isNew?: number; isVisible?: number; icon?: string;
       price?: number; isPremium?: number;
+      trainerId?: number | null; institutionId?: number | null;
     };
     const db = await getDB();
 
@@ -61,12 +68,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
        is_new=COALESCE(?,is_new),
        is_visible=COALESCE(?,is_visible), icon=COALESCE(?,icon),
        price=COALESCE(?,price), is_premium=COALESCE(?,is_premium),
+       trainer_id=COALESCE(?,trainer_id), institution_id=COALESCE(?,institution_id),
        updated_at=datetime('now')
        WHERE id=?`,
       [
         body.title ?? null, body.titleBn ?? null, body.description ?? null, body.descriptionBn ?? null,
         body.isNew ?? null, body.isVisible ?? null,
-        body.icon ?? null, body.price ?? null, body.isPremium ?? null, parseInt(id)
+        body.icon ?? null, body.price ?? null, body.isPremium ?? null,
+        body.trainerId ?? null, body.institutionId ?? null, parseInt(id)
       ]
     );
 

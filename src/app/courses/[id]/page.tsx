@@ -15,6 +15,11 @@ interface Course {
   icon: string; price: number; isPremium: number; isNew: number; isVisible: number;
   categoryIds: number[]; categoryNames: string[]; categoryNamesBn: string[];
   avgRating: number; ratingCount: number;
+  trainerId?: number | null; institutionId?: number | null;
+  trainerName?: string | null; trainerNameBn?: string | null;
+  trainerImageUrl?: string | null;
+  institutionName?: string | null; institutionNameBn?: string | null;
+  institutionLogoUrl?: string | null;
 }
 
 interface RatingData {
@@ -186,7 +191,6 @@ export default function CourseDetailPage() {
   if (loading) return <div className="min-h-screen bg-bg flex items-center justify-center"><div className="text-center"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" /><p className="mt-4 text-text-secondary font-semibold">লোড হচ্ছে...</p></div></div>;
   if (error || !course) return <div className="min-h-screen bg-bg flex items-center justify-center"><div className="text-center"><p className="text-5xl mb-4">😕</p><p className="text-text-secondary font-bold text-lg">{error || "Course not found"}</p></div></div>;
 
-  const emoji = course.icon || "📌";
   const catDisplay = course.categoryNamesBn?.filter(Boolean).join(", ") || course.categoryNames?.join(", ") || "";
 
   return (
@@ -194,10 +198,23 @@ export default function CourseDetailPage() {
       <div className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 py-10 md:py-14 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl shrink-0">{emoji}</div>
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl shrink-0 overflow-hidden">
+              {course.trainerImageUrl ? (
+                <img src={course.trainerImageUrl} alt={course.trainerName || ""} className="w-full h-full object-cover" />
+              ) : course.institutionLogoUrl ? (
+                <img src={course.institutionLogoUrl} alt={course.institutionName || ""} className="w-full h-full object-cover" />
+              ) : (
+                <span>{course.icon || "📌"}</span>
+              )}
+            </div>
             <div className="flex-1">
               <h1 className="text-xl md:text-3xl font-black text-white leading-tight">{course.titleBn || course.title}</h1>
               {catDisplay && <p className="text-white/70 text-sm font-semibold mt-1">{catDisplay}</p>}
+              {(course.trainerName || course.institutionName) && (
+                <p className="text-white/60 text-xs font-medium mt-1">
+                  {course.trainerNameBn || course.trainerName}{course.trainerName && course.institutionName ? " · " : ""}{course.institutionNameBn || course.institutionName}
+                </p>
+              )}
             </div>
             {isLoggedIn && (
               <button onClick={handleBookmark}
@@ -352,7 +369,15 @@ export default function CourseDetailPage() {
               {relatedCourses.map(c => (
                 <a key={c.id} href={`/courses/${c.id}`}
                   className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all">
-                  <span className="text-xl">{c.icon || "📌"}</span>
+                  <span className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 text-base shrink-0">
+                    {c.trainerImageUrl ? (
+                      <img src={c.trainerImageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : c.institutionLogoUrl ? (
+                      <img src={c.institutionLogoUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{c.icon || "📌"}</span>
+                    )}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-text truncate">{c.titleBn || c.title}</p>
                     {c.avgRating > 0 && <p className="text-xs text-amber-600">⭐ {c.avgRating}</p>}

@@ -1,0 +1,2 @@
+ALTER TABLE courses ADD COLUMN trainer_id INTEGER REFERENCES trainers(id) ON DELETE SET NULL;
+ALTER TABLE courses ADD COLUMN institution_id INTEGER REFERENCES institutions(id) ON DELETE SET NULL;

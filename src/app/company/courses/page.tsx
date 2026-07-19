@@ -15,6 +15,14 @@ interface CourseCategory {
   parentId: number | null;
 }
 
+interface Trainer {
+  id: number; name: string; name_bn: string | null;
+}
+
+interface Institution {
+  id: number; name: string; name_bn: string | null;
+}
+
 interface Course {
   id: number;
   title: string;
@@ -31,6 +39,8 @@ interface Course {
   isPremium: number;
   createdAt: string;
   updatedAt: string;
+  trainerId?: number | null;
+  institutionId?: number | null;
 }
 
 interface CourseFile {
@@ -46,6 +56,7 @@ interface CourseFile {
 const emptyForm = () => ({
   title: "", titleBn: "", description: "", descriptionBn: "",
   categoryIds: [] as number[], isNew: 1, isVisible: 1, icon: "📌", price: "", isPremium: 0,
+  trainerId: 0, institutionId: 0,
 });
 
 export default function CompanyCoursesPage() {
@@ -58,8 +69,18 @@ export default function CompanyCoursesPage() {
     "/api/courses/categories",
     { ttlMs: 120_000 }
   );
+  const { data: trainersData } = useSWRFetch<{ trainers?: Trainer[] }>(
+    "/api/trainers?all=1",
+    { ttlMs: 120_000 }
+  );
+  const { data: institutionsData } = useSWRFetch<{ institutions?: Institution[] }>(
+    "/api/institutions?all=1",
+    { ttlMs: 120_000 }
+  );
   const courses = coursesData?.courses ?? [];
   const categories = catsData?.categories ?? [];
+  const trainers = trainersData?.trainers ?? [];
+  const institutions = institutionsData?.institutions ?? [];
 
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -106,6 +127,7 @@ export default function CompanyCoursesPage() {
       categoryIds: c.categoryIds || [],
       isNew: c.isNew, isVisible: c.isVisible, icon: c.icon || "📌",
       price: String(c.price || 0), isPremium: c.isPremium,
+      trainerId: c.trainerId || 0, institutionId: c.institutionId || 0,
     });
     setEditingId(c.id);
     setShowAdd(true);
@@ -125,6 +147,7 @@ export default function CompanyCoursesPage() {
         categoryIds: form.categoryIds,
         isNew: form.isNew, isVisible: form.isVisible, icon: form.icon || "📌",
         price: parseFloat(form.price) || 0, isPremium: form.isPremium,
+        trainerId: form.trainerId || null, institutionId: form.institutionId || null,
       };
 
       const url = editingId ? `/api/courses/${editingId}` : "/api/courses";
@@ -227,6 +250,26 @@ export default function CompanyCoursesPage() {
               <input type="text" placeholder={lang === "bn" ? "শিরোনাম (বাংলা)" : "Title (BN)"} value={form.titleBn} onChange={(e) => setForm({ ...form, titleBn: e.target.value })} className="input-field" />
               <input type="text" placeholder={lang === "bn" ? "আইকন (ইমোজি)" : "Icon (Emoji)"} value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="input-field" />
               <input type="number" placeholder={lang === "bn" ? "মূল্য (যদি প্রযোজ্য হয়)" : "Price (if applicable)"} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="input-field" />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-xs font-medium text-text-secondary mb-1 block">{lang === "bn" ? "প্রশিক্ষক" : "Trainer"}</label>
+                <select value={form.trainerId} onChange={e => {
+                  const tid = parseInt(e.target.value) || 0;
+                  const t = trainers.find(x => x.id === tid);
+                  setForm({ ...form, trainerId: tid, institutionId: (t as any)?.institution_id || form.institutionId });
+                }} className="input-field w-full text-sm">
+                  <option value={0}>-- {lang === "bn" ? "কোনটি না" : "None"} --</option>
+                  {trainers.map(t => <option key={t.id} value={t.id}>{lang === "bn" && t.name_bn ? t.name_bn : t.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-text-secondary mb-1 block">{lang === "bn" ? "প্রতিষ্ঠান" : "Institution"}</label>
+                <select value={form.institutionId} onChange={e => setForm({ ...form, institutionId: parseInt(e.target.value) || 0 })} className="input-field w-full text-sm">
+                  <option value={0}>-- {lang === "bn" ? "কোনটি না" : "None"} --</option>
+                  {institutions.map(i => <option key={i.id} value={i.id}>{lang === "bn" && i.name_bn ? i.name_bn : i.name}</option>)}
+                </select>
+              </div>
             </div>
 
             <div className="border-t border-border pt-4 mb-4">
