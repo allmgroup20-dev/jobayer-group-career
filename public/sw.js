@@ -2,11 +2,17 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox
 
 workbox.setConfig({ debug: false });
 
-const CACHE_NAMES = ['pages', 'static-assets', 'images', 'next-assets'];
+const CACHE_VERSION = 2;
+const CACHE_NAMES = [
+  'pages-v' + CACHE_VERSION,
+  'static-assets-v' + CACHE_VERSION,
+  'images-v' + CACHE_VERSION,
+  'next-assets-v' + CACHE_VERSION,
+];
 
 workbox.routing.registerRoute(
   ({ request }) => request.mode === 'navigate',
-  new workbox.strategies.StaleWhileRevalidate({ cacheName: 'pages' })
+  new workbox.strategies.StaleWhileRevalidate({ cacheName: 'pages-v' + CACHE_VERSION })
 );
 
 workbox.routing.registerRoute(
@@ -15,10 +21,10 @@ workbox.routing.registerRoute(
     request.destination === 'style' ||
     request.destination === 'font' ||
     request.destination === 'worker',
-  new workbox.strategies.CacheFirst({
-    cacheName: 'static-assets',
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'static-assets-v' + CACHE_VERSION,
     plugins: [
-      new workbox.expiration.ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+      new workbox.expiration.ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 7 * 24 * 60 * 60 }),
     ],
   })
 );
@@ -26,7 +32,7 @@ workbox.routing.registerRoute(
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'image',
   new workbox.strategies.CacheFirst({
-    cacheName: 'images',
+    cacheName: 'images-v' + CACHE_VERSION,
     plugins: [
       new workbox.expiration.ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 14 * 24 * 60 * 60 }),
     ],
@@ -40,7 +46,7 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
   ({ url }) => url.pathname.startsWith('/_next/'),
-  new workbox.strategies.NetworkFirst({ cacheName: 'next-assets' })
+  new workbox.strategies.NetworkFirst({ cacheName: 'next-assets-v' + CACHE_VERSION })
 );
 
 self.addEventListener('message', (event) => {
