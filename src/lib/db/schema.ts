@@ -205,78 +205,6 @@ export const aiLog = sqliteTable("ai_log", {
   createdAt: text("created_at"),
 });
 
-// Agent tables (Multi-Agent Research System)
-export const aiAgents = sqliteTable("ai_agents", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  agentId: text("agent_id").unique().notNull(),
-  nameBn: text("name_bn").notNull(),
-  nameEn: text("name_en").notNull(),
-  level: integer("level").default(1),
-  sector: text("sector"),
-  parentAgentId: text("parent_agent_id"),
-  status: text("status").default("idle"),
-  modelId: text("model_id"),
-  provider: text("provider").default("openrouter"),
-  cronInterval: integer("cron_interval").default(360),
-  lastRunAt: text("last_run_at"),
-  nextRunAt: text("next_run_at"),
-  createdAt: text("created_at"),
-  updatedAt: text("updated_at"),
-});
-
-export const aiAgentTasks = sqliteTable("ai_agent_tasks", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  agentId: text("agent_id").notNull(),
-  taskType: text("task_type").notNull(),
-  status: text("status").default("pending"),
-  inputData: text("input_data"),
-  outputData: text("output_data"),
-  startedAt: text("started_at"),
-  completedAt: text("completed_at"),
-  createdAt: text("created_at"),
-});
-
-export const aiAgentSubmissions = sqliteTable("ai_agent_submissions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  fromAgentId: text("from_agent_id").notNull(),
-  toAgentId: text("to_agent_id").notNull(),
-  submissionType: text("submission_type").default("research"),
-  titleBn: text("title_bn"),
-  content: text("content"),
-  status: text("status").default("pending"),
-  reviewedAt: text("reviewed_at"),
-  createdAt: text("created_at"),
-});
-
-export const aiAgentReports = sqliteTable("ai_agent_reports", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  agentId: text("agent_id").notNull(),
-  titleBn: text("title_bn"),
-  summaryBn: text("summary_bn"),
-  findings: text("findings"),
-  recommendations: text("recommendations"),
-  metrics: text("metrics"),
-  submittedAt: text("submitted_at"),
-  createdAt: text("created_at"),
-});
-
-export const aiAgentLogs = sqliteTable("ai_agent_logs", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  agentId: text("agent_id").notNull(),
-  action: text("action").notNull(),
-  detailBn: text("detail_bn"),
-  metadata: text("metadata"),
-  createdAt: text("created_at"),
-});
-
-export const aiAgentGlobalConfig = sqliteTable("ai_agent_global_config", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  mode: text("mode").notNull().default("auto"),
-  provider: text("provider"),
-  modelId: text("model_id"),
-  updatedAt: text("updated_at"),
-});
-
 export const waContacts = sqliteTable("wa_contacts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   phone: text("phone").unique().notNull(),
@@ -773,19 +701,6 @@ export const userPlatformLinks = sqliteTable("user_platform_links", {
   linkedAt: text("linked_at"),
 });
 
-export const bargainSessions = sqliteTable("bargain_sessions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  workerId: text("worker_id").notNull(),
-  resourceCount: integer("resource_count").notNull(),
-  basePrice: real("base_price").notNull(),
-  currentOffer: real("current_offer").notNull(),
-  rounds: integer("rounds").default(0),
-  status: text("status").default("active"),
-  sessionKey: text("session_key"),
-  createdAt: text("created_at"),
-  updatedAt: text("updated_at"),
-});
-
 export const resourcePurchases = sqliteTable("resource_purchases", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   orderId: text("order_id").unique().notNull(),
@@ -942,5 +857,35 @@ export const maintenanceLog = sqliteTable("maintenance_log", {
   rowsDeleted: integer("rows_deleted").default(0),
   status: text("status").default("success"),
   details: text("details"),
+  createdAt: text("created_at").default("datetime('now')"),
+});
+
+// ── Target System ──
+export const aiTargets = sqliteTable("ai_targets", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  period: text("period").notNull(), // daily / weekly / monthly
+  targetSales: integer("target_sales").notNull(),
+  targetRevenue: real("target_revenue").default(0),
+  currentSales: integer("current_sales").default(0),
+  currentRevenue: real("current_revenue").default(0),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  status: text("status").default("active"), // active / completed / missed
+  reportGenerated: integer("report_generated").default(0),
+  reportContent: text("report_content"),
+  createdAt: text("created_at").default("datetime('now')"),
+  updatedAt: text("updated_at"),
+});
+
+// ── Knowledge Accumulation Center ──
+export const knowledgeAccumulation = sqliteTable("knowledge_accumulation", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  source: text("source").notNull(), // agent_id or 'manual'
+  category: text("category").default("insight"), // insight / trigger / strategy / improvement / learning
+  title: text("title"),
+  content: text("content").notNull(),
+  contextData: text("context_data"), // JSON - what triggered this insight
+  status: text("status").default("new"), // new / kept / deleted
+  reviewedAt: text("reviewed_at"),
   createdAt: text("created_at").default("datetime('now')"),
 });

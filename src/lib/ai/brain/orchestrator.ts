@@ -5,7 +5,7 @@ import type { Intent, DepartmentId, MessageCtx, BrainResult, AgentDef, CrossDept
 import { getConversationRules } from "../conversation-rules";
 import { getMemory, setMemory, buildMemoryContext } from "./memory";
 import { getDB } from "@/lib/db";
-import { query } from "@/lib/db/queries";
+import { query, execute } from "@/lib/db/queries";
 import { getActivePromptOverride } from "./agent-tuning";
 
 // ── Intent → Department routing ──
@@ -25,7 +25,6 @@ const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "training", department: "member_success" },
   { intent: "motivation", department: "psychology" },
   { intent: "general", department: "sales" },
-  // Negativity detection runs alongside every intent via the negativity_scan chain
 ];
 
 // ── Negativity detection chains (run alongside every intent) ──
@@ -42,22 +41,21 @@ export const CHAINS: Record<string, string[]> = {
   "sales_product_inquiry": ["lead_scanner", "lead_classifier", "product_matcher", "benefit_highlighter", "comparison_builder", "social_proof_injector", "urgency_creator"],
   "sales_referral": ["referral_explainer", "social_proof_injector", "referral_closer"],
   "sales_general": ["lead_scanner", "followup_scheduler", "re_engagement_trigger"],
-  "member_success_registration": ["registration_guide", "welcome_pack_sender", "first_goal_setter", "profile_completer", "tree_placer"],
-  "member_success_training": ["skill_gap_analyzer", "personalized_training_plan", "course_recommender", "quiz_generator", "progress_tracker", "certification_issuer"],
+  "member_success_registration": ["registration_guide", "welcome_pack_sender", "first_goal_setter", "profile_completer"],
   "member_success_commission_inquiry": ["commission_calculator", "earning_reporter", "payout_optimizer"],
-  "member_success_motivation": ["daily_motivation_sender", "achievement_celebrator", "competition_creator"],
+  "member_success_motivation": ["daily_motivation_sender", "achievement_celebrator"],
   "member_success_general": ["query_resolver", "policy_explainer", "escalation_handler"],
   "customer_experience_greeting": ["greeting_personalizer", "rapport_builder"],
   "customer_experience_farewell": ["greeting_personalizer"],
   "customer_experience_support": ["faq_responder", "order_status_checker", "payment_issue_resolver", "delivery_tracker", "return_exchange_handler", "refund_processor"],
   "customer_experience_complaint": ["complaint_listener", "root_cause_finder", "solution_crafter", "satisfaction_restorer"],
-  "customer_experience_feedback": ["feedback_collector", "sentiment_analyzer", "improvement_suggester", "nps_calculator"],
+  "customer_experience_feedback": ["feedback_collector", "improvement_suggester"],
   "operations_withdrawal": ["withdrawal_validator", "withdrawal_approver", "payment_sender", "withdrawal_notifier"],
   "operations_order_status": ["order_creator", "order_verifier", "invoice_generator", "order_notifier"],
   "operations_payment": ["sslcommerz_initiator", "ipn_validator", "payment_status_checker", "refund_initiator", "fraud_detector"],
   "operations_general": ["order_status_checker", "payment_status_checker"],
   "psychology_complaint": ["mood_detector", "empathy_expresser", "frustration_calmer", "trust_builder", "complaint_listener", "root_cause_finder"],
-  "psychology_motivation": ["mood_detector", "confidence_booster", "excitement_amplifier", "future_pacing_agent", "goal_achievement_coach"],
+  "psychology_motivation": ["mood_detector", "confidence_booster", "excitement_amplifier", "future_pacing_agent"],
   "psychology_objection": ["personality_classifier", "comm_style_identifier", "rapport_builder", "reframing_agent", "reciprocity_trigger", "authority_builder", "social_proof_amplifier"],
   "psychology_general": ["mood_detector", "rapport_builder", "empathy_expresser"],
 };
@@ -66,71 +64,31 @@ export const CHAINS: Record<string, string[]> = {
 // CROSS-DEPARTMENT CHAINS — agents from multiple depts collaborate
 // ══════════════════════════════════════════════════════════════
 export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
-  // Full customer journey: from greeting → profiling → sales → ops → member success
+  // Full customer journey (reduced from 25 to 6 steps)
   new_customer_full: [
     { department: "customer_experience", agentId: "greeting_personalizer" },
     { department: "psychology", agentId: "mood_detector" },
-    { department: "psychology", agentId: "personality_classifier" },
-    { department: "psychology", agentId: "comm_style_identifier" },
-    { department: "psychology", agentId: "religion_detector" },
-    { department: "psychology", agentId: "dialect_identifier" },
-    { department: "customer_experience", agentId: "tone_adjuster" },
     { department: "psychology", agentId: "rapport_builder" },
     { department: "sales", agentId: "lead_scanner" },
-    { department: "psychology", agentId: "trust_builder" },
-    { department: "psychology", agentId: "reciprocity_trigger" },
     { department: "sales", agentId: "product_matcher" },
     { department: "sales", agentId: "price_explainer" },
-    { department: "psychology", agentId: "reframing_agent" },
-    { department: "psychology", agentId: "future_pacing_agent" },
-    { department: "sales", agentId: "trust_objection_handler" },
-    { department: "psychology", agentId: "social_proof_amplifier" },
-    { department: "sales", agentId: "trial_closer" },
-    { department: "sales", agentId: "payment_link_sender" },
-    { department: "operations", agentId: "order_creator" },
-    { department: "operations", agentId: "order_verifier" },
-    { department: "member_success", agentId: "welcome_pack_sender" },
-    { department: "member_success", agentId: "first_goal_setter" },
-    { department: "member_success", agentId: "achievement_celebrator" },
-    { department: "customer_experience", agentId: "feedback_collector" },
   ],
 
-  // Complaint resolution: psychology → CX → operations → member success
+  // Complaint resolution (reduced from 11 to 5 steps)
   complaint_full: [
-    { department: "psychology", agentId: "mood_detector" },
     { department: "psychology", agentId: "empathy_expresser" },
-    { department: "psychology", agentId: "frustration_calmer" },
     { department: "negativity_detection", agentId: "complaint_listener" },
     { department: "negativity_detection", agentId: "root_cause_finder" },
-    { department: "operations", agentId: "order_status_checker" },
-    { department: "operations", agentId: "payment_issue_resolver" },
     { department: "negativity_detection", agentId: "solution_crafter" },
     { department: "psychology", agentId: "trust_builder" },
-    { department: "customer_experience", agentId: "satisfaction_restorer" },
-    { department: "member_success", agentId: "satisfaction_restorer" },
   ],
 
-  // New member onboarding: member success → psychology → BI
+  // New member onboarding (reduced from 8 to 4 steps)
   new_member_onboarding: [
     { department: "member_success", agentId: "registration_guide" },
     { department: "member_success", agentId: "welcome_pack_sender" },
     { department: "member_success", agentId: "first_goal_setter" },
-    { department: "psychology", agentId: "confidence_booster" },
-    { department: "psychology", agentId: "goal_achievement_coach" },
     { department: "psychology", agentId: "community_builder" },
-    { department: "member_success", agentId: "skill_gap_analyzer" },
-    { department: "member_success", agentId: "personalized_training_plan" },
-  ],
-
-  // Performance review: member success → psychology
-  performance_review: [
-    { department: "member_success", agentId: "sales_tracker" },
-    { department: "member_success", agentId: "kpi_reporter" },
-    { department: "member_success", agentId: "top_performer_identifier" },
-    { department: "member_success", agentId: "underperformer_detector" },
-    { department: "psychology", agentId: "confidence_booster" },
-    { department: "psychology", agentId: "mindset_shifter" },
-    { department: "psychology", agentId: "goal_achievement_coach" },
   ],
 };
 
@@ -139,7 +97,6 @@ const CROSS_DEPT_TRIGGERS: Record<string, (intent: Intent, ctx: MessageCtx) => b
   new_customer_full: (intent) => ["product_inquiry", "price_inquiry", "purchase", "greeting", "general"].includes(intent),
   complaint_full: (intent) => intent === "complaint",
   new_member_onboarding: (intent) => intent === "registration",
-  performance_review: (intent) => ["commission_inquiry", "training", "general"].includes(intent),
 };
 
 const DEPT_INTENT_PROMPTS: Record<DepartmentId, string> = {
@@ -208,17 +165,12 @@ function getSingleChainKey(department: DepartmentId, intent: Intent): string {
 }
 
 function selectCrossDeptChain(intent: Intent, ctx: MessageCtx): CrossDeptStep[] | null {
-  // Check if user volume is high enough (totalChats > 0 means returning user → skip full chain)
   if (ctx.totalChats > 2) return null;
 
-  // Check complaint
   if (intent === "complaint") return CROSS_DEPT_CHAINS.complaint_full;
   if (intent === "registration") return CROSS_DEPT_CHAINS.new_member_onboarding;
   if (["product_inquiry", "price_inquiry", "purchase", "greeting"].includes(intent)) {
-    if (ctx.isWorker) {
-      if (ctx.isPremium) return CROSS_DEPT_CHAINS.performance_review;
-      return CROSS_DEPT_CHAINS.new_member_onboarding;
-    }
+    if (ctx.isWorker) return CROSS_DEPT_CHAINS.new_member_onboarding;
     return CROSS_DEPT_CHAINS.new_customer_full;
   }
   return null;
@@ -272,7 +224,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
 
   const { intent, department } = await detectIntent(ctx.text, ctx, fallbackDept);
 
-  // ── Greeting shortcut: skip 27-agent chain for simple greetings ──
+  // ── Greeting shortcut ──
   if (intent === "greeting" && ctx.totalChats <= 1) {
     const greetingResponse = ctx.language === "bn"
       ? `ওয়ালাইকুম আসসালাম! 👋 আমি Jobayer Group Career-এর সহকারী। কীভাবে সাহায্য করতে পারি?`
@@ -299,7 +251,6 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
   let chainContext = "";
 
   if (isCrossDept && crossDeptSteps) {
-    // Execute cross-department chain
     for (const step of crossDeptSteps) {
       if (disabledAgents[step.agentId]) {
         chainContext += `\n[${step.agentId}]: (disabled)`;
@@ -321,7 +272,6 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         if (!departmentsUsed.includes(agentData.department)) {
           departmentsUsed.push(agentData.department);
         }
-        // Write agent output to memory
         if (db) {
           setMemory(db, ctx.phone, agent.id, `last_${agent.id}`, output.text.slice(0, 500), "agent_output", 1, 1440).catch(() => {});
         }
@@ -330,7 +280,6 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
       }
     }
   } else {
-    // Single-department chain
     const selectedAgents = selectSingleDeptAgents(department, intent, ctx);
 
     if (selectedAgents.length === 0) {
@@ -356,7 +305,6 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         const output = await executeAgent(agent, agentPrompt, ctx.text, ctx.phone);
         chainContext += `\n[${agent.name}]\n${output.text}`;
         agentsUsed.push(agent.id);
-        // Write agent output to memory
         if (db) {
           setMemory(db, ctx.phone, agent.id, `last_${agent.id}`, output.text.slice(0, 500), "agent_output", 1, 1440).catch(() => {});
         }
@@ -367,7 +315,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
     departmentsUsed.push(department);
   }
 
-  // ── Negativity Detection Scan (runs alongside every conversation) ──
+  // ── Negativity Detection Scan ──
   let negativityFindings = "";
   try {
     const negAgentIds = NEGATIVITY_CHAINS.negativity_scan;
@@ -429,8 +377,8 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         const agentPrompt = buildAgentPrompt(agent, ctxWithFindings, promptOverride || undefined);
         const output = await executeAgent(agent, agentPrompt, ctx.text, ctx.phone);
         if (output.text && !output.text.includes("[Service temporarily unavailable")) {
-          // Store insight in memory
           setMemory(db, ctx.phone, kbAgentId, `insight_${Date.now()}`, output.text.slice(0, 1000), "negativity_insight", 1, 43200).catch(() => {});
+          execute({ DB: db }, `INSERT INTO knowledge_accumulation (source, category, title, content, context_data, status) VALUES (?, ?, ?, ?, ?, 'new')`, [kbAgentId, "insight", `Insight from ${ctx.phone}`, output.text.slice(0, 2000), JSON.stringify({ phone: ctx.phone, intent }), null]).catch(() => {});
         }
       }
     } catch {}
@@ -500,7 +448,7 @@ If complaint → empathetic first. If purchase → guide to next step.`;
     finalTokens = fb.tokens;
   }
 
-  // ── Agent Senior: CEO quality review (skip for new users to save time/tokens) ──
+  // ── Agent Senior: CEO quality review ──
   if (ctx.totalChats > 2) {
   try {
     const reviewResponse = await callAI(
@@ -536,7 +484,6 @@ If complaint → empathetic first. If purchase → guide to next step.`;
       finalText = parsed.rewritten;
     }
   } catch {
-    // Agent Senior unavailable — proceed with composed response
   }
   }
 

@@ -5,8 +5,7 @@ import { invalidateCache } from "@/lib/cache";
 
 const TABLES = [
   "user_events", "user_sessions", "user_searches", "notifications",
-  "communication_history", "ai_log", "ai_conversations", "ai_agent_logs",
-  "ai_agent_tasks", "ai_agent_submissions", "ai_agent_reports",
+  "communication_history", "ai_log", "ai_conversations",
   "wa_logs", "wa_message_queue", "brain_usage", "agent_feedback",
 ];
 
