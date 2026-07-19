@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 
 export default function CompanySettingsPage() {
@@ -82,7 +83,7 @@ export default function CompanySettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen py-24 px-4 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+        <Skeleton className="w-8 h-8 rounded-full" />
       </div>
     );
   }

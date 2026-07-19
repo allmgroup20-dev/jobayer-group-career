@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface SessionRow {
   id: number;
@@ -120,7 +121,7 @@ export default function CompanySessionsPage() {
           <div className={`${selectedSession ? "hidden lg:block" : ""} lg:col-span-1`}>
             <Card className="!p-0 max-h-[70vh] overflow-y-auto">
               {loading ? (
-                <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+                <Skeleton className="h-4 w-32 mx-auto" />
               ) : filtered.length === 0 ? (
                 <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন সেশন নেই" : "No sessions"}</div>
               ) : (
@@ -158,7 +159,7 @@ export default function CompanySessionsPage() {
           {/* Session Detail */}
           <div className={`${!selectedSession ? "hidden lg:block" : ""} lg:col-span-2`}>
             {detailLoading ? (
-              <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : selectedSession ? (
               <div className="space-y-4">
                 {/* Session Info */}

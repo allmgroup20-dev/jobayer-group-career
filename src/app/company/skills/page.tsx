@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Stats {
   responses: { total: number; today: number };
@@ -437,7 +438,7 @@ export default function SkillsPage() {
               </button>
             </div>
             {tasksLoading ? (
-              <div className="text-text-secondary text-sm py-4 text-center">Loading...</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : (
               <div className="space-y-2">
                 {pendingTasks.map((task) => {
@@ -490,7 +491,7 @@ export default function SkillsPage() {
 
           {showHistory && (
             historyLoading ? (
-              <div className="text-text-secondary text-sm py-8 text-center">Loading history...</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : skillHistory.length === 0 ? (
               <div className="text-text-secondary text-sm py-8 text-center">
                 {lang === "bn" ? "কোনো স্কিল পাওয়া যায়নি" : "No skills found"}

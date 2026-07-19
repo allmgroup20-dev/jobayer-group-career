@@ -3,6 +3,7 @@
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface FunnelStage {
   stage: string;
@@ -52,7 +53,7 @@ export default function CompanyFunnelPage() {
 
   if (loading) return (
     <div className="min-h-screen py-24 px-4 bg-gray-50 flex items-center justify-center">
-      <div className="text-text-secondary text-sm">{t("Loading...", "লোড হচ্ছে...")}</div>
+      <Skeleton className="h-4 w-32" />
     </div>
   );
 

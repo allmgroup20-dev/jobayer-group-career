@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface TableStat {
   name: string;
@@ -195,7 +196,7 @@ export default function MaintenancePage() {
         {tab === "overview" && (
           <div className="space-y-4">
             {loading ? (
-              <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" /></div>
+              <div className="flex justify-center py-12"><Skeleton className="w-8 h-8 rounded-full" /></div>
             ) : (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

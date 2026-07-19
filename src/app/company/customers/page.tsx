@@ -5,6 +5,7 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Customer {
   worker_id: string;
@@ -66,9 +67,7 @@ export default function CompanyCustomersPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">
-            {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
-          </div>
+          <Skeleton className="h-4 w-32 mx-auto" />
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-text-secondary">
             {lang === "bn" ? "কোন গ্রাহক পাওয়া যায়নি" : "No customers found"}

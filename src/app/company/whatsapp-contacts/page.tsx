@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function WhatsAppContactsPage() {
   const { lang } = useLanguageStore();
@@ -88,7 +89,7 @@ export default function WhatsAppContactsPage() {
           </div>
 
           {loading ? (
-            <div className="text-center text-sm text-text-secondary py-12">Loading...</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : contacts.length === 0 ? (
             <div className="text-center text-sm text-text-secondary py-12">
               {lang === "bn" ? "কোনো কন্ট্যাক্ট নেই" : "No contacts yet"}

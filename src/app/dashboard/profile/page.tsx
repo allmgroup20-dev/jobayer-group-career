@@ -5,6 +5,7 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import LinkedPlatformsSection from "@/components/LinkedPlatformsSection";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 export default function ProfilePage() {
@@ -163,7 +164,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen py-24 px-4 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+        <Skeleton className="w-8 h-8 rounded-full" />
       </div>
     );
   }

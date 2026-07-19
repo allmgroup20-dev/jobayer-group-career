@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface UserInfo {
   name: string;
@@ -162,7 +163,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-text-secondary text-sm">Loading...</div>
+        <Skeleton className="h-4 w-24" />
       </div>
     );
   }

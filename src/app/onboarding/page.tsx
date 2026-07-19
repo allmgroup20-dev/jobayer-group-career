@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const INTEREST_OPTIONS = [
   { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
@@ -317,7 +318,7 @@ export default function OnboardingPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+        <Skeleton className="w-8 h-8 rounded-full" />
       </div>
     );
   }

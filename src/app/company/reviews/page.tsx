@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface ReviewRow {
   id: number;
@@ -94,7 +95,7 @@ export default function CompanyReviewsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+          <Skeleton className="h-4 w-32 mx-auto" />
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "কোনো রিভিউ নেই" : "No reviews"}</div>
         ) : (

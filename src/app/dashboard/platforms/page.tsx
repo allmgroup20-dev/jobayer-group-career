@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Button } from "@/components/ui/Button";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface PlatformUser {
   phone: string;
@@ -70,7 +71,7 @@ export default function PlatformPreferencesPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+          <div className="flex justify-center py-12"><Skeleton className="h-4 w-32" /></div>
         ) : (
           <div className="space-y-2">
             {users.map(u => (

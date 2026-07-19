@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
 import ImageUpload from "@/components/ui/ImageUpload";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Trainer {
   id: number; name: string; name_bn: string | null;
@@ -96,7 +97,7 @@ export default function CompanyTrainersPage() {
     load();
   };
 
-  if (loading) return <div className="p-6 text-text-secondary">Loading...</div>;
+  if (loading) return <Skeleton className="h-4 w-32 mx-auto" />;
 
   return (
     <div className="p-6">

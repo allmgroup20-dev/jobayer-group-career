@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Notification {
   id: number;
@@ -66,7 +67,7 @@ export default function NotificationsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+          <div className="flex justify-center py-12"><Skeleton className="h-4 w-32" /></div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "কোনো বিজ্ঞপ্তি নেই" : "No notifications"}</div>
         ) : (

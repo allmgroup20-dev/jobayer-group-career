@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Complaint {
   id: number; workerId: string; courseIds: string; description: string;
@@ -52,7 +53,7 @@ export default function MyComplaintsPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+          <div className="flex justify-center py-12"><Skeleton className="h-4 w-32" /></div>
         ) : complaints.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border border-border">
             <p className="text-text-secondary">{lang === "bn" ? "কোন রিপোর্ট নেই" : "No complaints yet"}</p>

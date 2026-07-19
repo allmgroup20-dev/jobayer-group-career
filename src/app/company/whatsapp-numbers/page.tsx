@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function NumberToolsPage() {
   const { lang } = useLanguageStore();
@@ -129,7 +130,7 @@ export default function NumberToolsPage() {
           {lang === "bn" ? "স্ক্যান করা নাম্বারসমূহ" : "Scanned Numbers"} ({numbers.length})
         </h2>
         {loading ? (
-          <div className="text-center text-sm text-text-secondary py-8">Loading...</div>
+          <Skeleton className="h-4 w-32 mx-auto" />
         ) : numbers.length === 0 ? (
           <div className="text-center text-sm text-text-secondary py-8">
             {lang === "bn" ? "এখনো কোনো নাম্বার জেনারেট করা হয়নি" : "No numbers generated yet"}

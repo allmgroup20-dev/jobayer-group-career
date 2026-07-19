@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useLanguageStore } from "@/lib/store";
 
 export default function TrainersPage() {
@@ -24,7 +25,7 @@ export default function TrainersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+        <Skeleton className="w-8 h-8 rounded-full" />
       </div>
     );
   }

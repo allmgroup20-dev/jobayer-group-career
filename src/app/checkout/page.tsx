@@ -7,6 +7,7 @@ import { useLanguageStore, useCartStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
 
 type PageStep = "loading" | "login-required" | "form" | "ssl-success" | "ssl-failed" | "ssl-cancelled" | "ssl-error" | "cod-confirmed";
@@ -138,7 +139,7 @@ function CheckoutContent() {
   const totalAmount = items.reduce((s, i) => s + i.price * i.quantity, 0);
 
   if (step === "loading") {
-    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" /></div>;
+    return <div className="min-h-screen flex items-center justify-center"><Skeleton className="w-8 h-8 rounded-full" /></div>;
   }
 
   if (step === "login-required") {
@@ -354,7 +355,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Skeleton className="w-8 h-8 rounded-full" /></div>}>
       <CheckoutContent />
     </Suspense>
   );

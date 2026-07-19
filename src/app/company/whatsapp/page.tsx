@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type TabId = "dashboard" | "contacts" | "campaigns" | "numbers" | "leads";
 
@@ -364,7 +365,7 @@ export default function WhatsAppHubPage() {
               <input type="text" placeholder={lang === "bn" ? "খুঁজুন..." : "Search..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && loadContacts(contactsFilter, search)} className="ml-auto px-3 py-1.5 text-xs rounded-xl border border-border bg-white text-primary" />
             </div>
             {contactsLoading ? (
-              <div className="text-center text-sm text-text-secondary py-12">Loading...</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : contacts.length === 0 ? (
               <div className="text-center text-sm text-text-secondary py-12">{lang === "bn" ? "কোনো কন্ট্যাক্ট নেই" : "No contacts yet"}</div>
             ) : (
@@ -399,7 +400,7 @@ export default function WhatsAppHubPage() {
             <div className="card p-6 lg:col-span-2">
               <h2 className="font-bold text-base text-primary mb-4">{lang === "bn" ? "ক্যাম্পেইনসমূহ" : "Campaigns"}</h2>
               {campaignsLoading ? (
-                <div className="text-center text-sm text-text-secondary py-12">Loading...</div>
+                <Skeleton className="h-4 w-32 mx-auto" />
               ) : campaigns.length === 0 ? (
                 <div className="text-center text-sm text-text-secondary py-12">{lang === "bn" ? "কোনো ক্যাম্পেইন নেই" : "No campaigns yet"}</div>
               ) : (
@@ -457,7 +458,7 @@ export default function WhatsAppHubPage() {
           <div className="card p-6">
             <h2 className="font-bold text-base text-primary mb-4">{lang === "bn" ? "স্ক্যান করা নাম্বারসমূহ" : "Scanned Numbers"} ({numbers.length})</h2>
             {numbersLoading ? (
-              <div className="text-center text-sm text-text-secondary py-8">Loading...</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : numbers.length === 0 ? (
               <div className="text-center text-sm text-text-secondary py-8">{lang === "bn" ? "এখনো কোনো নাম্বার জেনারেট করা হয়নি" : "No numbers generated yet"}</div>
             ) : (
@@ -516,7 +517,7 @@ export default function WhatsAppHubPage() {
               </thead>
               <tbody>
                 {leads.length === 0 && !leadsLoading && <tr><td colSpan={10} className="p-6 text-center text-text-secondary">{lang === "bn" ? "কোনো লিড নেই" : "No leads found"}</td></tr>}
-                {leadsLoading && <tr><td colSpan={10} className="p-6 text-center text-text-secondary">{lang === "bn" ? "লোডিং..." : "Loading..."}</td></tr>}
+                {leadsLoading && <tr><td colSpan={10} className="p-6 text-center"><Skeleton className="h-4 w-32 mx-auto" /></td></tr>}
                 {leads.map((lead: any) => (
                   <tr key={lead.id} className="border-b border-border/50 hover:bg-primary/5">
                     <td className="p-3 font-mono text-xs">{lead.phone}</td>

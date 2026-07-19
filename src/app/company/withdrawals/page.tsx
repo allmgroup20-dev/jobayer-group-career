@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { fetchWithCache } from "@/lib/use-swr-fetch";
 
 interface Withdrawal {
@@ -148,8 +149,8 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
   };
 
   if (loading) return (
-    <div className="text-center text-text-secondary text-sm py-12">
-      {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
+    <div className="text-center py-12">
+      <Skeleton className="h-4 w-32 mx-auto" />
     </div>
   );
 
@@ -310,8 +311,8 @@ function WithdrawalStatsTab({ lang }: { lang: string }) {
   }, []);
 
   if (loading) return (
-    <div className="text-center text-text-secondary text-sm py-12">
-      {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
+    <div className="text-center py-12">
+      <Skeleton className="h-4 w-32 mx-auto" />
     </div>
   );
 
@@ -436,7 +437,7 @@ function WithdrawalSettingsTab({ lang }: { lang: string }) {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full mx-auto" />
+        <Skeleton className="w-8 h-8 rounded-full mx-auto" />
       </div>
     );
   }

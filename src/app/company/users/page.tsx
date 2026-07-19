@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface CompanyUser {
   id: number;
@@ -59,9 +60,7 @@ export default function CompanyUsersPage() {
         )}
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">
-            {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
-          </div>
+          <div className="flex justify-center py-12"><Skeleton className="h-4 w-32" /></div>
         ) : (
           <Card className="overflow-hidden !p-0">
             <div className="overflow-x-auto">

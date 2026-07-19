@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Model {
   model_id: string;
@@ -233,7 +234,7 @@ export default function AISettingsPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="text-text-secondary text-sm">Loading...</div>
+      <Skeleton className="h-4 w-32 mx-auto" />
     </div>
   );
 

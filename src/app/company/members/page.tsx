@@ -6,6 +6,7 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Member {
   workerId: string; name: string; phone: string; email: string | null;
@@ -290,7 +291,7 @@ export default function CompanyMembersPage() {
 
         <Card className="overflow-hidden !p-0">
           {loading ? (
-            <div className="p-12 text-center text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : members.length === 0 ? (
             <div className="p-12 text-center text-text-secondary text-sm">{lang === "bn" ? "কোনো মেম্বার পাওয়া যায়নি" : "No members found"}</div>
           ) : (

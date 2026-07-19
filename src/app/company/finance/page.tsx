@@ -3,6 +3,7 @@
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface FinanceData {
   revenue: { total: number; completed: number; pending: number };
@@ -17,7 +18,7 @@ export default function CompanyFinancePage() {
 
   if (loading) return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
-      <div className="max-w-6xl mx-auto text-center text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+      <div className="max-w-6xl mx-auto flex justify-center"><Skeleton className="h-4 w-32" /></div>
     </div>
   );
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const LOG_TYPES = ["", "error", "warning", "perf", "info"];
 const TYPE_COLORS: Record<string, string> = {
@@ -63,7 +64,7 @@ export default function LogsPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-text-secondary">Loading...</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : logs.length === 0 ? (
             <div className="p-8 text-center text-text-secondary">No logs found</div>
           ) : (

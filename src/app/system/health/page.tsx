@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function HealthPage() {
   const [checks, setChecks] = useState<any[]>([]);
@@ -109,7 +110,7 @@ export default function HealthPage() {
         {/* Health history table */}
         <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-text-secondary">Loading...</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : checks.length === 0 ? (
             <div className="p-8 text-center text-text-secondary">No health checks recorded</div>
           ) : (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { formatCurrency, formatDate, getStatusColor, getStatusBadge } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
 
 interface Order {
@@ -35,7 +36,7 @@ export default function OrdersPage() {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
+            <Skeleton className="w-8 h-8 rounded-full" />
           </div>
         ) : orders.length === 0 ? (
           <Card className="text-center py-12">

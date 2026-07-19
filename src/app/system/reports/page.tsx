@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ReportsPage() {
   const [reports, setReports] = useState<any[]>([]);
@@ -60,7 +61,7 @@ export default function ReportsPage() {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-text-secondary">Loading...</div>
+          <Skeleton className="h-4 w-32 mx-auto" />
         ) : reports.length === 0 ? (
           <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-border">
             <div className="text-3xl mb-3">📊</div>

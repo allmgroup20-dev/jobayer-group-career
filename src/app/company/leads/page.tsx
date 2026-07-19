@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Lead {
   id: number;
@@ -128,7 +129,7 @@ export default function LeadsPage() {
                 <tr><td colSpan={10} className="p-6 text-center text-text-secondary">{lang === "bn" ? "কোনো লিড নেই" : "No leads found"}</td></tr>
               )}
               {loading && (
-                <tr><td colSpan={10} className="p-6 text-center text-text-secondary">{lang === "bn" ? "লোডিং..." : "Loading..."}</td></tr>
+                <tr><td colSpan={10} className="p-6 text-center"><Skeleton className="h-4 w-32 mx-auto" /></td></tr>
               )}
               {leads.map((lead) => (
                 <tr key={lead.id} className="border-b border-border/50 hover:bg-primary/5">

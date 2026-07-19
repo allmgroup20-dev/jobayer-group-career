@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useLanguageStore } from "@/lib/store";
 
 export default function MyCoursesPage() {
@@ -48,7 +49,7 @@ export default function MyCoursesPage() {
     { key: "downloads", label: "📥 ডাউনলোড", count: downloads.length },
   ];
 
-  if (loading) return <div className="min-h-screen bg-bg py-24 px-4"><div className="max-w-4xl mx-auto text-center"><p className="text-text-secondary font-semibold">লোড হচ্ছে...</p></div></div>;
+  if (loading) return <div className="min-h-screen bg-bg py-24 px-4"><div className="max-w-4xl mx-auto text-center"><Skeleton className="h-4 w-32 mx-auto" /></div></div>;
 
   return (
     <div className="min-h-screen bg-bg py-24 px-4">

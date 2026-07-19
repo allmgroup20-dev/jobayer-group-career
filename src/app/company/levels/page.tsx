@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Product {
   id: number;
@@ -249,7 +250,7 @@ export default function CompanyLevelsPage() {
   if (loading) {
     return (
       <div className="min-h-screen py-24 px-4 bg-gray-50 flex items-center justify-center">
-        <p className="text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</p>
+        <Skeleton className="h-4 w-32 mx-auto" />
       </div>
     );
   }

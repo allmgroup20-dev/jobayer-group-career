@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
 import type { Agent, AgentTreeNode, AgentReport, AgentSubmission, AgentLog, AgentStats, GlobalAgentConfig } from "@/lib/ai/agents";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type TabId = "dashboard" | "settings" | "brain" | "employees" | "insights" | "skills";
 
@@ -567,7 +568,7 @@ export default function AIHubPage() {
       {/* ════════════════════════ DASHBOARD TAB ════════════════════════ */}
       {activeTab === "dashboard" && (
         <div>
-          {dashLoading ? <div className="text-text-secondary text-sm py-12 text-center">Loading dashboard...</div> : (
+          {dashLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
               {/* ── KPI Cards ── */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -737,7 +738,7 @@ export default function AIHubPage() {
       {activeTab === "settings" && (
         <div>
           {msg && <div className="mb-4 p-3 rounded-xl bg-action/10 text-sm text-action font-medium">{msg}</div>}
-          {settingsLoading ? <div className="text-text-secondary text-sm py-12 text-center">Loading...</div> : (
+          {settingsLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
               <div className="card p-6 mb-6">
                 <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "API কী যোগ করুন" : "Add API Key"}</h2>
@@ -1175,7 +1176,7 @@ export default function AIHubPage() {
               {/* ── Saved Flows ── */}
               <div className="bg-white rounded-2xl border border-border p-6">
                 <h2 className="text-lg font-bold text-primary mb-4">{lang === "bn" ? "📋 সেভ করা ফ্লো" : "📋 Saved Flows"}</h2>
-                {flowsLoading ? <div className="text-xs text-text-secondary">Loading...</div> : flows.length === 0 ? (
+                {flowsLoading ? <Skeleton className="h-3 w-20" /> : flows.length === 0 ? (
                   <div className="text-xs text-text-secondary py-6 text-center">{lang === "bn" ? "কোনো ফ্লো নেই। উপরে একটি ফ্লো তৈরি করুন।" : "No flows yet. Create one above."}</div>
                 ) : (
                   <div className="space-y-3">
@@ -1571,7 +1572,7 @@ export default function AIHubPage() {
       {/* ════════════════════════ INSIGHTS TAB ════════════════════════ */}
       {activeTab === "insights" && (
         <div>
-          {insightsLoading ? <div className="text-text-secondary text-sm py-12 text-center">Loading...</div> : (
+          {insightsLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div className="card p-5"><div className="text-sm text-text-secondary">{lang === "bn" ? "কনভারসেশন" : "Conversations"}</div><div className="text-2xl font-bold text-primary mt-1">{aiStats?.conversations || 0}</div></div>
@@ -1647,7 +1648,7 @@ export default function AIHubPage() {
       {/* ════════════════════════ SKILLS TAB ════════════════════════ */}
       {activeTab === "skills" && (
         <div>
-          {skillsLoading ? <div className="text-text-secondary text-sm py-12 text-center">Loading...</div> : (
+          {skillsLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div className="card p-4 text-center"><div className="text-xl font-bold text-primary">{skillsStats?.responses.total || 0}</div><div className="text-xs text-text-secondary mt-1">{lang === "bn" ? "মোট রেসপন্স" : "Total Responses"}</div></div>

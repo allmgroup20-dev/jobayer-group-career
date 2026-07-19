@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Preference {
   id: number;
@@ -80,7 +81,7 @@ export default function NotificationPrefsPage() {
         {message && <div className="p-3 bg-green-50 rounded-xl text-sm text-green-700">{message}</div>}
 
         {loading ? (
-          <div className="text-center py-12 text-text-secondary">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+          <div className="flex justify-center py-12"><Skeleton className="h-4 w-32" /></div>
         ) : (
           <Card className="!p-0 overflow-hidden">
             <div className="overflow-x-auto">

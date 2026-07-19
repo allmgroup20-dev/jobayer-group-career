@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Stats {
   totalLogs: number;
@@ -114,7 +115,7 @@ export default function SystemDashboard() {
           <div className="md:col-span-2 bg-white rounded-xl p-4 shadow-sm border border-border">
             <h2 className="font-semibold text-primary mb-3">Recent Errors & Warnings</h2>
             {loading ? (
-              <div className="text-sm text-text-secondary">Loading...</div>
+              <Skeleton className="h-4 w-32 mx-auto" />
             ) : !stats?.latestErrors?.length ? (
               <div className="text-sm text-text-secondary">No recent errors</div>
             ) : (

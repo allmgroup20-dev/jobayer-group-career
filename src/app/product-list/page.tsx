@@ -8,6 +8,7 @@ import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { ReviewList } from "@/components/reviews/ReviewList";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
 import { getCached, setCached } from "@/lib/client-cache";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Product {
   id: number; name: string; nameBn: string | null; price: number;
@@ -194,8 +195,7 @@ export default function ProductsPage() {
             <div className="col-span-full text-center py-16">
               {productsLoading ? (
                 <div className="flex flex-col items-center gap-3">
-                  <div className="animate-spin w-8 h-8 border-4 border-action border-t-transparent rounded-full" />
-                  <p className="text-text-secondary text-sm">{lang === "bn" ? "পণ্য লোড হচ্ছে..." : "Loading products..."}</p>
+                  <Skeleton className="w-8 h-8 rounded-full mx-auto" />
                 </div>
               ) : (
                 <p className="text-text-secondary">{lang === "bn" ? "কোনো পণ্য পাওয়া যায়নি" : "No products found"}</p>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface SentimentItem {
   id: number; workerId: string; workerName: string; text: string;
@@ -97,7 +98,7 @@ export default function SentimentPage() {
         {/* Items */}
         <div className="space-y-3">
           {loading ? (
-            <Card><div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div></Card>
+            <Card><Skeleton className="h-4 w-32 mx-auto" /></Card>
           ) : filtered.length === 0 ? (
             <Card><div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন ডেটা নেই" : "No data"}</div></Card>
           ) : filtered.slice(0, showAll ? filtered.length : 50).map((item, i) => (

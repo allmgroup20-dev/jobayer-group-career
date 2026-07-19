@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface TriggerItem {
   workerId: string; name: string; phone: string; trigger: string; detail: string; segment: string;
@@ -128,7 +129,7 @@ export default function CompanyAutomationPage() {
         <Card>
           <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "ট্রিগার লিস্ট" : "Trigger List"}</h3>
           {loading ? (
-            <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : triggers.length === 0 ? (
             <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন ট্রিগার নেই" : "No triggers"}</div>
           ) : (

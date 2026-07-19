@@ -6,6 +6,7 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Order {
   order_id: string; worker_id: string; product_id: number | null;
@@ -157,7 +158,7 @@ export default function CompanyOrdersPage() {
         {/* Orders Table */}
         <Card className="overflow-x-auto">
           {loading ? (
-            <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : orders.length === 0 ? (
             <div className="text-center py-8 text-text-secondary text-sm">{lang === "bn" ? "কোন অর্ডার পাওয়া যায়নি" : "No orders found"}</div>
           ) : (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Conversation {
   phone: string;
@@ -92,7 +93,7 @@ export default function AIConversationsPage() {
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="space-y-2">
           {loading ? (
-            <div className="text-text-secondary text-sm py-12 text-center">Loading...</div>
+            <Skeleton className="h-4 w-32 mx-auto" />
           ) : filtered.length === 0 ? (
             <div className="text-text-secondary text-sm py-12 text-center">
               {lang === "bn" ? "কোনো কথোপকথন নেই" : "No conversations found"}

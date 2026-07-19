@@ -5,6 +5,7 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface C360Data {
   worker: any;
@@ -42,9 +43,7 @@ export default function Customer360Page() {
 
   if (loading) return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
-      <div className="max-w-6xl mx-auto text-center py-12 text-text-secondary">
-        {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
-      </div>
+      <Skeleton className="h-4 w-32 mx-auto" />
     </div>
   );
 
