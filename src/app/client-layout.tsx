@@ -11,6 +11,7 @@ import { useLanguageStore } from "@/lib/store";
 import { useTracker } from "@/lib/tracking/tracker";
 import { SystemErrorBoundary } from "@/components/system/SystemErrorBoundary";
 import { initGlobalErrorReporter } from "@/lib/system/reporter";
+import { PerfMonitor } from "@/components/system/PerfMonitor";
 
 function ScrollProgressBar() {
   const barRef = useRef<HTMLDivElement>(null);
@@ -84,6 +85,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
+      <PerfMonitor />
       <ScrollProgressBar />
       <Navbar />
       <main className={isHome ? "" : "min-h-screen pt-16 md:pt-20"}>

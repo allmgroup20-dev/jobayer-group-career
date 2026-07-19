@@ -1,5 +1,3 @@
-"use server";
-
 import { ensureDB } from "@/lib/db";
 
 const queue: Record<string, unknown>[] = [];
