@@ -62,6 +62,7 @@ export interface MessageCtx {
   painPoints: string[];
   interests: string[];
   isWorker: boolean;
+  isPremium: boolean;
 }
 
 export interface CrossDeptStep {

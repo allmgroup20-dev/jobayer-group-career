@@ -23,3 +23,14 @@ export async function getWorkerByPhone(phone: string): Promise<{
     [clean]
   );
 }
+
+export async function getWorkerPremiumStatus(phone: string): Promise<boolean> {
+  const db = await ensureDB();
+  const clean = phone.replace(/[^0-9]/g, "");
+  const worker = await queryFirst<{ membership_status: string }>(
+    { DB: db },
+    "SELECT membership_status FROM workers WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ?",
+    [clean]
+  );
+  return worker?.membership_status === "premium";
+}

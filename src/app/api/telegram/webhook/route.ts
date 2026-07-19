@@ -18,6 +18,7 @@ import {
   saveSkill,
   extractKeywords,
   isWorkerPhone,
+  getWorkerPremiumStatus,
   getOrCreateLead,
   updateLeadStatus,
 } from "@/lib/ai";
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
     if (cachedSkill) {
       reply = cachedSkill;
     } else {
+      const isPremium = isWorker ? await getWorkerPremiumStatus(phone) : false;
       const brainCtx: MessageCtx = {
         phone,
         text,
@@ -108,6 +110,7 @@ export async function POST(request: NextRequest) {
         painPoints,
         interests,
         isWorker,
+        isPremium,
       };
       const brainResult = await processMessage(brainCtx);
       reply = brainResult.text;

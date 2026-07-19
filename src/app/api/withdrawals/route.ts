@@ -33,8 +33,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
-    // Membership-based min withdrawal check
     const isPremium = worker[0].membership_status === "premium";
+
+    // Membership-based min withdrawal check
     const minSetting = await query<{ setting_value: string }>(
       env, `SELECT setting_value FROM company_settings WHERE setting_key = ?`,
       [isPremium ? "min_withdrawal_premium" : "min_withdrawal"]
@@ -44,15 +45,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Minimum withdrawal is ৳${minAmount}` }, { status: 400 });
     }
 
+    // Calculate tax for general members (premium members pay no tax)
+    let taxAmount = 0;
+    let finalAmount = amount;
+    if (!isPremium) {
+      const taxSetting = await query<{ setting_value: string }>(
+        env, "SELECT setting_value FROM company_settings WHERE setting_key = 'general_member_withdrawal_tax_percent'"
+      );
+      const taxPercent = taxSetting.length > 0 ? parseFloat(taxSetting[0].setting_value) : 5;
+      taxAmount = Math.round(amount * taxPercent / 100);
+      finalAmount = amount - taxAmount;
+    }
+
     const status = isAutoMode ? "completed" : "pending";
     const processedAt = isAutoMode ? "datetime('now')" : "NULL";
 
     const withdrawalId = `WTH${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     await execute(env,
-      `INSERT INTO withdrawals (withdrawal_id, worker_id, amount, currency, payment_method, account_number, status, processed_at)
-       VALUES (?, ?, ?, 'BDT', ?, ?, ?, ${processedAt})`,
-      [withdrawalId, workerId, amount, paymentMethod || "bkash", accountNumber || null, status]
+      `INSERT INTO withdrawals (withdrawal_id, worker_id, amount, tax_amount, final_amount, currency, payment_method, account_number, status, processed_at)
+       VALUES (?, ?, ?, ?, ?, 'BDT', ?, ?, ?, ${processedAt})`,
+      [withdrawalId, workerId, amount, taxAmount, finalAmount, paymentMethod || "bkash", accountNumber || null, status]
     );
 
     // Resource income is NOT deducted on withdrawal — it can only be used to unlock resources
@@ -99,11 +112,11 @@ export async function GET(request: NextRequest) {
 
   try {
     const sql = workerId
-      ? `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
+      ? `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.tax_amount as taxAmount, w.final_amount as finalAmount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
          FROM withdrawals w
          LEFT JOIN workers wr ON w.worker_id = wr.worker_id
          WHERE w.worker_id = ? ORDER BY w.created_at DESC LIMIT 20`
-      : `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
+      : `SELECT w.id, w.withdrawal_id as withdrawalId, w.worker_id as workerId, w.amount, w.tax_amount as taxAmount, w.final_amount as finalAmount, w.currency, w.payment_method as paymentMethod, w.account_number as accountNumber, w.status, w.processed_at as processedAt, w.created_at as createdAt, wr.name as workerName
          FROM withdrawals w
          LEFT JOIN workers wr ON w.worker_id = wr.worker_id
          WHERE w.created_at > datetime('now', '-6 months')

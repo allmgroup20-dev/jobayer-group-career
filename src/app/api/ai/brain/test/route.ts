@@ -48,6 +48,7 @@ export async function GET() {
         painPoints: [],
         interests: [],
         isWorker: scenario.role === "worker",
+        isPremium: false,
       };
 
       // Check cache first
@@ -135,6 +136,7 @@ export async function POST(request: Request) {
     painPoints: [],
     interests: [],
     isWorker: (body as any).role === "worker",
+    isPremium: (body as any).role === "premium",
   };
 
   try {

@@ -137,6 +137,8 @@ export const withdrawals = sqliteTable("withdrawals", {
   withdrawalId: text("withdrawal_id").unique().notNull(),
   workerId: text("worker_id").notNull(),
   amount: real("amount").notNull(),
+  taxAmount: real("tax_amount").default(0),
+  finalAmount: real("final_amount"),
   currency: text("currency").default("BDT"),
   paymentMethod: text("payment_method"),
   accountNumber: text("account_number"),

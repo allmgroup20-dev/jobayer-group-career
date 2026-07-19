@@ -767,11 +767,18 @@ export default function WorkerDashboard() {
                     <span className="font-semibold text-primary">ন্যূনতম ৳{premiumMinWithdraw}</span>
                   </div>
                   {!isPremium && (
-                    <p className="mt-2 text-xs text-amber-600">
-                      {lang === "bn"
-                        ? `প্রিমিয়ামে আপগ্রেড করে মাত্র ৳${premiumMinWithdraw} থেকে উত্তোলন শুরু করুন!`
-                        : `Upgrade to Premium and withdraw from just ৳${premiumMinWithdraw}!`}
-                    </p>
+                    <>
+                      <p className="mt-2 text-xs text-amber-600">
+                        {lang === "bn"
+                          ? `প্রিমিয়ামে আপগ্রেড করে মাত্র ৳${premiumMinWithdraw} থেকে উত্তোলন শুরু করুন!`
+                          : `Upgrade to Premium and withdraw from just ৳${premiumMinWithdraw}!`}
+                      </p>
+                      <p className="mt-1 text-xs text-red-500 font-medium">
+                        {lang === "bn"
+                          ? "⚠ সাধারণ মেম্বার হিসেবে উত্তোলনে প্ল্যাটফর্ম ট্যাক্স কাটা হবে। প্রিমিয়াম মেম্বার হলে কোনো ট্যাক্স নেই।"
+                          : "⚠ General member withdrawals are subject to platform tax. Premium members pay no tax."}
+                      </p>
+                    </>
                   )}
                 </div>
 

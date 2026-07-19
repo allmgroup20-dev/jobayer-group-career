@@ -202,7 +202,8 @@ function buildContext(ctx: MessageCtx, intent: Intent, chainOutput?: string, use
     language: ctx.language === "bn" ? "Bengali" : ctx.language === "en" ? "English" : "Bengali with English mix",
     customerName: ctx.name || "Valued Customer",
     customerPhone: ctx.phone,
-    customerRole: ctx.role === "customer" ? "potential member" : ctx.role === "worker" ? "registered member" : "admin",
+    customerRole: ctx.role === "customer" ? "potential member" : ctx.role === "worker" ? "premium member" : "admin",
+    memberTier: ctx.role === "customer" ? "not registered" : ctx.isPremium ? "premium" : "general",
     mood: ctx.mood,
     dialect: ctx.dialect || "standard Bengali",
     religion: ctx.religion || "not specified",
@@ -231,7 +232,10 @@ function selectCrossDeptChain(intent: Intent, ctx: MessageCtx): CrossDeptStep[] 
   if (intent === "complaint") return CROSS_DEPT_CHAINS.complaint_full;
   if (intent === "registration") return CROSS_DEPT_CHAINS.new_member_onboarding;
   if (["product_inquiry", "price_inquiry", "purchase", "greeting"].includes(intent)) {
-    if (ctx.isWorker) return CROSS_DEPT_CHAINS.performance_review;
+    if (ctx.isWorker) {
+      if (ctx.isPremium) return CROSS_DEPT_CHAINS.performance_review;
+      return CROSS_DEPT_CHAINS.new_member_onboarding;
+    }
     return CROSS_DEPT_CHAINS.new_customer_full;
   }
   return null;

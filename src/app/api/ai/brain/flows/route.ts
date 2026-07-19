@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
         painPoints: [],
         interests: [],
         isWorker: false,
+        isPremium: false,
       };
 
       let chainContext = "";

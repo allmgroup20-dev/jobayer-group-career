@@ -6,7 +6,7 @@ export { getOrCreateProfile, updateProfileScore, updateProfileFromChat } from ".
 export { findSkill, saveSkill } from "./skills";
 export { getHistory, saveMessage } from "./history";
 export { getKnowledgeContext } from "./knowledge";
-export { isWorkerPhone, getWorkerByPhone } from "./worker-detection";
+export { isWorkerPhone, getWorkerByPhone, getWorkerPremiumStatus } from "./worker-detection";
 export { getOrCreateLead, updateLeadStatus, getLeads, getLeadStats } from "./leads";
 export { consolidateSkills } from "./skill-consolidation";
 export { getSimilarUserContext } from "./cross-user-learning";

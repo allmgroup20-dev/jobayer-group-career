@@ -3,7 +3,7 @@ import {
   processMessage,
   detectLanguage, detectMood, detectDialect, detectReligion,
   analyzePainPoints, analyzeInterests,
-  getOrCreateProfile, isWorkerPhone,
+  getOrCreateProfile, isWorkerPhone, getWorkerPremiumStatus,
   getOrCreateLead,
 } from "@/lib/ai";
 import type { MessageCtx } from "@/lib/ai/brain/types";
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const isWorker = await isWorkerPhone(phone);
+    const isPremium = isWorker ? await getWorkerPremiumStatus(phone) : false;
     const role = body.role === "admin" ? "admin" : isWorker ? "worker" : "customer";
 
     const profile = await getOrCreateProfile(phone);
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
       painPoints,
       interests,
       isWorker,
+      isPremium,
     };
 
     // ── Check cache — skip processing if cached ──

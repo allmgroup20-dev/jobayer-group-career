@@ -155,6 +155,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       withdrawal_id TEXT UNIQUE NOT NULL,
       worker_id TEXT NOT NULL,
       amount REAL NOT NULL,
+      tax_amount REAL DEFAULT 0,
+      final_amount REAL,
       currency TEXT DEFAULT 'BDT',
       payment_method TEXT,
       account_number TEXT,
