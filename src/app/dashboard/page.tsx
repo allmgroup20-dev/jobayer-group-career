@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import ContactSyncBanner from "@/components/onboarding/ContactSyncBanner";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -227,6 +228,11 @@ export default function WorkerDashboard() {
           <StatCard label={lang === "bn" ? "সহযোগী" : "Associates"} value={(worker.totalTeamMembers ?? 0).toString()} color="text-primary" />
           <StatCard label={lang === "bn" ? "পদবী" : "Position"} value={lang === "bn" && worker.levelNameBn ? worker.levelNameBn : (worker.levelName || `Level ${worker.level}`)} color="text-accent" />
         </div>
+
+        {/* Contact Sync Banner (onboarding) */}
+        {typeof window !== "undefined" && !localStorage.getItem("contact_sync_done") && workerId && (
+          <ContactSyncBanner workerId={workerId} />
+        )}
 
         {/* Demo Bonus */}
         {worker.demoBonus > 0 && (
