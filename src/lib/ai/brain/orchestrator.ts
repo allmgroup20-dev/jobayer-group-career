@@ -56,17 +56,10 @@ export const CHAINS: Record<string, string[]> = {
   "operations_order_status": ["order_creator", "order_verifier", "invoice_generator", "order_notifier"],
   "operations_payment": ["sslcommerz_initiator", "ipn_validator", "payment_status_checker", "refund_initiator", "fraud_detector"],
   "operations_general": ["order_status_checker", "payment_status_checker"],
-  "business_intelligence_research": ["pain_point_miner", "opportunity_detector", "competitor_tracker", "industry_researcher"],
-  "business_intelligence_analytics": ["sales_analyst", "member_growth_analyst", "conversion_funnel_analyst", "predictive_modeler"],
-  "business_intelligence_report": ["report_compiler", "swot_analyzer", "knowledge_base_updater"],
-  "psychology_complaint": ["mood_detector", "empathy_expresser", "frustration_calmer", "trust_builder", "conflict_resolver"],
+  "psychology_complaint": ["mood_detector", "empathy_expresser", "frustration_calmer", "trust_builder", "complaint_listener", "root_cause_finder"],
   "psychology_motivation": ["mood_detector", "confidence_booster", "excitement_amplifier", "future_pacing_agent", "goal_achievement_coach"],
   "psychology_objection": ["personality_classifier", "comm_style_identifier", "rapport_builder", "reframing_agent", "reciprocity_trigger", "authority_builder", "social_proof_amplifier"],
   "psychology_general": ["mood_detector", "rapport_builder", "empathy_expresser"],
-  "platform_admin_settings": ["commission_config_validator", "settings_backup", "test_mode_manager"],
-  "platform_admin_translation": ["translation_manager", "content_localizer"],
-  "platform_admin_security": ["suspicious_activity_detector", "login_monitor", "permission_checker"],
-  "platform_admin_update": ["db_health_monitor", "api_availability_checker", "performance_monitor", "error_log_analyzer", "update_manager"],
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -99,8 +92,6 @@ export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
     { department: "member_success", agentId: "welcome_pack_sender" },
     { department: "member_success", agentId: "first_goal_setter" },
     { department: "member_success", agentId: "achievement_celebrator" },
-    { department: "business_intelligence", agentId: "conversation_miner" },
-    { department: "business_intelligence", agentId: "skill_auto_learner" },
     { department: "customer_experience", agentId: "feedback_collector" },
   ],
 
@@ -109,15 +100,14 @@ export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
     { department: "psychology", agentId: "mood_detector" },
     { department: "psychology", agentId: "empathy_expresser" },
     { department: "psychology", agentId: "frustration_calmer" },
-    { department: "customer_experience", agentId: "complaint_listener" },
-    { department: "customer_experience", agentId: "root_cause_finder" },
+    { department: "negativity_detection", agentId: "complaint_listener" },
+    { department: "negativity_detection", agentId: "root_cause_finder" },
     { department: "operations", agentId: "order_status_checker" },
     { department: "operations", agentId: "payment_issue_resolver" },
-    { department: "customer_experience", agentId: "solution_crafter" },
+    { department: "negativity_detection", agentId: "solution_crafter" },
     { department: "psychology", agentId: "trust_builder" },
     { department: "customer_experience", agentId: "satisfaction_restorer" },
     { department: "member_success", agentId: "satisfaction_restorer" },
-    { department: "business_intelligence", agentId: "pain_point_miner" },
   ],
 
   // New member onboarding: member success → psychology → BI
@@ -128,16 +118,12 @@ export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
     { department: "psychology", agentId: "confidence_booster" },
     { department: "psychology", agentId: "goal_achievement_coach" },
     { department: "psychology", agentId: "community_builder" },
-    { department: "member_success", agentId: "training_assigner" },
     { department: "member_success", agentId: "skill_gap_analyzer" },
     { department: "member_success", agentId: "personalized_training_plan" },
-    { department: "business_intelligence", agentId: "skill_auto_learner" },
   ],
 
-  // Performance review: BI → member success → psychology
+  // Performance review: member success → psychology
   performance_review: [
-    { department: "business_intelligence", agentId: "sales_analyst" },
-    { department: "business_intelligence", agentId: "member_growth_analyst" },
     { department: "member_success", agentId: "sales_tracker" },
     { department: "member_success", agentId: "kpi_reporter" },
     { department: "member_success", agentId: "top_performer_identifier" },
@@ -145,7 +131,6 @@ export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
     { department: "psychology", agentId: "confidence_booster" },
     { department: "psychology", agentId: "mindset_shifter" },
     { department: "psychology", agentId: "goal_achievement_coach" },
-    { department: "business_intelligence", agentId: "report_compiler" },
   ],
 };
 
@@ -162,14 +147,12 @@ const DEPT_INTENT_PROMPTS: Record<DepartmentId, string> = {
   member_success: "Classify the intent. Choose ONE: registration (wants to join/register), commission_inquiry (asking about commission/earnings), training (asking about training/learning), motivation (needs encouragement), general, unknown.",
   customer_experience: "Classify the intent. Choose ONE: greeting (hello/hi/assalamu alaikum), farewell (bye/okay/thanks), support (help/issue/problem), complaint (angry/upset/dissatisfied), feedback (suggestion/opinion/review), general, unknown.",
   operations: "Classify the intent. Choose ONE: withdrawal (want to withdraw money), order_status (asking about order), payment (payment issue), general, unknown.",
-  business_intelligence: "Classify the intent. Choose ONE: research (market/competitor info), analytics (data/stats), report (wants report), general, unknown.",
   psychology: "Classify the intent. Choose ONE: complaint (angry/frustrated/scam fear), motivation (needs encouragement/demotivated), objection (hesitant/doubting), general, unknown.",
-  platform_admin: "Classify the intent. Choose ONE: settings (configuration), translation (language/traslation), security (login/access), update (version/update), general, unknown.",
   negativity_detection: "Classify the intent. Choose ONE: negativity_scan (always run alongside other intents), general, unknown.",
 };
 
 async function detectIntent(text: string, ctx: MessageCtx, fallbackDept: DepartmentId): Promise<{ intent: Intent; department: DepartmentId }> {
-  const depts: DepartmentId[] = ["sales", "psychology", "customer_experience", "member_success", "operations"];
+  const depts: DepartmentId[] = ["sales", "psychology", "customer_experience", "member_success", "operations", "negativity_detection"];
 
   for (const deptId of depts) {
     try {

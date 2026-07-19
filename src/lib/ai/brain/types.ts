@@ -6,8 +6,8 @@ export type Intent =
 
 export type DepartmentId =
   | "sales" | "member_success" | "customer_experience"
-  | "operations" | "business_intelligence" | "psychology"
-  | "platform_admin" | "negativity_detection";
+  | "operations" | "psychology"
+  | "negativity_detection";
 
 export interface AgentDef {
   id: string;

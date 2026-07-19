@@ -3,9 +3,7 @@ import { sales } from "./sales";
 import { member_success } from "./member_success";
 import { customer_experience } from "./customer_experience";
 import { operations } from "./operations";
-import { business_intelligence } from "./business_intelligence";
 import { psychology } from "./psychology";
-import { platform_admin } from "./platform_admin";
 import { negativity_detection } from "./negativity_detection";
 
 export const DEPARTMENTS: Record<DepartmentId, DepartmentDef> = {
@@ -13,9 +11,7 @@ export const DEPARTMENTS: Record<DepartmentId, DepartmentDef> = {
   member_success,
   customer_experience,
   operations,
-  business_intelligence,
   psychology,
-  platform_admin,
   negativity_detection,
 } as const;
 
