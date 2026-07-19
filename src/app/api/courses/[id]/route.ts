@@ -37,7 +37,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       [parseInt(id)]
     );
 
-    const result = { course, files };
+    const result = {
+      course: {
+        ...course,
+        categoryIds: JSON.parse(course.categoryIds),
+        categoryNames: JSON.parse(course.categoryNames),
+        categoryNamesBn: JSON.parse(course.categoryNamesBn),
+      },
+      files,
+    };
     await setCached(`course:${id}`, result);
     return NextResponse.json(result, {
       headers: { "Cache-Control": "public, max-age=30" }

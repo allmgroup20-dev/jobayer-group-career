@@ -11,8 +11,9 @@ export function generateId(prefix = ""): string {
   return `${prefix}${timestamp}${random}`.toUpperCase();
 }
 
-export function formatCurrency(amount: number, currency = "BDT", symbol = "৳"): string {
-  return `${symbol}${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export function formatCurrency(amount: number | null | undefined, currency = "BDT", symbol = "৳"): string {
+  const n = amount ?? 0;
+  return `${symbol}${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatDate(dateStr: string): string {

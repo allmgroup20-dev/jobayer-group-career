@@ -224,7 +224,7 @@ export default function WorkerDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard label={lang === "bn" ? "ব্যালেন্স" : "Balance"} value={formatCurrency(worker.balance)} color="text-action" />
           <StatCard label={lang === "bn" ? "মোট আয়" : "Total Earnings"} value={formatCurrency(worker.totalEarned)} color="text-secondary-dark" />
-          <StatCard label={lang === "bn" ? "সহযোগী" : "Associates"} value={worker.totalTeamMembers.toString()} color="text-primary" />
+          <StatCard label={lang === "bn" ? "সহযোগী" : "Associates"} value={(worker.totalTeamMembers ?? 0).toString()} color="text-primary" />
           <StatCard label={lang === "bn" ? "পদবী" : "Position"} value={lang === "bn" && worker.levelNameBn ? worker.levelNameBn : (worker.levelName || `Level ${worker.level}`)} color="text-accent" />
         </div>
 
@@ -395,7 +395,7 @@ export default function WorkerDashboard() {
               </p>
             </div>
             <div className="mt-3 text-xs text-text-secondary">
-              {lang === "bn" ? `আপনার ব্যালেন্স: ৳${worker.balance.toLocaleString()}` : `Your balance: ৳${worker.balance.toLocaleString()}`}
+              {lang === "bn" ? `আপনার ব্যালেন্স: ৳${(worker.balance ?? 0).toLocaleString()}` : `Your balance: ৳${(worker.balance ?? 0).toLocaleString()}`}
               {lang === "bn" ? ` | ন্যূনতম উইথড্র: ৳${minWithdraw.toLocaleString()}` : ` | Min withdrawal: ৳${minWithdraw.toLocaleString()}`}
             </div>
           </Card>
