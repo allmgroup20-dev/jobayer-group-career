@@ -93,7 +93,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </main>
       <Footer />
       <BottomNav />
-      {!isHome && <SmartInstall />}
+      <SmartInstall />
       <CookieConsentBanner />
     </>
   );

@@ -79,7 +79,6 @@ const sidebarGroups: SidebarGroup[] = [
     links: [
       { href: "/company/ai", en: "AI Hub", bn: "এআই হাব", icon: "🤖", desc: "এআই কন্ট্রোল সেন্টার — এজেন্ট, ব্রেইন, স্কিলস আরও অনেক কিছু" },
       { href: "/company/automation", en: "Automation", bn: "অটোমেশন", icon: "⚡", desc: "ট্রিগার-ভিত্তিক অটোমেশন — নির্দিষ্ট ইভেন্টে অটো অ্যাকশন" },
-      { href: "/company/apps", en: "Apps", bn: "অ্যাপ", icon: "📱", desc: "অটোমেটিক অ্যাপ ইন্সটল — এক ক্লিকেই ইনস্টল করুন" },
       { href: "/company/sentiment", en: "Sentiment", bn: "সেন্টিমেন্ট", icon: "📈", desc: "সেন্টিমেন্ট এনালাইসিস — ইউজার মেসেজের অনুভূতি বিশ্লেষণ" },
       { href: "/company/skills", en: "Skills", bn: "দক্ষতা", icon: "🧠", desc: "এআই স্কিলস — কীওয়ার্ড-ভিত্তিক স্বয়ংক্রিয় উত্তর" },
       { href: "/company/ai-conversations", en: "Conversations", bn: "কথোপকথন", icon: "💬", desc: "এআই কনভার্সেশন — ইউজারদের সাথে এআই-এর কথোপকথনের লগ" },
