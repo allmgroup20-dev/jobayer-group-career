@@ -691,7 +691,7 @@ export const courses = sqliteTable("courses", {
   isVisible: integer("is_visible").default(1),
   icon: text("icon").default("📌"),
   price: real("price").default(0),
-  isPremium: integer("is_premium").default(0),
+  isPremium: integer("is_premium").default(1),
   createdAt: text("created_at"),
   updatedAt: text("updated_at"),
 });

@@ -273,14 +273,14 @@ export default function CourseDetailPage() {
         )}
 
         <div className="flex flex-wrap gap-3 mt-6">
-          {course.isPremium === 1 && isLoggedIn && !isPremium && !isUnlocked && (
+          {isLoggedIn && !isPremium && !isUnlocked && (
             <Button onClick={handleUnlock} loading={unlocking}
               disabled={unlockLimit !== null && unlockCount >= unlockLimit}>
               {unlockLimit !== null && unlockCount >= unlockLimit ? "👑 প্রিমিয়াম হোন" : "🔓 আনলক করুন"}
             </Button>
           )}
-          {course.isPremium === 1 && !isLoggedIn && (
-            <a href="/login" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">👑 লগইন করে এক্সেস করুন</a>
+          {!isLoggedIn && (
+            <a href="/login" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-all">👑 লগইন করে আনলক করুন</a>
           )}
           {isLoggedIn && <Button variant="outline" onClick={() => setComplaintOpen(true)}>⚠️ রিপোর্ট করুন</Button>}
         </div>

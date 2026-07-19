@@ -67,7 +67,7 @@ export async function POST() {
 
         stmts.push({
           sql: `INSERT INTO courses (id, title, title_bn, description, description_bn, is_new, is_visible, icon, price, is_premium)
-               VALUES (?, ?, ?, ?, ?, 0, 1, ?, 0, 0)`,
+               VALUES (?, ?, ?, ?, ?, 0, 1, ?, 0, 1)`,
           params: [courseId, course.title, null, course.desc, null, course.icon || "📌"],
         });
         if (catId) {

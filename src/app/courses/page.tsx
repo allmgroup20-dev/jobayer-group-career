@@ -262,9 +262,6 @@ export default function CoursesPage() {
     } catch {}
   };
 
-  const freeCount = courses.filter(c => c.isPremium === 0).length;
-  const premiumCount = courses.length - freeCount;
-
   return (
     <div className="min-h-screen bg-bg">
       <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/80">
@@ -275,18 +272,18 @@ export default function CoursesPage() {
               {loading ? (
                 <span>⏳ লোড হচ্ছে...</span>
               ) : !isLoggedIn ? (
-                <span>📚 মোট {courses.length}টি রিসোর্স — লগইন করে এক্সেস করুন</span>
+                <span>📚 মোট {courses.length}টি প্রিমিয়াম রিসোর্স — লগইন করে আনলক করুন</span>
               ) : isPremium ? (
                 <span>👑 মোট {courses.length}টি রিসোর্স — প্রিমিয়াম এক্সেস</span>
-              ) : isPremium ? null : (
-                <span>🎁 {freeCount}টি ফ্রি + {premiumCount}টি প্রিমিয়াম{unlockLimit !== null ? ` — আনলক ${unlockCount}/${unlockLimit}` : unlockCount > 0 ? ` — আনলক ${unlockCount}টি` : ''}</span>
+              ) : (
+                <span>👑 মোট {courses.length}টি প্রিমিয়াম রিসোর্স{unlockLimit !== null ? ` — আনলক ${unlockCount}/${unlockLimit}` : unlockCount > 0 ? ` — আনলক ${unlockCount}টি` : ''}</span>
               )}
             </div>
             <h1 className="text-2xl md:text-4xl font-black text-white leading-tight">
-              {isPremium ? "👑 সকল রিসোর্স, সফটওয়্যার &amp; কোর্স" : !isLoggedIn ? "📚 রিসোর্স, সফটওয়্যার &amp; কোর্স" : "🎁 রিসোর্স সমূহ"}
+              {isPremium ? "👑 সকল রিসোর্স, সফটওয়্যার &amp; কোর্স" : "👑 প্রিমিয়াম রিসোর্স সমূহ"}
             </h1>
             <p className="text-white/80 font-semibold mt-3 max-w-xl mx-auto text-sm md:text-base">
-              {loading ? "তথ্য লোড হচ্ছে..." : !isLoggedIn ? `লগইন করে ${courses.length}টি রিসোর্স এক্সেস করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${courses.length}টি রিসোর্স এক্সেস করুন` : `${freeCount}টি ফ্রি রিসোর্স এক্সেস করুন, প্রিমিয়ামে আপগ্রেড হয়ে ${premiumCount}টি প্রিমিয়াম রিসোর্স আনলক করুন`}
+              {loading ? "তথ্য লোড হচ্ছে..." : !isLoggedIn ? `লগইন করে ${courses.length}টি প্রিমিয়াম রিসোর্স আনলক করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${courses.length}টি রিসোর্স এক্সেস করুন` : `${courses.length}টি প্রিমিয়াম রিসোর্স — লিমিট অনুযায়ী আনলক করুন`}
             </p>
 
             <div className="mt-6 max-w-lg mx-auto relative">
@@ -448,10 +445,10 @@ export default function CoursesPage() {
           </div>
         )}
 
-        {isLoggedIn && !isPremium && premiumCount > 0 && (
+        {isLoggedIn && !isPremium && (
           <div className="text-center mt-8 mb-4 p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/10">
             <p className="text-lg font-bold text-primary mb-2">👑 প্রিমিয়াম মেম্বারশিপ নিন</p>
-            <p className="text-sm text-text-secondary mb-4">প্রিমিয়াম মেম্বার হয়ে {premiumCount}টি প্রিমিয়াম রিসোর্স এক্সেস করুন</p>
+            <p className="text-sm text-text-secondary mb-4">প্রিমিয়াম মেম্বার হয়ে সব রিসোর্স আনলিমিটেড এক্সেস করুন</p>
             <a href="/dashboard/profile" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
               👑 প্রিমিয়াম হোন এখনই
             </a>

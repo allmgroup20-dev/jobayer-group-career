@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       [
         body.title, body.titleBn || null, body.description || null, body.descriptionBn || null,
         body.isNew ?? 1, body.isVisible ?? 1,
-        body.icon || "📌", body.price || 0, body.isPremium ?? 0,
+        body.icon || "📌", body.price || 0, body.isPremium ?? 1,
       ]
     );
 
