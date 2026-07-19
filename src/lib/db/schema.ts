@@ -758,6 +758,22 @@ export const courseProgress = sqliteTable("course_progress", {
   createdAt: text("created_at"),
 });
 
+export const resourcePurchases = sqliteTable("resource_purchases", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  orderId: text("order_id").unique().notNull(),
+  workerId: text("worker_id").notNull(),
+  amount: real("amount").notNull(),
+  resourceCount: integer("resource_count").notNull(),
+  currency: text("currency").default("BDT"),
+  paymentMethod: text("payment_method").default("sslcommerz"),
+  paymentStatus: text("payment_status").default("pending"),
+  transactionId: text("transaction_id"),
+  sessionKey: text("session_key"),
+  premiumUpgraded: integer("premium_upgraded").default(0),
+  createdAt: text("created_at"),
+  completedAt: text("completed_at"),
+});
+
 export const courseCategoryMap = sqliteTable("course_category_map", {
   courseId: integer("course_id").notNull(),
   categoryId: integer("category_id").notNull(),

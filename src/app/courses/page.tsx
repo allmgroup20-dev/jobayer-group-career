@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const CheckoutModal = dynamic(() => import("@/components/courses/CheckoutModal"), { ssr: false });
 import { useDebounce } from "@/lib/use-debounce";
 
 interface CourseCategory {
@@ -70,6 +73,10 @@ export default function CoursesPage() {
   const [unlockLimit, setUnlockLimit] = useState<number | null>(null);
   const [unlockCount, setUnlockCount] = useState(0);
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profilePhone, setProfilePhone] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 600);
@@ -96,6 +103,9 @@ export default function CoursesPage() {
         if (profile.workerId || profile.username) {
           setIsLoggedIn(true);
           wid = profile.workerId || null;
+          setProfileName(profile.name || profile.cus_name || "");
+          setProfilePhone(profile.phone || profile.cus_phone || "");
+          setProfileEmail(profile.email || profile.cus_email || "");
           if (profile.membershipStatus === "premium" || profile.role === "premium") {
             setIsPremium(true);
           }
@@ -139,6 +149,21 @@ export default function CoursesPage() {
       }
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get("payment");
+    if (paymentStatus === "success") {
+      setTimeout(() => alert("✅ পেমেন্ট সফল! আপনার রিসোর্স আনলক করা হয়েছে এবং প্রিমিয়াম মেম্বারশিপ অ্যাক্টিভেট করা হয়েছে।"), 500);
+      window.history.replaceState({}, "", "/courses");
+    } else if (paymentStatus === "failed") {
+      setTimeout(() => alert("❌ পেমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।"), 500);
+      window.history.replaceState({}, "", "/courses");
+    } else if (paymentStatus === "error") {
+      setTimeout(() => alert("❌ পেমেন্ট প্রক্রিয়াকরণে ত্রুটি। সাপোর্ট টিমের সাথে যোগাযোগ করুন।"), 500);
+      window.history.replaceState({}, "", "/courses");
+    }
   }, []);
 
   const catNameMap = useMemo(() => {
@@ -285,6 +310,15 @@ export default function CoursesPage() {
             <p className="text-white/80 font-semibold mt-3 max-w-xl mx-auto text-sm md:text-base">
               {loading ? "তথ্য লোড হচ্ছে..." : !isLoggedIn ? `লগইন করে ${courses.length}টি প্রিমিয়াম রিসোর্স আনলক করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${courses.length}টি রিসোর্স এক্সেস করুন` : `${courses.length}টি প্রিমিয়াম রিসোর্স — লিমিট অনুযায়ী আনলক করুন`}
             </p>
+
+            {isLoggedIn && !isPremium && (
+              <button
+                onClick={() => setShowCheckout(true)}
+                className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-white text-primary font-bold rounded-xl hover:shadow-lg hover:shadow-white/20 transition-all text-sm"
+              >
+                💳 রিসোর্স আনলক কিনুন
+              </button>
+            )}
 
             <div className="mt-6 max-w-lg mx-auto relative">
               <div className="flex items-center bg-white rounded-2xl shadow-2xl shadow-primary/20 border border-white/20 overflow-hidden transition-all focus-within:shadow-primary/40">
@@ -461,6 +495,16 @@ export default function CoursesPage() {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-2xl bg-primary text-white shadow-xl shadow-primary/30 flex items-center justify-center text-xl transition-all hover:scale-110 active:scale-95 cursor-pointer"
         >↑</button>
+      )}
+
+      {showCheckout && workerId && (
+        <CheckoutModal
+          workerId={workerId}
+          cusName={profileName}
+          cusPhone={profilePhone}
+          cusEmail={profileEmail}
+          onClose={() => setShowCheckout(false)}
+        />
       )}
     </div>
   );

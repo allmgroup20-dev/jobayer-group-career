@@ -439,6 +439,22 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_progress_course_worker ON course_progress(course_id, worker_id)`).run().catch(() => {});
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS resource_purchases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id TEXT UNIQUE NOT NULL,
+      worker_id TEXT NOT NULL,
+      amount REAL NOT NULL,
+      resource_count INTEGER NOT NULL,
+      currency TEXT DEFAULT 'BDT',
+      payment_method TEXT DEFAULT 'sslcommerz',
+      payment_status TEXT DEFAULT 'pending',
+      transaction_id TEXT,
+      session_key TEXT,
+      premium_upgraded INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT
+    )`).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_resource_purchases_worker ON resource_purchases(worker_id)`).run().catch(() => {});
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS course_category_map (
       course_id INTEGER NOT NULL,
       category_id INTEGER NOT NULL,
