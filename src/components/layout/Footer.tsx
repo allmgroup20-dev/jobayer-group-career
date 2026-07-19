@@ -39,7 +39,6 @@ export default function Footer() {
                 { en: "Home", bn: "হোম", href: "/" },
                 { en: "Courses", bn: "কোর্স সমূহ", href: "/courses" },
                 { en: "Live Updates", bn: "লাইভ", href: "/live-updates" },
-                { en: "Reviews", bn: "মতামত", href: "/reviews" },
                 { en: "Trainers", bn: "প্রশিক্ষক", href: "/trainers" },
                 { en: "Reviews", bn: "মতামত", href: "/reviews" },
               ].map((item) => (
