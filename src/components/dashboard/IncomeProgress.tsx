@@ -36,7 +36,7 @@ export default function IncomeProgress({ workerId, lang }: { workerId: string; l
 
   if (!data || !data.levels || data.levels.length === 0) return null;
 
-  const format = (n: number | null | undefined) => (n ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const format = (n: number | null | undefined) => ((n && isFinite(n)) ? n : 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <div className="mb-8">
@@ -91,7 +91,7 @@ export default function IncomeProgress({ workerId, lang }: { workerId: string; l
                 <span className="text-text-secondary">
                   {lang === "bn" ? "টার্গেট" : "Target"}: <strong>{format(level.targetIncome)} ৳</strong>
                 </span>
-                <span className={level.actualIncome >= level.targetIncome ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
+                <span className={(level.actualIncome || 0) >= (level.targetIncome || 0) ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
                   {lang === "bn" ? "আয়" : "Earned"}: <strong>{format(level.actualIncome)} ৳</strong>
                 </span>
               </div>
@@ -109,8 +109,8 @@ export default function IncomeProgress({ workerId, lang }: { workerId: string; l
               {level.isUnlocked
                 ? (lang === "bn" ? "✔ সম্পন্ন — পরবর্তী লেভেলে যান" : "✔ Completed — Move to next level")
                 : (lang === "bn"
-                    ? `আরো ${format(level.targetIncome - level.actualIncome)} ৳ প্রয়োজন`
-                    : `${format(level.targetIncome - level.actualIncome)} ৳ more needed`)}
+                    ? `আরো ${format(Math.max(0, (level.targetIncome || 0) - (level.actualIncome || 0)))} ৳ প্রয়োজন`
+                    : `${format(Math.max(0, (level.targetIncome || 0) - (level.actualIncome || 0)))} ৳ more needed`)}
             </p>
           </div>
         ))}

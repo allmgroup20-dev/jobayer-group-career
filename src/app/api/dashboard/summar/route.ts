@@ -37,11 +37,17 @@ export async function GET(request: NextRequest) {
         profile.communicationPreference && profile.budgetRange && profile.religion);
     }
 
-    const [commissions, accounts, analytics] = await Promise.all([
+    const [commissions, accounts, analytics, settingsRows] = await Promise.all([
       queryFirst<any>(db, "SELECT COUNT(*) as totalCommissions, COALESCE(SUM(total_amount), 0) as totalEarned, COALESCE(SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END), 0) as paidAmount FROM commissions WHERE to_worker_id = ?", [workerId]),
       query<any>(db, "SELECT id, account_type as accountType, account_number as accountNumber, account_name as accountName, is_default as isDefault FROM saved_accounts WHERE worker_id = ? ORDER BY is_default DESC, created_at ASC", [workerId]),
       queryFirst<any>(db, "SELECT COUNT(*) as totalViews, COUNT(DISTINCT session_id) as totalSessions FROM user_events WHERE worker_id = ? AND event_type = 'page_view'", [workerId]),
+      query<{ setting_key: string; setting_value: string }>(db, "SELECT setting_key, setting_value FROM company_settings"),
     ]);
+
+    const settingsMap: Record<string, string> = {};
+    for (const row of settingsRows) {
+      settingsMap[row.setting_key] = row.setting_value;
+    }
 
     return NextResponse.json({
       profile,
@@ -55,6 +61,7 @@ export async function GET(request: NextRequest) {
         totalPageViews: analytics?.totalViews || 0,
         totalSessions: analytics?.totalSessions || 0,
       },
+      settings: settingsMap,
     });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });

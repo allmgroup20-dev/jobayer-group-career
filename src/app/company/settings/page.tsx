@@ -21,6 +21,7 @@ export default function CompanySettingsPage() {
     resourceIncomeEnabled: "1",
     resourceIncomeDefaultAmount: "50",
     resourceUnlockPrice: "99",
+    referralRedirectPath: "/register",
     primaryColor: "#1E3A5A",
     secondaryColor: "#FFD700",
     actionColor: "#28A745",
@@ -42,6 +43,7 @@ export default function CompanySettingsPage() {
             resourceIncomeEnabled: s.resource_income_enabled || prev.resourceIncomeEnabled,
             resourceIncomeDefaultAmount: s.resource_income_default_amount || prev.resourceIncomeDefaultAmount,
             resourceUnlockPrice: s.resource_unlock_price || prev.resourceUnlockPrice,
+            referralRedirectPath: s.referral_redirect_path || prev.referralRedirectPath,
             primaryColor: s.primary_color || prev.primaryColor,
             secondaryColor: s.secondary_color || prev.secondaryColor,
             actionColor: s.action_color || prev.actionColor,
@@ -61,6 +63,7 @@ export default function CompanySettingsPage() {
       { key: "resource_income_enabled", value: form.resourceIncomeEnabled },
       { key: "resource_income_default_amount", value: form.resourceIncomeDefaultAmount },
       { key: "resource_unlock_price", value: form.resourceUnlockPrice },
+      { key: "referral_redirect_path", value: form.referralRedirectPath },
       { key: "primary_color", value: form.primaryColor },
       { key: "secondary_color", value: form.secondaryColor },
       { key: "action_color", value: form.actionColor },
@@ -127,6 +130,15 @@ export default function CompanySettingsPage() {
               <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "পরিমাণ" : "Amount"} (৳)</label>
               <input type="number" value={form.registrationBonus} onChange={(e) => setForm({ ...form, registrationBonus: e.target.value })} className="input-field" />
               <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "নতুন রেজিস্ট্রেশনে এই পরিমাণ রিসোর্স আয় হিসেবে যোগ হবে" : "This amount is added as resource income on new registration"}</p>
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-primary mb-4">🔗 {lang === "bn" ? "রেফারেল সেটিংস" : "Referral Settings"}</h3>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "রিডাইরেক্ট পাথ" : "Redirect Path"}</label>
+              <input type="text" value={form.referralRedirectPath} onChange={(e) => setForm({ ...form, referralRedirectPath: e.target.value })} className="input-field" placeholder="/register" />
+              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "রেফারেল লিংকে ইউজারকে কোথায় রিডাইরেক্ট করা হবে। যেমন: /register, /courses, /promo" : "Where users are redirected via referral link. E.g.: /register, /courses, /promo"}</p>
             </div>
           </Card>
 

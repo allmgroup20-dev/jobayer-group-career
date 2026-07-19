@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     const env = await getDB();
 
-    const [levelRows, members, worker] = await Promise.all([
+    const [levelRows, members, worker, commissionByLevel, totalEarnedRow] = await Promise.all([
       query<any>(
         env,
         "SELECT level_number as levelNumber, level_name as levelName, level_name_bn as levelNameBn, percentage, fixed_amount as fixedAmount, currency, is_active as isActive, COALESCE(commission_type, 'both') as commissionType, COALESCE(min_referral_base, 3) as minReferralBase FROM commission_levels ORDER BY level_number ASC"
@@ -44,6 +44,16 @@ export async function GET(req: NextRequest) {
         env,
         "SELECT worker_id, level, total_team_members FROM workers WHERE worker_id = ?",
         [workerId],
+      ),
+      query<any>(
+        env,
+        "SELECT level_number as levelNumber, COALESCE(SUM(total_amount), 0) as actualIncome FROM commissions WHERE to_worker_id = ? AND status IN ('pending', 'paid') GROUP BY level_number",
+        [workerId]
+      ),
+      query<any>(
+        env,
+        "SELECT COALESCE(SUM(total_amount), 0) as totalEarned FROM commissions WHERE to_worker_id = ? AND status IN ('pending', 'paid')",
+        [workerId]
       ),
     ]);
 
@@ -84,11 +94,21 @@ export async function GET(req: NextRequest) {
       return count;
     }
 
+    const incomeByLevel = new Map<number, number>();
+    for (const row of commissionByLevel) {
+      incomeByLevel.set(row.levelNumber, row.actualIncome);
+    }
+    const totalEarned = totalEarnedRow.length > 0 ? (totalEarnedRow[0].totalEarned || 0) : 0;
+
+    let currentLevel = 0;
     const levels = levelRows.map((r: any) => {
       const n = r.levelNumber;
       const requiredMembers = Math.pow(base, n);
       const actualMembers = countUpToDepth(workerId, n, 0);
       const isUnlocked = actualMembers >= requiredMembers;
+      const targetIncome = r.fixedAmount * requiredMembers;
+      const actualIncome = incomeByLevel.get(n) || 0;
+      if (isUnlocked) currentLevel = n;
       return {
         levelNumber: r.levelNumber,
         levelName: r.levelName,
@@ -99,6 +119,8 @@ export async function GET(req: NextRequest) {
         minReferralBase: base,
         requiredMembers,
         actualMembers,
+        targetIncome,
+        actualIncome,
         isUnlocked,
         progressPct: Math.min(100, Math.round((actualMembers / requiredMembers) * 100)),
       };
@@ -106,7 +128,7 @@ export async function GET(req: NextRequest) {
 
     const totalTeam = worker.length > 0 ? worker[0].total_team_members || 0 : 0;
 
-    const result = { levels, minReferralBase: base, totalTeamMembers: totalTeam };
+    const result = { levels, minReferralBase: base, totalTeamMembers: totalTeam, totalEarned, currentLevel };
     await setCached(cacheKey, result);
     return NextResponse.json(result);
   } catch (error) {
