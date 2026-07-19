@@ -652,37 +652,6 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       sent_at TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
-    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS wa_campaigns (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      message TEXT NOT NULL,
-      status TEXT DEFAULT 'draft',
-      target_filter TEXT,
-      total_targets INTEGER DEFAULT 0,
-      sent_count INTEGER DEFAULT 0,
-      replied_count INTEGER DEFAULT 0,
-      started_at TEXT,
-      completed_at TEXT,
-      created_by TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    )`).run();
-    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS wa_templates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT UNIQUE NOT NULL,
-      content TEXT NOT NULL,
-      category TEXT DEFAULT 'general',
-      variables TEXT,
-      usage_count INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
-    )`).run();
-    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS wa_blocklist (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phone TEXT UNIQUE NOT NULL,
-      reason TEXT,
-      created_by TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    )`).run();
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS wa_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       phone TEXT,
@@ -726,14 +695,6 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     )`).run();
-
-    // Seed default templates
-    await env.DB.prepare(`INSERT OR IGNORE INTO wa_templates (name, content, category) VALUES
-      ('welcome', 'Assalamu Alaikum! Jobayer Group Career-এ আপনাকে স্বাগতম।', 'onboarding'),
-      ('follow_up', 'Assalamu Alaikum! আগের কথোপকথনের ধারাবাহিকতায় আজ আবার যোগাযোগ করছি।', 'followup'),
-      ('promo_basic', 'Assalamu Alaikum! Jobayer Group Career-এর একটি বিশেষ অফার সম্পর্কে জানতে চান?', 'promotion'),
-      ('reminder', 'Assalamu Alaikum! মনে করিয়ে দিচ্ছি, আগামীকাল আমাদের অনলাইন মিটিং আছে।', 'reminder')
-    `).run();
 
     // Biometric (fingerprint) credentials
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS biometric_credentials (

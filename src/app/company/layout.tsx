@@ -91,9 +91,6 @@ const sidebarGroups: SidebarGroup[] = [
     bn: "যোগাযোগ",
     icon: "💬",
     links: [
-      { href: "/company/whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ", icon: "💬", desc: "হোয়াটসঅ্যাপ হাব — মেসেজ, ক্যাম্পেইন, টেমপ্লেট ও অ্যাকাউন্ট" },
-      { href: "/dashboard/messenger", en: "Messenger", bn: "মেসেঞ্জার", icon: "💬", desc: "ফেসবুক মেসেঞ্জার — পেজ কানেক্ট ও অটো রিপ্লাই" },
-      { href: "/dashboard/telegram", en: "Telegram", bn: "টেলিগ্রাম", icon: "✈️", desc: "টেলিগ্রাম বট — বট কানেক্ট ও মেসেজিং" },
       { href: "/dashboard/platforms", en: "Platforms", bn: "প্ল্যাটফর্ম", icon: "🔄", desc: "প্ল্যাটফর্ম প্রেফারেন্স — ইউজারের পছন্দের মাধ্যম নির্ধারণ" },
       { href: "/company/translations", en: "Translations", bn: "অনুবাদ", icon: "🌐", desc: "অনুবাদ ম্যানেজার — সাইটের বাংলা/ইংরেজি টেক্সট কাস্টমাইজ" },
     ],
@@ -148,7 +145,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       setExpandedGroups(["products"]);
     } else if (path.startsWith("/company/ai") || path.startsWith("/company/automation") || path.startsWith("/company/sentiment") || path.startsWith("/company/skills") || path.startsWith("/company/ai-conversations")) {
       setExpandedGroups(["ai"]);
-    } else if (path.startsWith("/company/whatsapp") || path.startsWith("/dashboard/messenger") || path.startsWith("/dashboard/telegram") || path.startsWith("/dashboard/platforms") || path.startsWith("/company/translations")) {
+    } else if (path.startsWith("/dashboard/platforms") || path.startsWith("/company/translations")) {
       setExpandedGroups(["communication"]);
     } else {
       setExpandedGroups(["system"]); // also matches /company/maintenance, /company/fingerprint, etc.
