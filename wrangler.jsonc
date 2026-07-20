@@ -14,8 +14,7 @@
     "DEFAULT_CURRENCY": "BDT",
     "SITE_NAME": "Jobayer Group Career",
     "SITE_URL": "https://career.jobayergroup.com",
-    "SSLCOMMERZ_IS_LIVE": "false",
-    "JWT_SECRET": "jgcareer-jwt-secret-prod-2024"
+    "SSLCOMMERZ_IS_LIVE": "false"
   },
   "d1_databases": [
     {
