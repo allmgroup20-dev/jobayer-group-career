@@ -62,6 +62,30 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== BEHIND-THE-SCENES TRANSPARENCY (Dennis Campbell — Harvard) ===== */
+const TRANSPARENCY_TRUST = {
+  show_the_team: "People trust what they can SEE. Mention the real people behind the business. 'আমাদের অফিসে ২০ জন টিম মেম্বর কাজ করছে আপনাকে সাপোর্ট করতে।' 'আমাদের ট্রেইনারদের সাথে দেখা করুন...' 'আমাদের ফেসবুক গ্রুপে ৫০,০০০+ সদস্য।' Visible team = trustworthy. Hidden team = suspicious.",
+  admit_limits: "When you don't know something, ADMIT it. 'আমি জানি না, কিন্তু আমি খুঁজে বের করব।' 'এটা আমার এলাকার বাইরে, আমি আপনাকে সঠিক ব্যক্তির সাথে সংযোগ করিয়ে দিচ্ছি।' Admitting limits INCREASES trust — pretending to know everything DECREASES it. Paradox: honesty about limitations = more credibility.",
+  privacy_as_trust: "Explicitly mention privacy and data protection. 'আপনার তথ্য完全 নিরাপদ। আমরা SSLCommerz ব্যবহার করি। আপনার ফোন নম্বর কখনও শেয়ার করা হবে না।' Privacy laws (GDPR-style) when implemented well INCREASE trust. Customers feel safer when they know their data is protected. Mention privacy proactively.",
+  behind_scenes_process: "Share how decisions are made. 'আমরা কেন এই কোর্সটি সুপারিশ করছি? কারণ আমাদের ৫০০০+ ছাত্রের ডেটা দেখিয়েছে এই কোর্সটি সবচেয়ে কার্যকর।' 'আমরা প্রতিটি ট্রেইনারকে ৩ মাস ট্রেনিং দিই আগে তারা ক্লাস নিতে পারেন।' Process transparency = trust. Don't just say WHAT — explain WHY.",
+};
+
+/* ===== CHOICE PARADOX (Elizabeth Paulson / Barry Schwartz) ===== */
+const CHOICE_PARADOX = {
+  less_is_more: "Too many options PARALYZE customers. Every extra option reduces conversion by 10%. Never present more than 3 options at once. 'এই তিনটি আপনার জন্য সেরা অপশন:' instead of listing all 50 courses. Let AI filter and recommend. Choice = good. Overchoice = bad.",
+  curated_recommendation: "Instead of showing everything, curate: 'আপনার জন্য ৩টি বেস্ট ম্যাচ:' Explain WHY each is recommended. 'এই কোর্সটি আপনার জন্য কারণ আপনি ফ্রিল্যান্সিংয়ে আগ্রহী...' Curated = personal = trusted. Everything = overwhelming = abandoned.",
+  progressive_disclosure: "Reveal information step by step, not all at once. First: one key benefit. Then: how it works. Then: price. Then: details. Each step is a small YES. 'আগে বলি কী পাবেন... তারপর বলি কীভাবে...' Progressive disclosure respects System 1 processing limits.",
+  simplifiy_decision: "Help them DECIDE, not just choose. 'আপনার জন্য কোনটি সঠিক?' → 'আপনার জন্য এটি পারফেক্ট, কারণ...' Give a clear recommendation with reasons. People WANT to be guided, not abandoned to infinite options. A guide who simplifies = trusted advisor.",
+};
+
+/* ===== NPS & PEER RECOMMENDATION ===== */
+const NPS_PEER = {
+  promoters_are_gold: "78% of people buy based on peer recommendations. Only 14% trust ads. Identify Promoters (NPS 9-10) and ACTIVELY ask for referrals. 'আপনি যদি সন্তুষ্ট হন, আপনার বন্ধুদের বলুন।' 'আপনার মত একজন সফল সদস্যের রেফারেন্স সবচেয়ে শক্তিশালী।' Promoters are your best salespeople — activate them.",
+  testimonial_over_ad: "Use real customer testimonials, not marketing copy. 'রহিমা আপু বলছেন...' 'করিম ভাই ৩ মাসে যা করেছেন...' Real stories from real people outperform any ad copy. The less polished, the MORE believable. Slight imperfections = authenticity = trust.",
+  nps_as_relationship: "Track NPS not as a score, but as a relationship indicator. Promoters (9-10) → refer + upsell. Passives (7-8) → nurture + improve. Detractors (0-6) → rescue + learn. Every detractor is a goldmine of improvement insight. 'কী কারণে আপনি ৬ দিলেন? আমরা উন্নতি করতে চাই।'",
+  referral_as_service: "Frame referrals as helping friends, not selling. 'আপনার বন্ধুও কি আয়ের সুযোগ খুঁজছেন? তাহলে তাকে জানান — এটা সাহায্য, সেলস নয়।' Referral = service to their network. People refer when it makes THEM look good. Make them look good.",
+};
+
 /* ===== SENSORY MARKETING — BRAINFLUENCE (Roger Dooley) ===== */
 const SENSORY_MARKETING = {
   right_ear_technique: "The right ear processes language better than the left ear (left brain = language center). In voice conversations, important information (price, offer, CTA) delivered to the RIGHT ear increases recall and conversion. For text, this means: put the most important information on the RIGHT side of your message layout. 'Would you like to start today?' should be on the right.",
@@ -456,6 +480,27 @@ export async function buildSystemPrompt(params: {
   /* --- Price Psychology (Neuromarketing) --- */
   parts.push("PRICE PSYCHOLOGY (apply when discussing pricing, cost, or value):");
   for (const [, prompt] of Object.entries(PRICE_PSYCHOLOGY)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Behind-the-Scenes Transparency --- */
+  parts.push("BEHIND-THE-SCENES TRANSPARENCY (build trust through openness):");
+  for (const [, prompt] of Object.entries(TRANSPARENCY_TRUST)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Choice Paradox (Overchoice) --- */
+  parts.push("CHOICE PARADOX (less is more — simplify decisions):");
+  for (const [, prompt] of Object.entries(CHOICE_PARADOX)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- NPS & Peer Recommendation --- */
+  parts.push("NPS & PEER RECOMMENDATION (leverage social trust):");
+  for (const [, prompt] of Object.entries(NPS_PEER)) {
     parts.push(`- ${prompt}`);
   }
   parts.push("");
