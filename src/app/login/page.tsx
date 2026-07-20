@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [slowWarning, setSlowWarning] = useState(false);
-  const slowTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const slowTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (loading) {
