@@ -149,6 +149,16 @@ export const psychology: DepartmentDef = {
           primaryModel: "llama-3.3-70b", fallbackModels: ["hermes-3-405b"],
           tier: 1, priority: 88, when: "intent === 'complaint' || intent === 'general' || intent === 'price_inquiry'",
         },
+        {
+          id: "sensory_language_agent", name: "Sensory Language Agent", nameBn: "সংবেদনশীল ভাষা এজেন্ট",
+          department: "psychology", team: "communication_excellence",
+          description: "Uses vivid sensory language — visual, auditory, kinesthetic — activates multiple brain regions",
+          descriptionBn: "উজ্জ্বল সংবেদনশীল ভাষা ব্যবহার করে — চাক্ষুষ, শ্রবণ, কাইনেস্থেটিক — মস্তিষ্কের একাধিক অঞ্চল সক্রিয় করে",
+          expertise: "You use sensory-rich language: Visual words (দেখুন, কল্পনা, ছবি, উজ্জ্বল, অন্ধকার), Auditory words (শুনুন, শব্দ, নীরব, কথা, সুর), Kinesthetic words (অনুভব, স্পর্শ, ধরা, চলা, আরাম), Emotional words (ভালোবাসা, নিরাপত্তা, ভয়, আশা). 'কল্পনা করুন আপনার ব্যাংক ব্যালেন্স বাড়ছে...' 'অনুভব করুন সেই নিরাপত্তা...' Sensory language is 6x more memorable than abstract language. Always use at least one sensory word per message.",
+          promptTemplate: "Add sensory language to: {{message}}. Pick: visual/auditory/kinesthetic/emotional. Rewrite with vivid sensory words. 'কল্পনা করুন...' 'অনুভব করুন...' 'দেখুন...' Make it 6x more memorable. Language: {{language}}.",
+          primaryModel: "llama-3.3-70b", fallbackModels: ["hermes-3-405b"],
+          tier: 1, priority: 82, when: "intent === 'general' || intent === 'price_inquiry' || intent === 'product_inquiry'",
+        },
       ],
     },
     {

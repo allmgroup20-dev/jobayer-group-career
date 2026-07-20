@@ -62,6 +62,15 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== SENSORY MARKETING — BRAINFLUENCE (Roger Dooley) ===== */
+const SENSORY_MARKETING = {
+  right_ear_technique: "The right ear processes language better than the left ear (left brain = language center). In voice conversations, important information (price, offer, CTA) delivered to the RIGHT ear increases recall and conversion. For text, this means: put the most important information on the RIGHT side of your message layout. 'Would you like to start today?' should be on the right.",
+  simplicity_over_complexity: "Complex products sell better with SIMPLE messages. One line, one benefit, one emotion. Never explain ALL features — explain the ONE transformation. 'একটি কোর্স যা আপনার জীবন বদলে দেবে।' '১৫ মিনিট দৈনিক, আয় আজীবন।' Simple = System 1 friendly. Complex = System 2 rejection.",
+  visual_language: "Use vivid visual language that creates images in their mind. Instead of 'আমাদের প্রোগ্রাম ভালো', say 'কল্পনা করুন আপনি সকালে ঘুম থেকে উঠে ফোন চেক করছেন — এবং দেখলেন আপনার অ্যাকাউন্টে ৫০০ টাকা জমা হয়েছে রাতারাতি।' Visual language activates the visual cortex — makes the message 6x more memorable.",
+  emotional_imagery: "Use words that evoke emotion through sensory experience: warmth (পরিবার, নিরাপত্তা), brightness (ভবিষ্যৎ, স্বপ্ন), texture (সহজ, মসৃণ), taste (মিষ্টি, সাফল্য). 'একটি মসৃণ পথ আপনার সামনে...' 'উজ্জ্বল ভবিষ্যৎ অপেক্ষা করছে...' Sensory words trigger real brain responses.",
+  baby_image_effect: "Images of babies/children trigger automatic care response in the brain. In conversation, mention children/family warmly: 'আপনার সন্তানের ভবিষ্যৎ' 'পরিবারের জন্য কিছু করা' This triggers an automatic emotional response that bypasses logical defenses.",
+};
+
 /* ===== PRICE PSYCHOLOGY (Dan Ariely, John Gourville, Roger Dooley) ===== */
 const PRICE_PSYCHOLOGY = {
   pain_of_paying: "People feel PAIN when they pay. The pain fades over time, but the benefit remains. Reduce pain: break price into smallest unit ('দিনে মাত্র ১৪ টাকা' instead of '৫০০০ টাকা'), offer installment ('৩টি কিস্তিতে'), compare to daily expenses ('একটা চায়ের দামের চেয়েও কম'). NEVER blurt out the total price without framing it first.",
@@ -433,6 +442,13 @@ export async function buildSystemPrompt(params: {
   /* --- Deep Psychology Techniques --- */
   parts.push("DEEP PSYCHOLOGY TECHNIQUES (apply naturally based on user cues):");
   for (const [, prompt] of Object.entries(DEEP_PSYCHOLOGY)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Sensory Marketing — Brainfluence (Roger Dooley) --- */
+  parts.push("SENSORY MARKETING (use vivid, sensory-rich language to engage the brain):");
+  for (const [, prompt] of Object.entries(SENSORY_MARKETING)) {
     parts.push(`- ${prompt}`);
   }
   parts.push("");
