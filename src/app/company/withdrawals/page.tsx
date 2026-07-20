@@ -64,6 +64,7 @@ export default function CompanyWithdrawalsPage() {
         <div className="flex gap-2 border-b border-border pb-2">
           {([
             { id: "requests" as const, en: "Requests", bn: "রিকোয়েস্ট" },
+            { id: "premium" as const, en: "Premium Payout", bn: "প্রিমিয়াম পে-আউট" },
             { id: "stats" as const, en: "Statistics", bn: "পরিসংখ্যান" },
             { id: "settings" as const, en: "Settings", bn: "সেটিংস" },
           ]).map((tab) => (
@@ -82,6 +83,7 @@ export default function CompanyWithdrawalsPage() {
         </div>
 
         {activeTab === "requests" && <WithdrawalRequestsTab lang={lang} />}
+        {activeTab === "premium" && <PremiumPayoutTab lang={lang} />}
         {activeTab === "stats" && <WithdrawalStatsTab lang={lang} />}
         {activeTab === "settings" && <WithdrawalSettingsTab lang={lang} />}
       </div>
@@ -277,6 +279,98 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function PremiumPayoutTab({ lang }: { lang: string }) {
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  const fetchMembers = useCallback(async () => {
+    try {
+      const res = await fetch("/api/withdrawals/premium-eligible");
+      const data = await res.json() as { members?: any[] };
+      setMembers(data.members || []);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchMembers(); }, [fetchMembers]);
+
+  const doPayout = async (workerId: string, accountId: number, accountType: string, accountNumber: string) => {
+    if (!confirm(lang === "bn" ? `${workerId} - এই সদস্যের ব্যালেন্স পে-আউট করবেন?` : `Payout ${workerId}?`)) return;
+    setProcessing(workerId);
+    try {
+      await fetch("/api/withdrawals/auto-payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, accountType, accountNumber }),
+      });
+      fetchMembers();
+    } catch {}
+    setProcessing(null);
+  };
+
+  if (loading) return (
+    <div className="text-center py-12">
+      <Skeleton className="h-4 w-32 mx-auto" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-text-secondary">
+          {lang === "bn" ? `${members.length} জন প্রিমিয়াম সদস্য পে-আউটের জন্য প্রস্তুত` : `${members.length} premium members ready for payout`}
+        </p>
+        <button onClick={fetchMembers} className="text-xs text-action hover:text-action-light font-medium">↻ {lang === "bn" ? "রিফ্রেশ" : "Refresh"}</button>
+      </div>
+      {members.length === 0 ? (
+        <Card><p className="text-center text-text-secondary py-8 text-sm">{lang === "bn" ? "কোনো প্রিমিয়াম সদস্য পে-আউটযোগ্য নন" : "No premium members eligible"}</p></Card>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-border">
+                <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "সদস্য" : "Member"}</th>
+                <th className="text-right px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "ব্যালেন্স" : "Balance"}</th>
+                <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "অ্যাকাউন্ট" : "Account"}</th>
+                <th className="text-center px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "অ্যাকশন" : "Action"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((m) => (
+                <tr key={m.workerId} className="border-b border-border last:border-b-0 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div>
+                      <span className="text-primary font-medium">{m.name}</span>
+                      <span className="block text-[10px] text-text-secondary font-mono">{m.workerId}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right font-semibold text-primary">{m.balance?.toLocaleString()} ৳</td>
+                  <td className="px-4 py-3">
+                    {m.accountNumber ? (
+                      <div>
+                        <span className="font-medium capitalize">{m.accountType}</span>
+                        <span className="block text-xs font-mono text-text-secondary">{m.accountNumber}</span>
+                      </div>
+                    ) : <span className="text-xs text-red-500">{lang === "bn" ? "কোনো অ্যাকাউন্ট নেই" : "No account"}</span>}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <Button size="sm" variant="primary" loading={processing === m.workerId}
+                      disabled={!m.accountNumber}
+                      onClick={() => doPayout(m.workerId, m.accountId, m.accountType, m.accountNumber)}>
+                      {lang === "bn" ? "পে-আউট" : "Payout"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,7 +41,9 @@ export default function WorkerDashboard() {
   const [premiumMinWithdraw, setPremiumMinWithdraw] = useState(200);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawChannel, setWithdrawChannel] = useState("bkash");
-  const [withdrawAccount, setWithdrawAccount] = useState("");
+  const [pwStep, setPwStep] = useState<0 | 1 | 2>(0);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState("");
   const [paySysActive, setPaySysActive] = useState(true);
   const [nextPayDate, setNextPayDate] = useState("");
   const [payInterval, setPayInterval] = useState(7);
@@ -51,6 +53,7 @@ export default function WorkerDashboard() {
   const [newAccNumber, setNewAccNumber] = useState("");
   const [newAccName, setNewAccName] = useState("");
   const [selectedAccId, setSelectedAccId] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [referralRedirectPath, setReferralRedirectPath] = useState("/register");
   const [analytics, setAnalytics] = useState<{
     totalPageViews: number;
@@ -119,42 +122,64 @@ export default function WorkerDashboard() {
     if (amount < effectiveMin) return alert(lang === "bn" ? `ন্যূনতম উইথড্র: ৳${effectiveMin}` : `Min withdrawal: ৳${effectiveMin}`);
     if (amount > (worker?.balance || 0)) return alert(lang === "bn" ? "পর্যাপ্ত ব্যালেন্স নেই" : "Insufficient balance");
     const acc = autoAccount || savedAccounts.find(a => a.id === selectedAccId);
-    const finalAccount = acc?.account_number || withdrawAccount;
-    const finalChannel = acc?.account_type || withdrawChannel;
-    if (!finalAccount) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
+    if (!acc) return alert(lang === "bn" ? "একটি অ্যাকাউন� সিলেক্ট করুন" : "Select an account");
     const res = await fetch("/api/withdrawals", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workerId: worker!.workerId, amount, paymentMethod: finalChannel, accountNumber: finalAccount }),
+      body: JSON.stringify({ workerId: worker!.workerId, amount, paymentMethod: acc.account_type, accountNumber: acc.account_number }),
     });
     const data = await res.json() as { error?: string };
     if (res.ok) {
       alert(lang === "bn" ? "উইথড্রয়াল অনুরোধ জমা দেওয়া হয়েছে" : "Withdrawal request submitted");
       setWithdrawAmount("");
-      setWithdrawAccount("");
     } else {
       alert(data.error || "Failed");
     }
   };
 
-  const saveAccount = async () => {
+  const saveAccountWithPassword = async () => {
     if (!newAccNumber) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
-    const isDefault = savedAccounts.length === 0 ? 1 : 0;
-    const res = await fetch("/api/accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workerId: worker!.workerId, accountType: newAccType, accountNumber: newAccNumber, accountName: newAccName || null, isDefault }),
-    });
-    if (res.ok) {
-      const updated = await fetch(`/api/accounts?workerId=${worker!.workerId}`).then(r => r.json() as Promise<{ accounts: SavedAccount[] }>);
-      setSavedAccounts(updated.accounts || []);
-      if (updated.accounts?.length && !selectedAccId) setSelectedAccId(updated.accounts[0].id);
-      setNewAccNumber("");
-      setNewAccName("");
-      setShowAddAccount(false);
-    } else {
-      alert("Failed to save account");
-    }
+    if (!pwInput) return alert(lang === "bn" ? "পাসওয়ার্ড দিন" : "Enter password");
+    setIsSaving(true);
+    setPwError("");
+    try {
+      const check = await fetch("/api/auth/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: worker!.workerId, password: pwInput }),
+      });
+      const checkData = await check.json() as { valid?: boolean; error?: string };
+      if (!check.ok || !checkData.valid) {
+        setPwError(lang === "bn" ? "ভুল পাসওয়ার্ড" : "Wrong password");
+        setIsSaving(false);
+        return;
+      }
+      if (pwStep === 1) {
+        setPwStep(2);
+        setPwInput("");
+        setIsSaving(false);
+        return;
+      }
+      const isDefault = savedAccounts.length === 0 ? 1 : 0;
+      const res = await fetch("/api/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: worker!.workerId, accountType: newAccType, accountNumber: newAccNumber, accountName: newAccName || null, isDefault }),
+      });
+      if (res.ok) {
+        const updated = await fetch(`/api/accounts?workerId=${worker!.workerId}`).then(r => r.json() as Promise<{ accounts: SavedAccount[] }>);
+        setSavedAccounts(updated.accounts || []);
+        if (updated.accounts?.length && !selectedAccId) setSelectedAccId(updated.accounts[0].id);
+        setNewAccNumber("");
+        setNewAccName("");
+        setShowAddAccount(false);
+        setPwStep(0);
+        setPwInput("");
+      } else {
+        alert("Failed to save account");
+      }
+    } catch { alert(lang === "bn" ? "সংযোগ ব্যর্থ" : "Connection failed"); }
+    setIsSaving(false);
   };
 
   const deleteAccount = async (id: number) => {
@@ -596,7 +621,6 @@ export default function WorkerDashboard() {
                           key={acc.id}
                           onClick={() => {
                             setSelectedAccId(acc.id);
-                            setWithdrawAccount(acc.account_number);
                             setWithdrawChannel(acc.account_type);
                           }}
                           className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
@@ -639,6 +663,36 @@ export default function WorkerDashboard() {
                       className="text-sm text-action hover:text-action-light font-medium flex items-center gap-1">
                       + {lang === "bn" ? "নতুন অ্যাকাউন্ট যোগ করুন" : "Add New Account"}
                     </button>
+                  ) : pwStep > 0 ? (
+                    <div className="p-4 bg-white rounded-xl border-2 border-action/30 space-y-3 animate-fade-up">
+                      <p className="text-sm font-bold text-primary text-center">
+                        {pwStep === 1
+                          ? (lang === "bn" ? "🔒 পাসওয়ার্ড দিন (১ম ধাপ)" : "🔒 Enter Password (Step 1)")
+                          : (lang === "bn" ? `🔒 নিশ্চিত করুন — ${channels.find(c => c.id === newAccType)?.labelBn || newAccType}: ${newAccNumber}` : `🔒 Confirm — ${newAccType}: ${newAccNumber}`)}
+                      </p>
+                      {pwStep === 2 && (
+                        <div className="p-3 bg-gray-100 rounded-xl text-center">
+                          <p className="text-lg font-bold text-primary">{channels.find(c => c.id === newAccType)?.labelBn || newAccType}</p>
+                          <p className="text-sm font-mono text-text-secondary">{newAccNumber}</p>
+                          {newAccName && <p className="text-xs text-text-secondary mt-1">{newAccName}</p>}
+                        </div>
+                      )}
+                      <p className="text-xs text-text-secondary text-center">{lang === "bn" ? "নিরাপত্তার জন্য পুনরায় পাসওয়ার্ড দিন" : "Re-enter password for security"}</p>
+                      <input type="password" value={pwInput} onChange={e => { setPwInput(e.target.value); setPwError(""); }}
+                        placeholder={lang === "bn" ? "পাসওয়ার্ড" : "Password"}
+                        className="input-field w-full text-sm text-center" autoFocus />
+                      {pwError && <p className="text-xs text-red-500 text-center">{pwError}</p>}
+                      <div className="flex gap-2">
+                        <button onClick={saveAccountWithPassword} disabled={isSaving || !pwInput}
+                          className="btn-primary text-xs !py-2 flex-1 disabled:opacity-50">
+                          {isSaving ? "..." : (lang === "bn" ? "নিশ্চিত করুন" : "Confirm")}
+                        </button>
+                        <button onClick={() => { setPwStep(0); setPwInput(""); setPwError(""); }}
+                          className="px-4 py-2 text-xs text-text-secondary hover:text-primary rounded-lg border border-border">
+                          {lang === "bn" ? "বাতিল" : "Cancel"}
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <div className="p-3 bg-gray-50 rounded-xl space-y-2">
                       <div className="flex gap-2">
@@ -660,7 +714,12 @@ export default function WorkerDashboard() {
                         placeholder={lang === "bn" ? "অ্যাকাউন্টের নাম (optional)" : "Account Label (optional)"}
                         className="input-field w-full text-sm" />
                       <div className="flex gap-2">
-                        <button onClick={saveAccount} className="btn-primary text-xs !py-2 flex-1">
+                        <button onClick={() => {
+                          if (!newAccNumber) return alert(lang === "bn" ? "অ্যাকাউন্ট নাম্বার দিন" : "Enter account number");
+                          setPwStep(1);
+                          setPwInput("");
+                          setPwError("");
+                        }} className="btn-primary text-xs !py-2 flex-1">
                           {lang === "bn" ? "সেভ করুন" : "Save Account"}
                         </button>
                         <button onClick={() => setShowAddAccount(false)} className="px-4 py-2 text-xs text-text-secondary hover:text-primary rounded-lg border border-border">
@@ -733,20 +792,6 @@ export default function WorkerDashboard() {
                   </div>
                 </div>
 
-                {/* Account Number (manual override) */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
-                    {lang === "bn" ? "অ্যাকাউন্ট নাম্বার" : "Account Number"} {savedAccounts.length > 0 && <span className="text-xs text-text-secondary">({lang === "bn" ? "অথবা উপরের অ্যাকাউন্ট সিলেক্ট করুন" : "or select from above"})</span>}
-                  </label>
-                  <input
-                    type="text"
-                    value={withdrawAccount}
-                    onChange={(e) => setWithdrawAccount(e.target.value)}
-                    placeholder={lang === "bn" ? "আপনার অ্যাকাউন্ট নাম্বার দিন" : "Enter your account number"}
-                    className="input-field w-full"
-                  />
-                </div>
-
                 {/* Min withdrawal info */}
                 <div className="mb-4 p-3 rounded-xl bg-gray-50 text-sm">
                   {!isPremium && (
@@ -797,7 +842,7 @@ export default function WorkerDashboard() {
                 onClick={async () => {
                   if (!confirm(lang === "bn" ? "আপনার সম্পূর্ণ ব্যালেন্স উত্তোলন হবে, নিশ্চিত?" : "Your full balance will be withdrawn. Confirm?")) return;
                   const acc = savedAccounts.find(a => a.id === selectedAccId);
-                  if (!acc && !withdrawAccount) return alert(lang === "bn" ? "অনুগ্রহ করে একটি অ্যাকাউন্ট সিলেক্ট বা যোগ করুন" : "Please select or add an account");
+                  if (!acc) return alert(lang === "bn" ? "একটি অ্যাকাউন্ট সিলেক্ট করুন" : "Select an account");
                   await doWithdraw(acc || undefined);
                 }}
                 className="w-full btn-primary !py-3 text-sm mt-2"
