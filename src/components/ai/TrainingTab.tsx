@@ -17,7 +17,7 @@ interface Summary {
   bySource: { source_name: string; count: number }[];
 }
 
-const CATEGORIES = ["all", "psychology", "sales", "communication", "safety", "strategy", "general"];
+const CATEGORIES = ["all", "positioning", "psychology", "sales", "communication", "safety", "strategy", "general"];
 
 export default function TrainingTab() {
   const { lang } = useLanguageStore();
@@ -106,7 +106,7 @@ export default function TrainingTab() {
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => handleCategoryChange(cat)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${filterCategory === cat ? "bg-primary text-white" : "bg-primary/5 text-text-secondary hover:bg-primary/10"}`}>
-            {isBn ? (cat === "all" ? "সব" : cat === "psychology" ? "মনস্তত্ত্ব" : cat === "sales" ? "বিক্রয়" : cat === "communication" ? "যোগাযোগ" : cat === "safety" ? "নিরাপত্তা" : cat === "strategy" ? "কৌশল" : "সাধারণ") : (cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1))}
+            {isBn ? (cat === "all" ? "সব" : cat === "positioning" ? "পজিশনিং" : cat === "psychology" ? "মনস্তত্ত্ব" : cat === "sales" ? "বিক্রয়" : cat === "communication" ? "যোগাযোগ" : cat === "safety" ? "নিরাপত্তা" : cat === "strategy" ? "কৌশল" : "সাধারণ") : (cat === "all" ? "All" : cat === "positioning" ? "Positioning" : cat.charAt(0).toUpperCase() + cat.slice(1))}
           </button>
         ))}
       </div>
@@ -123,7 +123,7 @@ export default function TrainingTab() {
                 className="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-colors text-left">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${entry.knowledgeCategory === "psychology" ? "bg-purple-100 text-purple-700" : entry.knowledgeCategory === "sales" ? "bg-green-100 text-green-700" : entry.knowledgeCategory === "communication" ? "bg-blue-100 text-blue-700" : entry.knowledgeCategory === "safety" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}`}>{entry.knowledgeCategory}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${entry.knowledgeCategory === "positioning" ? "bg-amber-100 text-amber-700" : entry.knowledgeCategory === "psychology" ? "bg-purple-100 text-purple-700" : entry.knowledgeCategory === "sales" ? "bg-green-100 text-green-700" : entry.knowledgeCategory === "communication" ? "bg-blue-100 text-blue-700" : entry.knowledgeCategory === "safety" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}`}>{entry.knowledgeCategory}</span>
                     <span className="text-xs text-text-secondary/50">{entry.createdAt?.split("T")[0] || entry.createdAt?.slice(0, 10)}</span>
                     {entry.sourceName && <span className="text-[10px] text-text-secondary/40">{entry.sourceName}</span>}
                   </div>

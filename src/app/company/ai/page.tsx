@@ -561,8 +561,13 @@ export default function AIHubPage() {
   return (
     <div className="py-8 px-4 md:px-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "এআই" : "AI"}</h1>
-        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "এআই সেটিংস, কর্মচারী, ইনসাইটস ও স্কিল ম্যানেজমেন্ট" : "AI settings, employees, insights & skill management"}</p>
+        <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "🤖 এআই — প্রথম বাংলা ক্যারিয়ার AI" : "🤖 AI — The First Bengali Career AI"}</h1>
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🥇 প্রথম বাংলা AI" : "🥇 First Bengali AI"}</span>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">{lang === "bn" ? "🎯 পজিশন্ড ইন ইওর মাইন্ড" : "🎯 Positioned in Your Mind"}</span>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">{lang === "bn" ? "🧠 আউটসাইড-ইন থিঙ্কিং" : "🧠 Outside-In Thinking"}</span>
+        </div>
+        <p className="text-sm text-text-secondary mt-2">{lang === "bn" ? "এআই সেটিংস, কর্মচারী, ইনসাইটস ও স্কিল ম্যানেজমেন্ট। প্রতিটি এজেন্টের আলাদা পজিশন — যেমন মাইন্ডে প্রোডাক্ট ল্যাডারের একটি রাং।" : "AI settings, employees, insights & skill management. Each agent occupies a distinct rung on the prospect's mental ladder."}</p>
       </div>
 
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto mb-6">
@@ -578,6 +583,31 @@ export default function AIHubPage() {
         <div>
           {dashLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
+              {/* ── Agent Positioning (Book: Positioning Ch.3 — First in the Mind) ── */}
+              <div className="card p-5 mb-6 bg-gradient-to-br from-blue-50/50 to-purple-50/50 border-primary/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🎯</span>
+                  <h2 className="font-bold text-sm text-primary">{lang === "bn" ? "এজেন্ট পজিশনিং — মাইন্ডে প্রোডাক্ট ল্যাডার" : "Agent Positioning — The Product Ladder in the Mind"}</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { icon: "🧑‍🏫", en: "Career Coach", bn: "ক্যারিয়ার কোচ", tagline: lang === "bn" ? "প্রথম পেশাদার ক্যারিয়ার AI" : "First Professional Career AI", color: "bg-blue-100 text-blue-700" },
+                    { icon: "🧠", en: "Psychologist", bn: "সাইকোলজিস্ট", tagline: lang === "bn" ? "মানসিক স্বাস্থ্যে প্রথম বাংলা AI" : "First Bengali AI in Mental Health", color: "bg-purple-100 text-purple-700" },
+                    { icon: "💼", en: "Sales Agent", bn: "সেলস এজেন্ট", tagline: lang === "bn" ? "বিক্রয়ে প্রথম স্মার্ট এজেন্ট" : "First Smart Agent in Sales", color: "bg-green-100 text-green-700" },
+                    { icon: "🛡️", en: "Safety Agent", bn: "নিরাপত্তা এজেন্ট", tagline: lang === "bn" ? "প্রথম ডিজিটাল নিরাপত্তা AI" : "First Digital Safety AI", color: "bg-amber-100 text-amber-700" },
+                  ].map((a) => (
+                    <div key={a.en} className="bg-white/80 rounded-xl p-3 border border-primary/5">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl">{a.icon}</span>
+                        <span className="text-xs font-bold text-primary">{lang === "bn" ? a.bn : a.en}</span>
+                      </div>
+                      <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-bold ${a.color}`}>{a.tagline}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-text-secondary mt-2 italic">{lang === "bn" ? "\"প্রথম হওয়াই মাইন্ডে প্রবেশের সহজ পথ\" — আল রাইজ ও জ্যাক ট্রাউট" : "\"The easy way to get into a person's mind is to be first.\" — Ries & Trout"}</p>
+              </div>
+
               {/* ── KPI Cards ── */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div className="card p-5">
@@ -845,6 +875,35 @@ export default function AIHubPage() {
                         <div><div className="text-sm font-medium text-primary">{model.name}</div><div className="text-xs text-text-secondary">{model.model_id}</div></div>
                       </div>
                       <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-purple-50 text-purple-700">OpenCode</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Positioning Framework (Book: Ch.21 — Six Steps to Success) ── */}
+              <div className="card p-6 mb-6 border-l-4 border-l-primary">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-lg">🎯</span>
+                  <div>
+                    <h2 className="font-bold text-lg text-primary">{lang === "bn" ? "পজিশনিং ফ্রেমওয়ার্ক — সাফল্যের ৬টি প্রশ্ন" : "Positioning Framework — 6 Steps to Success"}</h2>
+                    <p className="text-xs text-text-secondary">{lang === "bn" ? "আল রাইজ ও জ্যাক ট্রাউটের পজিশনিং বই থেকে নেওয়া" : "From Ries & Trout's Positioning"}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { q: lang === "bn" ? "আমরা এখন কোন পজিশনে?" : "What position do we own?", icon: "1️⃣", hint: lang === "bn" ? "প্রথম বাংলা ক্যারিয়ার AI" : "First Bengali Career AI" },
+                    { q: lang === "bn" ? "আমরা কোন পজিশন নিতে চাই?" : "What position do we want?", icon: "2️⃣", hint: lang === "bn" ? "বাংলাদেশের নং-১ AI ইকোসিস্টেম" : "#1 AI Ecosystem in Bangladesh" },
+                    { q: lang === "bn" ? "কাকে হারাতে হবে?" : "Whom must we outgun?", icon: "3️⃣", hint: lang === "bn" ? "ChatGPT (বাংলায় দুর্বল), Bard" : "ChatGPT (weak in Bangla), Bard" },
+                    { q: lang === "bn" ? "পর্যাপ্ত বাজেট আছে?" : "Do we have enough money?", icon: "4️⃣", hint: lang === "bn" ? "ফ্রি মডেল + ফেইলওভার = কম খরচ" : "Free models + failover = low cost" },
+                    { q: lang === "bn" ? "টিকিয়ে রাখতে পারব?" : "Can we stick it out?", icon: "5️⃣", hint: lang === "bn" ? "দীর্ঘমেয়াদী পজিশনিং প্রয়োজন" : "Long-term positioning required" },
+                    { q: lang === "bn" ? "পজিশনের সাথে মেলে?" : "Do we match our position?", icon: "6️⃣", hint: lang === "bn" ? "প্রতিটি এজেন্ট আলাদা পজিশনে" : "Each agent has a distinct position" },
+                  ].map((item) => (
+                    <div key={item.q} className="bg-gray-50 rounded-xl p-4 border border-border/60">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm">{item.icon}</span>
+                        <span className="text-xs font-bold text-primary">{item.q}</span>
+                      </div>
+                      <p className="text-[10px] text-text-secondary mt-1 italic">→ {item.hint}</p>
                     </div>
                   ))}
                 </div>

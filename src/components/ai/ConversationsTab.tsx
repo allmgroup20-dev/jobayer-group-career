@@ -70,6 +70,12 @@ export default function ConversationsTab() {
 
   return (
     <div className="space-y-4">
+      {/* Positioning insight banner (Book: Ch.4 — Those Little Ladders in Your Head) */}
+      <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-primary/10 text-xs">
+        <span className="text-sm">🧠</span>
+        <span className="text-text-secondary">{lang === "bn" ? "প্রতিটি কথোপকথন মাইন্ডে প্রোডাক্ট ল্যাডারের একটি রাং। ওভারসিম্পলিফাইড মেসেজ — লেস ইজ মোর।" : "Every conversation is a rung on the mind's product ladder. Oversimplified message — less is more."}</span>
+      </div>
+
       <div className="flex gap-3">
         <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder={lang === "bn" ? "ফোন বা বিষয় দিয়ে খুঁজুন..." : "Search by phone or topic..."}
@@ -124,7 +130,12 @@ export default function ConversationsTab() {
               {detail.flatMap((conv) => conv.messages).slice(0, showAllMessages ? undefined : 30).map((msg, j) => (
                 <div key={j} className={`flex ${msg.role === "user" ? "justify-start" : "justify-end"}`}>
                   <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === "user" ? "bg-gray-100 text-gray-800 rounded-bl-md" : "bg-primary/10 text-primary rounded-br-md"}`}>
-                    <div className="text-xs font-medium mb-1 opacity-60">{msg.role === "user" ? (lang === "bn" ? "ব্যবহারকারী" : "User") : (lang === "bn" ? "AI" : "Assistant")}</div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`text-xs font-medium ${msg.role === "user" ? "opacity-60" : ""}`}>
+                        {msg.role === "user" ? (lang === "bn" ? "👤 ব্যবহারকারী" : "👤 User") : (lang === "bn" ? "🤖 ক্যারিয়ার কোচ" : "🤖 Career Coach")}
+                      </span>
+                      {msg.role !== "user" && <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🥇 প্রথম বাংলা AI" : "🥇 1st Bengali AI"}</span>}
+                    </div>
                     <div className="whitespace-pre-wrap break-words">{msg.content}</div>
                   </div>
                 </div>
