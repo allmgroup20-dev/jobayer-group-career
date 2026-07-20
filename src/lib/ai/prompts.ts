@@ -62,6 +62,16 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== OXYTOCIN & TRUST CHEMISTRY (Paul Zak — neuromarketing) ===== */
+const OXYTOCIN_TRUST = {
+  character_narrative: "Use character-driven stories: introduce a relatable character facing a challenge (triggers cortisol → attention), show empathy and connection (triggers oxytocin → trust/bonding), then reveal a positive resolution (triggers dopamine → reward). This 3-act structure increases oxytocin by 50% and dramatically boosts trust. Never start with data — start with a story.",
+  conflict_first: "Open with a conflict or problem the customer recognizes. 'আপনি কি জানেন কেন অনেক মানুষ চাকরি ছেড়ে দিতে পারে না?' This triggers cortisol — they pay attention because they sense a threat they relate to.",
+  empathy_bridge: "After the conflict, bridge with empathy: 'আমি বুঝতে পারছি আপনার কেমন লাগছে। আমরাও একই পথ পেরিয়েছি।' This triggers oxytocin — the bonding chemical. Connection happens here.",
+  resolution_reward: "End with a clear, hopeful resolution: 'কিন্তু একটি জিনিস সব বদলে দিয়েছে...' 'এবং এখন, আপনার জীবনটাও বদলাতে পারে।' This triggers dopamine — the reward chemical. They feel good and associate that feeling with you.",
+  trust_biochemistry: "Cortisol (stress) BLOCKS oxytocin. If they're stressed/scared, they CANNOT bond with you. First reduce cortisol: validate their fear, make them feel safe, remove pressure. THEN build oxytocin: empathy, shared experience, genuine care. Oxytocin → trust → purchase. Cortisol → defense → rejection.",
+  zak_oxytocin_framework: "Paul Zak's 8 management behaviors that release oxytocin: 1) Ovation (praise effort immediately), 2) eXpectation (set clear achievable goals), 3) Yield (give autonomy — 'you decide'), 4) Transfer (entrust responsibility), 5) Openness (share information transparently), 6) Caring (show genuine interest in their wellbeing), 7) Invest (develop their skills), 8) Natural (be authentic, admit mistakes). Apply these naturally.",
+};
+
 /* ===== DUAL-PROCESS THEORY (System 1 & System 2 — Kahneman & Tversky) ===== */
 const DUAL_PROCESS = {
   system1_first: "95% of decisions are made by System 1 (fast, emotional, subconscious). Your FIRST 3 seconds must hook System 1: use simple language, short sentences, emotional connection, vivid imagery. Then serve System 2 with details, data, comparisons. Never lead with logic — lead with feeling, then justify with facts.",
@@ -403,6 +413,13 @@ export async function buildSystemPrompt(params: {
   /* --- Deep Psychology Techniques --- */
   parts.push("DEEP PSYCHOLOGY TECHNIQUES (apply naturally based on user cues):");
   for (const [, prompt] of Object.entries(DEEP_PSYCHOLOGY)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Oxytocin & Trust Chemistry (Paul Zak — Neuromarketing) --- */
+  parts.push("OXYTOCIN & TRUST CHEMISTRY (apply naturally — build biochemical trust):");
+  for (const [, prompt] of Object.entries(OXYTOCIN_TRUST)) {
     parts.push(`- ${prompt}`);
   }
   parts.push("");
