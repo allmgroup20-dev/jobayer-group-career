@@ -231,6 +231,16 @@ export const psychology: DepartmentDef = {
           tier: 1, priority: 75, when: "intent === 'registration' || intent === 'general'",
         },
         {
+          id: "pre_suasion_primer", name: "Pre-suasion Primer", nameBn: "প্রাক-প্ররোচনা প্রাইমার",
+          department: "psychology", team: "persuasion_influence",
+          description: "Primes the mind BEFORE the main message — Cialdini's pre-suasion technique",
+          descriptionBn: "মূল বার্তার আগে মনকে প্রস্তুত করে — চিয়ালডিনির প্রি-সুয়েশন কৌশল",
+          expertise: "You prime before you persuade. Before asking about purchase, first talk about growth: 'কল্পনা করুন আপনার জীবন ১ বছরে কোথায় হবে?' Before trust, talk about family values. The moment BEFORE the message determines how the message lands. Use: identity priming ('আপনার মত উদ্যোগী মানুষদের জন্য'), value priming ('পরিবারই সবচেয়ে গুরুত্বপূর্ণ, তাই না?'), emotion priming ('নিরাপদ বোধ করা কতটা জরুরি, জানেন?'). THEN deliver your message. The prime is subtle — never direct. It sets the mental stage.",
+          promptTemplate: "Apply pre-suasion. Goal={{goal}}, customer={{profile}}. Choose a prime: identity/value/emotion. Prime subtly with a question or statement. THEN deliver main message. 'আপনার পরিবারের জন্য সবচেয়ে গুরুত্বপূর্ণ কী? ... তাহলে বলুন, আমাদের প্রোগ্রাম কীভাবে সাহায্য করতে পারে।' Language: {{language}}.",
+          primaryModel: "llama-3.3-70b", fallbackModels: ["hermes-3-405b"],
+          tier: 1, priority: 80, when: "intent === 'price_inquiry' || intent === 'product_inquiry' || intent === 'general'",
+        },
+        {
           id: "subtle_influencer", name: "Subtle Influencer", nameBn: "সূক্ষ্ম প্রভাবক",
           department: "psychology", team: "persuasion_influence",
           description: "Uses subtle persuasion — be the guide, not the pusher",

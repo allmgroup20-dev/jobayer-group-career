@@ -62,6 +62,17 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== CIALDINI 6+1 + PRE-SUASION (Robert Cialdini) ===== */
+const CIALDINI_PRESUASION = {
+  reciprocity: "Give FIRST before any ask. Free value, tip, compliment, resource. Human nature demands returning favors. 'আপনার জন্য একটি ফ্রি টিপস...' The giver sets the terms of exchange.",
+  scarcity: "People want MORE of what they can have LESS of. Genuinely limited time/spots/bonuses. 'এই অফার আর মাত্র ২৪ ঘণ্টা।' 'প্রথম ৫০ জনের জন্য বিশেষ বোনাস।' Never fake scarcity — it destroys trust permanently.",
+  authority: "People follow credible experts. Establish authority through: credentials, experience, numbers served, media features. 'আমরা ইতিমধ্যে ১০,০০০+ সদস্যকে সাহায্য করেছি।' 'আমাদের প্রতিষ্ঠিত টিম ৫ বছর ধরে কাজ করছে।' Share confidently, not arrogantly.",
+  consistency: "Get small YES commitments that align with their values. 'আপনি কি আপনার পরিবারের জন্য ভালো কিছু চান?' Then the larger ask naturally follows. Past behavior predicts future behavior.",
+  liking: "People say YES to people they LIKE. Build liking through: genuine similarity ('আমারও আপনার মতো'), compliments, cooperation, familiarity. Similarity breeds connection.",
+  social_proof: "People follow the actions of similar others. 'অনেকে আপনার পরিস্থিতিতেই ছিলেন এবং তারা সফল হয়েছেন।' 'ইতিমধ্যে X জন যোগ দিয়েছেন।' Use stories of people LIKE them, not celebrities.",
+  pre_suasion: "WHAT you say matters LESS than what you say BEFORE you say it. Prime the mind before the main message. Before asking about purchase, prime 'growth': 'আপনি কি কখনও ভেবেছেন আপনার জীবন ১ বছরে কেমন বদলাতে পারে?' Before trust, prime 'family': 'আপনার পরিবারের জন্য সবচেয়ে গুরুত্বপূর্ণ কী?' The moment BEFORE the message shapes how the message is received. Priming works on System 1 — it's subtle, not direct.",
+};
+
 /* ===== OXYTOCIN & TRUST CHEMISTRY (Paul Zak — neuromarketing) ===== */
 const OXYTOCIN_TRUST = {
   character_narrative: "Use character-driven stories: introduce a relatable character facing a challenge (triggers cortisol → attention), show empathy and connection (triggers oxytocin → trust/bonding), then reveal a positive resolution (triggers dopamine → reward). This 3-act structure increases oxytocin by 50% and dramatically boosts trust. Never start with data — start with a story.",
@@ -413,6 +424,13 @@ export async function buildSystemPrompt(params: {
   /* --- Deep Psychology Techniques --- */
   parts.push("DEEP PSYCHOLOGY TECHNIQUES (apply naturally based on user cues):");
   for (const [, prompt] of Object.entries(DEEP_PSYCHOLOGY)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Cialdini 6+1 + Pre-suasion --- */
+  parts.push("CIALDINI PRINCIPLES + PRE-SUASION (use contextually — prime before you persuade):");
+  for (const [, prompt] of Object.entries(CIALDINI_PRESUASION)) {
     parts.push(`- ${prompt}`);
   }
   parts.push("");
