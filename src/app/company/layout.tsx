@@ -179,7 +179,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-bg flex">
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
@@ -190,10 +190,13 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         </svg>
       </button>
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-border transform transition-transform duration-200 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
-        <div className="h-16 flex items-center gap-2 px-5 border-b border-border shrink-0">
-          <div className="w-8 h-8 gradient-premium rounded-lg flex items-center justify-center text-white font-bold text-xs shadow">JGC</div>
-          <span className="font-bold text-sm text-primary">{user.name}</span>
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-border/80 transform transition-transform duration-200 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-border/80 shrink-0 bg-gradient-to-r from-primary/5 to-accent/5">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md shadow-primary/20">JGC</div>
+          <div>
+            <span className="font-bold text-sm text-primary">{user.name}</span>
+            <span className="block text-[10px] text-text-secondary capitalize">{user.role}</span>
+          </div>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -214,8 +217,8 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-base">{group.icon}</span>
-                    <span>{group.en}</span>
+                    <span className="text-lg">{group.icon}</span>
+                    <span className={hasActive ? "font-bold" : ""}>{group.en}</span>
                   </div>
                   <svg
                     className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -225,7 +228,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   </svg>
                 </button>
                 {isExpanded && (
-                  <div className="ml-3 mt-1 space-y-1 border-l-2 border-border pl-3">
+                  <div className="ml-3 mt-1 space-y-1 border-l-2 border-border/60 pl-3">
                     {group.links.map((link) => {
                       const isActive = pathname === link.href || (link.href !== "/company" && pathname.startsWith(link.href));
                       return (
@@ -236,14 +239,14 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                           onClick={() => setSidebarOpen(false)}
                           className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                             isActive
-                              ? "bg-primary/10 text-primary"
+                              ? "bg-gradient-to-r from-accent/10 to-primary/5 text-accent-dark border-l-[3px] border-accent -ml-[15px] pl-[13px]"
                               : "text-text-secondary hover:bg-primary/5 hover:text-primary"
                           }`}
                         >
                           <span className="text-base">{link.icon}</span>
                           <div className="flex-1 min-w-0">
-                            <span className="block truncate">{link.en}</span>
-                            <span className="block text-[10px] text-gray-400 truncate group-hover:text-gray-500 transition-colors">{link.desc}</span>
+                            <span className={`block truncate ${isActive ? "font-bold" : ""}`}>{link.en}</span>
+                            <span className="block text-[10px] text-text-secondary/60 truncate group-hover:text-text-secondary/80 transition-colors">{link.desc}</span>
                           </div>
                         </Link>
                       );
@@ -258,7 +261,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         <div className="border-t border-border p-3 shrink-0">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-danger hover:bg-danger/5 transition-all"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
