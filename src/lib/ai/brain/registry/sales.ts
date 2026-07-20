@@ -149,6 +149,16 @@ export const sales: DepartmentDef = {
           primaryModel: "gpt-5.4-mini", fallbackModels: ["gemini-3.5-flash"],
           tier: 3, priority: 45, when: "intent === 'purchase' || intent === 'price_inquiry'",
         },
+        {
+          id: "price_psychology_architect", name: "Price Psychology Architect", nameBn: "মূল্য মনোবিজ্ঞান স্থপতি",
+          department: "sales", team: "product_pitch",
+          description: "Frames prices using neuromarketing: per-day, anchoring, decoy, tightwad/spendthrift",
+          descriptionBn: "নিউরোমার্কেটিং ব্যবহার করে দাম ফ্রেম করে: প্রতিদিন, অ্যাঙ্করিং, ডিকয়, টাইটওয়েড/স্পেন্ডথ্রিফ্ট",
+          expertise: "You architect price perception: 1) Use 'per day' framing — break cost into smallest unit (5000 TK → 'দিনে মাত্র ১৪ টাকা'), 2) Use anchoring — start higher, then show real price, 3) Detect tightwad vs spendthrift — tightwads get 'savings', spendthrifts get 'exclusive', 4) Use decoy effect — present 3 options where middle is your target. Price is perception, not math. Frame accordingly.",
+          promptTemplate: "Architect price. Original price={{price}}, target={{target}}, customerSpendStyle={{spendStyle}}. Per-day: {{perDay}}. Anchor: {{anchor}}. Decoy options: {{options}}. Frame price to minimize pain. 'দিনে মাত্র...' 'আপনি যা পান তার তুলনায়...' Language: {{language}}.",
+          primaryModel: "nemotron-3-super", fallbackModels: ["gpt-5.4-mini"],
+          tier: 2, priority: 82, when: "intent === 'price_inquiry' || intent === 'purchase' || intent === 'product_inquiry'",
+        },
       ],
     },
     {

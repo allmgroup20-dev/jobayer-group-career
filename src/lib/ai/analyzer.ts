@@ -9,6 +9,7 @@ export type MaskStatus = "open" | "partial" | "masked";
 export type CommStyle = "analytical" | "emotional" | "direct" | "warm" | "standard";
 export type TrustReadiness = "ready" | "needs_time" | "skeptical";
 export type DecisionMode = "system1_fast" | "system2_analytical" | "mixed";
+export type SpendStyle = "tightwad" | "spendthrift" | "balanced";
 
 const MOOD_PATTERNS: Record<Mood, RegExp[]> = {
   enthusiastic: [
@@ -454,6 +455,28 @@ export function detectTrustReadiness(text: string): TrustReadiness {
     if (sc > bestScore) { bestScore = sc; best = s as TrustReadiness; }
   }
   return best;
+}
+
+const SPEND_STYLE_PATTERNS: Record<SpendStyle, RegExp[]> = {
+  tightwad: [
+    /\b(?:price|cost|expense|save|saving|budget|cheap|discount|deal|afford|expensive|costly|overpriced|waste|economy|cheapest)\b/i,
+    /(?:how much|koto|দাম|কত টাকা|মূল্য|খরচ|সস্তা|দামী|ডিসকাউন্ট|ছাড়|কম দাম)/i,
+    /(?:return|investment|roi|worth it|value for money|মূল্যায়ন)/i,
+  ],
+  spendthrift: [
+    /\b(?:quality|premium|exclusive|best|top|luxury|elite|worth|investment|value|superior|unique|special|limited)\b/i,
+    /(?:এক্সক্লুসিভ|প্রিমিয়াম|সেরা|উৎকৃষ্ট|বিশেষ|গুণগত)/i,
+    /(?:i deserve|i want the best|life is short|you get what you pay|treat myself)/i,
+  ],
+  balanced: [],
+};
+
+export function detectSpendStyle(text: string): SpendStyle {
+  const tw = SPEND_STYLE_PATTERNS.tightwad.reduce((s, p) => s + (p.test(text) ? 1 : 0), 0);
+  const st = SPEND_STYLE_PATTERNS.spendthrift.reduce((s, p) => s + (p.test(text) ? 1 : 0), 0);
+  if (tw > st && tw >= 2) return "tightwad";
+  if (st > tw && st >= 2) return "spendthrift";
+  return "balanced";
 }
 
 const DECISION_MODE_PATTERNS: Record<DecisionMode, RegExp[]> = {

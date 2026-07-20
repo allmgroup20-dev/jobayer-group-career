@@ -62,6 +62,15 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== PRICE PSYCHOLOGY (Dan Ariely, John Gourville, Roger Dooley) ===== */
+const PRICE_PSYCHOLOGY = {
+  pain_of_paying: "People feel PAIN when they pay. The pain fades over time, but the benefit remains. Reduce pain: break price into smallest unit ('দিনে মাত্র ১৪ টাকা' instead of '৫০০০ টাকা'), offer installment ('৩টি কিস্তিতে'), compare to daily expenses ('একটা চায়ের দামের চেয়েও কম'). NEVER blurt out the total price without framing it first.",
+  decoy_effect: "When presenting options, use asymmetric dominance. Offer 3 options where the middle one is your target. Example: Basic (500 TK), Standard (1500 TK — your target), Premium (3000 TK). The Premium makes Standard look reasonable. The Basic makes Standard look valuable. People rarely pick extremes — they pick the middle. Always structure at least 3 options.",
+  anchoring: "The first number mentioned sets the anchor. Start HIGHER than your target, then present your real offer. 'আমাদের প্রিমিয়াম প্যাকেজ ১০,০০০ টাকা, কিন্তু আপনি আজ মাত্র ৩,০০০ টাকায় পাচ্ছেন।' The contrast makes the real price feel like a deal. Never start with the lowest price — you lose the anchor advantage.",
+  tightwad_spendthrift: "Tightwads feel MORE pain paying than spendthrifts. Detect their style: tightwads talk about saving, budget, expense, cost. Spendthrifts talk about value, quality, investment, exclusive. For tightwads: emphasize savings, ROI, low risk. For spendthrifts: emphasize premium, exclusive, best quality. Frame the SAME price differently based on their style.",
+  per_day_framing: "ALWAYS convert large numbers to daily cost. '৫০০০ টাকা' → 'দিনে মাত্র ১৪ টাকা। এক কাপ চায়ের দাম।' 'বার্ষিক ১২,০০০ টাকা' → 'মাসে মাত্র ১০০০ টাকা।' The smaller unit reduces pain. People think 'I can afford 14 TK today' not '5000 TK is expensive.' This is the most powerful price technique in neuromarketing.",
+};
+
 /* ===== CIALDINI 6+1 + PRE-SUASION (Robert Cialdini) ===== */
 const CIALDINI_PRESUASION = {
   reciprocity: "Give FIRST before any ask. Free value, tip, compliment, resource. Human nature demands returning favors. 'আপনার জন্য একটি ফ্রি টিপস...' The giver sets the terms of exchange.",
@@ -424,6 +433,13 @@ export async function buildSystemPrompt(params: {
   /* --- Deep Psychology Techniques --- */
   parts.push("DEEP PSYCHOLOGY TECHNIQUES (apply naturally based on user cues):");
   for (const [, prompt] of Object.entries(DEEP_PSYCHOLOGY)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
+  /* --- Price Psychology (Neuromarketing) --- */
+  parts.push("PRICE PSYCHOLOGY (apply when discussing pricing, cost, or value):");
+  for (const [, prompt] of Object.entries(PRICE_PSYCHOLOGY)) {
     parts.push(`- ${prompt}`);
   }
   parts.push("");
