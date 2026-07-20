@@ -20,31 +20,60 @@ interface SidebarLink {
 }
 
 const sidebarLinks: SidebarLink[] = [
+  // People
   { href: "/company/members", en: "Members", bn: "সদস্য", icon: "👥" },
   { href: "/company/customers", en: "Customers", bn: "গ্রাহক", icon: "👤" },
   { href: "/company/users", en: "Users", bn: "ব্যবহারকারী", icon: "🔐" },
+  { href: "/company/notifications", en: "Notifications", bn: "বিজ্ঞপ্তি", icon: "🔔" },
+  // Products & Sales
   { href: "/company/products", en: "Products", bn: "পণ্য", icon: "📦" },
   { href: "/company/courses", en: "Resources", bn: "রিসোর্স", icon: "🎓" },
+  { href: "/company/courses/categories", en: "Res Categories", bn: "রিসোর্স ক্যাটাগরি", icon: "📂" },
+  { href: "/company/course-stats", en: "Course Stats", bn: "রিসোর্স পরিসংখ্যান", icon: "📊" },
   { href: "/company/orders", en: "Orders", bn: "অর্ডার", icon: "📋" },
   { href: "/company/reviews", en: "Reviews", bn: "রিভিউ", icon: "⭐" },
+  { href: "/company/levels", en: "Levels", bn: "লেভেল", icon: "📊" },
   { href: "/company/finance", en: "Finance", bn: "অর্থ", icon: "💰" },
   { href: "/company/withdrawals", en: "Withdrawals", bn: "উত্তোলন", icon: "💸" },
-  { href: "/company/levels", en: "Levels", bn: "লেভেল", icon: "📊" },
-  { href: "/company/ai", en: "AI Hub", bn: "এআই হাব", icon: "🤖" },
+  { href: "/company/currencies", en: "Currencies", bn: "মুদ্রা", icon: "💵" },
+  { href: "/company/payment-gateway", en: "Payment", bn: "পেমেন্ট", icon: "💳" },
+  { href: "/company/unlocks", en: "Unlocks", bn: "আনলক", icon: "🔓" },
+  { href: "/company/complaints", en: "Complaints", bn: "কমপ্লেইন", icon: "⚠️" },
+  { href: "/company/trainers", en: "Trainers", bn: "প্রশিক্ষক", icon: "👨‍🏫" },
+  { href: "/company/institutions", en: "Institutions", bn: "প্রতিষ্ঠান", icon: "🏛️" },
+  // Overview / Analytics
   { href: "/company/analytics", en: "Analytics", bn: "অ্যানালিটিক্স", icon: "📊" },
+  { href: "/company/psychology-reports", en: "Psych Reports", bn: "সাইকোলজি রিপোর্ট", icon: "📊" },
   { href: "/company/events", en: "Events", bn: "ইভেন্ট", icon: "📋" },
   { href: "/company/sessions", en: "Sessions", bn: "সেশন", icon: "🕒" },
   { href: "/company/funnel", en: "Funnel", bn: "ফানেল", icon: "🔄" },
+  { href: "/company/funnel-psychology", en: "Funnel Psych", bn: "ফানেল সাইকোলজি", icon: "🔮" },
   { href: "/company/segments", en: "Segments", bn: "সেগমেন্ট", icon: "🎯" },
-  { href: "/company/notifications", en: "Notifications", bn: "বিজ্ঞপ্তি", icon: "🔔" },
-  { href: "/company/complaints", en: "Complaints", bn: "কমপ্লেইন", icon: "⚠️" },
+  // AI & Automation
+  { href: "/company/ai", en: "AI Hub", bn: "এআই হাব", icon: "🤖" },
+  { href: "/company/automation", en: "Automation", bn: "অটোমেশন", icon: "⚡" },
+  { href: "/company/sentiment", en: "Sentiment", bn: "সেন্টিমেন্ট", icon: "📈" },
+  { href: "/company/skills", en: "Skills", bn: "দক্ষতা", icon: "🧠" },
+  { href: "/company/ai-distribution", en: "AI Distribution", bn: "এআই বিতরণ", icon: "📚" },
+  { href: "/company/ai-conversations", en: "Conversations", bn: "কথোপকথন", icon: "💬" },
+  { href: "/company/psychology-insights", en: "Psych Insights", bn: "সাইকোলজি ইনসাইটস", icon: "🧠" },
+  { href: "/company/psychology-profiles", en: "Psych Profiles", bn: "সাইকোলজি প্রোফাইল", icon: "🔍" },
+  { href: "/company/psychologist-dashboard", en: "Psychologist", bn: "সাইকোলজিস্ট", icon: "🩺" },
+  { href: "/company/employee-persuasion", en: "Persuasion", bn: "পারসুয়েশন", icon: "📋" },
+  { href: "/company/daily-habits", en: "Daily Habits", bn: "দৈনিক অভ্যাস", icon: "🌅" },
+  { href: "/company/ai-training", en: "AI Training", bn: "এআই প্রশিক্ষণ", icon: "📚" },
+  { href: "/company/courses/ai-pricing", en: "AI Pricing", bn: "এআই প্রাইসিং", icon: "💰" },
+  // Communication
+  { href: "/dashboard/platforms", en: "Platforms", bn: "প্ল্যাটফর্ম", icon: "🔄" },
   { href: "/company/translations", en: "Translations", bn: "অনুবাদ", icon: "🌐" },
-  { href: "/company/trainers", en: "Trainers", bn: "প্রশিক্ষক", icon: "👨‍🏫" },
-  { href: "/company/institutions", en: "Institutions", bn: "প্রতিষ্ঠান", icon: "🏛️" },
+  // System
   { href: "/company/settings", en: "Settings", bn: "সেটিংস", icon: "⚙️" },
   { href: "/company/maintenance", en: "Maintenance", bn: "রক্ষণাবেক্ষণ", icon: "🔧" },
   { href: "/company/fingerprint", en: "Fingerprint", bn: "ফিঙ্গারপ্রিন্ট", icon: "🔐" },
+  { href: "/company/privacy", en: "Privacy", bn: "প্রাইভেসি", icon: "🔒" },
   { href: "/company/test-mode", en: "Test Mode", bn: "টেস্ট মোড", icon: "🧪" },
+  { href: "/company/updates", en: "Updates", bn: "আপডেট", icon: "🔄" },
+  { href: "/system", en: "System Monitor", bn: "সিস্টেম মনিটর", icon: "📡" },
 ];
 
 function parseCookie(name: string): string | null {
