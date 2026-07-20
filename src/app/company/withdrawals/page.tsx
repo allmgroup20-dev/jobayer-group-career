@@ -48,7 +48,7 @@ const WEEKDAYS = [
 
 export default function CompanyWithdrawalsPage() {
   const { lang } = useLanguageStore();
-  const [activeTab, setActiveTab] = useState<"requests" | "stats" | "settings">("requests");
+  const [activeTab, setActiveTab] = useState<"requests" | "premium" | "stats" | "settings">("requests");
 
   return (
     <div className="min-h-screen py-24 px-4 bg-gray-50">
