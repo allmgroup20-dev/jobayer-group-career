@@ -173,8 +173,12 @@ export default function CompanyMembersPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "মেম্বার ম্যানেজমেন্ট" : "Member Management"}</h1>
-            <p className="text-sm text-text-secondary mt-1">{total.toLocaleString()} {lang === "bn" ? "জন মোট সদস্য" : "total members"}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "👥 মেম্বার ম্যানেজমেন্ট" : "👥 Member Management"}</h1>
+              <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">{lang === "bn" ? "⭐ প্রিমিয়াম পজিশনিং" : "⭐ Premium Positioning"}</span>
+              <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🎯 হায়ার-প্রাইস ক্রেনো" : "🎯 High-Price Creneau"}</span>
+            </div>
+            <p className="text-sm text-text-secondary mt-1">{total.toLocaleString()} {lang === "bn" ? "জন মোট সদস্য। প্রতিটি টায়ার মাইন্ডে আলাদা প্রোডাক্ট ল্যাডার দখল করে।" : "total members. Each tier owns a separate rung on the mind's product ladder."}</p>
           </div>
           <div className="flex items-center gap-2">
             <input

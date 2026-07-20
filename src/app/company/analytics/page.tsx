@@ -19,9 +19,13 @@ export default function CompanyAnalyticsPage() {
     <div className="min-h-screen py-24 px-4 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "অ্যানালিটিক্স" : "Analytics"}</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "📊 অ্যানালিটিক্স" : "📊 Analytics"}</h1>
+            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">{lang === "bn" ? "🔢 সর্বোচ্চ ৭ সেগমেন্ট" : "🔢 Max 7 Segments"}</span>
+            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">{lang === "bn" ? "✂️ ওভারসিম্পলিফাইড" : "✂️ Oversimplified"}</span>
+          </div>
           <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "ব্যবহারকারীর আচরণ, ইভেন্ট লগ, সেশন, ফানেল বিশ্লেষণ ও সেগমেন্ট" : "User behavior, event logs, sessions, funnel analysis & segments"}
+            {lang === "bn" ? "পজিশনিং বই অনুসারে — মানুষের মন ৭টির বেশি ইউনিট হ্যান্ডেল করতে পারে না। তাই সেগমেন্ট সর্বোচ্চ ৭টি, রিপোর্ট ওভারসিম্পলিফাইড।" : "Per Positioning — the mind handles max 7 units. Segments ≤7, reports oversimplified. Less is more."}
           </p>
         </div>
 

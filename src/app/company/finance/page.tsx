@@ -24,11 +24,15 @@ export default function CompanyFinancePage() {
     <div className="min-h-screen py-24 px-4 bg-gray-50">
       <div className="max-w-6xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "ফাইন্যান্স" : "Finance"}</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "💰 ফাইন্যান্স" : "💰 Finance"}</h1>
+            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">{lang === "bn" ? "🤝 বিশ্বস্ত পজিশনিং" : "🤝 Trust Positioning"}</span>
+            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🔐 পারসেপশন ইজ রিয়ালিটি" : "🔐 Perception is Reality"}</span>
+          </div>
           <p className="text-sm text-text-secondary mt-1">
             {lang === "bn"
-              ? "রেভিনিউ, উইথড্রয়াল, পেমেন্ট গেটওয়ে ও কারেন্সি কনফিগারেশন"
-              : "Revenue, withdrawals, payment gateways & currency configuration"}
+              ? "রেভিনিউ, উইথড্রয়াল, পেমেন্ট গেটওয়ে ও কারেন্সি কনফিগারেশন। পজিশনিং বই অনুসারে — পেমেন্ট গেটওয়ের নাম ও ডিজাইনই বিশ্বাস তৈরি করে।"
+              : "Revenue, withdrawals, payment gateway & currency configuration. Per Positioning — the gateway's name & design build trust before a single transaction."}
           </p>
         </div>
 

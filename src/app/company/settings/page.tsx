@@ -86,8 +86,12 @@ export default function CompanySettingsPage() {
   return (
     <div className="py-8 px-4 md:px-6 max-w-3xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "সেটিংস" : "Settings"}</h1>
-        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "কোম্পানি সেটিংস কনফিগার করুন" : "Configure company settings"}</p>
+        <div className="flex items-center gap-2 mb-1">
+          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "⚙️ সেটিংস" : "⚙️ Settings"}</h1>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🔐 সিকিউরিটি পজিশনিং" : "🔐 Security Positioning"}</span>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">{lang === "bn" ? "🏷️ দ্যা পাওয়ার অফ দ্যা নেম" : "🏷️ Power of Name"}</span>
+        </div>
+        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "কোম্পানি তথ্য, থিম ও বায়োমেট্রিক সেটিংস। পজিশনিং বই অনুসারে — নামই প্রথম পয়েন্ট অফ কন্টাক্ট।" : "Company info, theme & biometric settings. Per Positioning — the name is the first point of contact."}</p>
       </div>
 
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto mb-6">
