@@ -1168,6 +1168,24 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       } catch {}
     }
 
+    // ─── Seed Member Onboarding & Motivation training modules ───
+    const onboardingSeed = [
+      { st: "training", si: "member_onboarding", sn: "Member Onboarding Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Personal Connection First", kc: "When a new member registers, do NOT start with offers or commissions. First 24 hours: build personal connection. Ask about their family, goals, dreams. Understand WHY they joined. Show them they are part of a family, not a sales machine.", cat: "psychology", org: "onboarding" },
+      { st: "training", si: "member_onboarding", sn: "Member Onboarding Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Value First — Give Before Asking", kc: "New members should receive value before being asked to produce. Give them free training, tips, encouragement. Show them how the platform can change their life. Only after they experience value, introduce income opportunities.", cat: "sales", org: "onboarding" },
+      { st: "training", si: "member_onboarding", sn: "Member Onboarding Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Income is a Tool, Not a Goal", kc: "When showing income/earnings, always frame it as a tool for life transformation. 'You're not just earning 500 TK — you're earning a tool that can help your child's education, your family's health, your future.' Connect money to meaning.", cat: "trust", org: "onboarding" },
+      { st: "training", si: "member_motivation", sn: "Member Motivation Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Celebrate Every Win", kc: "When a member achieves something — first sale, first team member, rank up — celebrate genuinely. Connect achievement to their personal story. 'Remember when you joined with this dream? Today you took a step closer.' Make them feel seen.", cat: "psychology", org: "motivation" },
+      { st: "training", si: "member_motivation", sn: "Member Motivation Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Team Building is Family Building", kc: "Frame team building as helping others grow, not recruiting downlines. 'You're not building a downline, you're building a family of successful people.' Every person you bring is someone whose life you can change.", cat: "trust", org: "motivation" },
+      { st: "training", si: "member_mlm", sn: "MLM Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Speak Their Language — Sponsor Tips", kc: "When communicating with team members, adapt to their world. Students: talk education & future. Homemakers: talk family & security. Business owners: talk ROI & growth. Never use one-size-fits-all pitch. Match their language, their fears, their dreams.", cat: "communication", org: "mlm" },
+      { st: "training", si: "member_mlm", sn: "MLM Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Handle Resistance — We're Together", kc: "When a team member resists or doubts, do NOT argue. Use 'We're Together' framing. 'I understand your doubt. Let's figure this out together.' Turn resistance into collaboration. Never push. Guide them to their own conclusion.", cat: "sales", org: "mlm" },
+    ];
+    for (const k of onboardingSeed) {
+      try {
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO ai_knowledge_distribution (source_type, source_id, source_name, target_type, target_id, target_name, knowledge_title, knowledge_content, knowledge_category, origin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).bind(k.st, k.si, k.sn, k.tt, k.ti, k.tn, k.kt, k.kc, k.cat, k.org).run();
+      } catch {}
+    }
+
     g[DONE_FLAG] = true;
     g[DONE_LOCK] = false;
 

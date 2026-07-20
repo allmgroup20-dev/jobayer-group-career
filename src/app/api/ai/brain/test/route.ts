@@ -11,7 +11,7 @@ const TEST_SCENARIOS: Array<{ label: string; text: string; role: string; expecte
   { label: "registration", text: "আমি জয়েন করতে চাই", role: "customer", expectedIntent: "registration", expectedDept: "member_success" },
   { label: "withdrawal", text: "আমার টাকা তুলতে চাই", role: "worker", expectedIntent: "withdrawal", expectedDept: "operations" },
   { label: "training", text: "আমাকে ট্রেনিং দিন প্লিজ", role: "worker", expectedIntent: "training", expectedDept: "member_success" },
-  { label: "commission", text: "আমার কমিশন কত?", role: "worker", expectedIntent: "commission_inquiry", expectedDept: "member_success" },
+  { label: "commission", text: "আমার আয় কত?", role: "worker", expectedIntent: "commission_inquiry", expectedDept: "member_success" },
   { label: "english_greeting", text: "Hello, I'm interested in your products", role: "customer", expectedIntent: "greeting", expectedDept: "customer_experience" },
   { label: "support", text: "আমার অর্ডারটা এখনো হাতే পাইনি", role: "customer", expectedIntent: "support", expectedDept: "customer_experience" },
 ];

@@ -17,14 +17,14 @@ const linkGroups = [
     links: [
       { href: "/company/members", en: "All Members", bn: "সকল সদস্য", icon: "👥", color: "bg-blue-50 text-blue-600" },
       { href: "/company/users", en: "Users", bn: "ব্যবহারকারী", icon: "🔐", color: "bg-pink-50 text-pink-600" },
-      { href: "/company/commissions", en: "Commissions", bn: "কমিশন", icon: "💰", color: "bg-emerald-50 text-emerald-600" },
+      { href: "/company/commissions", en: "Commissions", bn: "আয়", icon: "💰", color: "bg-emerald-50 text-emerald-600" },
     ],
   },
   {
     label: { en: "Products & Orders", bn: "পণ্য ও অর্ডার" },
     links: [
       { href: "/company/products", en: "Manage Products", bn: "পণ্য ব্যবস্থাপনা", icon: "📦", color: "bg-green-50 text-green-600" },
-      { href: "/company/levels", en: "Commission Levels", bn: "কমিশন লেভেল", icon: "📊", color: "bg-purple-50 text-purple-600" },
+      { href: "/company/levels", en: "Commission Levels", bn: "আয় লেভেল", icon: "📊", color: "bg-purple-50 text-purple-600" },
       { href: "/dashboard/ai-predictions", en: "Predictions", bn: "প্রেডিকশন", icon: "🔮", color: "bg-violet-50 text-violet-600" },
     ],
   },

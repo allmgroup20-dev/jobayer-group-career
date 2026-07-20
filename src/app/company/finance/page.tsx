@@ -35,7 +35,7 @@ export default function CompanyFinancePage() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "ফাইন্যান্স" : "Finance"}</h1>
-          <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "রেভিনিউ, কমিশন ওভারভিউ" : "Revenue & commissions overview"}</p>
+          <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "রেভিনিউ, আয় ওভারভিউ" : "Revenue & commissions overview"}</p>
         </div>
 
         {/* Revenue */}
@@ -62,14 +62,14 @@ export default function CompanyFinancePage() {
 
         {/* Commissions */}
         <Card>
-          <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-4">{lang === "bn" ? "কমিশন" : "Commissions"}</h3>
+          <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-4">{lang === "bn" ? "আয়" : "Commissions"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100">
-              <p className="text-xs text-purple-700 font-medium uppercase tracking-wider">{lang === "bn" ? "মোট পরিশোধিত কমিশন" : "Total Paid Commission"}</p>
+              <p className="text-xs text-purple-700 font-medium uppercase tracking-wider">{lang === "bn" ? "মোট প্রাপ্ত আয়" : "Total Paid Commission"}</p>
               <p className="text-2xl font-bold text-purple-700 mt-1">{format(data.commissions.total)} TK</p>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100">
-              <p className="text-xs text-orange-700 font-medium uppercase tracking-wider">{lang === "bn" ? "পেন্ডিং কমিশন" : "Pending Commission"}</p>
+              <p className="text-xs text-orange-700 font-medium uppercase tracking-wider">{lang === "bn" ? "পেন্ডিং আয়" : "Pending Commission"}</p>
               <p className="text-2xl font-bold text-orange-700 mt-1">{format(data.commissions.pending)} TK</p>
             </div>
           </div>

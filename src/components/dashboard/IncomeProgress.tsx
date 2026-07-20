@@ -45,7 +45,7 @@ export default function IncomeProgress({ workerId, lang }: { workerId: string; l
           {lang === "bn" ? "আয়ের অগ্রগতি" : "Income Progress"}
         </h2>
         <Link href="/dashboard/commissions" className="text-xs text-action hover:underline font-medium">
-          {lang === "bn" ? "কমিশন বিস্তারিত →" : "Commission Details →"}
+          {lang === "bn" ? "আয় বিস্তারিত →" : "Commission Details →"}
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

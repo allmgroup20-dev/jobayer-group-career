@@ -174,11 +174,11 @@ export default function CompanyProductsPage() {
             </div>
 
             <div className="border-t border-border pt-4 mb-4">
-              <h4 className="font-semibold text-sm text-primary mb-2">{lang === "bn" ? "কমিশন ও পেমেন্ট সেটিংস" : "Commission & Payment Settings"}</h4>
+              <h4 className="font-semibold text-sm text-primary mb-2">{lang === "bn" ? "আয় ও পেমেন্ট সেটিংস" : "Commission & Payment Settings"}</h4>
               <div className="flex flex-wrap gap-4">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input type="checkbox" checked={form.enableCommission === 1} onChange={(e) => setForm({ ...form, enableCommission: e.target.checked ? 1 : 0 })} className="w-4 h-4 accent-primary" />
-                  <span className="text-sm text-text-secondary">{lang === "bn" ? "কমিশন সক্রিয়" : "Enable Commission"}</span>
+                  <span className="text-sm text-text-secondary">{lang === "bn" ? "আয় সক্রিয়" : "Enable Commission"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input type="checkbox" checked={form.enableCod === 1} onChange={(e) => setForm({ ...form, enableCod: e.target.checked ? 1 : 0 })} className="w-4 h-4 accent-primary" />

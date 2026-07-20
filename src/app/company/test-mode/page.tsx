@@ -92,7 +92,7 @@ export default function TestModePage() {
                 { en: "User registration flow", bn: "ইউজার রেজিস্ট্রেশন ফ্লো" },
                 { en: "Login (Worker + Company)", bn: "লগইন (ওয়ার্কার + কোম্পানি)" },
                 { en: "Associate tree structure", bn: "সহযোগী ট্রি স্ট্রাকচার" },
-                { en: "Commission calculation", bn: "কমিশন ক্যালকুলেশন" },
+                { en: "Commission calculation", bn: "আয় ক্যালকুলেশন" },
                 { en: "Product purchase flow", bn: "পণ্য ক্রয় ফ্লো" },
                 { en: "Payment integration", bn: "পেমেন্ট ইন্টিগ্রেশন" },
                 { en: "WhatsApp notification", bn: "হোয়াটসঅ্যাপ নোটিফিকেশন" },

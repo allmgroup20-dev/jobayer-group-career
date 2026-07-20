@@ -259,9 +259,9 @@ export default function CompanyLevelsPage() {
     <div className="min-h-screen py-24 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "কমিশন লেভেল" : "Commission Levels"}</h1>
+          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "আয় লেভেল" : "Commission Levels"}</h1>
           <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "ইউনিলেভেল কমিশন স্ট্রাকচার কনফিগার করুন — পার্সেন্টেজ ও ফিক্সড অ্যামাউন্ট সিলেক্ট করে নির্ধারণ করুন" : "Configure your unilevel commission structure — select percentage, fixed, or both per level"}
+            {lang === "bn" ? "ইউনিলেভেল আয় স্ট্রাকচার কনফিগার করুন — পার্সেন্টেজ ও ফিক্সড অ্যামাউন্ট সিলেক্ট করে নির্ধারণ করুন" : "Configure your unilevel commission structure — select percentage, fixed, or both per level"}
           </p>
         </div>
 
@@ -414,11 +414,11 @@ export default function CompanyLevelsPage() {
 
         <div className="mt-12 pt-8 border-t-2 border-border">
           <h2 className="text-xl font-bold text-primary mb-1">
-            {lang === "bn" ? "পণ্য-ভিত্তিক কমিশন ওভাররাইড" : "Per-Product Commission Override"}
+            {lang === "bn" ? "পণ্য-ভিত্তিক আয় ওভাররাইড" : "Per-Product Commission Override"}
           </h2>
           <p className="text-sm text-text-secondary mb-6">
             {lang === "bn"
-              ? "প্রत्यেক পণ্যের জন্য আলাদা কমিশন লেভেল সেট করুন। ওভাররাইড না থাকলে গ্লোবাল লেভেল ব্যবহার হবে।"
+              ? "প্রत्यেক পণ্যের জন্য আলাদা আয় লেভেল সেট করুন। ওভাররাইড না থাকলে গ্লোবাল লেভেল ব্যবহার হবে।"
               : "Set custom commission levels per product. Products without override use global levels."}
           </p>
 
@@ -478,7 +478,7 @@ export default function CompanyLevelsPage() {
                 <Card>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-bold text-primary text-sm">
-                      {lang === "bn" ? "কমিশন লেভেল ওভাররাইড" : "Commission Level Override"}
+                      {lang === "bn" ? "আয় লেভেল ওভাররাইড" : "Commission Level Override"}
                     </h3>
                     {selectedProduct.commissionOverride && (
                       <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
@@ -492,7 +492,7 @@ export default function CompanyLevelsPage() {
 
                   <p className="text-xs text-text-secondary mb-4">
                     {lang === "bn"
-                      ? `"${selectedProduct.nameBn || selectedProduct.name}" — নিচে কমিশন লেভেল কনফিগার করুন`
+                      ? `"${selectedProduct.nameBn || selectedProduct.name}" — নিচে আয় লেভেল কনফিগার করুন`
                       : `"${selectedProduct.name}" — configure levels below`}
                   </p>
 
@@ -516,7 +516,7 @@ export default function CompanyLevelsPage() {
 
                   <p className="text-xs text-text-secondary mb-4 italic">
                     {lang === "bn"
-                      ? "খালি রাখলে গ্লোবাল কমিশন লেভেল ব্যবহার হবে।"
+                      ? "খালি রাখলে গ্লোবাল আয় লেভেল ব্যবহার হবে।"
                       : "Leave empty to use global commission levels."}
                   </p>
 

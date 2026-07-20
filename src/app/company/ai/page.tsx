@@ -968,7 +968,7 @@ export default function AIHubPage() {
                   <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "🧪 অটোমেটেড টেস্ট স্যুট" : "🧪 Automated Test Suite"}</h2>
                   <button onClick={runTestSuite} disabled={testSuiteLoading} className="px-4 py-2 text-xs font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{testSuiteLoading ? "..." : (lang === "bn" ? "🔬 টেস্ট চালান" : "🔬 Run Tests")}</button>
                 </div>
-                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "১০টি প্রি-ডিফাইন্ড সিনারিও — গ্রিটিং, প্রাইস, কমপ্লেইন্ট, রেজিস্ট্রেশন, উইথড্রয়াল, ট্রেনিং, কমিশন, সাপোর্ট" : "10 predefined scenarios — greeting, price, complaint, registration, withdrawal, training, commission, support"}</p>
+                <p className="text-sm text-text-secondary mb-4">{lang === "bn" ? "১০টি প্রি-ডিফাইন্ড সিনারিও — গ্রিটিং, প্রাইস, কমপ্লেইন্ট, রেজিস্ট্রেশন, উইথড্রয়াল, ট্রেনিং, আয়, সাপোর্ট" : "10 predefined scenarios — greeting, price, complaint, registration, withdrawal, training, commission, support"}</p>
                 {testResults && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-3 text-sm">

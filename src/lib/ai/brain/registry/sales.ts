@@ -103,7 +103,7 @@ export const sales: DepartmentDef = {
           id: "price_explainer", name: "Price Explainer", nameBn: "মূল্য ব্যাখ্যাকারী",
           department: "sales", team: "product_pitch",
           description: "Explains pricing, commissions, profit potential",
-          descriptionBn: "দাম, কমিশন ও লাভের সম্ভাবনা ব্যাখ্যা করে",
+          descriptionBn: "দাম, আয় ও লাভের সম্ভাবনা ব্যাখ্যা করে",
           expertise: "You explain pricing in Bangladeshi context: installment options, commission percentages, ROI calculation.",
           promptTemplate: "Explain the price. Mention: price in BDT, commission percentage, potential earnings, installment option. Be transparent. Language: {{language}}. Tone: helpful, not pushy.",
           primaryModel: "llama-3.3-70b", fallbackModels: ["hermes-3-405b"],
