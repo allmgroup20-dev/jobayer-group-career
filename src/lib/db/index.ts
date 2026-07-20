@@ -1201,6 +1201,18 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       } catch {}
     }
 
+    // ─── Daily Habits Log ───
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS daily_habits_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      habit_type TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      worker_id TEXT DEFAULT '',
+      message_preview TEXT DEFAULT '',
+      trust_currency REAL DEFAULT 0,
+      status TEXT DEFAULT 'sent',
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
     g[DONE_FLAG] = true;
     g[DONE_LOCK] = false;
 

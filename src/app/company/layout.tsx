@@ -90,6 +90,7 @@ const sidebarGroups: SidebarGroup[] = [
       { href: "/company/psychology-profiles", en: "Psych Profiles", bn: "সাইকোলজি প্রোফাইল", icon: "🔍", desc: "গ্রাহক সাইকোলজি প্রোফাইল কনসোল — সার্চ, প্রোফাইল, কৌশল ও প্রশিক্ষণ" },
       { href: "/company/psychologist-dashboard", en: "Psychologist Dashboard", bn: "সাইকোলজিস্ট ড্যাশবোর্ড", icon: "🩺", desc: "সাইকোলজিস্ট পারফরম্যান্স — ট্রাস্ট কারেন্সি, লিসেনিং কোয়ালিটি, ভ্যালু ডেলিভারি ও রেজিস্ট্যান্স হ্যান্ডলিং" },
       { href: "/company/employee-persuasion", en: "Employee Persuasion", bn: "কর্মচারী পারসুয়েশন", icon: "📋", desc: "কর্মচারী পারসুয়েশন স্কিল ট্র্যাকার — বিশ্বাস, শ্রবণ, মূল্য ও প্রতিরোধ দক্ষতা" },
+      { href: "/company/daily-habits", en: "Daily Habits", bn: "দৈনিক অভ্যাস", icon: "🌅", desc: "দৈনিক অভ্যাস অটোমেশন — সকালে মূল্য বার্তা, রাতে বিশ্বাস কারেন্সি স্ন্যাপশট" },
       { href: "/company/ai-training", en: "AI Training", bn: "এআই প্রশিক্ষণ", icon: "📚", desc: "AI প্রশিক্ষণ মডিউল — সাইকোলজিক্যাল ট্রেনিং ও নলেজ রিপোজিটরি" },
       { href: "/company/courses/ai-pricing", en: "AI Pricing", bn: "এআই প্রাইসিং", icon: "💰", desc: "এআই-ভিত্তিক রিসোর্স প্রাইসিং — অটোমেটিক প্রাইস ও প্রিমিয়াম সাজেশন" },
     ],
@@ -151,7 +152,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       setExpandedGroups(["people"]);
     } else if (path.startsWith("/company/products") || path.startsWith("/company/courses") || path.startsWith("/company/orders") || path.startsWith("/company/reviews") || path.startsWith("/company/levels") || path.startsWith("/company/finance") || path.startsWith("/company/withdrawals") || path.startsWith("/company/currencies") || path.startsWith("/company/payment-gateway") || path.startsWith("/company/trainers") || path.startsWith("/company/institutions")) {
       setExpandedGroups(["products"]);
-    } else if (path.startsWith("/company/ai") || path.startsWith("/company/automation") || path.startsWith("/company/sentiment") || path.startsWith("/company/skills") || path.startsWith("/company/psychology-insights") || path.startsWith("/company/psychology-profiles") || path.startsWith("/company/psychologist-dashboard") || path.startsWith("/company/employee-persuasion") || path.startsWith("/company/ai-training")) {
+    } else if (path.startsWith("/company/ai") || path.startsWith("/company/automation") || path.startsWith("/company/sentiment") || path.startsWith("/company/skills") || path.startsWith("/company/psychology-insights") || path.startsWith("/company/psychology-profiles") || path.startsWith("/company/psychologist-dashboard") || path.startsWith("/company/employee-persuasion") || path.startsWith("/company/daily-habits") || path.startsWith("/company/ai-training")) {
       setExpandedGroups(["ai"]);
     } else if (path.startsWith("/dashboard/platforms") || path.startsWith("/company/translations")) {
       setExpandedGroups(["communication"]);
