@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { verifyWorkerPassword, generateToken } from "@/lib/auth";
+import { verifyWorkerPassword, generateToken, getJwtSecret } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,10 +10,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Phone and password required" }, { status: 400 });
     }
 
+    const cleanPhone = phone.replace(/\D/g, "");
+
     const worker = await queryFirst<{ worker_id: string; name: string; password: string }>(
       await getDB(),
-      "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')",
-      [phone]
+      "SELECT worker_id, name, password FROM workers WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ? AND membership_status IN ('general', 'premium')",
+      [cleanPhone]
     );
 
     if (!worker) {
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = await generateToken(worker.worker_id, process.env.JWT_SECRET || "default-secret");
+    const token = await generateToken(worker.worker_id, getJwtSecret());
     return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
   } catch (error) {
     console.error("Worker login error:", error);

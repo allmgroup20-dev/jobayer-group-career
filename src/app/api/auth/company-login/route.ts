@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { verifyCompanyPassword, generateCompanyToken } from "@/lib/auth";
+import { verifyCompanyPassword, generateCompanyToken, getJwtSecret } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = await generateCompanyToken(admin.username, process.env.JWT_SECRET || "default-secret");
+    const token = await generateCompanyToken(admin.username, getJwtSecret());
     const response = NextResponse.json({ token, username: admin.username, name: admin.name, role: admin.role });
     response.cookies.set("company_token", token, {
       httpOnly: true,

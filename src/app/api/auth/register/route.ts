@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { hashWorkerPassword, generateToken, generateWorkerId } from "@/lib/auth";
+import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +12,13 @@ export async function POST(request: NextRequest) {
     if (!phone || !password) {
       return NextResponse.json({ error: "Phone and password required" }, { status: 400 });
     }
-    const displayName = name || `User${phone.slice(-6)}`;
+    const cleanPhone = phone.replace(/\D/g, "");
+    const displayName = name || `User${cleanPhone.slice(-6)}`;
 
     const env = await getDB();
 
     const existing = await queryFirst<{ worker_id: string }>(
-      env, "SELECT worker_id FROM workers WHERE phone = ?", [phone]
+      env, "SELECT worker_id FROM workers WHERE REPLACE(REPLACE(phone, ' ', ''), '+', '') = ?", [cleanPhone]
     );
     if (existing) {
       return NextResponse.json({ error: "Phone number already registered" }, { status: 409 });
@@ -33,13 +34,13 @@ export async function POST(request: NextRequest) {
       if (sponsor) { sponsorId = sponsor.worker_id; sponsorName = sponsor.name; }
     }
 
-    const workerId = generateWorkerId(displayName, phone);
+    const workerId = generateWorkerId(displayName, cleanPhone);
     const hashedPassword = await hashWorkerPassword(password);
 
     await execute(env,
        `INSERT INTO workers (worker_id, name, phone, email, password, sponsor_id, sponsor_name, level, join_date, membership_status)
        VALUES (?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), 'general')`,
-      [workerId, displayName, phone, email || null, hashedPassword, sponsorId, sponsorName]
+      [workerId, displayName, cleanPhone, email || null, hashedPassword, sponsorId, sponsorName]
     );
 
     // Store referral source if provided
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
-    const token = await generateToken(workerId, process.env.JWT_SECRET || "default-secret");
+    const token = await generateToken(workerId, getJwtSecret());
     return NextResponse.json({ token, workerId, name: displayName }, { status: 201 });
   } catch (error) {
     console.error("Register error:", error);

@@ -1262,6 +1262,10 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     ].map(sql => env.DB.prepare(sql));
     env.DB.batch(indexStmts).catch(() => {});
 
+    // Migrate legacy membership_status values
+    env.DB.prepare(`UPDATE workers SET membership_status = 'general' WHERE membership_status = 'active'`).run().catch(() => {});
+    env.DB.prepare(`UPDATE workers SET membership_status = 'premium' WHERE membership_status = 'vip'`).run().catch(() => {});
+
     // System monitoring indexes
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_system_logs_type ON system_logs(log_type, created_at)`).run().catch(() => {});
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_system_logs_source ON system_logs(source, created_at)`).run().catch(() => {});
