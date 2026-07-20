@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query, execute, batch } from "@/lib/db/queries";
+import { querySafe, execute, batch } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached, invalidateCache } from "@/lib/cache";
 
@@ -24,18 +24,39 @@ export async function GET(request: NextRequest) {
               c.trainer_id as trainerId, c.institution_id as institutionId,
               t.name as trainerName, t.name_bn as trainerNameBn, t.image_url as trainerImageUrl,
               i.name as institutionName, i.name_bn as institutionNameBn, i.logo_url as institutionLogoUrl,
-              COALESCE(json_group_array(DISTINCT m.category_id) FILTER (WHERE m.category_id IS NOT NULL), '[]') as categoryIds,
-              COALESCE(json_group_array(DISTINCT cat.name) FILTER (WHERE cat.name IS NOT NULL), '[]') as categoryNames,
-              COALESCE(json_group_array(DISTINCT cat.name_bn) FILTER (WHERE cat.name_bn IS NOT NULL), '[]') as categoryNamesBn,
-              (SELECT cf.url FROM course_files cf WHERE cf.course_id = c.id ORDER BY cf.sort_order ASC, cf.id ASC LIMIT 1) as fileUrl,
-              (SELECT COUNT(*) FROM course_files cf WHERE cf.course_id = c.id) as fileCount,
-              COALESCE((SELECT ROUND(AVG(r.rating), 1) FROM course_ratings r WHERE r.course_id = c.id), 0) as avgRating,
-              (SELECT COUNT(*) FROM course_ratings r WHERE r.course_id = c.id) as ratingCount
+              COALESCE(cat_agg.category_ids, '[]') as categoryIds,
+              COALESCE(cat_agg.category_names, '[]') as categoryNames,
+              COALESCE(cat_agg.category_names_bn, '[]') as categoryNamesBn,
+              COALESCE(files.file_url, '') as fileUrl,
+              COALESCE(files.file_count, 0) as fileCount,
+              COALESCE(ratings.avg_rating, 0) as avgRating,
+              COALESCE(ratings.rating_count, 0) as ratingCount
               FROM courses c
-              LEFT JOIN course_category_map m ON c.id = m.course_id
-              LEFT JOIN course_categories cat ON m.category_id = cat.id
               LEFT JOIN trainers t ON t.id = c.trainer_id
               LEFT JOIN institutions i ON i.id = c.institution_id
+              LEFT JOIN (
+                SELECT m.course_id,
+                       json_group_array(DISTINCT m.category_id) as category_ids,
+                       json_group_array(DISTINCT cat.name) as category_names,
+                       json_group_array(DISTINCT cat.name_bn) as category_names_bn
+                FROM course_category_map m
+                LEFT JOIN course_categories cat ON m.category_id = cat.id
+                GROUP BY m.course_id
+              ) cat_agg ON cat_agg.course_id = c.id
+              LEFT JOIN (
+                SELECT course_id,
+                       MIN(url) as file_url,
+                       COUNT(*) as file_count
+                FROM course_files
+                GROUP BY course_id
+              ) files ON files.course_id = c.id
+              LEFT JOIN (
+                SELECT course_id,
+                       ROUND(AVG(rating), 1) as avg_rating,
+                       COUNT(*) as rating_count
+                FROM course_ratings
+                GROUP BY course_id
+              ) ratings ON ratings.course_id = c.id
               WHERE 1=1`;
     const params: unknown[] = [];
 
@@ -46,9 +67,9 @@ export async function GET(request: NextRequest) {
     if (isNew === "0" || isNew === "1") { sql += " AND c.is_new = ?"; params.push(parseInt(isNew)); }
     if (visibleOnly === "1") { sql += " AND c.is_visible = 1"; }
 
-    sql += " GROUP BY c.id ORDER BY c.is_new DESC, c.created_at DESC";
+    sql += " ORDER BY c.is_new DESC, c.created_at DESC LIMIT 500";
 
-    const rows = await query<any>(await getDB(), sql, params);
+    const rows = await querySafe<any>(await getDB(), sql, params, 10000);
     const courses = rows.map((r: any) => ({
       ...r,
       categoryIds: JSON.parse(r.categoryIds),

@@ -1282,6 +1282,13 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     env.DB.prepare(`UPDATE workers SET membership_status = 'general' WHERE membership_status = 'active'`).run().catch(() => {});
     env.DB.prepare(`UPDATE workers SET membership_status = 'premium' WHERE membership_status = 'vip'`).run().catch(() => {});
 
+    // Course performance indexes
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_course_files_course ON course_files(course_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_courses_is_new ON courses(is_new)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_courses_created_at ON courses(created_at)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_course_category_map_course ON course_category_map(course_id)`).run().catch(() => {});
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_course_category_map_cat ON course_category_map(category_id)`).run().catch(() => {});
+
     // System monitoring indexes
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_system_logs_type ON system_logs(log_type, created_at)`).run().catch(() => {});
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_system_logs_source ON system_logs(source, created_at)`).run().catch(() => {});

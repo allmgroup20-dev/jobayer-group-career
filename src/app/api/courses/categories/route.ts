@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { invalidateCache } from "@/lib/cache";
+import { getCached, setCached, invalidateCache } from "@/lib/cache";
 
 export async function GET() {
   try {
+    const cacheKey = "courses:categories";
+    const cached = await getCached<any[]>(cacheKey, 600);
+    if (cached) {
+      const resp = NextResponse.json({ categories: cached });
+      resp.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");
+      return resp;
+    }
+
     const categories = await query<any>(
       await getDB(),
       `SELECT id, name, name_bn as nameBn, icon, is_visible as isVisible, sort_order as sortOrder, parent_id as parentId, created_at as createdAt
        FROM course_categories ORDER BY sort_order ASC, id ASC`
     );
-    return NextResponse.json({ categories });
+
+    await setCached(cacheKey, categories);
+    const resp = NextResponse.json({ categories });
+    resp.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");
+    return resp;
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
