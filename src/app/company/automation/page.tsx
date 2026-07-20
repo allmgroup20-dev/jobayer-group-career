@@ -52,7 +52,7 @@ export default function CompanyAutomationPage() {
   };
 
   const triggerLabels: Record<string, string> = {
-    browse_abandon: lang === "bn" ? "ব্রাউজ abandoned" : "Browse Abandon",
+    browse_abandon: lang === "bn" ? "ব্রাউজ পরিত্যক্ত" : "Browse Abandon",
     inactive_14d: lang === "bn" ? "১৪ দিন নিষ্ক্রিয়" : "Inactive 14d",
     inactive_30d: lang === "bn" ? "৩০+ দিন নিষ্ক্রিয়" : "Inactive 30d+",
     churn_risk: lang === "bn" ? "চার্ন রিস্ক" : "Churn Risk",

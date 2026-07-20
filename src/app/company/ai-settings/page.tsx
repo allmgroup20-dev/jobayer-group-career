@@ -98,7 +98,7 @@ export default function AISettingsPage() {
       if (res.ok) {
         setNewKeyValue("");
         loadData();
-        setMsg(lang === "bn" ? "API কী যোগ করা হয়েছে" : "API key added");
+        setMsg(lang === "bn" ? "এপিআই কী যোগ করা হয়েছে" : "API key added");
       } else {
         const err = await res.json().catch(() => ({}));
         setMsg((err as any).error || "Failed to add key");
@@ -178,8 +178,8 @@ export default function AISettingsPage() {
       if (res.ok) {
         setAiSystemActive(active);
         setMsg(active
-          ? (lang === "bn" ? "AI সিস্টেম সক্রিয় করা হয়েছে" : "AI system enabled")
-          : (lang === "bn" ? "AI সিস্টেম নিষ্ক্রিয় করা হয়েছে" : "AI system disabled")
+          ? (lang === "bn" ? "এআই সিস্টেম সক্রিয় করা হয়েছে" : "AI system enabled")
+          : (lang === "bn" ? "এআই সিস্টেম নিষ্ক্রিয় করা হয়েছে" : "AI system disabled")
         );
       } else setMsg("Failed to toggle AI system");
     } catch { setMsg("Error toggling AI system"); }
@@ -251,7 +251,7 @@ export default function AISettingsPage() {
           {lang === "bn" ? "এআই সেটিংস" : "AI Settings"}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          {lang === "bn" ? "OpenRouter → OpenCode (ফলব্যাক)" : "OpenRouter → OpenCode (fallback)"}
+          {lang === "bn" ? "ওপেনরাউটার → ওপেনকোড (ব্যাকআপ)" : "OpenRouter → OpenCode (fallback)"}
         </p>
       </div>
 
@@ -266,12 +266,12 @@ export default function AISettingsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-bold text-lg text-primary">
-              {lang === "bn" ? "মাস্টার AI টগল" : "Master AI Toggle"}
+              {lang === "bn" ? "মাস্টার এআই টগল" : "Master AI Toggle"}
             </h2>
             <p className="text-sm text-text-secondary mt-1">
               {aiSystemActive
-                ? (lang === "bn" ? "AI সিস্টেম চালু আছে — সব এজেন্ট কাজ করছে" : "AI system is active — all agents are running")
-                : (lang === "bn" ? "AI সিস্টেম বন্ধ — সব AI অপারেশন স্থগিত" : "AI system is off — all AI operations are suspended")}
+                ? (lang === "bn" ? "এআই সিস্টেম চালু আছে — সব এজেন্ট কাজ করছে" : "AI system is active — all agents are running")
+                : (lang === "bn" ? "এআই সিস্টেম বন্ধ — সব এআই অপারেশন স্থগিত" : "AI system is off — all AI operations are suspended")}
             </p>
           </div>
           <button
@@ -302,7 +302,7 @@ export default function AISettingsPage() {
             <div className="w-px h-8 bg-border" />
             <div className="text-2xl font-bold text-purple-600">{ocKeys.filter(k=>k.is_active).length}</div>
             <div className="text-sm text-text-secondary">
-              <div>{lang === "bn" ? "OpenCode কী" : "OpenCode Keys"}</div>
+              <div>{lang === "bn" ? "ওপেনকোড কী" : "OpenCode Keys"}</div>
               <div className="text-xs">{lang === "bn" ? "সর্বমোট" : "Total"}: {ocKeys.length}</div>
             </div>
           </div>
@@ -344,14 +344,14 @@ export default function AISettingsPage() {
           </button>
         </div>
         <p className="text-xs text-text-secondary mt-2">
-          {lang === "bn" ? "যত ইচ্ছা তত API কী যোগ করতে পারেন। OpenRouter প্রথমে try করবে, সব exhausted হলে OpenCode try করবে।" : "Add unlimited API keys. OpenRouter is tried first; OpenCode acts as fallback when all OpenRouter models are exhausted."}
+          {lang === "bn" ? "যত ইচ্ছা তত এপিআই কী যোগ করতে পারেন। ওপেনরাউটার প্রথমে চেষ্টা করবে, সব শেষ হয়ে গেলে ওপেনকোড চেষ্টা করবে।" : "Add unlimited API keys. OpenRouter is tried first; OpenCode acts as fallback when all OpenRouter models are exhausted."}
         </p>
       </div>
 
       {keys.length > 0 && (
         <div className="card p-6 mb-8">
           <h2 className="font-bold text-lg text-primary mb-4">
-            {lang === "bn" ? "সংরক্ষিত API কী" : "Saved API Keys"} ({keys.length})
+            {lang === "bn" ? "সংরক্ষিত এপিআই কী" : "Saved API Keys"} ({keys.length})
           </h2>
           <div className="space-y-2">
             {orKeys.map((key) => (
@@ -410,7 +410,7 @@ export default function AISettingsPage() {
       <div className="card p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-lg text-primary">
-            {lang === "bn" ? "OpenRouter মডেল" : "OpenRouter Models"} ({openrouterModels.length})
+            {lang === "bn" ? "ওপেনরাউটার মডেল" : "OpenRouter Models"} ({openrouterModels.length})
           </h2>
           <button
             onClick={() => toggleProvider("openrouter")}
@@ -467,7 +467,7 @@ export default function AISettingsPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-sm font-semibold text-primary mb-2">
-              {lang === "bn" ? "OpenRouter চেইন" : "OpenRouter Chain"}
+              {lang === "bn" ? "ওপেনরাউটার চেইন" : "OpenRouter Chain"}
               <span className="ml-2 text-xs font-normal text-text-secondary">({openrouterModels.length})</span>
             </h3>
             {openrouterModels.length > 0 ? (
@@ -492,7 +492,7 @@ export default function AISettingsPage() {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-primary mb-2">
-              {lang === "bn" ? "OpenCode চেইন (ফলব্যাক)" : "OpenCode Chain (Fallback)"}
+              {lang === "bn" ? "ওপেনকোড চেইন (ব্যাকআপ)" : "OpenCode Chain (Fallback)"}
               <span className="ml-2 text-xs font-normal text-text-secondary">({opencodeModels.length})</span>
             </h3>
             {opencodeModels.length > 0 ? (
@@ -521,7 +521,7 @@ export default function AISettingsPage() {
       <div className="card p-6 mb-6 border-purple-200">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-lg text-purple-700">
-            {lang === "bn" ? "OpenCode মডেল" : "OpenCode Models"} ({opencodeModels.length})
+            {lang === "bn" ? "ওপেনকোড মডেল" : "OpenCode Models"} ({opencodeModels.length})
           </h2>
           <button
             onClick={() => toggleProvider("opencode")}

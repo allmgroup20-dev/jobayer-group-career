@@ -213,7 +213,7 @@ export default function CompanyMembersPage() {
                 <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="input-field w-full" placeholder={lang === "bn" ? "নাম" : "Name"} />
                 <input type="tel" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="input-field w-full" placeholder={lang === "bn" ? "ফোন" : "Phone"} />
                 <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="input-field w-full" placeholder={lang === "bn" ? "ইমেইল" : "Email"} />
-                <input type="text" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="input-field w-full" placeholder={lang === "bn" ? "নতুন পাসওয়ার্ড (খালি রাখলে unchanged)" : "New password (leave empty to keep)"} />
+                <input type="text" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="input-field w-full" placeholder={lang === "bn" ? "নতুন পাসওয়ার্ড (ফাঁকা রাখলে অপরিবর্তিত)" : "New password (leave empty to keep)"} />
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-text-secondary block mb-1">{lang === "bn" ? "লেভেল" : "Level"}</label>

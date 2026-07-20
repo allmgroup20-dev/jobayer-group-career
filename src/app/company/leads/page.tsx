@@ -71,7 +71,7 @@ export default function LeadsPage() {
             {lang === "bn" ? "লিড ম্যানেজমেন্ট" : "Lead Management"}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "WhatsApp লিড ট্র্যাকিং ও ম্যানেজমেন্ট" : "WhatsApp lead tracking & management"}
+            {lang === "bn" ? "হোয়াটসঅ্যাপ লিড ট্র্যাকিং ও ম্যানেজমেন্ট" : "WhatsApp lead tracking & management"}
           </p>
         </div>
 

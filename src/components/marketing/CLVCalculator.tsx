@@ -56,7 +56,7 @@ export function CLVCalculator({ avgPurchase, frequency, lifetime, className = ""
       </div>
       <div className="mt-4 flex items-center justify-between rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 shadow-lg">
         <span className="text-sm font-semibold text-white/80">
-          {lang === "bn" ? "CLV" : "CLV"}
+          {lang === "bn" ? "গ্রাহক জীবনকাল মূল্য" : "CLV"}
         </span>
         <span className="text-2xl font-extrabold text-white drop-shadow-sm">
           ${clv.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

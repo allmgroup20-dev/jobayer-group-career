@@ -128,7 +128,7 @@ export default function PaymentGatewayPage() {
               {lang === "bn" ? "পেমেন্ট গেটওয়ে" : "Payment Gateway"}
             </h1>
             <p className="text-sm text-text-secondary mt-1">
-              {lang === "bn" ? "SSLCommerz ক্রেডেন্সিয়াল এবং মোড কনফিগার করুন" : "Configure SSLCommerz credentials and mode"}
+              {lang === "bn" ? "এসএসএলকমার্জ ক্রেডেন্সিয়াল এবং মোড কনফিগার করুন" : "Configure SSLCommerz credentials and mode"}
             </p>
           </div>
           {hasSavedData && (

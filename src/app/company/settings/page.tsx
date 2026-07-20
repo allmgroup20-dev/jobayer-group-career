@@ -141,7 +141,7 @@ export default function CompanySettingsPage() {
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "রিডাইরেক্ট পাথ" : "Redirect Path"}</label>
               <input type="text" value={form.referralRedirectPath} onChange={(e) => setForm({ ...form, referralRedirectPath: e.target.value })} className="input-field" placeholder="/register" />
-              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "রেফারেল লিংকে ইউজারকে কোথায় রিডাইরেক্ট করা হবে। যেমন: /register, /courses, /promo" : "Where users are redirected via referral link. E.g.: /register, /courses, /promo"}</p>
+              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "রেফারেল লিংকে ব্যবহারকারীকে কোথায় পুননির্দেশিত করা হবে" : "Where users are redirected via referral link. E.g.: /register, /courses, /promo"}</p>
             </div>
           </Card>
 

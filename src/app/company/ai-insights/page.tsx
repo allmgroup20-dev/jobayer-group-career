@@ -171,7 +171,7 @@ export default function AIInsightsPage() {
 
           <div className="mt-6 pt-6 border-t border-border">
             <h3 className="font-medium text-sm text-primary mb-3">
-              {lang === "bn" ? "API কী স্ট্যাটাস" : "API Key Status"}
+              {lang === "bn" ? "এপিআই কী স্ট্যাটাস" : "API Key Status"}
             </h3>
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${(stats?.keys.active || 0) > 0 ? "bg-action" : "bg-red-400"}`} />

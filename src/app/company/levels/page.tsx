@@ -286,7 +286,7 @@ export default function CompanyLevelsPage() {
             <div>
               <h3 className="font-bold text-primary">{lang === "bn" ? "সর্বনিম্ন রেফারেল গুণিতক" : "Minimum Referral Multiplier"}</h3>
               <p className="text-xs text-text-secondary mt-0.5">
-                {lang === "bn" ? "প্রতি লেভেলে প্রয়োজনীয় সদস্য সংখ্যা (Level 1 = base, Level 2 = base², Level 3 = base³ ...)" : "Required members per level (Level 1 = base, Level 2 = base², Level 3 = base³ ...)"}
+                {lang === "bn" ? "প্রতি লেভেলে প্রয়োজনীয় সদস্য সংখ্যা (লেভেল ১ = ভিত্তি, লেভেল ২ = ভিত্তি², লেভেল ৩ = ভিত্তি³ ...)" : "Required members per level (Level 1 = base, Level 2 = base², Level 3 = base³ ...)"}
               </p>
             </div>
             <input

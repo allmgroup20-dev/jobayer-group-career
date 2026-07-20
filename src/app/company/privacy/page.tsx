@@ -95,7 +95,7 @@ export default function CompanyPrivacyPage() {
                 {lang === "bn" ? "ডেটা এক্সপোর্ট" : "Data Export"}
               </h4>
               <p className="text-xs text-text-secondary">
-                {lang === "bn" ? "ব্যবহারকারীরা তাদের সব ডেটা JSON ফরম্যাটে ডাউনলোড করতে পারে।" : "Users can download all their data in JSON format."}
+                {lang === "bn" ? "ব্যবহারকারীরা তাদের সব তথ্য জেসন ফরম্যাটে ডাউনলোড করতে পারে।" : "Users can download all their data in JSON format."}
               </p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4">

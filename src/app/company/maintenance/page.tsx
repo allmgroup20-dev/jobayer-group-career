@@ -343,10 +343,10 @@ export default function MaintenancePage() {
                       <option key={i} value={i}>{i.toString().padStart(2, "0")}:00</option>
                     ))}
                   </select>
-                  <p className="text-xs text-text-secondary mt-1">{lang === "bn" ? "আপনার টাইমজোন অনুসারে সময় (কনফিগার করা settings থেকে)" : "Time in your configured timezone (from Settings)"}</p>
+                  <p className="text-xs text-text-secondary mt-1">{lang === "bn" ? "আপনার টাইমজোন অনুসারে সময় (কনফিগার করা সেটিংস থেকে)" : "Time in your configured timezone (from Settings)"}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ডাটা রাখার সময়" : "Retention Period (days)"}</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "তথ্য সংরক্ষণের সময়" : "Retention Period (days)"}</label>
                   <input type="number" value={scheduleDays} onChange={(e) => setScheduleDays(Math.max(30, parseInt(e.target.value) || 90))} min={30} className="input-field" />
                 </div>
               </div>

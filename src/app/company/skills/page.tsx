@@ -413,7 +413,7 @@ export default function SkillsPage() {
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30">
                   <option value="general">{lang === "bn" ? "সাধারণ" : "General"}</option>
                   <option value="psychologist">{lang === "bn" ? "সাইকোলজিস্ট" : "Psychologist"}</option>
-                  <option value="faq">{lang === "bn" ? "FAQ" : "FAQ"}</option>
+                  <option value="faq">{lang === "bn" ? "সচরাচর জিজ্ঞাসা" : "FAQ"}</option>
                   <option value="auto_learn">{lang === "bn" ? "অটো লার্ন" : "Auto Learn"}</option>
                 </select>
               </div>

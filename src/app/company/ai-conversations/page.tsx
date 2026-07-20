@@ -74,7 +74,7 @@ export default function AIConversationsPage() {
         {lang === "bn" ? "কথোপকথন সমূহ" : "Conversations"}
       </h1>
       <p className="text-xs text-text-secondary mb-4">
-        {lang === "bn" ? "সকল AI কথোপকথন দেখুন এবং পড়ুন" : "View and read all AI conversations"}
+        {lang === "bn" ? "সকল এআই কথোপকথন দেখুন এবং পড়ুন" : "View and read all AI conversations"}
       </p>
 
       <div className="flex gap-3 mb-4">

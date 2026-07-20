@@ -309,7 +309,7 @@ export default function CompanyCoursesPage() {
                 </div>
                 <div className="flex gap-2">
                   <input type="text" placeholder={lang === "bn" ? "লেবেল (যেমন: ভিডিও লিংক)" : "Label (e.g. Video Link)"} value={newFileLabel} onChange={(e) => setNewFileLabel(e.target.value)} className="input-field flex-1 !py-1.5 text-sm" />
-                  <input type="text" placeholder={lang === "bn" ? "URL" : "URL"} value={newFileUrl} onChange={(e) => setNewFileUrl(e.target.value)} className="input-field flex-1 !py-1.5 text-sm" />
+                  <input type="text" placeholder={lang === "bn" ? "ইউআরএল" : "URL"} value={newFileUrl} onChange={(e) => setNewFileUrl(e.target.value)} className="input-field flex-1 !py-1.5 text-sm" />
                   <Button size="sm" onClick={() => addFile(editingId)}>{lang === "bn" ? "যোগ" : "Add"}</Button>
                 </div>
               </div>

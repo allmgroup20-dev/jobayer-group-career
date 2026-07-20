@@ -215,7 +215,7 @@ export default function CompanyDashboard() {
               </div>
               <div className="p-3 rounded-xl bg-purple-50 border border-purple-100">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-purple-700">{lang === "bn" ? "উচ্চ LTV" : "High LTV"}</span>
+                  <span className="text-xs font-semibold text-purple-700">{lang === "bn" ? "উচ্চ গ্রাহক জীবনকাল মূল্য" : "High LTV"}</span>
                   <span className="text-lg font-bold text-purple-600">{predictions.high_ltv}</span>
                 </div>
                 <p className="text-[10px] text-purple-500 mt-1">{lang === "bn" ? `${predictions.total_scored} স্কোরকৃত` : `${predictions.total_scored} scored`}</p>

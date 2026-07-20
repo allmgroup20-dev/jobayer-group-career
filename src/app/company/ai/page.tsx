@@ -459,7 +459,7 @@ export default function AIHubPage() {
     setMsg("");
     try {
       const res = await fetch("/api/ai/models", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "add_key", keyValue: newKeyValue.trim(), provider: newKeyProvider }) });
-      if (res.ok) { setNewKeyValue(""); loadSettings(); setMsg(lang === "bn" ? "API কী যোগ করা হয়েছে" : "API key added"); }
+      if (res.ok) { setNewKeyValue(""); loadSettings(); setMsg(lang === "bn" ? "এপিআই কী যোগ করা হয়েছে" : "API key added"); }
       else { const err = await res.json().catch(() => ({})); setMsg((err as any).error || "Failed to add key"); }
     } catch { setMsg("Error adding key"); }
   };
@@ -718,7 +718,7 @@ export default function AIHubPage() {
 
                 <div className="card p-6">
                   <h2 className="font-bold text-primary text-sm mb-4">{lang === "bn" ? "📦 ডাটা এক্সপোর্ট" : "📦 Data Export"}</h2>
-                  <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "সমস্ত ব্রেইন ডাটা (ব্যবহার, ফিডব্যাক, ফ্লো, মেমোরি, শিডিউল) JSON ফরম্যাটে ডাউনলোড করুন" : "Download all brain data (usage, feedback, flows, memory, schedules) as JSON"}</p>
+                  <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "সমস্ত ব্রেইন তথ্য (ব্যবহার, মতামত, প্রবাহ, স্মৃতি, সময়সূচী) জেসন ফরম্যাটে ডাউনলোড করুন" : "Download all brain data (usage, feedback, flows, memory, schedules) as JSON"}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4 text-center text-xs">
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-primary">{dashBrainStats?.stats?.total || 0}</div><div className="text-text-secondary">{lang === "bn" ? "রিকোয়েস্ট" : "Requests"}</div></div>
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-green-600">{feedbackStats?.stats?.total || 0}</div><div className="text-text-secondary">{lang === "bn" ? "ফিডব্যাক" : "Feedback"}</div></div>
@@ -726,7 +726,7 @@ export default function AIHubPage() {
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-amber-600">{dashBrainUsage?.totalAgents || 235}</div><div className="text-text-secondary">{lang === "bn" ? "কর্মচারী" : "Employees"}</div></div>
                     <div className="bg-gray-50 rounded-lg p-2"><div className="font-bold text-blue-600">{dashBrainStats?.stats?.total_tokens || 0}</div><div className="text-text-secondary">{lang === "bn" ? "টোকেন" : "Tokens"}</div></div>
                   </div>
-                  <button onClick={exportBrainData} disabled={exportLoading} className="px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{exportLoading ? "..." : (lang === "bn" ? "💾 JSON এক্সপোর্ট" : "💾 Export JSON")}</button>
+                  <button onClick={exportBrainData} disabled={exportLoading} className="px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{exportLoading ? "..." : (lang === "bn" ? "💾 জেসন এক্সপোর্ট" : "💾 Export JSON")}</button>
                 </div>
               </div>
             </>
@@ -741,12 +741,12 @@ export default function AIHubPage() {
           {settingsLoading ? <Skeleton className="h-4 w-32 mx-auto" /> : (
             <>
               <div className="card p-6 mb-6">
-                <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "API কী যোগ করুন" : "Add API Key"}</h2>
+                <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "এপিআই কী যোগ করুন" : "Add API Key"}</h2>
                 <div className="flex gap-2">
                   <select value={newKeyProvider} onChange={(e) => setNewKeyProvider(e.target.value as "openrouter" | "opencode")} className="px-3 py-2 rounded-xl border border-border bg-white text-sm text-primary">
                     <option value="openrouter">OpenRouter</option><option value="opencode">OpenCode</option>
                   </select>
-                  <input type="text" placeholder={lang === "bn" ? "API কী পেস্ট করুন" : "Paste API key"} value={newKeyValue} onChange={(e) => setNewKeyValue(e.target.value)} className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-sm font-mono text-primary" />
+                  <input type="text" placeholder={lang === "bn" ? "এপিআই কী পেস্ট করুন" : "Paste API key"} value={newKeyValue} onChange={(e) => setNewKeyValue(e.target.value)} className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-sm font-mono text-primary" />
                   <button onClick={addKey} className="px-6 py-2 gradient-premium text-white text-sm font-medium rounded-xl hover:opacity-90">{lang === "bn" ? "যোগ করুন" : "Add Key"}</button>
                   <button onClick={resetFailover} className="px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 rounded-xl hover:bg-orange-100">{lang === "bn" ? "রিসেট" : "Reset"}</button>
                 </div>
@@ -764,7 +764,7 @@ export default function AIHubPage() {
 
               {keys.length > 0 && (
                 <div className="card p-6 mb-6">
-                  <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "সংরক্ষিত API কী" : "Saved API Keys"} ({keys.length})</h2>
+                  <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "সংরক্ষিত এপিআই কী" : "Saved API Keys"} ({keys.length})</h2>
                   <div className="space-y-2">
                     {orKeys.map((key) => (
                       <div key={key.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
@@ -797,7 +797,7 @@ export default function AIHubPage() {
               )}
 
               <div className="card p-6 mb-6">
-                <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "OpenRouter মডেল" : "OpenRouter Models"} ({openrouterModels.length})</h2>
+                <h2 className="font-bold text-lg text-primary mb-4">{lang === "bn" ? "ওপেনরাউটার মডেল" : "OpenRouter Models"} ({openrouterModels.length})</h2>
                 <div className="space-y-2">
                   {openrouterModels.map((model) => (
                     <div key={model.model_id} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50">
@@ -815,8 +815,8 @@ export default function AIHubPage() {
               </div>
 
               <div className="card p-6 border-purple-200">
-                <h2 className="font-bold text-lg text-purple-700 mb-4">{lang === "bn" ? "OpenCode মডেল" : "OpenCode Models"} ({opencodeModels.length})</h2>
-                <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "এই মডেলগুলো OpenCode Zen API-এর মাধ্যমে চলে। OpenRouter সব মডেল নিঃশেষ হলেই এগুলো ব্যবহার হবে।" : "These models run via OpenCode Zen API. Fallback when OpenRouter models are exhausted."}</p>
+                <h2 className="font-bold text-lg text-purple-700 mb-4">{lang === "bn" ? "ওপেনকোড মডেল" : "OpenCode Models"} ({opencodeModels.length})</h2>
+                <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "এই মডেলগুলো ওপেনকোড জেন এপিআই-এর মাধ্যমে চলে। ওপেনরাউটার সব মডেল নিঃশেষ হলেই এগুলো ব্যবহার হবে।" : "These models run via OpenCode Zen API. Fallback when OpenRouter models are exhausted."}</p>
                 <div className="space-y-2">
                   {opencodeModels.map((model) => (
                     <div key={model.model_id} className="flex items-center justify-between p-3 rounded-xl hover:bg-purple-50">
@@ -1271,7 +1271,7 @@ export default function AIHubPage() {
                       )}
                       {tuningAnalysis.suggestion && (
                         <div className="mt-2 p-2 bg-white rounded-lg">
-                          <p className="font-medium text-purple-600 mb-1">{lang === "bn" ? "AI সাজেশন:" : "AI Suggestion:"}</p>
+                          <p className="font-medium text-purple-600 mb-1">{lang === "bn" ? "এআই সাজেশন:" : "AI Suggestion:"}</p>
                           <p className="text-text-secondary whitespace-pre-wrap">{tuningAnalysis.suggestion}</p>
                         </div>
                       )}
@@ -1605,7 +1605,7 @@ export default function AIHubPage() {
                     <div><div className="flex justify-between text-sm mb-1"><span className="text-primary font-medium">{lang === "bn" ? "আজকের রেসপন্স" : "Today's Responses"}</span><span className="text-text-secondary">{aiStats?.responses.today || 0}</span></div><div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-action" style={{ width: `${Math.min(100, ((aiStats?.responses.today || 0) / 100) * 100)}%` }} /></div></div>
                     <div><div className="flex justify-between text-sm mb-1"><span className="text-primary font-medium">{lang === "bn" ? "মোট রেসপন্স" : "Total Responses"}</span><span className="text-text-secondary">{aiStats?.responses.total || 0}</span></div><div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, ((aiStats?.responses.total || 0) / 1000) * 100)}%` }} /></div></div>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-border"><h3 className="font-medium text-sm text-primary mb-3">{lang === "bn" ? "API কী স্ট্যাটাস" : "API Key Status"}</h3><div className="flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${(aiStats?.keys.active || 0) > 0 ? "bg-action" : "bg-red-400"}`} /><span className="text-sm text-text-secondary">{aiStats?.keys.active || 0} {lang === "bn" ? "সক্রিয়" : "Active"}</span></div></div>
+                  <div className="mt-6 pt-6 border-t border-border"><h3 className="font-medium text-sm text-primary mb-3">{lang === "bn" ? "এপিআই কী স্ট্যাটাস" : "API Key Status"}</h3><div className="flex items-center gap-2"><div className={`w-3 h-3 rounded-full ${(aiStats?.keys.active || 0) > 0 ? "bg-action" : "bg-red-400"}`} /><span className="text-sm text-text-secondary">{aiStats?.keys.active || 0} {lang === "bn" ? "সক্রিয়" : "Active"}</span></div></div>
                 </div>
               </div>
 
@@ -1660,7 +1660,7 @@ export default function AIHubPage() {
               <div className="grid lg:grid-cols-2 gap-6 mb-6">
                 <div className="card p-5">
                   <h3 className="font-bold text-primary text-sm mb-3">{lang === "bn" ? "স্কিল কনসলিডেশন" : "Skill Consolidation"}</h3>
-                  <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "স্বয়ংক্রিয়ভাবে WhatsApp কথোপকথন বিশ্লেষণ করে বারবার আসা প্রশ্নগুলোকে স্কিল হিসেবে সংরক্ষণ করে।" : "Automatically analyzes WhatsApp conversations and saves repeated questions as skills."}</p>
+                  <p className="text-xs text-text-secondary mb-4">{lang === "bn" ? "স্বয়ংক্রিয়ভাবে হোয়াটসঅ্যাপ কথোপকথন বিশ্লেষণ করে বারবার আসা প্রশ্নগুলোকে দক্ষতা হিসেবে সংরক্ষণ করে।" : "Automatically analyzes WhatsApp conversations and saves repeated questions as skills."}</p>
                   {consolidationResult && <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-3 text-xs text-green-800">{lang === "bn" ? `${consolidationResult.shortcuts}টি শর্টকাট + ${consolidationResult.faqs}টি FAQ তৈরি হয়েছে` : `${consolidationResult.shortcuts} shortcuts + ${consolidationResult.faqs} FAQs created`}</div>}
                   <button onClick={runConsolidation} disabled={consolidating} className="px-4 py-2 text-xs font-medium bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50">{consolidating ? (lang === "bn" ? "কনসলিডেট হচ্ছে..." : "Consolidating...") : (lang === "bn" ? "🔍 স্কিল কনসলিডেট করুন" : "🔍 Consolidate Skills Now")}</button>
                 </div>
