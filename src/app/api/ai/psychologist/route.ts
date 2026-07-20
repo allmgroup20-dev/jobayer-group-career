@@ -31,7 +31,6 @@ export async function GET(request: Request) {
     if (action === "feedback") {
       let feedback;
       if (phone) {
-        // Get feedback for agents linked to this psychologist
         const linkedAgents = await query<{ agent_id: string }>(
           { DB: db },
           "SELECT agent_id FROM worker_agent_links WHERE phone = ?",
@@ -41,20 +40,20 @@ export async function GET(request: Request) {
         if (agentIds.length === 0) {
           feedback = await query(
             { DB: db },
-            "SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
+            "SELECT id, agent_id, target_phone, issue_type, context, ai_draft, suggested_fix, resolved, listening_score, language_matching_score, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
           );
         } else {
           const placeholders = agentIds.map(() => "?").join(",");
           feedback = await query(
             { DB: db },
-            `SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 AND agent_id IN (${placeholders}) ORDER BY created_at DESC LIMIT 50`,
+            `SELECT id, agent_id, target_phone, issue_type, context, ai_draft, suggested_fix, resolved, listening_score, language_matching_score, created_at FROM psychologist_feedback WHERE resolved = 0 AND agent_id IN (${placeholders}) ORDER BY created_at DESC LIMIT 50`,
             agentIds
           );
         }
       } else {
         feedback = await query(
           { DB: db },
-          "SELECT id, worker_id, session_id, rating, feedback_text, resolved, agent_id, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
+          "SELECT id, agent_id, target_phone, issue_type, context, ai_draft, suggested_fix, resolved, listening_score, language_matching_score, created_at FROM psychologist_feedback WHERE resolved = 0 ORDER BY created_at DESC LIMIT 50"
         );
       }
       return NextResponse.json({ feedback });
@@ -156,6 +155,8 @@ export async function POST(request: Request) {
       issueType?: string;
       context?: string;
       aiDraft?: string;
+      listeningScore?: number;
+      languageMatchingScore?: number;
     };
     const db = await ensureDB();
 
@@ -401,9 +402,11 @@ export async function POST(request: Request) {
       }
       await execute(
         { DB: db },
-        `INSERT INTO psychologist_feedback (agent_id, target_phone, issue_type, context, ai_draft, resolved, created_at)
-         VALUES (?, ?, ?, ?, ?, 0, datetime('now'))`,
-        [body.agentId, body.targetPhone || "", body.issueType, body.context || "", body.aiDraft || ""]
+        `INSERT INTO psychologist_feedback (agent_id, target_phone, issue_type, context, ai_draft, listening_score, language_matching_score, resolved, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 0, datetime('now'))`,
+        [body.agentId, body.targetPhone || "", body.issueType, body.context || "", body.aiDraft || "",
+         body.listeningScore !== undefined ? String(body.listeningScore) : "0",
+         body.languageMatchingScore !== undefined ? String(body.languageMatchingScore) : "0"]
       );
       return NextResponse.json({ success: true });
     }

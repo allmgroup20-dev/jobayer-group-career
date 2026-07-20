@@ -377,7 +377,22 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ai_draft TEXT DEFAULT '',
       suggested_fix TEXT DEFAULT '',
       resolved INTEGER DEFAULT 0,
+      listening_score REAL DEFAULT 0,
+      language_matching_score REAL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    try { await env.DB.prepare("ALTER TABLE psychologist_feedback ADD COLUMN listening_score REAL DEFAULT 0").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE psychologist_feedback ADD COLUMN language_matching_score REAL DEFAULT 0").run(); } catch {}
+
+    // Psychologist persuasion metrics (4 Bob Berg metrics)
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS psychologist_metrics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      metric_type TEXT NOT NULL,
+      score REAL DEFAULT 0,
+      total_samples INTEGER DEFAULT 0,
+      period TEXT DEFAULT 'daily',
+      recorded_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
     // ── Courses Module Tables ──
