@@ -23,10 +23,10 @@ export async function batch(env: { DB: D1Database }, queries: { sql: string; par
 
 export async function querySafe<T>(env: { DB: D1Database }, sql: string, params?: unknown[], timeoutMs = 8000): Promise<T[]> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    const result = await query<T>(env, sql, params);
-    clearTimeout(timeoutId);
+    const result = await Promise.race([
+      query<T>(env, sql, params),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Query timeout")), timeoutMs)),
+    ]);
     return result;
   } catch {
     return [];
@@ -35,10 +35,10 @@ export async function querySafe<T>(env: { DB: D1Database }, sql: string, params?
 
 export async function queryFirstSafe<T>(env: { DB: D1Database }, sql: string, params?: unknown[], timeoutMs = 8000): Promise<T | null> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    const result = await queryFirst<T>(env, sql, params);
-    clearTimeout(timeoutId);
+    const result = await Promise.race([
+      queryFirst<T>(env, sql, params),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Query timeout")), timeoutMs)),
+    ]);
     return result;
   } catch {
     return null;

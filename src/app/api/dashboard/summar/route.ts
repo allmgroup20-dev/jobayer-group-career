@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
+import { getCached, setCached } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +10,10 @@ export async function GET(request: NextRequest) {
     if (!workerId) {
       return NextResponse.json({ error: "workerId is required" }, { status: 400 });
     }
+
+    const cacheKey = `dashboard:${workerId}`;
+    const cached = await getCached<any>(cacheKey, 30);
+    if (cached) return NextResponse.json(cached);
 
     const db = await getDB();
 
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const responseData = {
       profile,
       commissions: {
         totalCommissions: commissions?.totalCommissions || 0,
@@ -79,7 +84,11 @@ export async function GET(request: NextRequest) {
         totalSessions: analytics?.totalSessions || 0,
       },
       settings: settingsMap,
-    });
+    };
+
+    setCached(cacheKey, responseData).catch(() => {});
+
+    return NextResponse.json(responseData);
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

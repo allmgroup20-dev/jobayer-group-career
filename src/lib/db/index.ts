@@ -18,6 +18,14 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   }
   g[DONE_LOCK] = true;
   try {
+    const addCol = async (table: string, col: string, type: string) => {
+      try {
+        const info = await env.DB.prepare(`PRAGMA table_info(${table})`).all<{ name: string }>();
+        if (!info.results?.some(r => r.name === col)) {
+          await env.DB.prepare(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`).run();
+        }
+      } catch {}
+    };
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS company_users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
@@ -59,28 +67,28 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       is_active INTEGER DEFAULT 1,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
-    // Individual ALTER TABLE (batch would roll back entire group if one column already exists)
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN google_id TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN facebook_id TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN preferred_language TEXT DEFAULT 'bn'`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN age_group TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN occupation TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN education_level TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN interests_updated_at TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN gender TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN country TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN city TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN goal TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN preferred_learning_time TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN referral_source TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN communication_preference TEXT DEFAULT 'whatsapp'`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN budget_range TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN religion TEXT`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN resource_income REAL DEFAULT 0`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE workers ADD COLUMN resource_income_original REAL DEFAULT 0`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE commission_levels ADD COLUMN commission_type TEXT DEFAULT 'both'`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE commission_levels ADD COLUMN min_referral_base INTEGER DEFAULT 3`).run().catch(() => {});
-    env.DB.prepare(`ALTER TABLE commission_levels ADD COLUMN level_name_bn TEXT`).run().catch(() => {});
+    // Conditional ALTER TABLE — PRAGMA check first avoids unnecessary roundtrips
+    await addCol("workers", "google_id", "TEXT");
+    await addCol("workers", "facebook_id", "TEXT");
+    await addCol("workers", "preferred_language", "TEXT DEFAULT 'bn'");
+    await addCol("workers", "age_group", "TEXT");
+    await addCol("workers", "occupation", "TEXT");
+    await addCol("workers", "education_level", "TEXT");
+    await addCol("workers", "interests_updated_at", "TEXT");
+    await addCol("workers", "gender", "TEXT");
+    await addCol("workers", "country", "TEXT");
+    await addCol("workers", "city", "TEXT");
+    await addCol("workers", "goal", "TEXT");
+    await addCol("workers", "preferred_learning_time", "TEXT");
+    await addCol("workers", "referral_source", "TEXT");
+    await addCol("workers", "communication_preference", "TEXT DEFAULT 'whatsapp'");
+    await addCol("workers", "budget_range", "TEXT");
+    await addCol("workers", "religion", "TEXT");
+    await addCol("workers", "resource_income", "REAL DEFAULT 0");
+    await addCol("workers", "resource_income_original", "REAL DEFAULT 0");
+    await addCol("commission_levels", "commission_type", "TEXT DEFAULT 'both'");
+    await addCol("commission_levels", "min_referral_base", "INTEGER DEFAULT 3");
+    await addCol("commission_levels", "level_name_bn", "TEXT");
 
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_tracking_prefs (
       worker_id TEXT PRIMARY KEY,
@@ -824,12 +832,12 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
 
     // Phase 8 migrations
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN city TEXT`).run().catch(() => {});
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN country TEXT`).run().catch(() => {});
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN timezone TEXT`).run().catch(() => {});
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN language TEXT`).run().catch(() => {});
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN utm_source TEXT`).run().catch(() => {});
-    await env.DB.prepare(`ALTER TABLE user_sessions ADD COLUMN utm_campaign TEXT`).run().catch(() => {});
+    await addCol("user_sessions", "city", "TEXT");
+    await addCol("user_sessions", "country", "TEXT");
+    await addCol("user_sessions", "timezone", "TEXT");
+    await addCol("user_sessions", "language", "TEXT");
+    await addCol("user_sessions", "utm_source", "TEXT");
+    await addCol("user_sessions", "utm_campaign", "TEXT");
 
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_devices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1259,6 +1267,11 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       `CREATE INDEX IF NOT EXISTS idx_sessions_created ON user_sessions(created_at)`,
       `CREATE INDEX IF NOT EXISTS idx_communication_created ON communication_history(created_at)`,
       `CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at)`,
+      `CREATE INDEX IF NOT EXISTS idx_mlm_tree_parent_id ON mlm_tree(parent_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_mlm_tree_sponsor_id ON mlm_tree(sponsor_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_response_cache_lookup ON ai_response_cache(query_hash, agent_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_withdrawals_worker_status ON withdrawals(worker_id, status)`,
+      `CREATE INDEX IF NOT EXISTS idx_commissions_to_worker_status ON commissions(to_worker_id, status)`,
     ].map(sql => env.DB.prepare(sql));
     env.DB.batch(indexStmts).catch(() => {});
 
