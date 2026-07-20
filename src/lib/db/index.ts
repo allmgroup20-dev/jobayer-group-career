@@ -949,8 +949,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       updated_at TEXT
     )`).run();
 
-    // ─── Seed book knowledge into AI Knowledge Distribution ───
-    const bookKnowledge = [
+    // ─── Seed Talking with Psychopaths book knowledge ───
+    const psychopathsSeed = [
       { st: "book", si: "talking_with_psychopaths", sn: "Talking with Psychopaths and Savages by Christopher Berry-Dee", tt: "all", ti: "all", tn: "All AI Agents", kt: "Vulnerability Mirroring", kc: "Reflect unspoken fears gently. When customer shows hesitation or doubt, validate their caution and frame it as wisdom. 'I sense you've been hurt before. That's why you're cautious — and that's wise.' This builds trust by acknowledging their reality without judgment.", cat: "psychology", org: "book" },
       { st: "book", si: "talking_with_psychopaths", sn: "Talking with Psychopaths and Savages by Christopher Berry-Dee", tt: "all", ti: "all", tn: "All AI Agents", kt: "Trust Calibration", kc: "Measure trust by the type of questions asked. 'How' questions = building trust. 'Why' questions = still skeptical. Adapt pacing accordingly. Never push when trust is low — provide proof and transparency instead.", cat: "psychology", org: "book" },
       { st: "book", si: "talking_with_psychopaths", sn: "Talking with Psychopaths and Savages by Christopher Berry-Dee", tt: "all", ti: "all", tn: "All AI Agents", kt: "Autonomy Preservation", kc: "Never make customers feel controlled. Psychopaths control; ethical agents empower. Use phrases like 'you decide', 'your choice', 'only if it feels right'. Give complete autonomy in decision-making.", cat: "safety", org: "book" },
@@ -962,8 +962,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       { st: "book", si: "talking_with_psychopaths", sn: "Talking with Psychopaths and Savages by Christopher Berry-Dee", tt: "all", ti: "all", tn: "All AI Agents", kt: "Doctor Shipman Warning — Trust Exploitation", kc: "Never exploit trust for gain. The most dangerous predators weaponize the trust others place in them. Always be worthy of the trust customers give you. Transparency and honesty are non-negotiable.", cat: "safety", org: "book" },
       { st: "book", si: "talking_with_psychopaths", sn: "Talking with Psychopaths and Savages by Christopher Berry-Dee", tt: "all", ti: "all", tn: "All AI Agents", kt: "The Mask of Normality", kc: "Most dangerous people appear perfectly normal, charming, and trustworthy. Teach agents to look beyond surface charm to detect genuine vs. performed emotions. Sincere care vs. calculated charm: the difference is consistency over time.", cat: "safety", org: "book" },
     ];
-    // Insert all seed entries using individual try/catch to handle duplicates
-    for (const k of bookKnowledge) {
+    for (const k of psychopathsSeed) {
       try {
         await env.DB.prepare(
           `INSERT OR IGNORE INTO ai_knowledge_distribution (source_type, source_id, source_name, target_type, target_id, target_name, knowledge_title, knowledge_content, knowledge_category, origin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
@@ -1087,6 +1086,45 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       churn_risk_count INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
+
+    // ─── Communication Styles & Persuasion Tracking ───
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS communication_styles (
+      phone TEXT PRIMARY KEY,
+      style TEXT DEFAULT 'standard',
+      trust_readiness TEXT DEFAULT 'needs_time',
+      value_sensitivity TEXT DEFAULT 'balanced',
+      listening_need TEXT DEFAULT 'medium',
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS persuasion_tracking (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      technique_used TEXT NOT NULL,
+      context TEXT,
+      effectiveness_score REAL DEFAULT 0.5,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+
+    // ─── Seed The Art of Persuasion book knowledge ───
+    const persuasionSeed = [
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Golden Rule of Influence", kc: "People do business with those they know, like, and trust. Trust is your strongest currency. Before any ask, invest in trust first. Every interaction is a chance to build trust currency.", cat: "trust", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Persuader's Mindset — Give First", kc: "Influence = Service. Shift from 'what can I get' to 'what can I give'. Give free value — tips, insights, encouragement — before asking for anything. People are drawn to those who give without expectation.", cat: "psychology", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Active Listening — 3 Techniques", kc: "1) Reference their previous messages to show you remember, 2) Let them finish completely before responding, 3) Recap their words: 'So you're saying that...'. Silence is powerful. Let them fill the pause.", cat: "communication", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Speak Their Language — Framing", kc: "Frame everything from their perspective, not yours. Match their communication style: analytical (data), emotional (feelings), direct (action), warm (relationship). 'This is best' → 'This will make your life easier.'", cat: "communication", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Law of Value", kc: "Your worth = how much value you add to their life. People don't buy products, they buy better versions of themselves. Show the transformation, not just the features.", cat: "sales", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Law of Influence — You Before Me", kc: "Focus on 'you', 'we', 'us' — never 'me' or 'I'. The more you help others grow, the more your influence grows. Influence is what people feel when you're done speaking.", cat: "psychology", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Handling Resistance — We're Together", kc: "Don't fight resistance, understand it. Turn 'me vs you' into 'we're on the same team'. 'You're right to be careful — let's find the best solution together.' Resistance drops when they feel you're on their side.", cat: "sales", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Power of Subtlety — Guide Not Pusher", kc: "Be the guide, not the pusher. Instead of 'You should buy this', say 'Others in your situation found this helpful.' Let them feel the decision is theirs. No push, no pressure.", cat: "communication", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Influence as a Daily Habit", kc: "Influence is not a one-time tactic, it's a daily habit. 1) Who can I help today? 2) Listen before answering. 3) Speak their language. 4) Create an environment where people feel heard and inspired.", cat: "psychology", org: "book" },
+      { st: "book", si: "the_art_of_persuasion", sn: "The Art of Persuasion by Bob Berg", tt: "all", ti: "all", tn: "All AI Agents", kt: "Trust is Your Strongest Currency", kc: "Money can be earned and lost, but trust once gained is the most valuable asset. Every honest word, every good deed, every empathetic interaction grows this currency without interest.", cat: "trust", org: "book" },
+    ];
+    for (const k of persuasionSeed) {
+      try {
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO ai_knowledge_distribution (source_type, source_id, source_name, target_type, target_id, target_name, knowledge_title, knowledge_content, knowledge_category, origin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).bind(k.st, k.si, k.sn, k.tt, k.ti, k.tn, k.kt, k.kc, k.cat, k.org).run();
+      } catch {}
+    }
 
     g[DONE_FLAG] = true;
     g[DONE_LOCK] = false;

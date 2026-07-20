@@ -6,6 +6,8 @@ export type ControlResistance = "low" | "medium" | "high";
 export type ManipulationVulnerability = "low" | "medium" | "high";
 export type FearProfile = "financial_loss" | "social_status" | "being_deceived" | "losing_autonomy" | "unknown";
 export type MaskStatus = "open" | "partial" | "masked";
+export type CommStyle = "analytical" | "emotional" | "direct" | "warm" | "standard";
+export type TrustReadiness = "ready" | "needs_time" | "skeptical";
 
 const MOOD_PATTERNS: Record<Mood, RegExp[]> = {
   enthusiastic: [
@@ -401,6 +403,54 @@ export function detectMaskStatus(text: string): MaskStatus {
   let bestScore = 0;
   for (const [status, score] of Object.entries(scores)) {
     if (score > bestScore) { bestScore = score; best = status as MaskStatus; }
+  }
+  return best;
+}
+
+const COMM_STYLE_PATTERNS: Record<CommStyle, RegExp[]> = {
+  analytical: [/\b(?:because|reason|logic|data|evidence|prove|fact|figure|percent|specifically|compare|analysis)\b/i, /\d+%/],
+  emotional: [/\b(?:feel|felt|hope|wish|dream|scared|worried|excited|love|hate|happy|sad|cry|heart|soul|believe|trust)\b/i, /(?:আমার মনে হয়|আমি বিশ্বাস করি|ভয়|আশা|স্বপ্ন)/i],
+  direct: [/\b(?:tell me|give me|show me|i want|i need|now|fast|quick|straight|urgent|important)\b/i, /^.{0,50}\?$/],
+  warm: [/\b(?:please|thanks|thank|appreciate|bless|kind|nice|lovely|wonderful|friend|brother|sister|bhai|apa)\b/i, /(?:ভাই|বোন|আপা|দাদা|ধন্যবাদ|please)/i],
+  standard: [],
+};
+
+const TRUST_READINESS_PATTERNS: Record<TrustReadiness, RegExp[]> = {
+  ready: [/\b(?:tell me more|how to|i want|interested|join|যোগ|শুরু|interested|আগ্রহী)\b/i, /(?:how can i|kivabe|কিভাবে|what to do|ki korte hobe)/i],
+  needs_time: [/\b(?:later|maybe|think|consider|after|next|soon|soon|time|সময়|পরে|চিন্তা)\b/i, /(?:dekhi|দেখি|vabi|ভাবি|need time)/i],
+  skeptical: [/\b(?:really|sure|scam|fraud|doubt|prove|show|true|সত্যি|নিশ্চিত|প্রতারণা|সন্দেহ)\b/i, /(?:too good|trust issue|বিশ্বাস হয় না|previous|আগে)/i],
+};
+
+export function detectCommStyle(text: string): CommStyle {
+  const scores: Record<CommStyle, number> = { analytical: 0, emotional: 0, direct: 0, warm: 0, standard: 0 };
+  for (const [style, patterns] of Object.entries(COMM_STYLE_PATTERNS)) {
+    for (const pattern of patterns) {
+      if (pattern.test(text)) scores[style as CommStyle] += 2;
+    }
+  }
+  const words = text.split(/\s+/).length;
+  if (words > 30) scores.analytical += 1;
+  if (text.includes("?") && text.length < 60) scores.direct += 1;
+  if (scores.analytical > 0 || scores.emotional > 0 || scores.direct > 0 || scores.warm > 0) {
+    let best: CommStyle = "standard"; let bestScore = 0;
+    for (const [s, sc] of Object.entries(scores)) {
+      if (sc > bestScore) { bestScore = sc; best = s as CommStyle; }
+    }
+    return best;
+  }
+  return "standard";
+}
+
+export function detectTrustReadiness(text: string): TrustReadiness {
+  const scores: Record<TrustReadiness, number> = { ready: 0, needs_time: 0, skeptical: 0 };
+  for (const [status, patterns] of Object.entries(TRUST_READINESS_PATTERNS)) {
+    for (const pattern of patterns) {
+      if (pattern.test(text)) scores[status as TrustReadiness] += 2;
+    }
+  }
+  let best: TrustReadiness = "needs_time"; let bestScore = 0;
+  for (const [s, sc] of Object.entries(scores)) {
+    if (sc > bestScore) { bestScore = sc; best = s as TrustReadiness; }
   }
   return best;
 }

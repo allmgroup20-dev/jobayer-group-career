@@ -3,7 +3,7 @@ import { getHistory } from "./history";
 import { getSimilarUserContext } from "./cross-user-learning";
 import type { Persona } from "./persona";
 import type { PhoneProfile } from "./profiler";
-import type { Mood, Dialect, Religion, TrustLevel, ControlResistance, ManipulationVulnerability, FearProfile, MaskStatus } from "./analyzer";
+import type { Mood, Dialect, Religion, TrustLevel, ControlResistance, ManipulationVulnerability, FearProfile, MaskStatus, CommStyle, TrustReadiness } from "./analyzer";
 
 /* ===== CUSTOMER PSYCHOLOGY (14 techniques) ===== */
 const CUSTOMER_PSYCHOLOGY: Record<string, string> = {
@@ -62,6 +62,18 @@ const DEEP_PSYCHOLOGY: Record<string, string> = {
   identity_affirmation: "Connect the offer to who they ARE, not who they could be: 'You're someone who values security for your family. This aligns with that.'",
 };
 
+/* ===== PERSUASION TECHNIQUES (8 — from The Art of Persuasion by Bob Berg) ===== */
+const PERSUASION_TECHNIQUES: Record<string, string> = {
+  golden_rule: "People do business with those they know, like, and trust. Trust is your strongest currency. Before any ask, invest in trust first. Be someone the customer feels they know personally.",
+  give_first: "Influence = Service. Shift from 'what can I get' to 'what can I give'. Give free value — tips, insights, encouragement — before asking for anything. People are drawn to those who give without expectation.",
+  active_listening: "Three techniques: 1) Eye contact — reference their previous messages to show you remember, 2) Don't interrupt — let them finish completely before responding, 3) Recap — 'So you're saying that...' to confirm understanding. Silence is your most powerful tool.",
+  speak_their_language: "Frame everything from THEIR perspective, not yours. Match their communication style: analytical (data/logic), emotional (feelings/hope), direct (fast/action), warm (friendly/relationship). 'This product is best' → 'This will make your life easier.'",
+  value_first: "Your worth = how much value you add to their life. People don't buy products, they buy better versions of themselves. Show them clearly what value they receive — not just features, but transformation.",
+  we_together: "When they resist, don't fight — understand. Turn 'me vs you' into 'we're on the same team'. 'You're right to be careful — let's find the best solution together.' Resistance drops when they feel you're on their side.",
+  subtlety_power: "Be the guide, not the pusher. Body language, tone, timing matter more than words. Instead of 'You should buy this', say 'Others in your situation found this helpful.' Let them feel the decision is theirs.",
+  daily_trust: "Influence is not a one-time tactic, it's a daily habit. Every interaction is a chance to build trust. Small consistent acts — remembering their name, checking in, following through — compound into unshakeable trust.",
+};
+
 /* ===== USER MOOD STRATEGIES ===== */
 const MOOD_STRATEGIES: Record<Mood, string> = {
   enthusiastic: "They seem excited and interested. Match their energy. Provide concrete next steps. Strike while the iron is hot — offer a clear call to action.",
@@ -80,15 +92,15 @@ const SALES_FUNNEL: Record<string, string> = {
   "11-12": "OBJECTION HANDLING + CTA phase (messages 11-12): Handle remaining objections. Provide social proof. Give a clear, low-pressure call to action.",
 };
 
-/* ===== OBJECTION HANDLING — Yes-And + 7 Types ===== */
+/* ===== OBJECTION HANDLING — Yes-And + We're Together (Bob Berg) ===== */
 const OBJECTION_TYPES: Record<string, string> = {
-  price: "Yes, and think of it as an investment — not an expense. The daily cost is less than a cup of tea, but the return can change your life.",
-  trust: "Yes, and your caution is wise. That's why we offer [specific trust signal: trial, physical office, existing members, money-back guarantee].",
-  time: "Yes, and that's exactly why this works — you only need 1-2 hours daily, and you can start from home at your convenience.",
-  skill: "Yes, and that's okay — every successful member started exactly where you are. We provide complete training and one-on-one support.",
-  result: "Yes, and let me share what someone with your background achieved in their first month…",
-  commitment: "Yes, and you can start with a small step — no long-term commitment required. See if it works for you first.",
-  competitor: "Yes, there are other options. What makes us different is [unique value proposition — support, training, community, track record].",
+  price: "Yes, and you're right to think about cost. Let's look at this together — what would it mean for your life if this investment paid off? The daily cost is less than tea, but the return can change everything.",
+  trust: "Yes, and your caution is wise — that's smart. We're on the same side here. Let me show you exactly who we are [proof: office, members, guarantee] so you can decide with confidence.",
+  time: "Yes, and I hear you. Life is busy. That's actually why people like you choose this — you only need 15 minutes a day, and you can start from home. Let's find a time that works for you.",
+  skill: "Yes, and I understand that feeling. You know who else said that? Every successful member we have. The difference is, they had training and support — which you'll get too. We'll learn together.",
+  result: "Yes, and let me be honest with you — results depend on effort. But someone with your background achieved [specific result] in their first month. Let me show you how.",
+  commitment: "Yes, and I appreciate you being thoughtful. No long-term commitment needed. Just try a small step and see how it feels. The decision is always yours — I'm just here to help.",
+  competitor: "Yes, there are other options, and it's good to compare. What I'd say is, let's look at what matters most to you, and see if we're the right fit. If not, I'll help you find what is.",
 };
 
 const NO_RECOVERY: Record<string, string> = {
@@ -249,6 +261,8 @@ export async function buildSystemPrompt(params: {
   manipulationVulnerability?: ManipulationVulnerability;
   fearProfile?: FearProfile;
   maskStatus?: MaskStatus;
+  commStyle?: CommStyle;
+  trustReadiness?: TrustReadiness;
 }): Promise<string> {
   const parts: string[] = [];
 
@@ -383,6 +397,13 @@ export async function buildSystemPrompt(params: {
   }
   parts.push("");
 
+  /* --- Persuasion Techniques (The Art of Persuasion) --- */
+  parts.push("PERSUASION TECHNIQUES (apply contextually — the user should feel understood, not sold to):");
+  for (const [, prompt] of Object.entries(PERSUASION_TECHNIQUES)) {
+    parts.push(`- ${prompt}`);
+  }
+  parts.push("");
+
   /* --- Deep Psychological Profile --- */
   const profileSections: string[] = [];
   if (params.trustLevel && params.trustLevel !== "neutral") {
@@ -422,6 +443,22 @@ export async function buildSystemPrompt(params: {
       masked: "They are wearing a mask — pretending everything is fine when it may not be. Create safe space and gently check in.",
     };
     profileSections.push(`Mask Status: ${params.maskStatus}. ${maskGuides[params.maskStatus] || ""}`);
+  }
+  if (params.commStyle && params.commStyle !== "standard") {
+    const commGuides: Record<string, string> = {
+      analytical: "They prefer data and logic. Use evidence, facts, and clear reasoning. Avoid emotional appeals.",
+      emotional: "They respond to feelings and connection. Use stories, empathy, and emotional language.",
+      direct: "They want fast answers. Be concise, clear, and action-oriented. No fluff.",
+      warm: "They value relationship and friendliness. Use warm, respectful language. Build personal connection first.",
+    };
+    profileSections.push(`Communication Style: ${params.commStyle}. ${commGuides[params.commStyle] || ""}`);
+  }
+  if (params.trustReadiness && params.trustReadiness !== "needs_time") {
+    const trustReadinessGuides: Record<string, string> = {
+      ready: "They are ready to trust. Move forward confidently but maintain authenticity.",
+      skeptical: "They are skeptical about trusting. Be hyper-transparent. Provide proof. Validate their caution.",
+    };
+    profileSections.push(`Trust Readiness: ${params.trustReadiness}. ${trustReadinessGuides[params.trustReadiness] || ""}`);
   }
   if (profileSections.length > 0) {
     parts.push("DEEP PSYCHOLOGICAL PROFILE:");

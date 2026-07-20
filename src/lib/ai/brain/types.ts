@@ -68,6 +68,8 @@ export interface MessageCtx {
   manipulationVulnerability?: string;
   fearProfile?: string;
   maskStatus?: string;
+  commStyle?: string;
+  trustReadiness?: string;
 }
 
 export interface CrossDeptStep {

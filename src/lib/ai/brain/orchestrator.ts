@@ -37,17 +37,17 @@ export const NEGATIVITY_CHAINS: Record<string, string[]> = {
 
 // ── Single-department sequential chains ──
 export const CHAINS: Record<string, string[]> = {
-  "sales_purchase": ["lead_scanner", "lead_scorer", "product_matcher", "price_explainer", "trust_objection_handler", "control_fear_objection_handler", "trial_closer", "payment_link_sender", "confirmation_sender"],
-  "sales_price_inquiry": ["lead_scanner", "lead_classifier", "price_explainer", "vulnerability_detector", "price_objection_handler", "manipulation_fear_objection_handler", "discount_closer", "installment_closer"],
-  "sales_product_inquiry": ["lead_scanner", "lead_classifier", "product_matcher", "benefit_highlighter", "comparison_builder", "social_proof_injector", "urgency_creator"],
-  "sales_referral": ["referral_explainer", "social_proof_injector", "referral_closer"],
-  "sales_general": ["lead_scanner", "vulnerability_detector", "trust_meter", "followup_scheduler", "re_engagement_trigger"],
+  "sales_purchase": ["value_first_giver", "trust_currency_builder", "lead_scanner", "lead_scorer", "product_matcher", "price_explainer", "trust_objection_handler", "control_fear_objection_handler", "subtle_influencer", "trial_closer", "payment_link_sender", "confirmation_sender"],
+  "sales_price_inquiry": ["value_first_giver", "trust_currency_builder", "deep_listening_agent", "lead_scanner", "lead_classifier", "price_explainer", "vulnerability_detector", "price_objection_handler", "manipulation_fear_objection_handler", "subtle_influencer", "discount_closer", "installment_closer"],
+  "sales_product_inquiry": ["value_first_giver", "trust_currency_builder", "lead_scanner", "lead_classifier", "product_matcher", "benefit_highlighter", "comparison_builder", "social_proof_injector", "urgency_creator"],
+  "sales_referral": ["trust_currency_builder", "referral_explainer", "social_proof_injector", "referral_closer"],
+  "sales_general": ["value_first_giver", "trust_currency_builder", "deep_listening_agent", "lead_scanner", "vulnerability_detector", "trust_meter", "followup_scheduler", "re_engagement_trigger"],
   "sales_deep_objection": ["vulnerability_detector", "fear_pattern_identifier", "control_fear_objection_handler", "manipulation_fear_objection_handler", "identity_threat_objection_handler"],
   "member_success_registration": ["registration_guide", "welcome_pack_sender", "first_goal_setter", "profile_completer"],
   "member_success_commission_inquiry": ["commission_calculator", "earning_reporter", "payout_optimizer"],
   "member_success_motivation": ["daily_motivation_sender", "achievement_celebrator"],
   "member_success_general": ["query_resolver", "policy_explainer", "escalation_handler"],
-  "customer_experience_greeting": ["greeting_personalizer", "deep_rapport_agent", "rapport_builder"],
+  "customer_experience_greeting": ["trust_currency_builder", "value_first_giver", "greeting_personalizer", "deep_listening_agent", "deep_rapport_agent", "rapport_builder"],
   "customer_experience_farewell": ["greeting_personalizer"],
   "customer_experience_support": ["faq_responder", "order_status_checker", "payment_issue_resolver", "delivery_tracker", "return_exchange_handler", "refund_processor"],
   "customer_experience_complaint": ["complaint_listener", "root_cause_finder", "solution_crafter", "satisfaction_restorer"],
@@ -68,21 +68,28 @@ export const CHAINS: Record<string, string[]> = {
 // CROSS-DEPARTMENT CHAINS — agents from multiple depts collaborate
 // ══════════════════════════════════════════════════════════════
 export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
-  // Full customer journey with deep psychology
+  // Full customer journey with deep psychology + persuasion
   new_customer_full: [
+    { department: "sales", agentId: "value_first_giver" },
+    { department: "psychology", agentId: "trust_currency_builder" },
     { department: "customer_experience", agentId: "greeting_personalizer" },
     { department: "psychology", agentId: "mood_detector" },
+    { department: "psychology", agentId: "deep_listening_agent" },
     { department: "psychology", agentId: "trust_meter" },
     { department: "psychology", agentId: "deep_rapport_agent" },
     { department: "sales", agentId: "lead_scanner" },
     { department: "psychology", agentId: "vulnerability_detector" },
     { department: "sales", agentId: "product_matcher" },
+    { department: "sales", agentId: "value_amplifier" },
     { department: "sales", agentId: "price_explainer" },
+    { department: "psychology", agentId: "subtle_influencer" },
   ],
 
-  // Deep complaint resolution with trust repair
+  // Deep complaint resolution with trust repair + persuasion
   complaint_full: [
+    { department: "psychology", agentId: "trust_currency_builder" },
     { department: "psychology", agentId: "empathy_expresser" },
+    { department: "psychology", agentId: "deep_listening_agent" },
     { department: "psychology", agentId: "mask_detector" },
     { department: "negativity_detection", agentId: "complaint_listener" },
     { department: "negativity_detection", agentId: "root_cause_finder" },
@@ -92,34 +99,43 @@ export const CROSS_DEPT_CHAINS: Record<string, CrossDeptStep[]> = {
     { department: "psychology", agentId: "deep_rapport_agent" },
   ],
 
-  // New member onboarding with deep connection
+  // New member onboarding with persuasion
   new_member_onboarding: [
+    { department: "sales", agentId: "value_first_giver" },
+    { department: "psychology", agentId: "trust_currency_builder" },
     { department: "member_success", agentId: "registration_guide" },
     { department: "member_success", agentId: "welcome_pack_sender" },
     { department: "member_success", agentId: "first_goal_setter" },
     { department: "psychology", agentId: "community_builder" },
+    { department: "psychology", agentId: "deep_listening_agent" },
     { department: "psychology", agentId: "deep_rapport_agent" },
   ],
 
-  // Deep objection handling with vulnerability detection
+  // Deep objection handling with persuasion techniques
   deep_objection_resolution: [
+    { department: "psychology", agentId: "trust_currency_builder" },
     { department: "psychology", agentId: "mood_detector" },
     { department: "psychology", agentId: "vulnerability_detector" },
+    { department: "psychology", agentId: "deep_listening_agent" },
     { department: "psychology", agentId: "fear_pattern_identifier" },
     { department: "psychology", agentId: "control_need_analyzer" },
     { department: "sales", agentId: "control_fear_objection_handler" },
     { department: "sales", agentId: "manipulation_fear_objection_handler" },
     { department: "sales", agentId: "identity_threat_objection_handler" },
+    { department: "psychology", agentId: "subtle_influencer" },
   ],
 
-  // Trust repair after negativity detected
+  // Trust repair + persuasion recovery
   trust_repair: [
+    { department: "psychology", agentId: "trust_currency_builder" },
     { department: "negativity_detection", agentId: "trust_betrayal_detector" },
     { department: "negativity_detection", agentId: "control_feeling_detector" },
+    { department: "psychology", agentId: "deep_listening_agent" },
     { department: "psychology", agentId: "empathy_gap_detector" },
     { department: "psychology", agentId: "manipulation_defense_agent" },
     { department: "psychology", agentId: "trust_builder" },
     { department: "psychology", agentId: "deep_rapport_agent" },
+    { department: "psychology", agentId: "subtle_influencer" },
   ],
 };
 
