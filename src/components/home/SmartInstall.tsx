@@ -177,14 +177,14 @@ export default function SmartInstall() {
         {isIOS ? (
           <button
             onClick={handleInstall}
-            className="w-full py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#FF8C00] text-white text-sm font-bold rounded-xl hover:from-[#e55a2b] hover:to-[#e67e00] transition-all shadow-lg shadow-orange-200 active:scale-95"
+            className="w-full py-2.5 bg-gradient-to-r from-accent to-accent-light text-white text-sm font-bold rounded-xl hover:from-accent-dark hover:to-accent transition-all shadow-lg shadow-accent/30 active:scale-[0.97]"
           >
             {lang === "bn" ? "📲 এখনই ইনস্টল করুন" : "📲 Install App"}
           </button>
         ) : showOneClick ? (
           <button
             onClick={handleInstall}
-            className="w-full py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#FF8C00] text-white text-sm font-bold rounded-xl hover:from-[#e55a2b] hover:to-[#e67e00] transition-all shadow-lg shadow-orange-200 active:scale-95"
+            className="w-full py-2.5 bg-gradient-to-r from-accent to-accent-light text-white text-sm font-bold rounded-xl hover:from-accent-dark hover:to-accent transition-all shadow-lg shadow-accent/30 active:scale-[0.97]"
           >
             {lang === "bn" ? "⚡ এখনই ইনস্টল করুন" : "⚡ Install Now"}
           </button>
@@ -197,7 +197,7 @@ export default function SmartInstall() {
         ) : (
           <button
             onClick={handleInstall}
-            className="w-full py-2.5 bg-gradient-to-r from-[#FF6B35] to-[#FF8C00] text-white text-sm font-bold rounded-xl hover:from-[#e55a2b] hover:to-[#e67e00] transition-all shadow-lg shadow-orange-200 active:scale-95"
+            className="w-full py-2.5 bg-gradient-to-r from-accent to-accent-light text-white text-sm font-bold rounded-xl hover:from-accent-dark hover:to-accent transition-all shadow-lg shadow-accent/30 active:scale-[0.97]"
           >
             {lang === "bn" ? "📲 ইনস্টল করুন" : "📲 Install App"}
           </button>

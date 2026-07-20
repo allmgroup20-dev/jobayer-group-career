@@ -1,6 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Hind_Siliguri, Inter } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./client-layout";
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
+  variable: "--font-bengali",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  preload: true,
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "Jobayer Group Career - Build Your Career With Us",
@@ -31,15 +48,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn">
+    <html lang="bn" className={`${hindSiliguri.variable} ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <link rel="preload" href="/favicon.svg" as="image" />
         <link rel="dns-prefetch" href="https://career.jobayergroup.com" />
+        <link rel="preload" href="/favicon.svg" as="image" />
       </head>
-      <body className="min-h-screen bg-bg">
+      <body className="min-h-screen bg-bg font-sans antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
