@@ -70,6 +70,9 @@ export interface MessageCtx {
   maskStatus?: string;
   commStyle?: string;
   trustReadiness?: string;
+  marketSegment?: string;
+  loyaltyStage?: string;
+  plcStage?: string;
 }
 
 export interface CrossDeptStep {

@@ -1,6 +1,6 @@
 import { queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
-import { detectLanguage, detectCommStyle, detectTrustReadiness, detectBuyerPersonality, detectBuyingMotivation, detectCustomerNeed } from "./analyzer";
+import { detectLanguage, detectCommStyle, detectTrustReadiness, detectBuyerPersonality, detectBuyingMotivation, detectCustomerNeed, detectMarketSegment, detectLoyaltyStage, detectBrandPosition, detectPLCStage, detectPricingStrategy, detectServiceQualityIssue, detectGrowthStrategy, detectTargetingStrategy, detectCommunicationChannel } from "./analyzer";
 
 export interface PhoneProfile {
   phone: string;
@@ -27,6 +27,15 @@ export interface PhoneProfile {
   primary_need: string | null;
   buying_motivation: string | null;
   sales_goal: string | null;
+  market_segment: string | null;
+  targeting_strategy: string | null;
+  brand_position: string | null;
+  plc_stage: string | null;
+  pricing_strategy: string | null;
+  loyalty_stage: string | null;
+  service_quality_issues: string | null;
+  nps_score: number | null;
+  clv_estimate: number | null;
 }
 
 const SECTOR_PATTERNS: [RegExp, string][] = [
@@ -227,4 +236,55 @@ export async function updateProfileTracy(
       );
     } catch {}
   }
+}
+
+export async function updateProfileKotler(
+  phone: string,
+  text: string
+): Promise<void> {
+  const db = await ensureDB();
+  const { segment } = detectMarketSegment(text);
+  const { stage: loyalty } = detectLoyaltyStage(text);
+  const { position } = detectBrandPosition(text);
+  const { stage: plc } = detectPLCStage(text);
+  const { strategy: pricing } = detectPricingStrategy(text);
+  try {
+    await execute(
+      { DB: db },
+      `UPDATE ai_phone_profiles SET market_segment = ?, loyalty_stage = ?, brand_position = ?, plc_stage = ?, pricing_strategy = ?, updated_at = datetime('now') WHERE phone = ?`,
+      [segment, loyalty, position, plc, pricing, phone]
+    );
+  } catch {
+    try {
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN market_segment TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN targeting_strategy TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN brand_position TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN plc_stage TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN pricing_strategy TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN loyalty_stage TEXT DEFAULT 'suspect'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN service_quality_issues TEXT DEFAULT NULL");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN nps_score INTEGER DEFAULT NULL");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN clv_estimate REAL DEFAULT NULL");
+      await execute(
+        { DB: db },
+        `UPDATE ai_phone_profiles SET market_segment = ?, loyalty_stage = ?, brand_position = ?, plc_stage = ?, pricing_strategy = ?, updated_at = datetime('now') WHERE phone = ?`,
+        [segment, loyalty, position, plc, pricing, phone]
+      );
+    } catch {}
+  }
+}
+
+export async function updateProfileServiceQuality(
+  phone: string,
+  text: string
+): Promise<void> {
+  const db = await ensureDB();
+  const { dimension, severity, evidence } = detectServiceQualityIssue(text);
+  try {
+    await execute(
+      { DB: db },
+      `UPDATE ai_phone_profiles SET service_quality_issues = ?, updated_at = datetime('now') WHERE phone = ?`,
+      [JSON.stringify({ dimension, severity, evidence }), phone]
+    );
+  } catch {}
 }

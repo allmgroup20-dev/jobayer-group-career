@@ -38,6 +38,20 @@ const linkGroups = [
     ],
   },
   {
+    label: { en: "Marketing (Kotler)", bn: "মার্কেটিং (Kotler)" },
+    links: [
+      { href: "/company/segments", en: "Segments", bn: "সেগমেন্ট", icon: "🎯", color: "bg-blue-50 text-blue-600" },
+      { href: "/company/brand-dashboard", en: "Brand", bn: "ব্র্যান্ড", icon: "🏷️", color: "bg-purple-50 text-purple-600" },
+      { href: "/company/pricing", en: "Pricing", bn: "প্রাইসিং", icon: "💰", color: "bg-green-50 text-green-600" },
+      { href: "/company/positioning", en: "Positioning", bn: "পজিশনিং", icon: "📍", color: "bg-orange-50 text-orange-600" },
+      { href: "/company/campaigns", en: "Campaigns", bn: "ক্যাম্পেইন", icon: "📢", color: "bg-red-50 text-red-600" },
+      { href: "/company/plc-dashboard", en: "PLC", bn: "পিএলসি", icon: "📈", color: "bg-teal-50 text-teal-600" },
+      { href: "/company/loyalty", en: "Loyalty", bn: "লয়ালটি", icon: "❤️", color: "bg-pink-50 text-pink-600" },
+      { href: "/company/global-markets", en: "Global", bn: "গ্লোবাল", icon: "🌍", color: "bg-indigo-50 text-indigo-600" },
+      { href: "/company/csr", en: "CSR", bn: "সিএসআর", icon: "🌱", color: "bg-emerald-50 text-emerald-600" },
+    ],
+  },
+  {
     label: { en: "Analytics", bn: "বিশ্লেষণ" },
     links: [
       { href: "/company/analytics", en: "Analytics", bn: "অ্যানালিটিক্স", icon: "📊", color: "bg-indigo-50 text-indigo-600" },

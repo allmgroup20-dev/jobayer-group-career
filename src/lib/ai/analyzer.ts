@@ -15,6 +15,23 @@ export type BuyerPersonality = "apathetic" | "self_actualizing" | "analytical" |
 export type BuyingMotivation = "gain_oriented" | "fear_oriented" | "mixed" | "unknown";
 export type CustomerNeed = "money" | "security" | "being_liked" | "status_prestige" | "health_fitness" | "praise_recognition" | "power_influence" | "leading_field" | "love_companionship" | "personal_growth" | "personal_transformation" | "unknown";
 
+/* ===== KOTLER MARKETING TYPES (Philip Kotler — Marketing Management) ===== */
+export type MarketSegment = "geographic" | "demographic" | "psychographic" | "behavioral" | "unknown";
+export type TargetingStrategy = "undifferentiated" | "differentiated" | "concentrated" | "micromarketing" | "unknown";
+export type BrandPosition = "value_leader" | "quality_leader" | "innovation_leader" | "service_leader" | "cost_leader" | "niche_leader" | "unknown";
+export type ProductLifecycleStage = "introduction" | "growth" | "maturity" | "decline" | "unknown";
+export type PricingStrategy = "skimming" | "penetration" | "competitive" | "value_based" | "cost_plus" | "psychological" | "unknown";
+export type CommunicationChannel = "advertising" | "public_relations" | "sales_promotion" | "direct_marketing" | "digital" | "events" | "personal_selling" | "word_of_mouth" | "unknown";
+export type LoyaltyStage = "suspect" | "prospect" | "first_time" | "repeat" | "loyal" | "advocate" | "unknown";
+export type ServiceQuality = "tangibility" | "reliability" | "responsiveness" | "assurance" | "empathy" | "unknown";
+export type GrowthStrategy = "market_penetration" | "market_development" | "product_development" | "diversification" | "unknown";
+export type BuyingSituation = "straight_rebuy" | "modified_rebuy" | "new_task" | "unknown";
+export type CompetitivePosition = "market_leader" | "market_challenger" | "market_follower" | "market_nicher" | "unknown";
+export type AdopterCategory = "innovator" | "early_adopter" | "early_majority" | "late_majority" | "laggard" | "unknown";
+export type ChannelLevel = "direct" | "one_level" | "two_level" | "three_level" | "unknown";
+export type GlobalEntryMode = "export" | "licensing" | "joint_venture" | "direct_investment" | "unknown";
+export type CSRDimension = "people" | "planet" | "profit" | "unknown";
+
 const MOOD_PATTERNS: Record<Mood, RegExp[]> = {
   enthusiastic: [
     /\b(?:great|excellent|wonder|amazing|awesome|fantastic|thank|thanks|dhan|ধন্যবাদ|চমৎকার|দারুন|ভাল)\b/i,
@@ -635,4 +652,216 @@ export function extractKeywords(text: string): string[] {
   const freq = new Map<string, number>();
   for (const w of words) freq.set(w, (freq.get(w) || 0) + 1);
   return [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([w]) => w);
+}
+
+/* ===== KOTLER MARKETING DETECTION FUNCTIONS ===== */
+
+const MARKET_SEGMENT_PATTERNS: Record<MarketSegment, RegExp[]> = {
+  geographic: [/\b(?:ঢাকা|dhaka|গ্রাম|village|শহর|city|মফস্বল|গাঁও|জেলা|district|চট্টগ্রাম|সিলেট|রাজশাহী|খুলনা)\b/i, /\b(?:urban|rural|city|town|গ্রামীণ|শহুরে)\b/i],
+  demographic: [/\b(?:ছাত্র|student|গৃহিণী|homemaker|চাকরি|job|ব্যবসা|business|বয়স|age|আয়|income|পুরুষ|মহিলা|male|female)\b/i, /\b(?:teen|young|old|বৃদ্ধ|যুবক|কিশোর|শিশু)\b/i],
+  psychographic: [/\b(?:লাইফস্টাইল|lifestyle|ভ্যালু|value|ব্যক্তিত্ব|personality|আগ্রহ|interest|opinion|মতামত)\b/i, /\b(?:স্বপ্ন|dream|গোল|goal|আকাঙ্ক্ষা|aspiration|class|শ্রেণি)\b/i],
+  behavioral: [/\b(?:প্রথমবার|first time|আবার|again|রয়্যাল|loyal|নিয়মিত|regular|অনেক দিন|long time)\b/i, /\b(?:কিনেছি|bought|ব্যবহার|use|পছন্দ|favorite|prefer|পছন্দ করি)\b/i],
+  unknown: [],
+};
+
+export function detectMarketSegment(text: string): { segment: MarketSegment; confidence: number; evidence: string } {
+  let best: MarketSegment = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [seg, pats] of Object.entries(MARKET_SEGMENT_PATTERNS)) {
+    if (seg === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = seg as MarketSegment; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { segment: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const TARGETING_STRATEGY_PATTERNS: Record<TargetingStrategy, RegExp[]> = {
+  undifferentiated: [/\b(?:সবার জন্য|সবাই|সকল|everyone|all people|mass|general|সাধারণ|একই)\b/i, /\b(?:one size|একই পণ্য|same for all)\b/i],
+  differentiated: [/\b(?:আলাদা|different|বিভিন্ন|separate|multiple|একাধিক|customize|কাস্টমাইজ)\b/i, /\b(?:গ্রুপ|group|segment|সেগমেন্ট|type|টাইপ অনুযায়ী)\b/i],
+  concentrated: [/\b(?:নির্দিষ্ট|specific|niche|particular|বিশেষ|কেবলমাত্র|only for|শুধু)\b/i, /\b(?:focus|ফোকাস|specialize|স্পেশালাইজ)\b/i],
+  micromarketing: [/\b(?:আমার জন্য|personal|ব্যক্তিগত|individual|ইন্ডিভিজুয়াল|tailor|tailored)\b/i, /\b(?:one on one|একসাথে একজন|individualized)\b/i],
+  unknown: [],
+};
+
+export function detectTargetingStrategy(text: string): { strategy: TargetingStrategy; confidence: number; evidence: string } {
+  let best: TargetingStrategy = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [strat, pats] of Object.entries(TARGETING_STRATEGY_PATTERNS)) {
+    if (strat === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = strat as TargetingStrategy; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { strategy: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const BRAND_POSITION_PATTERNS: Record<BrandPosition, RegExp[]> = {
+  value_leader: [/\b(?:সেরা মান|best value|সস্তা|cheap|affordable|সাশ্রয়ী|economy|ইকোনমি)\b/i, /\b(?:সর্বনিম্ন দাম|lowest price|budget|বাজেট)\b/i],
+  quality_leader: [/\b(?:সেরা কোয়ালিটি|best quality|উচ্চ মান|high quality|premium|প্রিমিয়াম|superior|উন্নত)\b/i, /\b(?:টেকসই|durable|trusted|বিশ্বস্ত|reliable|নির্ভরযোগ্য)\b/i],
+  innovation_leader: [/\b(?:অত্যাধুনিক|cutting edge|innovative|উদ্ভাবনী|first|প্রথম|newest|নতুনত্ব)\b/i, /\b(?:revolutionary|বিপ্লবী|breakthrough|ব্রেকথ্রু|unique|অনন্য)\b/i],
+  service_leader: [/\b(?:সেরা সাপোর্ট|best support|২৪\/৭|always available|dedicated|ডেডিকেটেড)\b/i, /\b(?:personalized|ব্যক্তিগতকৃত|custom care|কাস্টমার কেয়ার|service|সেবা)\b/i],
+  cost_leader: [/\b(?:সবচেয়ে সস্তা|cheapest|lowest cost|ন্যূনতম খরচ|minimum cost)\b/i, /\b(?:মূল্য যুদ্ধ|price war|discount|ডিসকাউন্ট|সবচেয়ে কম)\b/i],
+  niche_leader: [/\b(?:নির্দিষ্ট ক্ষেত্রে সেরা|best in|বিশেষায়িত|specialized|expert in|এক্সপার্ট)\b/i, /\b(?:niche|কেবলমাত্র এই ক্ষেত্রে|only this domain)\b/i],
+  unknown: [],
+};
+
+export function detectBrandPosition(text: string): { position: BrandPosition; confidence: number; evidence: string } {
+  let best: BrandPosition = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [pos, pats] of Object.entries(BRAND_POSITION_PATTERNS)) {
+    if (pos === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = pos as BrandPosition; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { position: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const PLC_PATTERNS: Record<ProductLifecycleStage, RegExp[]> = {
+  introduction: [/\b(?:নতুন|new|only just|সবে শুরু|শুরু করেছি|launch|লঞ্চ|fresh|fresh|introductory)\b/i, /\b(?:first time|প্রথমবার|trial|try|trying|পরীক্ষা)\b/i],
+  growth: [/\b(?:বাড়ছে|growing|বৃদ্ধি|increasing|fast|দ্রুত|popular|জনপ্রিয়|many joining|অনেকে যোগ)\b/i, /\b(?:expanding|সম্প্রসারণ|more people|আরও মানুষ|rising|উঠছে)\b/i],
+  maturity: [/\b(?:established|প্রতিষ্ঠিত|stable|স্থিতিশীল|standard|স্ট্যান্ডার্ড|well known|সুপরিচিত)\b/i, /\b(?:many options|অনেক অপশন|competition|প্রতিযোগিতা|saturated|saturated)\b/i],
+  decline: [/\b(?:কমে যাচ্ছে|declining|decreasing|old|পুরনো|outdated|সেকেলে|obsolete|অপ্রচলিত)\b/i, /\b(?:replace|প্রতিস্থাপন|better alternative|ভাল বিকল্প|not popular|আর জনপ্রিয় না)\b/i],
+  unknown: [],
+};
+
+export function detectPLCStage(text: string): { stage: ProductLifecycleStage; confidence: number; evidence: string } {
+  let best: ProductLifecycleStage = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [stg, pats] of Object.entries(PLC_PATTERNS)) {
+    if (stg === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = stg as ProductLifecycleStage; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { stage: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const PRICING_STRATEGY_PATTERNS: Record<PricingStrategy, RegExp[]> = {
+  skimming: [/\b(?:প্রথমে বেশি দাম|premium price|high initial|উচ্চ মূল্য|exclusive price|এক্সক্লুসিভ দাম)\b/i, /\b(?:top end|high end|luxury|বিলাসিতা|expensive|দামি)\b/i],
+  penetration: [/\b(?:কম দামে বাজার দখল|low price|cheap|সস্তা|low cost|affordable|affordable|সাশ্রয়ী)\b/i, /\b(?:ডিসকাউন্ট|discount|সবচেয়ে কম|lowest price|introductory|প্রবর্তক মূল্য)\b/i],
+  competitive: [/\b(?:বাজারের সাথে|market price|বাজার দর|same as others|অন্যদের মতো|competitive)\b/i, /\b(?:standard rate|স্ট্যান্ডার্ড রেট|market rate|বাজার মূল্য)\b/i],
+  value_based: [/\b(?:মূল্য অনুযায়ী|worth it|value for money|মূল্যায়ন|প্রাপ্তির মূল্য|deserve this)\b/i, /\b(?:investment|বিনিয়োগ|return|রিটার্ন|ভ্যালু|value based)\b/i],
+  cost_plus: [/\b(?:cost +|খরচ +|production cost|উৎপাদন খরচ|margin|মার্জিন|overhead)\b/i, /\b(?:cost based|cost ক্যালকুলেশন)\b/i],
+  psychological: [/\b(?:মাত্র|only| всего|just|শুধু|499|৯৯৯|daily|দৈনিক|installment|কিস্তি)\b/i, /\b(?:per day|daily cost|per month|মাসিক|মাসে মাত্র)\b/i],
+  unknown: [],
+};
+
+export function detectPricingStrategy(text: string): { strategy: PricingStrategy; confidence: number; evidence: string } {
+  let best: PricingStrategy = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [st, pats] of Object.entries(PRICING_STRATEGY_PATTERNS)) {
+    if (st === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = st as PricingStrategy; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { strategy: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const COMM_CHANNEL_PATTERNS: Record<CommunicationChannel, RegExp[]> = {
+  advertising: [/\b(?:ad|বিজ্ঞাপন|advertise|প্রচার|Facebook ad|Google ad|টিভি|TV|billboard|বিলবোর্ড)\b/i],
+  public_relations: [/\b(?:press|প্রেস|news|সংবাদ|media|মিডিয়া|PR|interview|সাক্ষাৎকার|event|ইভেন্ট)\b/i],
+  sales_promotion: [/\b(?:discount|ডিসকাউন্ট|offer|অফার|coupon|কুপন|sale|বিক্রয়|promotion|cashback)\b/i],
+  direct_marketing: [/\b(?:call|কল|SMS|email|ইমেইল|message*|whatsapp|phone|ফোন)\b/i, /\b(?:personal message|personal offer|personal call)\b/i],
+  digital: [/\b(?:Facebook|YouTube|website|ওয়েবসাইট|social media|সোশ্যাল মিডিয়া|online|অনলাইন|SEO|Google)\b/i],
+  events: [/\b(?:event|ইভেন্ট|seminar|সেমিনার|workshop|ওয়ার্কশপ|webinar|ওয়েবিনার|fair|মেলা)\b/i],
+  personal_selling: [/\b(?:face to face|সাক্ষাৎ|meeting|মিটিং|personal visit|ব্যক্তিগত দেখা|salesperson|বিক্রয়কর্মী)\b/i],
+  word_of_mouth: [/\b(?:friend|বন্ধু|family|পরিবার|recommend|recommend|refer|ref|বলেছে|মুখে মুখে)\b/i],
+  unknown: [],
+};
+
+export function detectCommunicationChannel(text: string): { channel: CommunicationChannel; confidence: number; evidence: string } {
+  let best: CommunicationChannel = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [ch, pats] of Object.entries(COMM_CHANNEL_PATTERNS)) {
+    if (ch === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = ch as CommunicationChannel; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { channel: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
+}
+
+const LOYALTY_STAGE_PATTERNS: Record<LoyaltyStage, RegExp[]> = {
+  suspect: [/\b(?:interested?|আগ্রহী|maybe|হয়তো|what is|কী|tell me|বলুন)\b/i, /\b(?:first time talking|প্রথমবার কথা|new here|নতুন)\b/i],
+  prospect: [/\b(?:how to|কিভাবে|join|যোগ|cost|দাম|price|মূল্য|benefits|সুবিধা|compare|তুলনা)\b/i],
+  first_time: [/\b(?:just bought|এইমাত্র কিনেছি|purchased|purchase|ordered|order|ordered|অর্ডার করেছি)\b/i, /\b(?:new member|নতুন সদস্য|registered|registration|just joined)\b/i],
+  repeat: [/\b(?:again|আবার|another|আরেকটি|more|আরও|also|second time|দ্বিতীয়বার)\b/i, /\b(?:already have|ইতিমধ্যে আছে|existing|বর্তমান|customer already)\b/i],
+  loyal: [/\b(?:always|সবসময়|only|শুধু|prefer|পছন্দ করি|favorite|প্রিয়|trust|trusted|বিশ্বাস)\b/i, /\b(?:regular|নিয়মিত|long time customer|দীর্ঘদিনের)\b/i],
+  advocate: [/\b(?:recommend|রেকমেন্ড|refer|referral|বলেছি|suggest|suggestion|শেয়ার|share|brought|এনেছি)\b/i, /\b(?:my friends|আমার বন্ধুরা|my family|আমার পরিবার|আমার টিম)\b/i],
+  unknown: [],
+};
+
+export function detectLoyaltyStage(text: string): { stage: LoyaltyStage; confidence: number; evidence: string } {
+  let best: LoyaltyStage = "suspect";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [stg, pats] of Object.entries(LOYALTY_STAGE_PATTERNS)) {
+    if (stg === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = stg as LoyaltyStage; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { stage: best, confidence: bestScore > 0 ? Math.min(bestScore / 3, 1) : 0, evidence: bestEv };
+}
+
+const SERVICE_QUALITY_PATTERNS: Record<ServiceQuality, RegExp[]> = {
+  tangibility: [/\b(?:look|দেখতে|ui|website|ওয়েবসাইট|ডিজাইন|design|appearance|চেহারা|প্যাকেজিং)\b/i, /\b(?:physical|ফিজিক্যাল|office|অফিস|স্থান|environment|পরিবেশ)\b/i],
+  reliability: [/\b(?:ভরসা|dependable|নির্ভরযোগ্য|consistent|consistent|accura|সঠিক|promise|প্রতিশ্রুতি)\b/i, /\b(?:on time|সময়ে|delivery|ডেলিভারি|time|deadline|ডেডলাইন)\b/i],
+  responsiveness: [/\b(?:slow|ধীর|late|দেরি|delay|delay|wait|অপেক্ষা|quick|দ্রুত না)\b/i, /\b(?:response|উত্তর|reply|জবাব|answer|no reply|কোন উত্তর নাই)\b/i],
+  assurance: [/\b(?:trust|trust|confident|আত্মবিশ্বাসী|sure|নিশ্চিত|knowledge|জ্ঞান|expert|এক্সপার্ট)\b/i, /\b(?:credible|বিশ্বাসযোগ্য|qualified|যোগ্য|trained|প্রশিক্ষিত)\b/i],
+  empathy: [/\b(?:care|যত্ন|understand|বুঝে|listen|শোনে|empathy|সহানুভূতি|feelings|অনুভূতি)\b/i, /\b(?:rude|অভদ্র|not listening|শোনে না|doesn't care|কেয়ার করে না)\b/i],
+  unknown: [],
+};
+
+export function detectServiceQualityIssue(text: string): { dimension: ServiceQuality; severity: "high" | "medium" | "low" | "none"; evidence: string } {
+  let best: ServiceQuality = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [dim, pats] of Object.entries(SERVICE_QUALITY_PATTERNS)) {
+    if (dim === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = dim as ServiceQuality; bestEv = m.slice(0, 2).join(", "); }
+  }
+  const severity = bestScore >= 3 ? "high" : bestScore >= 2 ? "medium" : bestScore >= 1 ? "low" : "none";
+  return { dimension: best, severity, evidence: bestEv };
+}
+
+const GROWTH_STRATEGY_PATTERNS: Record<GrowthStrategy, RegExp[]> = {
+  market_penetration: [/\b(?:আরও বেশি|more|বাজার শেয়ার|market share|increase|বাড়াতে|grow|গ্রোথ|existing)\b/i, /\b(?:লয়াল|loyal|retention|retain)\b/i],
+  market_development: [/\b(?:নতুন বাজার|new market|new area|নতুন এলাকা|different city|different country)\b/i, /\b(?:expand|সম্প্রসারিত|new segment|নতুন সেগমেন্ট|new people)\b/i],
+  product_development: [/\b(?:new product|নতুন পণ্য|new course|নতুন কোর্স|feature|নতুন ফিচার|improve|উন্নতি)\b/i, /\b(?:upgrade|innovation|উদ্ভাবন|better version|ভাল ভার্সন)\b/i],
+  diversification: [/\b(?:different business|ভিন্ন ব্যবসা|new industry|নতুন ইন্ডাস্ট্রি|unrelated|একেবারে আলাদা)\b/i, /\b(?:completely different|সম্পূর্ণ ভিন্ন|new venture|নতুন উদ্যোগ)\b/i],
+  unknown: [],
+};
+
+export function detectGrowthStrategy(text: string): { strategy: GrowthStrategy; confidence: number; evidence: string } {
+  let best: GrowthStrategy = "unknown";
+  let bestScore = 0;
+  let bestEv = "";
+  for (const [st, pats] of Object.entries(GROWTH_STRATEGY_PATTERNS)) {
+    if (st === "unknown") continue;
+    let score = 0;
+    const m: string[] = [];
+    for (const pat of pats) { if (pat.test(text)) { score++; m.push(pat.source); } }
+    if (score > bestScore) { bestScore = score; best = st as GrowthStrategy; bestEv = m.slice(0, 2).join(", "); }
+  }
+  return { strategy: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
 }
