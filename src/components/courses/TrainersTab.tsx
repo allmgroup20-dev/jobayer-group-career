@@ -1,0 +1,188 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useLanguageStore } from "@/lib/store";
+import ImageUpload from "@/components/ui/ImageUpload";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+interface Trainer {
+  id: number; name: string; name_bn: string | null;
+  specialty_en: string | null; specialty_bn: string | null;
+  credential_en: string | null; credential_bn: string | null;
+  bio_en: string | null; bio_bn: string | null;
+  image_url: string | null; experience_years: number;
+  institution_id: number | null; institution_name: string | null;
+  sort_order: number; is_active: number;
+  coursesEn: string[]; coursesBn: string[];
+}
+
+interface Institution {
+  id: number; name: string; name_bn: string | null;
+}
+
+export default function TrainersTab() {
+  const { lang } = useLanguageStore();
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Trainer | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    name: "", nameBn: "", specialtyEn: "", specialtyBn: "",
+    credentialEn: "", credentialBn: "", bioEn: "", bioBn: "",
+    imageUrl: "", experienceYears: 0, institutionId: 0, sortOrder: 0,
+    coursesEnStr: "", coursesBnStr: "", isActive: 1,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    const [tRes, iRes] = await Promise.all([
+      fetch("/api/trainers?all=1").then(r => r.json() as Promise<{ trainers: Trainer[] }>),
+      fetch("/api/institutions?all=1").then(r => r.json() as Promise<{ institutions: Institution[] }>),
+    ]);
+    setTrainers(tRes.trainers || []);
+    setInstitutions(iRes.institutions || []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const openNew = () => {
+    setEditing(null);
+    setForm({ name: "", nameBn: "", specialtyEn: "", specialtyBn: "", credentialEn: "", credentialBn: "", bioEn: "", bioBn: "", imageUrl: "", experienceYears: 0, institutionId: 0, sortOrder: 0, coursesEnStr: "", coursesBnStr: "", isActive: 1 });
+    setShowForm(true);
+  };
+
+  const openEdit = (t: Trainer) => {
+    setEditing(t);
+    setForm({
+      name: t.name, nameBn: t.name_bn || "", specialtyEn: t.specialty_en || "", specialtyBn: t.specialty_bn || "",
+      credentialEn: t.credential_en || "", credentialBn: t.credential_bn || "",
+      bioEn: t.bio_en || "", bioBn: t.bio_bn || "",
+      imageUrl: t.image_url || "", experienceYears: t.experience_years,
+      institutionId: t.institution_id || 0, sortOrder: t.sort_order,
+      coursesEnStr: (t.coursesEn || []).join(", "), coursesBnStr: (t.coursesBn || []).join(", "),
+      isActive: t.is_active,
+    });
+    setShowForm(true);
+  };
+
+  const save = async () => {
+    if (!form.name) return alert(lang === "bn" ? "নাম দিন" : "Enter name");
+    setSaving(true);
+    const body = {
+      name: form.name, nameBn: form.nameBn || null,
+      specialtyEn: form.specialtyEn || null, specialtyBn: form.specialtyBn || null,
+      credentialEn: form.credentialEn || null, credentialBn: form.credentialBn || null,
+      bioEn: form.bioEn || null, bioBn: form.bioBn || null,
+      imageUrl: form.imageUrl || null, experienceYears: form.experienceYears,
+      institutionId: form.institutionId || null, sortOrder: form.sortOrder,
+      isActive: form.isActive,
+      coursesEn: form.coursesEnStr.split(",").map(s => s.trim()).filter(Boolean),
+      coursesBn: form.coursesBnStr.split(",").map(s => s.trim()).filter(Boolean),
+    };
+    try {
+      const res = editing
+        ? await fetch(`/api/trainers/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        : await fetch("/api/trainers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (res.ok) { setShowForm(false); load(); }
+      else { const d = await res.json() as { error?: string }; alert(d.error || "Failed"); }
+    } catch { alert("Failed"); }
+    finally { setSaving(false); }
+  };
+
+  const remove = async (id: number) => {
+    if (!confirm(lang === "bn" ? "ডিলিট করবেন?" : "Delete?")) return;
+    await fetch(`/api/trainers/${id}`, { method: "DELETE" });
+    load();
+  };
+
+  if (loading) return <Skeleton className="h-4 w-32 mx-auto" />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-xl font-bold text-primary">👨‍🏫 {lang === "bn" ? "প্রশিক্ষক ব্যবস্থাপনা" : "Trainer Management"}</h1>
+        <button onClick={openNew} className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-primary/90">+ {lang === "bn" ? "নতুন প্রশিক্ষক" : "New Trainer"}</button>
+      </div>
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center py-10 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-primary mb-4">{editing ? (lang === "bn" ? "প্রশিক্ষক সম্পাদনা" : "Edit Trainer") : (lang === "bn" ? "নতুন প্রশিক্ষক" : "New Trainer")}</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className="text-xs font-medium text-text-secondary">Name *</label><input value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Name (BN)</label><input value={form.nameBn} onChange={e => setForm(p => ({...p, nameBn: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Specialty (EN)</label><input value={form.specialtyEn} onChange={e => setForm(p => ({...p, specialtyEn: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Specialty (BN)</label><input value={form.specialtyBn} onChange={e => setForm(p => ({...p, specialtyBn: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Credential (EN)</label><input value={form.credentialEn} onChange={e => setForm(p => ({...p, credentialEn: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Credential (BN)</label><input value={form.credentialBn} onChange={e => setForm(p => ({...p, credentialBn: e.target.value}))} className="input-field w-full text-sm" /></div>
+              <div className="col-span-2"><ImageUpload value={form.imageUrl} onChange={v => setForm(p => ({...p, imageUrl: v}))} label={lang === "bn" ? "ছবি" : "Image"} /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Experience (years)</label><input type="number" value={form.experienceYears} onChange={e => setForm(p => ({...p, experienceYears: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Sort Order</label><input type="number" value={form.sortOrder} onChange={e => setForm(p => ({...p, sortOrder: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm" /></div>
+              <div><label className="text-xs font-medium text-text-secondary">Institution</label>
+                <select value={form.institutionId} onChange={e => setForm(p => ({...p, institutionId: parseInt(e.target.value) || 0}))} className="input-field w-full text-sm">
+                  <option value={0}>-- {lang === "bn" ? "কোনটি না" : "None"} --</option>
+                  {institutions.map(i => <option key={i.id} value={i.id}>{lang === "bn" ? i.name_bn || i.name : i.name}</option>)}
+                </select>
+              </div>
+              <div><label className="text-xs font-medium text-text-secondary">Active</label>
+                <select value={form.isActive} onChange={e => setForm(p => ({...p, isActive: parseInt(e.target.value)}))} className="input-field w-full text-sm">
+                  <option value={1}>{lang === "bn" ? "সক্রিয়" : "Active"}</option>
+                  <option value={0}>{lang === "bn" ? "নিষ্ক্রিয়" : "Inactive"}</option>
+                </select>
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-medium text-text-secondary">Courses (EN) <span className="text-gray-400">— কমা দিয়ে আলাদা করুন</span></label>
+                <textarea value={form.coursesEnStr} onChange={e => setForm(p => ({...p, coursesEnStr: e.target.value}))} className="input-field w-full text-sm" rows={2} />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-medium text-text-secondary">Courses (BN) <span className="text-gray-400">— কমা দিয়ে আলাদা করুন</span></label>
+                <textarea value={form.coursesBnStr} onChange={e => setForm(p => ({...p, coursesBnStr: e.target.value}))} className="input-field w-full text-sm" rows={2} />
+              </div>
+              <div className="col-span-2"><label className="text-xs font-medium text-text-secondary">Bio (EN)</label><textarea value={form.bioEn} onChange={e => setForm(p => ({...p, bioEn: e.target.value}))} className="input-field w-full text-sm" rows={2} /></div>
+              <div className="col-span-2"><label className="text-xs font-medium text-text-secondary">Bio (BN)</label><textarea value={form.bioBn} onChange={e => setForm(p => ({...p, bioBn: e.target.value}))} className="input-field w-full text-sm" rows={2} /></div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button onClick={save} disabled={saving} className="btn-primary text-sm flex-1">{saving ? "..." : (lang === "bn" ? "সেভ করুন" : "Save")}</button>
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm border border-border rounded-xl text-text-secondary hover:text-primary">{lang === "bn" ? "বাতিল" : "Cancel"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-left text-text-secondary font-semibold">
+              <th className="p-3">{lang === "bn" ? "নাম" : "Name"}</th>
+              <th className="p-3">{lang === "bn" ? "পদবী" : "Title"}</th>
+              <th className="p-3">{lang === "bn" ? "প্রতিষ্ঠান" : "Institution"}</th>
+              <th className="p-3">{lang === "bn" ? "অভিজ্ঞতা" : "Exp"}</th>
+              <th className="p-3">{lang === "bn" ? "অর্ডার" : "Order"}</th>
+              <th className="p-3">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
+              <th className="p-3">{lang === "bn" ? "অ্যাকশন" : "Actions"}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trainers.map(t => (
+              <tr key={t.id} className="border-t border-border hover:bg-gray-50">
+                <td className="p-3 font-medium text-primary">{lang === "bn" ? t.name_bn || t.name : t.name}</td>
+                <td className="p-3 text-text-secondary">{lang === "bn" ? t.credential_bn || t.specialty_bn : t.credential_en || t.specialty_en}</td>
+                <td className="p-3 text-text-secondary">{t.institution_name || "-"}</td>
+                <td className="p-3 text-text-secondary">{t.experience_years}y</td>
+                <td className="p-3 text-text-secondary">{t.sort_order}</td>
+                <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${t.is_active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>{t.is_active ? "Active" : "Inactive"}</span></td>
+                <td className="p-3 flex gap-1">
+                  <button onClick={() => openEdit(t)} className="px-2 py-1 text-xs rounded-lg bg-primary/10 text-primary hover:bg-primary/20">{lang === "bn" ? "এডিট" : "Edit"}</button>
+                  <button onClick={() => remove(t.id)} className="px-2 py-1 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100">{lang === "bn" ? "ডিলিট" : "Del"}</button>
+                </td>
+              </tr>
+            ))}
+            {trainers.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-text-secondary">{lang === "bn" ? "কোনো প্রশিক্ষক নেই" : "No trainers yet"}</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

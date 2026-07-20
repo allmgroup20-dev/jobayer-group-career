@@ -1,0 +1,215 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { useLanguageStore } from "@/lib/store";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { useSWRFetch } from "@/lib/use-swr-fetch";
+
+interface CourseCategory {
+  id: number;
+  name: string;
+  nameBn: string | null;
+  icon: string;
+  isVisible: number;
+  sortOrder: number;
+  parentId: number | null;
+  createdAt: string;
+}
+
+const emptyForm = () => ({ name: "", nameBn: "", icon: "📌", isVisible: 1, sortOrder: 0, parentId: "" });
+
+export default function CategoriesTab() {
+  const { lang } = useLanguageStore();
+  const { data, loading, refresh } = useSWRFetch<{ categories?: CourseCategory[] }>(
+    "/api/courses/categories",
+    { ttlMs: 60_000 }
+  );
+  const categories = data?.categories ?? [];
+
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState(emptyForm());
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const buildTree = (items: CourseCategory[], parentId: number | null = null, depth = 0): (CourseCategory & { depth: number })[] => {
+    const result: (CourseCategory & { depth: number })[] = [];
+    for (const item of items) {
+      if (item.parentId === parentId || (item.parentId === null && parentId === null && depth === 0)) {
+        result.push({ ...item, depth });
+        result.push(...buildTree(items, item.id, depth + 1));
+      }
+    }
+    return result;
+  };
+
+  const tree = useMemo(() => buildTree(categories), [categories]);
+
+  const catMap = useMemo(() => {
+    const map = new Map<number, CourseCategory>();
+    for (const c of categories) map.set(c.id, c);
+    return map;
+  }, [categories]);
+
+  const getPath = (id: number): string => {
+    const parts: string[] = [];
+    let current = catMap.get(id);
+    while (current) {
+      parts.unshift(lang === "bn" && current.nameBn ? current.nameBn : current.name);
+      current = current.parentId ? catMap.get(current.parentId) : undefined;
+    }
+    return parts.join(" > ");
+  };
+
+  const resetForm = () => {
+    setForm(emptyForm()); setEditingId(null); setShowAdd(false); setError("");
+  };
+
+  const startEdit = (cat: CourseCategory) => {
+    setForm({
+      name: cat.name, nameBn: cat.nameBn || "", icon: cat.icon || "📌",
+      isVisible: cat.isVisible, sortOrder: cat.sortOrder || 0, parentId: cat.parentId ? String(cat.parentId) : "",
+    });
+    setEditingId(cat.id); setShowAdd(true); setError("");
+  };
+
+  const handleSave = async () => {
+    setSaving(true); setError("");
+    try {
+      const parentVal = form.parentId ? parseInt(form.parentId) : null;
+      const payload: Record<string, unknown> = {
+        name: form.name, nameBn: form.nameBn || null, icon: form.icon || "📌",
+        isVisible: form.isVisible, sortOrder: form.sortOrder,
+      };
+      if (editingId) {
+        payload.parentId = parentVal;
+        const res = await fetch(`/api/courses/categories/${editingId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        const data = await res.json() as { error?: string };
+        if (!res.ok) throw new Error(data.error || "Save failed");
+      } else {
+        const res = await fetch("/api/courses/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, parentId: parentVal }) });
+        const data = await res.json() as { error?: string };
+        if (!res.ok) throw new Error(data.error || "Save failed");
+      }
+      refresh(); resetForm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm(lang === "bn"
+      ? "নিশ্চিতভাবে ক্যাটাগরি ডিলিট করবেন? (সাব-ক্যাটাগরিগুলো রুটে চলে যাবে, কোর্স আনক্যাটেগরাইজড হবে)"
+      : "Delete this category? (sub-categories become root, courses uncategorized)")) return;
+    try { const res = await fetch(`/api/courses/categories/${id}`, { method: "DELETE" }); if (res.ok) refresh(); } catch {}
+  };
+
+  const catOptions = useMemo(() => {
+    return categories
+      .filter(c => editingId ? c.id !== editingId : true)
+      .map(c => ({ id: c.id, label: getPath(c.id) }));
+  }, [categories, editingId, catMap, getPath]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "রিসোর্স ক্যাটাগরি" : "Resource Categories"}</h1>
+          <p className="text-sm text-text-secondary mt-1">{categories.length} {lang === "bn" ? "টি ক্যাটাগরি" : "categories"}</p>
+        </div>
+        <Button onClick={() => { resetForm(); setShowAdd(!showAdd); }}>
+          {lang === "bn" ? "নতুন ক্যাটাগরি" : "Add Category"}
+        </Button>
+      </div>
+
+      {error && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>}
+
+      {showAdd && (
+        <Card className="animate-fade-up">
+          <h3 className="font-bold text-primary mb-4">
+            {editingId ? (lang === "bn" ? "ক্যাটাগরি সম্পাদনা করুন" : "Edit Category") : (lang === "bn" ? "নতুন ক্যাটাগরি যোগ করুন" : "Add New Category")}
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <input type="text" placeholder={lang === "bn" ? "নাম (ইংরেজি)" : "Name (EN)"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input-field" required />
+            <input type="text" placeholder={lang === "bn" ? "নাম (বাংলা)" : "Name (BN)"} value={form.nameBn} onChange={(e) => setForm({ ...form, nameBn: e.target.value })} className="input-field" />
+            <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })} className="input-field">
+              <option value="">{lang === "bn" ? "— মূল ক্যাটাগরি —" : "— Root Category —"}</option>
+              {catOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>{opt.label}</option>
+              ))}
+            </select>
+            <input type="text" placeholder={lang === "bn" ? "আইকন (ইমোজি)" : "Icon (Emoji)"} value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="input-field" />
+            <input type="number" placeholder={lang === "bn" ? "সর্ট অর্ডার" : "Sort Order"} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="input-field" />
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked={form.isVisible === 1} onChange={(e) => setForm({ ...form, isVisible: e.target.checked ? 1 : 0 })} className="w-4 h-4 accent-primary" />
+              <span className="text-sm text-text-secondary">{lang === "bn" ? "দৃশ্যমান" : "Visible"}</span>
+            </label>
+          </div>
+          <div className="flex gap-2 justify-end border-t border-border pt-4">
+            <Button variant="ghost" onClick={resetForm}>{lang === "bn" ? "বাতিল" : "Cancel"}</Button>
+            <Button onClick={handleSave} disabled={saving || !form.name}>
+              {saving ? (lang === "bn" ? "সংরক্ষণ..." : "Saving...") : (lang === "bn" ? "সেভ করুন" : "Save")}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      <Card className="overflow-hidden !p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-border">
+                <th className="text-left p-4 text-sm font-semibold text-primary">{lang === "bn" ? "ক্যাটাগরি" : "Category"}</th>
+                <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "আইকন" : "Icon"}</th>
+                <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "সর্ট" : "Sort"}</th>
+                <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "দৃশ্যমান" : "Visible"}</th>
+                <th className="text-center p-4 text-sm font-semibold text-primary">{lang === "bn" ? "কাজ" : "Actions"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tree.map((cat) => (
+                <tr key={cat.id} className="border-b border-border last:border-0 hover:bg-gray-50/50">
+                  <td className="p-4 text-sm font-medium text-primary" style={{ paddingLeft: `${16 + cat.depth * 24}px` }}>
+                    <div className="flex items-center gap-2">
+                      {cat.depth > 0 && <span className="text-xs text-gray-400">└─</span>}
+                      <span>{getPath(cat.id)}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-center text-lg">{cat.icon || "📌"}</td>
+                  <td className="p-4 text-center text-sm text-text-secondary">{cat.sortOrder || 0}</td>
+                  <td className="p-4 text-center">
+                    <button
+                      onClick={() => {
+                        fetch(`/api/courses/categories/${cat.id}`, {
+                          method: "PUT", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ isVisible: cat.isVisible ? 0 : 1 }),
+                        }).then(() => refresh()).catch(() => {});
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium ${cat.isVisible ? "bg-green-50 text-green-600" : "bg-red-50 text-red-400"}`}
+                    >
+                      {cat.isVisible ? (lang === "bn" ? "হ্যাঁ" : "Yes") : (lang === "bn" ? "না" : "No")}
+                    </button>
+                  </td>
+                  <td className="p-4 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => startEdit(cat)} className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded" title={lang === "bn" ? "সম্পাদনা / প্যারেন্ট পরিবর্তন" : "Edit / Move"}>✏️</button>
+                      <button onClick={() => handleDelete(cat.id)} className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {tree.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-text-secondary text-sm">
+                    {lang === "bn" ? "কোনো ক্যাটাগরি নেই।" : "No categories found."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
