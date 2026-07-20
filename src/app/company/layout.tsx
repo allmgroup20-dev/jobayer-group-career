@@ -120,6 +120,11 @@ const sidebarGroups: SidebarGroup[] = [
   },
 ];
 
+function parseCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  return document.cookie.split("; ").find(r => r.startsWith(name + "="))?.split("=").slice(1).join("=") ?? null;
+}
+
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const { lang } = useLanguageStore();
   const pathname = usePathname();
@@ -135,6 +140,16 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   };
 
   useEffect(() => {
+    const raw = parseCookie("company_user");
+    if (raw) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(raw));
+        if (parsed.name && parsed.username) {
+          setUser(parsed);
+          return;
+        }
+      } catch {}
+    }
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((data: any) => {

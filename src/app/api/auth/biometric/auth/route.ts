@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { generateToken } from "@/lib/auth";
+import { generateToken, getJwtSecret } from "@/lib/auth";
 import { generateCompanyToken } from "@/lib/auth/company-auth";
 import { issueChallenge, consumeChallenge, verifyAuthentication } from "@/lib/auth/webauthn";
+
+const jwtSecret = getJwtSecret();
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Biometric verification failed: signature mismatch" }, { status: 401 });
       }
 
-      const jwtSecret = process.env.JWT_SECRET || "default-secret";
+      const jwtSecret = getJwtSecret();
 
       if (ut === "company") {
         const token = await generateCompanyToken(wid, jwtSecret);

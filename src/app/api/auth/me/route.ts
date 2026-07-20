@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyCompanyToken } from "@/lib/auth";
+import { verifyCompanyToken, getJwtSecret } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("company_token")?.value;
   if (!token) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-  const payload = await verifyCompanyToken(token, process.env.JWT_SECRET || "default-secret");
+  const payload = await verifyCompanyToken(token, getJwtSecret());
   if (!payload) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
   }
