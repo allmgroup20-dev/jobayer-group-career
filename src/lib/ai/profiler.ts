@@ -1,6 +1,6 @@
 import { queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
-import { detectLanguage, detectCommStyle, detectTrustReadiness } from "./analyzer";
+import { detectLanguage, detectCommStyle, detectTrustReadiness, detectBuyerPersonality, detectBuyingMotivation, detectCustomerNeed } from "./analyzer";
 
 export interface PhoneProfile {
   phone: string;
@@ -23,6 +23,10 @@ export interface PhoneProfile {
   trust_readiness: string | null;
   value_sensitivity: string | null;
   listening_need: string | null;
+  buyer_personality: string | null;
+  primary_need: string | null;
+  buying_motivation: string | null;
+  sales_goal: string | null;
 }
 
 const SECTOR_PATTERNS: [RegExp, string][] = [
@@ -191,6 +195,35 @@ export async function updateProfileCommunication(
         { DB: db },
         `UPDATE ai_phone_profiles SET communication_style = ?, trust_readiness = ?, updated_at = datetime('now') WHERE phone = ?`,
         [commStyle, trustReadiness, phone]
+      );
+    } catch {}
+  }
+}
+
+export async function updateProfileTracy(
+  phone: string,
+  text: string
+): Promise<void> {
+  const db = await ensureDB();
+  const { personality } = detectBuyerPersonality(text);
+  const { motivation } = detectBuyingMotivation(text);
+  const { need } = detectCustomerNeed(text);
+  try {
+    await execute(
+      { DB: db },
+      `UPDATE ai_phone_profiles SET buyer_personality = ?, buying_motivation = ?, primary_need = ?, updated_at = datetime('now') WHERE phone = ?`,
+      [personality, motivation, need, phone]
+    );
+  } catch {
+    try {
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN buyer_personality TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN primary_need TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN buying_motivation TEXT DEFAULT 'unknown'");
+      await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN sales_goal TEXT DEFAULT NULL");
+      await execute(
+        { DB: db },
+        `UPDATE ai_phone_profiles SET buyer_personality = ?, buying_motivation = ?, primary_need = ?, updated_at = datetime('now') WHERE phone = ?`,
+        [personality, motivation, need, phone]
       );
     } catch {}
   }

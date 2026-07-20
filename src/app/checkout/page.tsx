@@ -340,7 +340,7 @@ function CheckoutContent() {
                       </label>
                     )}
                     <Button onClick={doPayment} loading={loading} className="w-full !py-4 text-base font-bold">
-                      {lang === "bn" ? "অর্ডার নিশ্চিত করুন" : "Confirm Order"}
+                      {lang === "bn" ? "🚀 এখনই শুরু করুন — আজীবন অ্যাক্সেস" : "🚀 Start Now — Lifetime Access"}
                     </Button>
                   </div>
                 )}
