@@ -1186,6 +1186,21 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       } catch {}
     }
 
+    // ─── Seed Premium Member training modules ───
+    const premiumSeed = [
+      { st: "training", si: "premium_experience", sn: "Premium Experience Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Premium is Family, Not Status", kc: "Premium members are not just customers — they are family. Use Golden Rule: make them feel known, valued, and seen. 'You're not just a premium member — you're a partner in our journey.' Never refer to premium as just benefits. Connect benefits to their personal story.", cat: "trust", org: "premium" },
+      { st: "training", si: "premium_experience", sn: "Premium Experience Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "We Together — Premium Partnership", kc: "Use 'We' framing: 'We are building your business together.' Premium members should feel they have a dedicated partner, not just a service. Ask about their goals. Celebrate their wins. Make their success your success.", cat: "psychology", org: "premium" },
+      { st: "training", si: "premium_upgrade", sn: "Premium Upgrade Funnel", tt: "agent", ti: "all", tn: "All Agents", kt: "Value First, Then Upgrade", kc: "Before offering premium upgrade: 1) Show value — calculate how much they save with premium benefits. 2) Social proof — share stories of other members who upgraded. 3) Let them decide — use subtle influence, never pressure. 'Only if it feels right for your goals.'", cat: "sales", org: "premium" },
+      { st: "training", si: "premium_upgrade", sn: "Premium Upgrade Funnel", tt: "agent", ti: "all", tn: "All Agents", kt: "Speak Their Language — Premium Benefits", kc: "Different members value different benefits. Students: 'Unlimited course access means you never stop learning.' Earners: 'Zero withdrawal tax means more money in your pocket.' Builders: 'Priority support means your team never waits.' Match the benefit to their world.", cat: "communication", org: "premium" },
+    ];
+    for (const k of premiumSeed) {
+      try {
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO ai_knowledge_distribution (source_type, source_id, source_name, target_type, target_id, target_name, knowledge_title, knowledge_content, knowledge_category, origin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).bind(k.st, k.si, k.sn, k.tt, k.ti, k.tn, k.kt, k.kc, k.cat, k.org).run();
+      } catch {}
+    }
+
     g[DONE_FLAG] = true;
     g[DONE_LOCK] = false;
 
