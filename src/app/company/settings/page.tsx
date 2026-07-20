@@ -23,9 +23,9 @@ export default function CompanySettingsPage() {
     resourceUnlockPrice: "99",
     referralRedirectPath: "/register",
     generalMemberWithdrawalTax: "5",
-    primaryColor: "#1E3A5A",
-    secondaryColor: "#FFD700",
-    actionColor: "#28A745",
+    primaryColor: "#0F1E36",
+    secondaryColor: "#FFC107",
+    actionColor: "#10B981",
     timezone: "Asia/Dhaka",
   });
 
