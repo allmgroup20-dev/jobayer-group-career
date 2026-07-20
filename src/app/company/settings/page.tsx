@@ -5,27 +5,26 @@ import { useLanguageStore } from "@/lib/store";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
+import FingerprintTab from "@/components/settings/FingerprintTab";
+
+type TabId = "general" | "biometric";
+const TABS: { id: TabId; icon: string; en: string; bn: string }[] = [
+  { id: "general", icon: "⚙️", en: "General", bn: "সাধারণ" },
+  { id: "biometric", icon: "🔐", en: "Biometric", bn: "বায়োমেট্রিক" },
+];
 
 export default function CompanySettingsPage() {
   const { lang } = useLanguageStore();
+  const [tab, setTab] = useState<TabId>("general");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const [form, setForm] = useState({
-    companyName: "",
-    companyEmail: "",
-    companyPhone: "",
-    companyAddress: "",
-    registrationBonus: "0",
-    resourceIncomeEnabled: "1",
-    resourceIncomeDefaultAmount: "50",
-    resourceUnlockPrice: "99",
-    referralRedirectPath: "/register",
-    generalMemberWithdrawalTax: "5",
-    primaryColor: "#0F1E36",
-    secondaryColor: "#FFC107",
-    actionColor: "#10B981",
+    companyName: "", companyEmail: "", companyPhone: "", companyAddress: "",
+    registrationBonus: "0", resourceIncomeEnabled: "1", resourceIncomeDefaultAmount: "50", resourceUnlockPrice: "99",
+    referralRedirectPath: "/register", generalMemberWithdrawalTax: "5",
+    primaryColor: "#0F1E36", secondaryColor: "#FFC107", actionColor: "#10B981",
     timezone: "Asia/Dhaka",
   });
 
@@ -73,65 +72,62 @@ export default function CompanySettingsPage() {
     ];
     try {
       await fetch("/api/company/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings }),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ settings }),
       });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch {
-      alert(lang === "bn" ? "সেভ ব্যর্থ" : "Save failed");
-    } finally {
-      setSaving(false);
-    }
+      setSaved(true); setTimeout(() => setSaved(false), 2000);
+    } catch { alert(lang === "bn" ? "সেভ ব্যর্থ" : "Save failed"); }
+    setSaving(false);
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen py-24 px-4 flex items-center justify-center">
-        <Skeleton className="w-8 h-8 rounded-full" />
-      </div>
-    );
+    return <div className="py-24 px-4 flex items-center justify-center"><Skeleton className="w-8 h-8 rounded-full" /></div>;
   }
 
   return (
-    <div className="min-h-screen py-24 px-4 bg-gray-50">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "সেটিংস" : "Settings"}</h1>
-          <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "কোম্পানি সেটিংস কনফিগার করুন" : "Configure company settings"}
-          </p>
-        </div>
+    <div className="py-8 px-4 md:px-6 max-w-3xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary">{lang === "bn" ? "সেটিংস" : "Settings"}</h1>
+        <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "কোম্পানি সেটিংস কনফিগার করুন" : "Configure company settings"}</p>
+      </div>
 
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto mb-6">
+        {TABS.map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${tab === t.id ? "bg-white text-primary shadow-sm" : "text-text-secondary hover:text-text"}`}>
+            <span>{t.icon}</span><span>{lang === "bn" ? t.bn : t.en}</span>
+          </button>
+        ))}
+      </div>
+
+      {tab === "general" && (
         <div className="space-y-4">
           <Card>
             <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "কোম্পানি তথ্য" : "Company Info"}</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কোম্পানির নাম" : "Company Name"}</label>
-                <input type="text" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} className="input-field" />
+                <input type="text" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ইমেইল" : "Email"}</label>
-                <input type="email" value={form.companyEmail} onChange={(e) => setForm({ ...form, companyEmail: e.target.value })} className="input-field" />
+                <input type="email" value={form.companyEmail} onChange={(e) => setForm({ ...form, companyEmail: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ফোন" : "Phone"}</label>
-                <input type="text" value={form.companyPhone} onChange={(e) => setForm({ ...form, companyPhone: e.target.value })} className="input-field" />
+                <input type="text" value={form.companyPhone} onChange={(e) => setForm({ ...form, companyPhone: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ঠিকানা" : "Address"}</label>
-                <input type="text" value={form.companyAddress} onChange={(e) => setForm({ ...form, companyAddress: e.target.value })} className="input-field" />
+                <input type="text" value={form.companyAddress} onChange={(e) => setForm({ ...form, companyAddress: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
             </div>
           </Card>
 
           <Card>
-            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "রেজিস্ট্রেশন রিসোর্স আয়" : "Registration Resource Income"}</h3>
+            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "রেজিস্ট্রেশন রিসোর্স আয়" : "Registration Bonus"}</h3>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "পরিমাণ" : "Amount"} (৳)</label>
-              <input type="number" value={form.registrationBonus} onChange={(e) => setForm({ ...form, registrationBonus: e.target.value })} className="input-field" />
+              <input type="number" value={form.registrationBonus} onChange={(e) => setForm({ ...form, registrationBonus: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "নতুন রেজিস্ট্রেশনে এই পরিমাণ রিসোর্স আয় হিসেবে যোগ হবে" : "This amount is added as resource income on new registration"}</p>
             </div>
           </Card>
@@ -140,8 +136,8 @@ export default function CompanySettingsPage() {
             <h3 className="font-bold text-primary mb-4">🔗 {lang === "bn" ? "রেফারেল সেটিংস" : "Referral Settings"}</h3>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "রিডাইরেক্ট পাথ" : "Redirect Path"}</label>
-              <input type="text" value={form.referralRedirectPath} onChange={(e) => setForm({ ...form, referralRedirectPath: e.target.value })} className="input-field" placeholder="/register" />
-              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "রেফারেল লিংকে ব্যবহারকারীকে কোথায় পুননির্দেশিত করা হবে" : "Where users are redirected via referral link. E.g.: /register, /courses, /promo"}</p>
+              <input type="text" value={form.referralRedirectPath} onChange={(e) => setForm({ ...form, referralRedirectPath: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="/register" />
+              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "রেফারেল লিংকে ব্যবহারকারীকে কোথায় পুননির্দেশিত করা হবে" : "Where users are redirected via referral link"}</p>
             </div>
           </Card>
 
@@ -149,8 +145,7 @@ export default function CompanySettingsPage() {
             <h3 className="font-bold text-primary mb-4">💳 {lang === "bn" ? "উইথড্র ট্যাক্স" : "Withdrawal Tax"}</h3>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "সাধারণ মেম্বারের জন্য ট্যাক্স (%)" : "General Member Tax (%)"}</label>
-              <input type="number" min="0" max="100" step="0.5" value={form.generalMemberWithdrawalTax} onChange={(e) => setForm({ ...form, generalMemberWithdrawalTax: e.target.value })} className="input-field" />
-              <p className="text-xs text-text-secondary/60 mt-1">{lang === "bn" ? "সাধারণ মেম্বার উত্তোলনে এই পরিমাণ ট্যাক্স কাটা হবে। প্রিমিয়াম মেম্বারদের জন্য কোনো ট্যাক্স নেই।" : "This tax % is deducted from general member withdrawals. Premium members pay no tax."}</p>
+              <input type="number" min="0" max="100" step="0.5" value={form.generalMemberWithdrawalTax} onChange={(e) => setForm({ ...form, generalMemberWithdrawalTax: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
           </Card>
 
@@ -177,28 +172,29 @@ export default function CompanySettingsPage() {
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "সক্রিয়" : "Enabled"}</label>
-                <select value={form.resourceIncomeEnabled} onChange={(e) => setForm({ ...form, resourceIncomeEnabled: e.target.value })} className="input-field">
+                <select value={form.resourceIncomeEnabled} onChange={(e) => setForm({ ...form, resourceIncomeEnabled: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30">
                   <option value="1">{lang === "bn" ? "সক্রিয়" : "Enabled"}</option>
                   <option value="0">{lang === "bn" ? "নিষ্ক্রিয়" : "Disabled"}</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ডিফল্ট অ্যামাউন্ট" : "Default Amount"}</label>
-                <input type="number" min="0" value={form.resourceIncomeDefaultAmount} onChange={(e) => setForm({ ...form, resourceIncomeDefaultAmount: e.target.value })} className="input-field" />
+                <input type="number" min="0" value={form.resourceIncomeDefaultAmount} onChange={(e) => setForm({ ...form, resourceIncomeDefaultAmount: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "আনলক প্রাইস" : "Unlock Price"}</label>
-                <input type="number" min="1" value={form.resourceUnlockPrice} onChange={(e) => setForm({ ...form, resourceUnlockPrice: e.target.value })} className="input-field" />
+                <input type="number" min="1" value={form.resourceUnlockPrice} onChange={(e) => setForm({ ...form, resourceUnlockPrice: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-white text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
             </div>
-            <p className="text-xs text-text-secondary/60 mt-2">{lang === "bn" ? "রেজিস্ট্রেশন ও অন্যান্য বোনাস এখন 'রিসোর্স আয়' হিসেবে যোগ হবে। প্রতি সেট করা মূল্যে ইউজার একটি প্রিমিয়াম রিসোর্স আনলক করতে পারবে। এই আয় উত্তোলন করা যাবে না।" : "Registration and other bonuses are now awarded as 'Resource Income'. Users can unlock one premium resource at the set price. This income cannot be withdrawn."}</p>
           </Card>
 
           <Button onClick={handleSave} disabled={saving} className="w-full !py-4">
             {saving ? (lang === "bn" ? "সংরক্ষণ হচ্ছে..." : "Saving...") : saved ? (lang === "bn" ? "✓ সংরক্ষিত হয়েছে" : "✓ Saved") : (lang === "bn" ? "সব সেভ করুন" : "Save All Settings")}
           </Button>
         </div>
-      </div>
+      )}
+
+      {tab === "biometric" && <FingerprintTab />}
     </div>
   );
 }
