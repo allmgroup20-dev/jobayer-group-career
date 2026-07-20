@@ -740,7 +740,6 @@ export default function WorkerDashboard() {
                     className="input-field w-full"
                   />
                 </div>
-
                 {/* Min withdrawal info */}
                 <div className="mb-4 p-3 rounded-xl bg-gray-50 text-sm">
                   {!isPremium && (
