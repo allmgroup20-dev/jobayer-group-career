@@ -75,6 +75,14 @@ export default function PersuasionTab() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold mb-2">{isBn ? "কর্মচারী পারসুয়েশন স্কিল ট্র্যাকার" : "Employee Persuasion Skill Tracker"}</h1>
+
+      {/* Positioning concept: Advertising is psychology in practice (Book: Ch.1) */}
+      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border border-green-200/50 text-xs">
+        <span className="text-base">🎯</span>
+        <span className="text-text-secondary flex-1">{isBn ? "\"অ্যাডভার্টাইজিং ইজ সাইকোলজি ইন প্র্যাকটিস\" — পজিশনিং বইয়ের মূল বক্তব্য। পারসুয়েশন মানে গ্রাহকের মাইন্ডে পজিশন তৈরি করা। পারসেপশন ইজ রিয়ালিটি। এই স্কোরগুলো সেই পজিশনের শক্তি মাপে।" : "\"Advertising is psychology in practice\" — the core of Positioning. Persuasion creates a position in the customer's mind. Perception is reality. These scores measure position strength."}</span>
+        <span className="inline-flex px-2 py-0.5 rounded-full text-[8px] font-bold bg-green-100 text-green-700 shrink-0">{isBn ? "পারসেপশন" : "Perception"}</span>
+      </div>
+
       <p className="text-gray-500 mb-6">
         {isBn
           ? "বব বার্গের The Art of Persuasion — প্রতিটি কর্মচারীর বিশ্বাস গঠন, শ্রবণ, মূল্য প্রদান ও প্রতিরোধ ব্যবস্থাপনা স্কোর"

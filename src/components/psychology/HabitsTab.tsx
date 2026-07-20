@@ -37,6 +37,14 @@ export default function HabitsTab() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold mb-2">{isBn ? "দৈনিক অভ্যাস অটোমেশন" : "Daily Habit Automation"}</h1>
+
+      {/* Positioning concept: Max 7 (Book: Ch.4 — Those Little Ladders in Your Head) */}
+      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200/50 text-xs">
+        <span className="text-base">🧠</span>
+        <span className="text-text-secondary flex-1">{isBn ? "ড. জর্জ মিলারের সূত্র: মানুষের মন একসাথে সর্বোচ্চ ৭টি ইউনিট হ্যান্ডেল করতে পারে। তাই আমরা প্রতিদিন সর্বোচ্চ ৭টি হ্যাবিট ট্র্যাক করি — লেস ইজ মোর।" : "Dr. George Miller: The average human mind cannot deal with more than 7 units at a time. We track max 7 habits — less is more."}</span>
+        <span className="inline-flex px-2 py-0.5 rounded-full text-[8px] font-bold bg-purple-100 text-purple-700 shrink-0">≤7</span>
+      </div>
+
       <p className="text-gray-500 mb-6">
         {isBn
           ? "বব বার্গের The Art of Persuasion — ৭ম অধ্যায়: প্রতিদিনের অভ্যাস। সকালে মূল্য বার্তা, রাতে বিশ্বাস কারেন্সি স্ন্যাপশট।"

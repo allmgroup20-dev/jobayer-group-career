@@ -41,9 +41,14 @@ export default function PsychologyPage() {
   return (
     <div className="py-8 px-4 md:px-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">{isBn ? "সাইকোলজি" : "Psychology"}</h1>
-        <p className="text-sm text-text-secondary mt-1">
-          {isBn ? "মনস্তাত্ত্বিক প্রোফাইল, রিপোর্ট, ইনসাইটস ও আচরণ বিশ্লেষণ" : "Psychological profiles, reports, insights & behavior analysis"}
+        <h1 className="text-2xl font-bold text-primary">{isBn ? "🧠 সাইকোলজি — পারসেপশন ইজ রিয়ালিটি" : "🧠 Psychology — Perception is Reality"}</h1>
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">{isBn ? "🎭 বাস্তবতা নয়, ধারণাই মূল" : "🎭 Perception Over Reality"}</span>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{isBn ? "🔢 সর্বোচ্চ ৭টি ইউনিট" : "🔢 Max 7 Units"}</span>
+          <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">{isBn ? "🔄 আউটসাইড-ইন থিঙ্কিং" : "🔄 Outside-In Thinking"}</span>
+        </div>
+        <p className="text-sm text-text-secondary mt-2">
+          {isBn ? "মানুষ তার মনের পূর্ব অভিজ্ঞতার সাথে মেলে এমন তথ্যই গ্রহণ করে। পজিশনিং বই অনুসারে — সত্য অপ্রাসঙ্গিক, ধারণাই বাস্তবতা। আমরা গ্রাহকের ধারণাকে বাস্তবতা হিসেবে মেনে নিয়ে সেটাকে রিস্ট্রাকচার করি।" : "The mind accepts only what matches prior experience. Per Ries & Trout — truth is irrelevant, perception is reality. We accept perceptions as reality and restructure them."}
         </p>
       </div>
 
