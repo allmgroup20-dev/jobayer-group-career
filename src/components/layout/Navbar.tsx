@@ -47,7 +47,7 @@ export default function Navbar() {
       if (document.cookie.includes("company_user")) {
         await fetch("/api/auth/company-logout", { method: "POST" });
       }
-      window.location.href = "/company/login";
+      window.location.href = "/login";
     } else {
       localStorage.removeItem("worker_token");
       localStorage.removeItem("worker_id");

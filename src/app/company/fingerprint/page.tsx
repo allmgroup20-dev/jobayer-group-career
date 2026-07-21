@@ -135,8 +135,8 @@ export default function CompanyFingerprintPage() {
 
           <p className="text-sm text-text-secondary mb-4 text-center">
             {lang === "bn"
-              ? "ফিঙ্গারপ্রিন্ট সেটআপ করলে career.jobayergroup.com/company/login এ ফিঙ্গারপ্রিন্ট দিয়ে লগইন করতে পারবেন"
-              : "Setup fingerprint to login at career.jobayergroup.com/company/login using your fingerprint"}
+              ? "ফিঙ্গারপ্রিন্ট সেটআপ করলে career.jobayergroup.com/login এ ফিঙ্গারপ্রিন্ট দিয়ে লগইন করতে পারবেন"
+              : "Setup fingerprint to login at career.jobayergroup.com/login using your fingerprint"}
           </p>
 
           {bioRegistered ? (

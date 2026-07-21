@@ -45,14 +45,14 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       .then((r) => r.json())
       .then((data: any) => {
         if (data.username) setUser(data);
-        else router.push("/company/login");
+        else router.push("/login");
       })
-      .catch(() => router.push("/company/login"));
+      .catch(() => router.push("/login"));
   }, [router]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/company-logout", { method: "POST" });
-    router.push("/company/login");
+    router.push("/login");
   };
 
   if (!user) {
@@ -63,10 +63,6 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         </div>
       </div>
     );
-  }
-
-  if (pathname === "/company/login") {
-    return <>{children}</>;
   }
 
   return (
