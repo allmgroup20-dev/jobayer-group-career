@@ -27,6 +27,7 @@ const navTabs = [
   { href: "/company/strategy-brain", en: "Brain", bn: "ব্রেইন", icon: "🧠" },
   { href: "/company/strategy-report", en: "Report", bn: "রিপোর্ট", icon: "📋" },
   { href: "/company/canvas-history", en: "History", bn: "ইতিহাস", icon: "📜" },
+  { href: "/company/strategy-io", en: "Backup", bn: "ব্যাকআপ", icon: "💾" },
   { href: "/company/price-corridor", en: "Pricing", bn: "মূল্য", icon: "💎" },
   { href: "/company/business-model", en: "Model", bn: "মডেল", icon: "🏗️" },
   { href: "/company/pms-map", en: "PMS", bn: "PMS", icon: "🗺️" },
