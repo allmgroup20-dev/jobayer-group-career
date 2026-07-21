@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret } from "@/lib/auth";
+import { setCached } from "@/lib/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -87,6 +88,11 @@ export async function POST(request: NextRequest) {
         }
       }
     } catch {}
+
+    // Pre-cache credentials in KV for instant login
+    const phoneHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(cleanPhone))))
+      .map(b => b.toString(16).padStart(2, "0")).join("");
+    setCached(`auth:worker:${phoneHash}`, { worker_id: workerId, name: displayName, password: hashedPassword }).catch(() => {});
 
     const token = await generateToken(workerId, getJwtSecret());
     return NextResponse.json({ token, workerId, name: displayName }, { status: 201 });
