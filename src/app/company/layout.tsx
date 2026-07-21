@@ -18,6 +18,8 @@ const navTabs = [
   { href: "/company/strategy-canvas", en: "Strategy Canvas", bn: "স্ট্র্যাটেজি ক্যানভাস", icon: "🎯" },
   { href: "/company/six-paths", en: "Six Paths", bn: "ছয় পথ", icon: "🛤️" },
   { href: "/company/three-tiers", en: "Noncustomers", bn: "অ-গ্রাহক", icon: "👤" },
+  { href: "/company/price-corridor", en: "Pricing", bn: "মূল্য", icon: "💎" },
+  { href: "/company/business-model", en: "Business Model", bn: "বিজনেস মডেল", icon: "🏗️" },
   { href: "/company/marketing", en: "Marketing", bn: "মার্কেটিং", icon: "📈" },
   { href: "/company/members", en: "People", bn: "সদস্য", icon: "👥" },
   { href: "/company/settings", en: "Settings", bn: "সেটিংস", icon: "⚙️" },
