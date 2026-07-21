@@ -1,12 +1,12 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { initEnv } from "@/lib/env";
 
 let kvCache: KVNamespace | null = null;
 
 export async function getKV(): Promise<KVNamespace | null> {
   if (kvCache) return kvCache;
   try {
-    const ctx = await getCloudflareContext({ async: true });
-    kvCache = ((ctx.env as any).CACHE ?? null) as KVNamespace | null;
+    const env = await initEnv();
+    kvCache = env.CACHE;
     return kvCache;
   } catch {
     return null;

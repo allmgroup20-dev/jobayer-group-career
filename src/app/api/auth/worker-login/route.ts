@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     // 3. D1 query with timeout
     const db = await getDB();
+    let timedOut = false;
     const worker = await Promise.race([
       queryFirst<{ worker_id: string; name: string; password: string }>(
         db,
@@ -54,11 +55,14 @@ export async function POST(request: NextRequest) {
         [cleanPhone]
       ),
       new Promise<null>((_, reject) =>
-        setTimeout(() => reject(new Error("D1 query timed out")), D1_TIMEOUT_MS)
+        setTimeout(() => { timedOut = true; reject(new Error("D1 query timed out")); }, D1_TIMEOUT_MS)
       ),
     ]).catch(() => null);
 
     if (!worker) {
+      if (timedOut) {
+        return NextResponse.json({ error: "Server busy, please try again", retryable: true }, { status: 503 });
+      }
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 

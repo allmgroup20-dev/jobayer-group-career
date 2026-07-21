@@ -1,4 +1,4 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { initEnv } from "@/lib/env";
 
 const DONE_FLAG = "__dbSchemaSetupDone";
 const DONE_LOCK = "__dbSchemaSetupLock";
@@ -6,9 +6,22 @@ const PENDING_FLAG = "__dbSchemaSetupPending";
 
 let dbCache: { DB: D1Database } | null = null;
 
+const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original"];
+
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
   if (g[DONE_FLAG]) return;
+
+  // Fast check: single PRAGMA to see if schema is already up to date
+  try {
+    const cols = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
+    const names = cols.results?.map(r => r.name) || [];
+    if (SCHEMA_COLS.every(c => names.includes(c))) {
+      g[DONE_FLAG] = true;
+      return;
+    }
+  } catch {}
+
   if (g[DONE_LOCK]) {
     let waited = 0;
     while (g[DONE_FLAG] === false && g[DONE_LOCK] && waited < 300) {
@@ -1303,11 +1316,8 @@ export async function getDB(): Promise<{ DB: D1Database }> {
   if (dbCache) return dbCache;
 
   try {
-    const ctx = await getCloudflareContext({ async: true });
-    const db = (ctx.env as any).DB as D1Database | undefined;
-    if (!db) {
-      throw new Error("D1 binding 'DB' is undefined in Cloudflare environment");
-    }
+    const env = await initEnv();
+    const db = env.DB;
 
     const g = globalThis as any;
     if (!g[DONE_FLAG] && !g[PENDING_FLAG]) {

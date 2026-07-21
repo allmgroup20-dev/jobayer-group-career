@@ -3,6 +3,15 @@ import { query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached } from "@/lib/cache";
 
+const MEMO_DASH = "__dashboardMemo";
+const MEMO_TTL = 120_000;
+
+function getMemo(): Map<string, { data: unknown; ts: number }> {
+  const g = globalThis as any;
+  if (!g[MEMO_DASH]) g[MEMO_DASH] = new Map();
+  return g[MEMO_DASH];
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -12,8 +21,17 @@ export async function GET(request: NextRequest) {
     }
 
     const cacheKey = `dashboard:${workerId}`;
-    const cached = await getCached<any>(cacheKey, 30);
-    if (cached) return NextResponse.json(cached);
+    const memo = getMemo();
+    const memod = memo.get(cacheKey);
+    if (memod && Date.now() - memod.ts < MEMO_TTL) {
+      return NextResponse.json(memod.data);
+    }
+
+    const cached = await getCached<any>(cacheKey, 120);
+    if (cached) {
+      memo.set(cacheKey, { data: cached, ts: Date.now() });
+      return NextResponse.json(cached);
+    }
 
     const db = await getDB();
 
@@ -87,6 +105,7 @@ export async function GET(request: NextRequest) {
     };
 
     setCached(cacheKey, responseData).catch(() => {});
+    memo.set(cacheKey, { data: responseData, ts: Date.now() });
 
     return NextResponse.json(responseData);
   } catch (error) {
