@@ -73,7 +73,7 @@ export function PersonalizedSection() {
       {data.courses.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">{lang === "bn" ? "প্রস্তাবিত কোর্স" : "Recommended Courses"}</h3>
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider">{lang === "bn" ? "প্রস্তাবিত রিসোর্স" : "Recommended Resources"}</h3>
             <Link href="/courses" className="text-xs font-semibold text-action hover:underline">{lang === "bn" ? "সব দেখুন" : "See All"} →</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

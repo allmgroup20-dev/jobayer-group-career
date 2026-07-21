@@ -27,12 +27,12 @@ export default function CompanyCoursesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-primary">🎓 Courses</h1>
+            <h1 className="text-2xl font-bold text-primary">🎓 Resources</h1>
             <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">🥇 First-Mover Positioning</span>
             <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">💰 Price Creneau</span>
             <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">{lang === "bn" ? "🧠 প্রোডাক্ট ল্যাডার" : "🧠 Product Ladder"}</span>
           </div>
-          <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "প্রতিটি কোর্স মাইন্ডে প্রোডাক্ট ল্যাডারের একটি রাং। ফার্স্ট-মুভার সুযোগ ও প্রাইস ক্রেনো স্ট্র্যাটেজি।" : "Each course is a rung on the mind's product ladder. First-mover advantage & price creneau strategy from Ries & Trout."}</p>
+          <p className="text-sm text-text-secondary mt-1">{lang === "bn" ? "প্রতিটি রিসোর্স মাইন্ডে প্রোডাক্ট ল্যাডারের একটি রাং। ফার্স্ট-মুভার সুযোগ ও প্রাইস ক্রেনো স্ট্র্যাটেজি।" : "Each resource is a rung on the mind's product ladder. First-mover advantage & price creneau strategy from Ries & Trout."}</p>
         </div>
 
         <div className="bg-gray-100 p-1 rounded-xl flex gap-1 mb-6 overflow-x-auto">

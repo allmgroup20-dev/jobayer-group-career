@@ -9,7 +9,7 @@ export default function Footer() {
 
   const quickLinks = [
     { en: "Home", bn: "হোম", href: "/" },
-    { en: "Courses", bn: "কোর্স সমূহ", href: "/courses" },
+    { en: "Resources", bn: "রিসোর্স সমূহ", href: "/courses" },
     { en: "Reviews", bn: "মতামত", href: "/reviews" },
     { en: "Live Updates", bn: "লাইভ", href: "/live-updates" },
     { en: "Login", bn: "লগইন", href: "/login" },
@@ -41,7 +41,7 @@ export default function Footer() {
             <p className="text-sm text-white/60 leading-relaxed max-w-sm">
               {lang === "bn" ? "আপনার ক্যারিয়ার গড়ার বিশ্বস্ত প্ল্যাটফর্ম। " : "Your trusted career-building platform. "}
               <CourseCount />
-              {lang === "bn" ? "+ কোর্স, ১২ জন বিশেষজ্ঞ প্রশিক্ষক, আজীবন অ্যাক্সেস।" : "+ courses, 12 expert trainers, lifetime access."}
+              {lang === "bn" ? "+ রিসোর্স, ১২ জন বিশেষজ্ঞ প্রশিক্ষক, আজীবন অ্যাক্সেস।" : "+ resources, 12 expert trainers, lifetime access."}
             </p>
             <div className="flex gap-3">
               {["📘", "💬", "📱", "📧"].map((icon, i) => (

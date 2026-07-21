@@ -266,7 +266,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কেন এই কোর্স? (লক্ষ্য)" : "Your Goal"}</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "কেন এই রিসোর্স? (লক্ষ্য)" : "Your Goal"}</label>
                 <select value={form.goal} onChange={(e) => setForm({ ...form, goal: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
                   <option value="career">{lang === "bn" ? "ক্যারিয়ার গড়তে" : "Build a Career"}</option>
@@ -322,7 +322,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বাজেট (প্রতি কোর্সে)" : "Budget Range (per course)"}</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বাজেট (প্রতি রিসোর্সে)" : "Budget Range (per resource)"}</label>
                 <select value={form.budgetRange} onChange={(e) => setForm({ ...form, budgetRange: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
                   <option value="under_1000">{lang === "bn" ? "১,০০০ এর নিচে" : "Under 1,000 ৳"}</option>

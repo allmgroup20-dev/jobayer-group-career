@@ -105,8 +105,8 @@ export default function ReviewsPage() {
             </h3>
             <p className="text-sm font-semibold text-text-secondary mt-1">
               {lang === "bn"
-                ? "যারা ৯৯ টাকায় কোর্স করে আজ নিজেদের জীবন বদলে ফেলেছেন"
-                : "Students who changed their lives starting with just ৳99 courses"}
+                ? "যারা ৯৯ টাকায় রিসোর্স কিনে আজ নিজেদের জীবন বদলে ফেলেছেন"
+                : "Students who changed their lives starting with just ৳99 resources"}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

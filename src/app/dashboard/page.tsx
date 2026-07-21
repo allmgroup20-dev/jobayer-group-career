@@ -378,11 +378,11 @@ export default function WorkerDashboard() {
                     : (worker.goal === "career" ? "Want to build a career!" : worker.goal === "freelancing" ? "Want to start freelancing!" : worker.goal === "business" ? "Want to start a business!" : worker.goal === "skill" ? "Want to develop skills!" : worker.goal === "job" ? "Want to get a job!" : "Want to learn!")}
                 </p>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  {lang === "bn" ? "আমরা আপনার লক্ষ্য অনুযায়ী কোর্স ও কন্টেন্ট সাজিয়ে দিচ্ছি" : "We're tailoring courses & content based on your goal"}
+                  {lang === "bn" ? "আমরা আপনার লক্ষ্য অনুযায়ী রিসোর্স ও কন্টেন্ট সাজিয়ে দিচ্ছি" : "We're tailoring resources & content based on your goal"}
                 </p>
               </div>
               <Link href="/courses" className="px-4 py-2 text-xs font-semibold rounded-lg bg-action text-white hover:bg-action/90 transition-all shrink-0">
-                {lang === "bn" ? "কোর্স দেখুন" : "View Courses"}
+                {lang === "bn" ? "রিসোর্স দেখুন" : "View Resources"}
               </Link>
             </div>
           </div>

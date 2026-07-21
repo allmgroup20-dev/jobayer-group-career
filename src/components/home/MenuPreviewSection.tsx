@@ -23,7 +23,7 @@ export default function MenuPreviewSection() {
   }, []);
 
   const tabs = [
-    { id: "categories", bn: "কোর্স ক্যাটাগরি", en: "Categories", icon: "📚" },
+    { id: "categories", bn: "রিসোর্স ক্যাটাগরি", en: "Categories", icon: "📚" },
     { id: "trainers", bn: "প্রশিক্ষক", en: "Trainers", icon: "👨‍🏫" },
     { id: "platforms", bn: "প্ল্যাটফর্ম", en: "Platforms", icon: "🏛️" },
   ];
@@ -62,7 +62,7 @@ export default function MenuPreviewSection() {
                 {lang === "bn" ? cat.titleBn : cat.titleEn}
               </span>
               <span className="text-[10px] font-semibold text-accent">
-                {cat.courses.length}+ {lang === "bn" ? "কোর্স" : "courses"}
+                {cat.courses.length}+ {lang === "bn" ? "রিসোর্স" : "resources"}
               </span>
             </Link>
           ))}

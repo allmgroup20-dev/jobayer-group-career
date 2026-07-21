@@ -27,7 +27,7 @@ const INSIGHT_TYPE_LABELS: Record<string, string> = {
 };
 
 const INSIGHT_TYPE_LABELS_BN: Record<string, string> = {
-  course_recommendation: "কোর্স সুপারিশ",
+  course_recommendation: "রিসোর্স সুপারিশ",
   product_recommendation: "পণ্য সুপারিশ",
   skill_gap: "দক্ষতার ঘাটতি",
   earning_opportunity: "আয়ের সুযোগ",

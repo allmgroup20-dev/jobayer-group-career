@@ -15,7 +15,7 @@ const perks = [
   { bn: "কোনো আনলক লিমিট নেই", en: "No unlock limits" },
   { bn: "প্রিমিয়াম সার্টিফিকেট", en: "Premium certificates" },
   { bn: "প্রাথমিক উত্তোলন সুবিধা", en: "Priority withdrawal" },
-  { bn: "নতুন কোর্স প্রথমে পাওয়ার সুযোগ", en: "Early access to new courses" },
+  { bn: "নতুন রিসোর্স প্রথমে পাওয়ার সুযোগ", en: "Early access to new resources" },
   { bn: "ডাইরেক্ট সাপোর্ট", en: "Direct support" },
 ];
 

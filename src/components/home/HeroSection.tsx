@@ -91,7 +91,7 @@ export default function HeroSection() {
           {/* Quick stats row */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8">
             {[
-              { num: toBn(courseCount), label: lang === "bn" ? "কোর্স" : "Courses" },
+              { num: toBn(courseCount), label: lang === "bn" ? "রিসোর্স" : "Resources" },
               { num: toBn(trainerCount), label: lang === "bn" ? "ট্রেইনার" : "Trainers" },
               { num: toBn(memberCount), label: lang === "bn" ? "মেম্বর" : "Members" },
               { num: "৯৯", label: lang === "bn" ? "টাকা মাত্র" : "Only ৳99" },
@@ -144,7 +144,7 @@ export default function HeroSection() {
               href="/courses"
               className="group inline-flex items-center gap-2 px-8 py-4 rounded-2xl border border-white/20 text-white font-bold text-lg hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.97]"
             >
-              <span>{lang === "bn" ? "কোর্স দেখুন" : "Browse Courses"}</span>
+              <span>{lang === "bn" ? "রিসোর্স দেখুন" : "Browse Resources"}</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
           </div>

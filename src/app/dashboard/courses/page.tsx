@@ -54,7 +54,7 @@ export default function MyCoursesPage() {
   return (
     <div className="min-h-screen bg-bg py-24 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-primary mb-6">{lang === "bn" ? "আমার কোর্স" : "My Courses"}</h1>
+        <h1 className="text-2xl font-bold text-primary mb-6">{lang === "bn" ? "আমার রিসোর্স" : "My Resources"}</h1>
 
         <div className="flex gap-2 mb-6 overflow-x-auto">
           {tabs.map(t => (
@@ -70,13 +70,13 @@ export default function MyCoursesPage() {
         {tab === "unlocked" && (
           <div className="space-y-3">
             {unlocked.length === 0 ? (
-              <Card><p className="text-text-secondary text-sm text-center py-4">{lang === "bn" ? "কোনো কোর্স আনলক করা হয়নি" : "No courses unlocked yet"}</p></Card>
+              <Card><p className="text-text-secondary text-sm text-center py-4">{lang === "bn" ? "কোনো রিসোর্স আনলক করা হয়নি" : "No resources unlocked yet"}</p></Card>
             ) : unlocked.map((u: any) => (
               <a key={u.id} href={`/courses/${u.courseId}`}
                 className="flex items-center gap-4 bg-white rounded-2xl border border-border p-4 hover:shadow-md transition-all">
                 <span className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-lg">🔓</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-text truncate">{u.courseTitle || `Course #${u.courseId}`}</p>
+                  <p className="text-sm font-bold text-text truncate">{u.courseTitle || `Resource #${u.courseId}`}</p>
                   <p className="text-xs text-text-secondary/60">{new Date(u.unlockedAt).toLocaleDateString()}</p>
                 </div>
                 <span className="text-xs text-primary font-bold">দেখুন →</span>
@@ -116,7 +116,7 @@ export default function MyCoursesPage() {
               <div key={d.id || i} className="flex items-center gap-4 bg-white rounded-2xl border border-border p-4">
                 <span className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg">📥</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-text truncate">{d.courseTitle || `Course #${d.courseId}`}</p>
+                  <p className="text-sm font-bold text-text truncate">{d.courseTitle || `Resource #${d.courseId}`}</p>
                   <p className="text-xs text-text-secondary/60">{d.downloadedAt ? new Date(d.downloadedAt).toLocaleDateString() : ""}</p>
                 </div>
               </div>

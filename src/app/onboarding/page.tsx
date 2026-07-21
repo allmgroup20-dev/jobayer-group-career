@@ -117,7 +117,7 @@ const ALL_FIELDS: FieldDef[] = [
     ],
   },
   {
-    key: "budgetRange", labelEn: "Budget Range (per course)", labelBn: "বাজেট (প্রতি কোর্সে)", type: "select",
+    key: "budgetRange", labelEn: "Budget Range (per resource)", labelBn: "বাজেট (প্রতি রিসোর্সে)", type: "select",
     options: [
       { value: "under_1000", en: "Under 1,000 ৳", bn: "১,০০০ এর নিচে" },
       { value: "1000_3000", en: "1,000 - 3,000 ৳", bn: "১,০০০ - ৩,০০০" },
