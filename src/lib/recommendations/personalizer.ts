@@ -70,10 +70,15 @@ export async function getPersonalizedInsights(workerId: string): Promise<Persona
   const expiresDefault = new Date(now.getTime() + 14 * 86400000).toISOString();
 
   const interestScores = (await getWorkerInterestScores(workerId)) || {};
+  const hasInterests = Object.keys(interestScores).length > 0;
 
   const behaviorScores = await db.prepare(
     "SELECT * FROM user_behavior_scores WHERE worker_id = ?"
   ).bind(workerId).first() as Record<string, unknown> | undefined;
+
+  if (!hasInterests && !behaviorScores) {
+    return [];
+  }
 
   const completedOrders = await db.prepare(
     "SELECT COUNT(*) as count FROM orders WHERE worker_id = ? AND payment_status = 'completed'"

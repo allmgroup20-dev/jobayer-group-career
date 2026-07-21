@@ -44,7 +44,9 @@ export async function GET() {
     const d1 = await ensureDB();
     await d1.prepare("SELECT 1").run();
     const warm = await warmCourses({ DB: d1 });
-    return NextResponse.json({ ok: true, warm, ts: Date.now() });
+    const { scoreAllWorkers } = await import("@/lib/tracking/scoring");
+    const scoring = await scoreAllWorkers();
+    return NextResponse.json({ ok: true, warm, scoring: `${scoring.scored} scored, ${scoring.errors} errors`, ts: Date.now() });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
   }

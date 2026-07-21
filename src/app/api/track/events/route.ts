@@ -27,6 +27,14 @@ export async function POST(req: NextRequest) {
         ev.metadata ? JSON.stringify(ev.metadata) : null
       ).run();
     }
+    const count = await db.prepare(
+      "SELECT COUNT(*) as c FROM user_events WHERE worker_id = ?"
+    ).bind(body.workerId).first() as { c: number } | undefined;
+    if (count && count.c % 10 === 0) {
+      const { computeWorkerInterests, computeWorkerBehaviorScore } = await import("@/lib/tracking/scoring");
+      computeWorkerInterests(body.workerId).catch(() => {});
+      computeWorkerBehaviorScore(body.workerId).catch(() => {});
+    }
     return NextResponse.json({ ok: true, count: body.events.length });
   } catch (err) {
     console.error("Batch events error:", err);
