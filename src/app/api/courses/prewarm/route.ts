@@ -13,6 +13,7 @@ export async function GET() {
     const sql = `SELECT c.id, c.title, c.title_bn as titleBn, c.description, c.description_bn as descriptionBn,
               c.category_id as categoryId, c.is_new as isNew, c.is_visible as isVisible,
               c.price, c.is_premium as isPremium, c.created_at as createdAt, c.updated_at as updatedAt,
+              c.image_url as imageUrl,
               c.trainer_id as trainerId, c.institution_id as institutionId,
               t.name as trainerName, t.name_bn as trainerNameBn, t.image_url as trainerImageUrl,
               i.name as institutionName, i.name_bn as institutionNameBn, i.logo_url as institutionLogoUrl,
