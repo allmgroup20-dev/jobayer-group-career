@@ -37,7 +37,7 @@ export class SslcommerzService {
   constructor(storeId?: string, storePassword?: string, isLive?: boolean) {
     this.storeId = storeId || process.env.SSLCOMMERZ_STORE_ID || "";
     this.storePassword = storePassword || process.env.SSLCOMMERZ_STORE_PASSWORD || "";
-    this.isLive = isLive !== undefined ? isLive : process.env.SSLCOMMERZ_IS_LIVE === "true";
+    this.isLive = isLive !== undefined ? isLive : String(process.env.SSLCOMMERZ_IS_LIVE) === "true";
   }
 
   static async fromDB(env: { DB: D1Database }): Promise<SslcommerzService> {

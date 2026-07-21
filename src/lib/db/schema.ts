@@ -330,16 +330,6 @@ export const aiPersonas = sqliteTable("ai_personas", {
   createdAt: text("created_at"),
 });
 
-export const aiKnowledgePages = sqliteTable("ai_knowledge_pages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  category: text("category").default("general"),
-  isActive: integer("is_active").default(1),
-  createdAt: text("created_at"),
-  updatedAt: text("updated_at"),
-});
-
 export const aiModelFailoverState = sqliteTable("ai_model_failover_state", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   currentKeySlot: integer("current_key_slot").default(1),
@@ -827,23 +817,6 @@ export const knowledgeAccumulation = sqliteTable("knowledge_accumulation", {
   status: text("status").default("new"), // new / kept / deleted
   reviewedAt: text("reviewed_at"),
   createdAt: text("created_at").default("datetime('now')"),
-});
-
-export const aiKnowledgeDistribution = sqliteTable("ai_knowledge_distribution", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  sourceType: text("source_type").notNull(),
-  sourceId: text("source_id").notNull(),
-  sourceName: text("source_name"),
-  targetType: text("target_type").notNull(),
-  targetId: text("target_id").notNull(),
-  targetName: text("target_name"),
-  knowledgeTitle: text("knowledge_title").notNull(),
-  knowledgeContent: text("knowledge_content").notNull(),
-  knowledgeCategory: text("knowledge_category").default("general"),
-  origin: text("origin").default("system"),
-  confidence: real("confidence").default(1.0),
-  createdAt: text("created_at").default("datetime('now')"),
-  updatedAt: text("updated_at").default("datetime('now')"),
 });
 
 // ── Phase 10: Knowledge Brain — Structured Knowledge Base ──
