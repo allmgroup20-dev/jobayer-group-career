@@ -48,6 +48,8 @@ export const CHAINS: Record<string, string[]> = {
   "sales_pricing": ["pricing_strategist", "gain_fear_architect", "price_explainer", "price_objection_handler", "consumer_behavior_analyst"],
   "sales_growth_planning": ["growth_strategist", "segment_strategist", "creative_selling_strategist", "channel_manager"],
   "sales_new_product": ["growth_strategist", "segment_strategist", "positioning_strategist", "benefit_highlighter", "comparison_builder"],
+  "sales_strategy_exploration": ["six_paths_explorer", "noncustomer_explorer", "segment_strategist", "positioning_strategist", "growth_strategist"],
+  "sales_blue_ocean_market_creation": ["six_paths_explorer", "noncustomer_explorer", "segment_strategist", "creative_selling_strategist", "positioning_strategist", "pricing_strategist"],
   "member_success_registration": ["registration_guide", "contribution_guide", "welcome_pack_sender", "first_goal_setter", "profile_completer"],
   "member_success_commission_inquiry": ["commission_calculator", "earning_reporter", "payout_optimizer"],
   "member_success_motivation": ["daily_motivation_sender", "sales_goal_tracker", "goal_visualization_coach", "global_market_guide", "csr_ambassador", "achievement_celebrator"],
