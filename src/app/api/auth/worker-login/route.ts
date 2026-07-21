@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { verifyWorkerPassword, generateToken, getJwtSecret } from "@/lib/auth";
-import { getCached, setCached } from "@/lib/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,18 +11,6 @@ export async function POST(request: NextRequest) {
     }
 
     const cleanPhone = phone.replace(/\D/g, "");
-    const phoneHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(cleanPhone))))
-      .map(b => b.toString(16).padStart(2, "0")).join("");
-
-    const cached = await getCached<{ worker_id: string; name: string; password: string }>(`auth:worker:${phoneHash}`, 1800);
-    if (cached) {
-      const valid = await verifyWorkerPassword(password, cached.password);
-      if (!valid) {
-        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-      }
-      const token = await generateToken(cached.worker_id, getJwtSecret());
-      return NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
-    }
 
     const worker = await queryFirst<{ worker_id: string; name: string; password: string }>(
       await getDB(),
@@ -39,8 +26,6 @@ export async function POST(request: NextRequest) {
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
-
-    setCached(`auth:worker:${phoneHash}`, { worker_id: worker.worker_id, name: worker.name, password: worker.password }).catch(() => {});
 
     const token = await generateToken(worker.worker_id, getJwtSecret());
     return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });

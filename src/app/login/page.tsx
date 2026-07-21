@@ -277,6 +277,11 @@ export default function LoginPage() {
             {lang === "bn" ? "রেজিস্টার করুন" : "Register"}
           </Link>
         </p>
+        <p className="text-center text-sm text-text-secondary mt-3">
+          <Link href="/company/login" className="font-bold text-primary hover:text-primary/80 transition-colors">
+            {lang === "bn" ? "🏢 কোম্পানি লগইন" : "🏢 Company Login"}
+          </Link>
+        </p>
       </div>
     </div>
   );

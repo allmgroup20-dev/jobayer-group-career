@@ -236,20 +236,25 @@ export default function WorkerDashboard() {
   }
 
   if (!worker) {
-    return !workerId ? null : (
-      <div className="min-h-screen py-24 px-4">
-        <div className="max-w-md mx-auto text-center">
-          <Card>
-            <h2 className="text-xl font-bold text-primary mb-4">
-              {lang === "bn" ? "ডেটা লোড হয়নি" : "Data not loaded"}
-            </h2>
-            <p className="text-sm text-text-secondary mb-4">
-              {lang === "bn" ? "পুনরায় চেষ্টা করুন" : "Please try again"}
-            </p>
-            <Button className="w-full" onClick={() => window.location.reload()}>
-              {lang === "bn" ? "রিফ্রেশ করুন" : "Refresh"}
-            </Button>
-          </Card>
+    if (!workerId) return null;
+    return (
+      <div className="min-h-screen bg-bg p-4 md:p-6 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 border border-border space-y-3">
+              <div className="animate-pulse bg-gray-200 h-4 w-16 rounded-lg" />
+              <div className="animate-pulse bg-gray-200 h-8 w-24 rounded-lg" />
+            </div>
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 border border-border space-y-3">
+              <div className="animate-pulse bg-gray-200 h-5 w-1/3 rounded-lg" />
+              <div className="animate-pulse bg-gray-200 h-4 w-2/3 rounded-lg" />
+              <div className="animate-pulse bg-gray-200 h-4 w-1/2 rounded-lg" />
+            </div>
+          ))}
         </div>
       </div>
     );
