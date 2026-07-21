@@ -228,7 +228,7 @@ export default function Customer360Page() {
               </div>
             </Card>
 
-            {/* MLM / Sponsor */}
+            {/* Affiliate / Sponsor */}
             <Card className="!p-5">
               <h3 className="font-semibold text-sm text-primary mb-4">{t("Network Info", "নেটওয়ার্ক তথ্য")}</h3>
               <div className="space-y-2 text-sm">

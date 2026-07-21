@@ -24,16 +24,16 @@ export async function GET(req: NextRequest) {
       query<any>(
         env,
         `WITH RECURSIVE subtree AS (
-           SELECT worker_id, parent_id FROM mlm_tree WHERE worker_id = ?
+           SELECT worker_id, parent_id FROM affiliate_tree WHERE worker_id = ?
            UNION ALL
            SELECT t.worker_id, t.parent_id
-           FROM mlm_tree t
+           FROM affiliate_tree t
            INNER JOIN subtree s ON t.parent_id = s.worker_id
          )
          SELECT w.worker_id, w.level, w.name, w.sponsor_id, w.total_team_members,
                 t.parent_id
          FROM workers w
-         INNER JOIN mlm_tree t ON t.worker_id = w.worker_id
+         INNER JOIN affiliate_tree t ON t.worker_id = w.worker_id
          WHERE w.membership_status IN ('general', 'premium')
          AND w.worker_id IN (SELECT worker_id FROM subtree)
           ORDER BY w.created_at ASC

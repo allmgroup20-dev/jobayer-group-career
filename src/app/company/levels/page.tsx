@@ -52,7 +52,7 @@ export default function CompanyLevelsPage() {
   const [overrideError, setOverrideError] = useState("");
 
   useEffect(() => {
-    fetch("/api/mlm/levels")
+    fetch("/api/affiliate/levels")
       .then((r) => r.json())
       .then((data: any) => {
         const base = data.minReferralBase ?? 3;
@@ -136,7 +136,7 @@ export default function CompanyLevelsPage() {
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error || "Save failed");
 
-      const verifyRes = await fetch("/api/mlm/levels");
+      const verifyRes = await fetch("/api/affiliate/levels");
       const verifyData = await verifyRes.json() as { levels?: any[] };
       if (!verifyData.levels || verifyData.levels.length === 0) {
         throw new Error("Data was not persisted in database");

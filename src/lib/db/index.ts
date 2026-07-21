@@ -567,7 +567,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 
-    // Missing tables (trainers, institutions, mlm_tree)
+    // Missing tables (trainers, institutions, affiliate_tree)
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS institutions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -601,7 +601,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     )`).run();
-    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS mlm_tree (
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS affiliate_tree (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       worker_id TEXT NOT NULL UNIQUE,
       parent_id TEXT,
@@ -610,6 +610,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       position INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    env.DB.prepare(`INSERT OR IGNORE INTO affiliate_tree SELECT * FROM mlm_tree`).run().catch(() => {});
     env.DB.prepare(`ALTER TABLE courses ADD COLUMN trainer_id INTEGER`).run().catch(() => {});
     env.DB.prepare(`ALTER TABLE courses ADD COLUMN institution_id INTEGER`).run().catch(() => {});
 
@@ -1186,8 +1187,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       { st: "training", si: "member_onboarding", sn: "Member Onboarding Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Income is a Tool, Not a Goal", kc: "When showing income/earnings, always frame it as a tool for life transformation. 'You're not just earning 500 TK — you're earning a tool that can help your child's education, your family's health, your future.' Connect money to meaning.", cat: "trust", org: "onboarding" },
       { st: "training", si: "member_motivation", sn: "Member Motivation Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Celebrate Every Win", kc: "When a member achieves something — first sale, first team member, rank up — celebrate genuinely. Connect achievement to their personal story. 'Remember when you joined with this dream? Today you took a step closer.' Make them feel seen.", cat: "psychology", org: "motivation" },
       { st: "training", si: "member_motivation", sn: "Member Motivation Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Team Building is Family Building", kc: "Frame team building as helping others grow, not recruiting downlines. 'You're not building a downline, you're building a family of successful people.' Every person you bring is someone whose life you can change.", cat: "trust", org: "motivation" },
-      { st: "training", si: "member_mlm", sn: "MLM Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Speak Their Language — Sponsor Tips", kc: "When communicating with team members, adapt to their world. Students: talk education & future. Homemakers: talk family & security. Business owners: talk ROI & growth. Never use one-size-fits-all pitch. Match their language, their fears, their dreams.", cat: "communication", org: "mlm" },
-      { st: "training", si: "member_mlm", sn: "MLM Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Handle Resistance — We're Together", kc: "When a team member resists or doubts, do NOT argue. Use 'We're Together' framing. 'I understand your doubt. Let's figure this out together.' Turn resistance into collaboration. Never push. Guide them to their own conclusion.", cat: "sales", org: "mlm" },
+      { st: "training", si: "member_affiliate", sn: "Affiliate Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Speak Their Language — Sponsor Tips", kc: "When communicating with team members, adapt to their world. Students: talk education & future. Homemakers: talk family & security. Business owners: talk ROI & growth. Never use one-size-fits-all pitch. Match their language, their fears, their dreams.", cat: "communication", org: "affiliate" },
+      { st: "training", si: "member_affiliate", sn: "Affiliate Communication Guide", tt: "agent", ti: "all", tn: "All Agents", kt: "Handle Resistance — We're Together", kc: "When a team member resists or doubts, do NOT argue. Use 'We're Together' framing. 'I understand your doubt. Let's figure this out together.' Turn resistance into collaboration. Never push. Guide them to their own conclusion.", cat: "sales", org: "affiliate" },
     ];
     for (const k of onboardingSeed) {
       try {
@@ -1254,7 +1255,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       `CREATE INDEX IF NOT EXISTS idx_ai_conv_phone ON ai_conversations(phone)`,
       `CREATE INDEX IF NOT EXISTS idx_ai_leads_status ON ai_leads(status, priority_score)`,
       `CREATE INDEX IF NOT EXISTS idx_phonebooks_worker ON user_phonebooks(worker_id)`,
-      `CREATE INDEX IF NOT EXISTS idx_mlm_tree_level ON mlm_tree(level_number)`,
+      `CREATE INDEX IF NOT EXISTS idx_affiliate_tree_level ON affiliate_tree(level_number)`,
       `CREATE INDEX IF NOT EXISTS idx_complaints_worker ON complaints(worker_id)`,
       `CREATE INDEX IF NOT EXISTS idx_attribution_channel ON attribution_log(channel)`,
       `CREATE INDEX IF NOT EXISTS idx_devices_worker ON user_devices(worker_id, last_seen_at)`,
@@ -1270,8 +1271,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       `CREATE INDEX IF NOT EXISTS idx_sessions_created ON user_sessions(created_at)`,
       `CREATE INDEX IF NOT EXISTS idx_communication_created ON communication_history(created_at)`,
       `CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at)`,
-      `CREATE INDEX IF NOT EXISTS idx_mlm_tree_parent_id ON mlm_tree(parent_id)`,
-      `CREATE INDEX IF NOT EXISTS idx_mlm_tree_sponsor_id ON mlm_tree(sponsor_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_affiliate_tree_parent_id ON affiliate_tree(parent_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_affiliate_tree_sponsor_id ON affiliate_tree(sponsor_id)`,
       `CREATE INDEX IF NOT EXISTS idx_response_cache_lookup ON ai_response_cache(query_hash, agent_id)`,
       `CREATE INDEX IF NOT EXISTS idx_withdrawals_worker_status ON withdrawals(worker_id, status)`,
       `CREATE INDEX IF NOT EXISTS idx_commissions_to_worker_status ON commissions(to_worker_id, status)`,

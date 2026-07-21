@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { SslcommerzService } from "@/lib/payment/sslcommerz";
-import { distributeCommissions } from "@/lib/mlm/commission";
+import { distributeCommissions } from "@/lib/affiliate/commission";
 import { sendWhatsAppMessage, generateWhatsAppTemplate } from "@/lib/whatsapp";
 
 export async function POST(request: NextRequest) {

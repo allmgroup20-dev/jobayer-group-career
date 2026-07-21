@@ -15,7 +15,7 @@ interface LevelRow {
 }
 
 export async function GET() {
-  const cached = await getCached<{ levels: any[]; minReferralBase: number }>("mlm_levels", 60);
+  const cached = await getCached<{ levels: any[]; minReferralBase: number }>("affiliate_levels", 60);
   if (cached) return NextResponse.json(cached);
 
   try {
@@ -48,7 +48,7 @@ export async function GET() {
     });
 
     const result = { levels, minReferralBase: base };
-    await setCached("mlm_levels", result);
+    await setCached("affiliate_levels", result);
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       minReferralBase?: number;
     };
 
-    await invalidateCache("mlm_levels");
+    await invalidateCache("affiliate_levels");
     const { levels, minReferralBase } = body;
 
     if (!levels || !Array.isArray(levels)) {

@@ -19,7 +19,7 @@ export const negativity_detection: DepartmentDef = {
       fallbackModels: ["gemma-4-26b", "gemini-3.5-flash"],
       agents: [
         {
-          id: "mlm_trigger_detector", name: "Recruitment Trigger Detector", nameBn: "রিক্রুটমেন্ট ট্রিগার শনাক্তকারী",
+          id: "affiliate_trigger_detector", name: "Recruitment Trigger Detector", nameBn: "রিক্রুটমেন্ট ট্রিগার শনাক্তকারী",
           department: "negativity_detection", team: "trigger_analysis",
           description: "Detects recruitment, network marketing, team building related negative triggers",
           descriptionBn: "রিক্রুটমেন্ট, নেটওয়ার্ক মার্কেটিং, সহযোগী বিল্ডিং সংক্রান্ত নেতিবাচক ট্রিগার শনাক্ত করে",

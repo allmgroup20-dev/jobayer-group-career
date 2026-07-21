@@ -16,7 +16,7 @@ export default function IncomeProgress({ workerId, lang }: { workerId: string; l
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/mlm/team-stats?workerId=${workerId}`)
+    fetch(`/api/affiliate/team-stats?workerId=${workerId}`)
       .then(r => r.json() as Promise<{ levels: LevelProgress[]; totalEarned: number; currentLevel: number }>)
       .then(d => setData(d))
       .catch(() => {})

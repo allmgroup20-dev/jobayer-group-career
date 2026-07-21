@@ -27,17 +27,17 @@ export async function GET(request: NextRequest) {
       members = await query(
         db,
         `WITH RECURSIVE subtree AS (
-           SELECT worker_id, parent_id FROM mlm_tree WHERE worker_id = ?
+           SELECT worker_id, parent_id FROM affiliate_tree WHERE worker_id = ?
            UNION ALL
            SELECT t.worker_id, t.parent_id
-           FROM mlm_tree t
+           FROM affiliate_tree t
            INNER JOIN subtree s ON t.parent_id = s.worker_id
          )
          SELECT w.worker_id, w.name, w.phone, w.level, w.join_date,
                 w.total_team_members, w.occupation, t.parent_id,
                 COALESCE(p.sector, '') as sector
          FROM workers w
-         INNER JOIN mlm_tree t ON w.worker_id = t.worker_id
+         INNER JOIN affiliate_tree t ON w.worker_id = t.worker_id
          LEFT JOIN ai_phone_profiles p ON w.phone = p.phone
          WHERE w.membership_status IN ('general', 'premium')
          AND w.worker_id IN (SELECT worker_id FROM subtree)
@@ -52,12 +52,12 @@ export async function GET(request: NextRequest) {
                 w.total_team_members, w.occupation, t.parent_id,
                 COALESCE(p.sector, '') as sector
          FROM workers w
-         INNER JOIN mlm_tree t ON w.worker_id = t.worker_id
+         INNER JOIN affiliate_tree t ON w.worker_id = t.worker_id
          LEFT JOIN ai_phone_profiles p ON w.phone = p.phone
          WHERE w.membership_status IN ('general', 'premium')
          ORDER BY t.level_number ASC
          LIMIT 1000`,
-         []
+        []
       );
     }
 

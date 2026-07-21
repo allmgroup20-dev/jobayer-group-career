@@ -17,7 +17,7 @@ export default function CommissionsPage() {
   const { lang } = useLanguageStore();
   const workerId = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
   const { data, loading } = useSWRFetch<{ commissions?: Commission[] }>(
-    workerId ? `/api/mlm/commissions?workerId=${workerId}` : null,
+    workerId ? `/api/affiliate/commissions?workerId=${workerId}` : null,
     { ttlMs: 300_000 }
   );
   const commissions = data?.commissions ?? [];

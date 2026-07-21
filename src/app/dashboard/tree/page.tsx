@@ -86,7 +86,7 @@ export default function TreePage() {
   const { lang } = useLanguageStore();
   const workerId = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
   const { data, loading } = useSWRFetch<{ members?: TreeNode[] }>(
-    workerId ? `/api/mlm/tree?workerId=${workerId}` : null,
+    workerId ? `/api/affiliate/tree?workerId=${workerId}` : null,
     { ttlMs: 300_000 }
   );
   const tree = data?.members && data.members.length > 0

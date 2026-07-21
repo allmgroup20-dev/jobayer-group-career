@@ -29,7 +29,7 @@ const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
 
 // ── Negativity detection chains (run alongside every intent) ──
 export const NEGATIVITY_CHAINS: Record<string, string[]> = {
-  negativity_scan: ["mlm_trigger_detector", "recruitment_trigger_detector", "money_trigger_detector", "trust_betrayal_detector", "control_feeling_detector", "fear_escalation_detector", "sentiment_negativity_scanner", "trust_barrier_identifier"],
+  negativity_scan: ["affiliate_trigger_detector", "recruitment_trigger_detector", "money_trigger_detector", "trust_betrayal_detector", "control_feeling_detector", "fear_escalation_detector", "sentiment_negativity_scanner", "trust_barrier_identifier"],
   negativity_deep_scan: ["mask_crack_detector", "manipulation_attempt_detector"],
   negativity_advisory: ["safe_wording_advisor", "cultural_sensitivity_checker"],
   negativity_knowledge: ["negativity_insight_miner"],

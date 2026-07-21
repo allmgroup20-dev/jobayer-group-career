@@ -49,7 +49,7 @@ export const companyUsers = sqliteTable("company_users", {
   createdAt: text("created_at"),
 });
 
-export const mlmTree = sqliteTable("mlm_tree", {
+export const affiliateTree = sqliteTable("affiliate_tree", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   workerId: text("worker_id").notNull(),
   parentId: text("parent_id"),

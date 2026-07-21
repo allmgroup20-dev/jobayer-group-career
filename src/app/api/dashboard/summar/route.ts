@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       queryFirst<any>(db, "SELECT COUNT(*) as totalViews, COUNT(DISTINCT session_id) as totalSessions FROM user_events WHERE worker_id = ? AND event_type = 'page_view'", [workerId]),
       query<{ setting_key: string; setting_value: string }>(db, "SELECT setting_key, setting_value FROM company_settings"),
       queryFirst<any>(db, "SELECT level_name as levelName, level_name_bn as levelNameBn FROM commission_levels WHERE level_number = ?", [profile?.level || 1]),
-      queryFirst<any>(db, "SELECT COUNT(*) as cnt FROM mlm_tree WHERE parent_id = ? OR sponsor_id = ?", [workerId, workerId]),
+      queryFirst<any>(db, "SELECT COUNT(*) as cnt FROM affiliate_tree WHERE parent_id = ? OR sponsor_id = ?", [workerId, workerId]),
       queryFirst<any>(db, "SELECT COALESCE(SUM(final_amount), 0) as withdrawn FROM withdrawals WHERE worker_id = ? AND status = 'completed'", [workerId]),
     ]);
 

@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     ).catch(() => {});
 
     await execute(env,
-      `INSERT INTO mlm_tree (worker_id, parent_id, sponsor_id, level_number, position)
+      `INSERT INTO affiliate_tree (worker_id, parent_id, sponsor_id, level_number, position)
        VALUES (?, ?, ?, 1, 0)`,
       [workerId, sponsorId, sponsorId]
     );
