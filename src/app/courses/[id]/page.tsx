@@ -293,7 +293,7 @@ export default function CourseDetailPage() {
                       <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 text-sm">{i + 1}</span>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-text truncate">{f.labelBn || f.label || `File ${i + 1}`}</p>
-                        <p className="text-xs text-text-secondary/60 truncate">{f.url}</p>
+                        {canAccess && <p className="text-xs text-text-secondary/60 truncate">{f.url}</p>}
                       </div>
                       {canAccess && <span className="text-xs text-primary font-bold shrink-0">📥 ডাউনলোড</span>}
                       {!canAccess && <span className="text-xs text-text-secondary/50 shrink-0">🔒</span>}

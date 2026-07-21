@@ -223,8 +223,13 @@ export default function CoursesPage() {
 
     return (
       <div key={item.id} className="relative">
-        <a href={`/courses/${item.id}`}
-          className={`block bg-white rounded-2xl border p-4 transition-all duration-200 ${access ? "border-border hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98] group cursor-pointer" : "border-border/60 opacity-75"}`}>
+        <div
+          onClick={() => access && (window.location.href = `/courses/${item.id}`)}
+          className={`block bg-white rounded-2xl border p-4 transition-all duration-200 relative ${
+            access
+              ? "border-border hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 hover:border-primary/20 active:scale-[0.98] group cursor-pointer"
+              : "border-border/60 opacity-75"
+          }`}>
           <div className="flex items-start gap-3.5">
             {img && (
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 flex items-center justify-center shrink-0 transition-transform overflow-hidden group-hover:scale-110 group-hover:rotate-3">
@@ -250,7 +255,7 @@ export default function CoursesPage() {
               {bookmarkedIds.has(item.id) ? "🔖" : "📑"}
             </button>
           )}
-        </a>
+        </div>
         {isLoggedIn && !isPremium && item.isPremium === 1 && (
           unlockedCourseIds.has(item.id) ? (
             <div className="absolute top-2 right-2 px-2 py-1 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg">✅ আনলক করা</div>
