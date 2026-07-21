@@ -15,6 +15,7 @@ const navTabs = [
   { href: "/company/ai", en: "AI", bn: "এআই", icon: "🤖" },
   { href: "/company/analytics", en: "Analytics", bn: "বিশ্লেষণ", icon: "📊" },
   { href: "/company/psychology", en: "Psychology", bn: "সাইকোলজি", icon: "🧠" },
+  { href: "/company/strategy-dashboard", en: "Dashboard", bn: "ড্যাশবোর্ড", icon: "📊" },
   { href: "/company/strategy-canvas", en: "Canvas", bn: "ক্যানভাস", icon: "🎯" },
   { href: "/company/errc-grid", en: "ERRC", bn: "ERRC", icon: "✂️" },
   { href: "/company/value-innovation", en: "Innovation", bn: "ইনোভেশন", icon: "💡" },

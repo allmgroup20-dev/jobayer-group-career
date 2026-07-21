@@ -1288,6 +1288,29 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       }
     }
 
+    // ─── ERRC Saved quadrants table ───
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS errc_saved (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      quadrant TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '',
+      category TEXT DEFAULT 'general',
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    const existingErrc = await env.DB.prepare("SELECT COUNT(*) as cnt FROM errc_saved").first();
+    if (existingErrc && (existingErrc as any).cnt === 0) {
+      const errcSeed = [
+        { q: "eliminate", c: "Hidden fees, complex registration, manual approvals" },
+        { q: "reduce", c: "Marketing jargon, pressure selling, email frequency" },
+        { q: "raise", c: "Trust policies, AI support quality, income tools" },
+        { q: "create", c: "AI Psychology Agents, WhatsApp learning, zero-tax premium" },
+      ];
+      for (const row of errcSeed) {
+        await env.DB.prepare("INSERT OR IGNORE INTO errc_saved (quadrant, content, category) VALUES (?, ?, 'platform')")
+          .bind(row.q, row.c).run().catch(() => {});
+      }
+    }
+
     g[DONE_FLAG] = true;
     g[DONE_LOCK] = false;
 
