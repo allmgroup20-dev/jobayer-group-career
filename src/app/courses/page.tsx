@@ -42,8 +42,6 @@ function getCourseImage(img: string | null | undefined, logo: string | null | un
 
 export default function CoursesPage() {
   const { lang } = useLanguageStore();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
   const [viewMode, setViewMode] = useState<"all" | "institution">("all");
@@ -171,15 +169,6 @@ export default function CoursesPage() {
     }
     return result;
   }, [debouncedSearch, courses]);
-
-  useEffect(() => { setCurrentPage(1); }, [debouncedSearch]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedCourses = useMemo(() => {
-    const start = (safePage - 1) * itemsPerPage;
-    return filtered.slice(start, start + itemsPerPage);
-  }, [filtered, safePage]);
 
   const canAccess = (course: Course) => {
     if (!isLoggedIn) return false;
@@ -377,7 +366,6 @@ export default function CoursesPage() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0 cursor-pointer ${viewMode === "all" ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white border-border text-text-secondary hover:border-primary/30 hover:text-text"}`}>
               <span>🏠</span>
               <span>সব ({count})</span>
-              {viewMode === "all" && totalPages > 1 && <span className="text-[10px] opacity-60 ml-1">{safePage}/{totalPages}</span>}
             </button>
             <button onClick={() => { setViewMode("institution"); setExpandedInstId(null); setExpandedTrainerId(null); }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0 cursor-pointer ${viewMode === "institution" ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white border-border text-text-secondary hover:border-primary/30 hover:text-text"}`}>
@@ -404,20 +392,8 @@ export default function CoursesPage() {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                  {paginatedCourses.map(c => courseCard(c))}
+                  {filtered.map(c => courseCard(c))}
                 </div>
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1}
-                      className="w-10 h-10 rounded-xl border border-border bg-white flex items-center justify-center text-sm font-bold text-text hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">‹</button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                      <button key={p} onClick={() => setCurrentPage(p)}
-                        className={`min-w-[40px] h-10 rounded-xl border text-sm font-bold transition-all cursor-pointer ${p === safePage ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white border-border text-text-secondary hover:border-primary/30 hover:text-text"}`}>{p}</button>
-                    ))}
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages}
-                      className="w-10 h-10 rounded-xl border border-border bg-white flex items-center justify-center text-sm font-bold text-text hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">›</button>
-                  </div>
-                )}
               </>
             )}
           </>

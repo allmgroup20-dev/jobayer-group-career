@@ -4,8 +4,6 @@ import { querySafe } from "@/lib/db/queries";
 import { setCached } from "@/lib/cache";
 import { scoreAllWorkers } from "@/lib/tracking/scoring";
 
-export const runtime = "edge";
-
 async function warmCourses(db: { DB: D1Database }): Promise<string> {
   const sql = `SELECT c.id, c.title, c.title_bn as titleBn, c.is_new as isNew, c.is_visible as isVisible,
             c.price, c.is_premium as isPremium, c.created_at as createdAt, c.updated_at as updatedAt,
@@ -45,7 +43,12 @@ export async function GET() {
     const d1 = await ensureDB();
     await d1.prepare("SELECT 1").run();
     const warm = await warmCourses({ DB: d1 });
-    const scoring = await scoreAllWorkers();
+    let scoring = { scored: 0, errors: 0 };
+    try {
+      scoring = await scoreAllWorkers();
+    } catch (e) {
+      console.error("Scoring error:", e);
+    }
     return NextResponse.json({ ok: true, warm, scoring: `${scoring.scored} scored, ${scoring.errors} errors`, ts: Date.now() });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
