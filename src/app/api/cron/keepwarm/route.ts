@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureDB } from "@/lib/db";
 import { querySafe } from "@/lib/db/queries";
 import { setCached } from "@/lib/cache";
+import { scoreAllWorkers } from "@/lib/tracking/scoring";
 
 export const runtime = "edge";
 
@@ -44,7 +45,6 @@ export async function GET() {
     const d1 = await ensureDB();
     await d1.prepare("SELECT 1").run();
     const warm = await warmCourses({ DB: d1 });
-    const { scoreAllWorkers } = await import("@/lib/tracking/scoring");
     const scoring = await scoreAllWorkers();
     return NextResponse.json({ ok: true, warm, scoring: `${scoring.scored} scored, ${scoring.errors} errors`, ts: Date.now() });
   } catch (e) {
