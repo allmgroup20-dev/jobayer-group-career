@@ -5,30 +5,42 @@ import { ensureDB } from "@/lib/db";
 import { ALL_ENTRIES } from "@/lib/ai/seed-data/all-entries";
 
 interface BookInfo {
-  sourceName: string;
+  key: string;
+  bookTitle: string;
+  author: string;
   total: number;
   inserted: number;
   skipped: number;
 }
 
-function extractBookLabel(sourceName: string): string {
-  // Normalize common source names for display
+const BOOK_MAP: { key: string; bookTitle: string; author: string }[] = [
+  { key: "start with why", bookTitle: "Start with WHY", author: "Simon Sinek" },
+  { key: "power of habit", bookTitle: "The Power of Habit", author: "Charles Duhigg" },
+  { key: "how to win friends", bookTitle: "How to Win Friends & Influence People", author: "Dale Carnegie" },
+  { key: "never split", bookTitle: "Never Split the Difference", author: "Chris Voss" },
+  { key: "emotional intelligence", bookTitle: "Emotional Intelligence", author: "Daniel Goleman" },
+  { key: "predictably irrational", bookTitle: "Predictably Irrational", author: "Dan Ariely" },
+  { key: "to sell is human", bookTitle: "To Sell Is Human", author: "Daniel H. Pink" },
+  { key: "culture map", bookTitle: "The Culture Map", author: "Erin Meyer" },
+  { key: "drive", bookTitle: "Drive", author: "Daniel H. Pink" },
+  { key: "hooked", bookTitle: "Hooked", author: "Nir Eyal" },
+  { key: "this is marketing", bookTitle: "This Is Marketing", author: "Seth Godin" },
+  { key: "influence", bookTitle: "Influence", author: "Robert Cialdini" },
+  { key: "talking with psychopaths", bookTitle: "Talking with Psychopaths", author: "Christopher Berry-Dee" },
+  { key: "art of persuasion", bookTitle: "The Art of Persuasion", author: "Bob Berg" },
+];
+
+function extractBookInfo(sourceName: string): { bookTitle: string; author: string } {
   const s = sourceName.toLowerCase();
-  if (s.includes("start with why")) return "Start with WHY — Simon Sinek";
-  if (s.includes("power of habit")) return "The Power of Habit — Charles Duhigg";
-  if (s.includes("how to win friends")) return "How to Win Friends & Influence People — Dale Carnegie";
-  if (s.includes("never split")) return "Never Split the Difference — Chris Voss";
-  if (s.includes("emotional intelligence")) return "Emotional Intelligence — Daniel Goleman";
-  if (s.includes("predictably irrational")) return "Predictably Irrational — Dan Ariely";
-  if (s.includes("to sell is human")) return "To Sell Is Human — Daniel H. Pink";
-  if (s.includes("culture map")) return "The Culture Map — Erin Meyer";
-  if (s.includes("drive")) return "Drive — Daniel H. Pink";
-  if (s.includes("hooked")) return "Hooked — Nir Eyal";
-  if (s.includes("this is marketing")) return "This Is Marketing — Seth Godin";
-  if (s.includes("influence") && s.includes("cialdini")) return "Influence — Robert Cialdini";
-  if (s.includes("talking with psychopaths")) return "Talking with Psychopaths — Christopher Berry-Dee";
-  if (s.includes("art of persuasion")) return "The Art of Persuasion — Bob Berg";
-  return sourceName;
+  for (const b of BOOK_MAP) {
+    if (s.includes(b.key)) return { bookTitle: b.bookTitle, author: b.author };
+  }
+  // Fallback: split on ' — ' or ' by '
+  const byMatch = sourceName.match(/^(.+?)\s+by\s+(.+)$/);
+  if (byMatch) return { bookTitle: byMatch[1].trim(), author: byMatch[2].trim() };
+  const dashMatch = sourceName.match(/^(.+?)\s*[—–-]\s*(.+)$/);
+  if (dashMatch) return { bookTitle: dashMatch[1].trim(), author: dashMatch[2].trim() };
+  return { bookTitle: sourceName, author: "" };
 }
 
 export async function GET() {
@@ -77,9 +89,9 @@ export async function GET() {
     let skipped = 0;
 
     for (const entry of ALL_ENTRIES) {
-      const label = extractBookLabel(entry.sourceName);
-      if (!books[label]) books[label] = { sourceName: label, total: 0, inserted: 0, skipped: 0 };
-      books[label].total++;
+      const { bookTitle, author } = extractBookInfo(entry.sourceName);
+      if (!books[bookTitle]) books[bookTitle] = { key: bookTitle, bookTitle, author, total: 0, inserted: 0, skipped: 0 };
+      books[bookTitle].total++;
 
       const existing = await query(
         { DB: db },
@@ -87,23 +99,27 @@ export async function GET() {
         [entry.title, entry.category]
       );
       if (existing.length > 0) {
-        books[label].skipped++;
+        books[bookTitle].skipped++;
         skipped++;
         continue;
       }
 
       await addKnowledgeEntry(entry);
-      books[label].inserted++;
+      books[bookTitle].inserted++;
       inserted++;
     }
 
+    const sortedBooks = Object.values(books).sort((a, b) => b.total - a.total);
+    const bookCount = sortedBooks.length;
+
     return NextResponse.json({
       success: true,
-      message: `Seeded ${inserted} entries (${skipped} skipped) across ${Object.keys(books).length} books`,
+      message: `Seeded ${inserted} entries (${skipped} skipped) across ${bookCount} books`,
       inserted,
       skipped,
       total: ALL_ENTRIES.length,
-      books: Object.values(books).sort((a, b) => b.total - a.total),
+      bookCount,
+      books: sortedBooks,
     });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });

@@ -42,8 +42,8 @@ export default function KnowledgePage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<{
-    inserted: number; skipped: number; total: number;
-    books: { sourceName: string; total: number; inserted: number; skipped: number }[];
+    inserted: number; skipped: number; total: number; bookCount: number;
+    books: { bookTitle: string; author: string; total: number; inserted: number; skipped: number }[];
   } | null>(null);
   const [form, setForm] = useState({
     category: "psychology", subcategory: "", title: "", content: "",
@@ -454,28 +454,45 @@ export default function KnowledgePage() {
       {/* Seed Result Panel */}
       {seedResult && (
         <div className="mb-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5">
-          <div className="flex items-start justify-between mb-3">
+          <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-green-800">{isBn ? "📚 সিড সম্পন্ন!" : "📚 Seeding Complete!"}</h3>
               <p className="text-xs text-green-600 mt-0.5">
                 {isBn
-                  ? `${seedResult.inserted}টি নতুন (${seedResult.skipped}টি স্কিপ) — মোট ${seedResult.total}টি`
-                  : `${seedResult.inserted} new (${seedResult.skipped} skipped) — ${seedResult.total} total`}
+                  ? `${seedResult.inserted}টি নতুন (${seedResult.skipped}টি স্কিপ) — মোট ${seedResult.total}টি এন্ট্রি`
+                  : `${seedResult.inserted} new (${seedResult.skipped} skipped) — ${seedResult.total} total entries`}
               </p>
             </div>
             <button onClick={() => setSeedResult(null)} className="text-green-400 hover:text-green-600 text-lg leading-none">&times;</button>
           </div>
-          <div className="space-y-1.5">
+
+          {/* Table header */}
+          <div className="hidden sm:grid grid-cols-[2.5rem_1fr_1fr_7rem] gap-2 px-3 py-1.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">
+            <span>#</span>
+            <span>{isBn ? "বই" : "Book"}</span>
+            <span>{isBn ? "লেখক" : "Author"}</span>
+            <span className="text-right">{isBn ? "এন্ট্রি" : "Entries"}</span>
+          </div>
+
+          <div className="space-y-1">
             {seedResult.books.map((book, i) => (
-              <div key={i} className="flex items-center justify-between bg-white/60 rounded-xl px-3 py-2 text-xs">
-                <span className="font-medium text-green-900 truncate mr-2 flex-1">{book.sourceName}</span>
-                <span className="flex items-center gap-3 shrink-0">
-                  {book.inserted > 0 && <span className="text-green-600 font-bold">+{book.inserted}</span>}
-                  {book.skipped > 0 && <span className="text-amber-500 text-[10px]">{book.skipped} dup</span>}
-                  <span className="text-green-400 font-mono">{book.total} ch.</span>
-                </span>
+              <div key={book.bookTitle}
+                className="grid grid-cols-[2.5rem_1fr_1fr_7rem] gap-2 items-center bg-white/60 rounded-xl px-3 py-2.5 text-xs hover:bg-white/90 transition-colors">
+                <span className="text-green-400 font-mono font-bold text-center">{i + 1}</span>
+                <span className="font-semibold text-green-900 truncate">{book.bookTitle}</span>
+                <span className="text-green-600 truncate">{book.author}</span>
+                <div className="flex items-center justify-end gap-2">
+                  {book.inserted > 0 && <span className="text-green-600 font-bold text-sm">+{book.inserted}</span>}
+                  {book.skipped > 0 && <span className="text-amber-500 text-[10px] font-medium">({book.skipped} dup)</span>}
+                  <span className="text-green-300 font-mono text-[10px]">{book.total}</span>
+                </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-green-200/50 flex justify-between text-xs text-green-500">
+            <span>{isBn ? `মোট ${seedResult.bookCount}টি বই` : `${seedResult.bookCount} books total`}</span>
+            <span className="font-mono">{seedResult.inserted + seedResult.skipped}/{seedResult.total} {isBn ? "এন্ট্রি" : "entries"}</span>
           </div>
         </div>
       )}
