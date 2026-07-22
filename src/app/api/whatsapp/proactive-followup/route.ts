@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     // 1) Find leads who have never been contacted proactively
     const newLeads = await query<any>(
-      { DB: env },
+      env,
       `SELECT p.phone, COALESCE(p.name, 'Valued Customer') as name
        FROM profiles p
        LEFT JOIN proactive_followups f ON p.phone = f.phone
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     // 2) Find contacts who were "seen" (read) but haven't replied
     const seenNoReply = await query<any>(
-      { DB: env },
+      env,
       `SELECT f.phone, f.followup_count, f.last_seen_at, f.last_outbound_at
        FROM proactive_followups f
        WHERE f.last_seen_at > datetime('now', '-30 minutes')
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // 3) Find stale contacts (no activity in > 48 hours)
     const staleContacts = await query<any>(
-      { DB: env },
+      env,
       `SELECT p.phone, COALESCE(p.name, 'Valued Customer') as name
        FROM profiles p
        LEFT JOIN proactive_followups f ON p.phone = f.phone
