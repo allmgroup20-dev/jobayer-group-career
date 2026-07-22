@@ -1,6 +1,7 @@
 import { initEnv } from "@/lib/env";
 
 const DONE_FLAG = "__dbSchemaSetupDone";
+const MIGRATE_FLAG = "__dbSchemaMigrationsDone";
 const DONE_LOCK = "__dbSchemaSetupLock";
 const PENDING_FLAG = "__dbSchemaSetupPending";
 
@@ -10,6 +11,19 @@ const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_in
 
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
+
+  // ── Forced migrations: run once per isolate even when schema fast check skips ──
+  // Needed because new columns added to CREATE TABLE statements in newer deploys
+  // won't exist on DBs created before the change (e.g. courses.image_url).
+  if (!g[MIGRATE_FLAG]) {
+    try { await env.DB.prepare("ALTER TABLE courses ADD COLUMN image_url TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE courses ADD COLUMN trainer_id INTEGER").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE courses ADD COLUMN institution_id INTEGER").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE course_categories ADD COLUMN sort_order INTEGER DEFAULT 0").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE course_categories ADD COLUMN parent_id INTEGER DEFAULT NULL").run(); } catch {}
+    g[MIGRATE_FLAG] = true;
+  }
+
   if (g[DONE_FLAG]) return;
 
   // Fast check: single PRAGMA to see if schema is already up to date
