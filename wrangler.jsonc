@@ -14,7 +14,12 @@
     "DEFAULT_CURRENCY": "BDT",
     "SITE_NAME": "Jobayer Group Career",
     "SITE_URL": "https://career.jobayergroup.com",
-    "SSLCOMMERZ_IS_LIVE": "false"
+    "SSLCOMMERZ_IS_LIVE": "false",
+    "WHATSAPP_API_KEY": "",
+    "WHATSAPP_PHONE_ID": "",
+    "OPENROUTER_API_KEY": "",
+    "HUGGINGFACE_API_KEY": "",
+    "JWT_SECRET": ""
   },
   "d1_databases": [
     {
