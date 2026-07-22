@@ -199,7 +199,7 @@ export default function KnowledgePage() {
       const res = await fetch("/api/knowledge/seed");
       const data: any = await res.json();
       if (data.books) {
-        setSeedResult({ inserted: data.inserted, skipped: data.skipped, total: data.total, books: data.books });
+        setSeedResult({ inserted: data.inserted, skipped: data.skipped, total: data.total, bookCount: data.bookCount, books: data.books });
       } else {
         alert(data.message || data.error || "Done");
       }
