@@ -203,6 +203,11 @@ export default function AIHubPage() {
   // ─── Skills State ──────────────────────────────────────
   const [skillsStats, setSkillsStats] = useState<AIStats | null>(null);
   const [skillsLoading, setSkillsLoading] = useState(true);
+  const [skillsList, setSkillsList] = useState<any[]>([]);
+  const [skillsTotal, setSkillsTotal] = useState(0);
+  const [skillsCategories, setSkillsCategories] = useState<string[]>([]);
+  const [skillsSearch, setSkillsSearch] = useState("");
+  const [skillsCategoryFilter, setSkillsCategoryFilter] = useState("");
   const [consolidating, setConsolidating] = useState(false);
   const [consolidationResult, setConsolidationResult] = useState<ConsolidationResult | null>(null);
 
@@ -429,9 +434,14 @@ export default function AIHubPage() {
   const loadSkills = async () => {
     setSkillsLoading(true);
     try {
-      const res = await fetch("/api/ai/stats");
-      const data: AIStats = await res.json();
-      if (data.responses) setSkillsStats(data);
+      const [statsRes, skillsRes] = await Promise.all([
+        fetch("/api/ai/stats"),
+        fetch(`/api/ai/skills?limit=500${skillsCategoryFilter ? `&category=${skillsCategoryFilter}` : ""}${skillsSearch ? `&search=${encodeURIComponent(skillsSearch)}` : ""}`),
+      ]);
+      const statsData: AIStats = await statsRes.json();
+      if (statsData.responses) setSkillsStats(statsData);
+      const skillsData: { skills?: any[]; total?: number; categories?: string[] } = await skillsRes.json();
+      if (skillsData.skills) { setSkillsList(skillsData.skills); setSkillsTotal(skillsData.total || 0); setSkillsCategories(skillsData.categories || []); }
     } catch {}
     setSkillsLoading(false);
   };
@@ -1759,6 +1769,52 @@ export default function AIHubPage() {
                     </div>
                   ) : <p className="text-xs text-text-secondary">{lang === "bn" ? "কোনো পেইন পয়েন্ট নেই" : "No pain points recorded yet"}</p>}
                 </div>
+              </div>
+
+              {/* ── Skills Learned List ── */}
+              <div className="card p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-primary text-sm">{lang === "bn" ? `🧠 শিখেছে ${skillsTotal}টি দক্ষতা` : `🧠 ${skillsTotal} Skills Learned`}</h3>
+                  <div className="flex gap-2">
+                    <input type="text" value={skillsSearch} onChange={e => { setSkillsSearch(e.target.value); setTimeout(loadSkills, 300); }} placeholder={lang === "bn" ? "দক্ষতা খুঁজুন..." : "Search skills..."} className="px-3 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    <select value={skillsCategoryFilter} onChange={e => { setSkillsCategoryFilter(e.target.value); setTimeout(loadSkills, 100); }} className="px-3 py-1.5 text-xs border border-border rounded-lg focus:outline-none">
+                      <option value="">{lang === "bn" ? "সব" : "All"}</option>
+                      {skillsCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {skillsList.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-3xl mb-2">📭</div>
+                    <p className="text-xs text-text-secondary">{lang === "bn" ? "এখনো কোনো দক্ষতা শিখেনি। 'স্কিল কনসলিডেট করুন' বাটনে ক্লিক করে কনভারসেশন থেকে দক্ষতা শেখানো শুরু করুন।" : "No skills learned yet. Click 'Consolidate Skills' to start learning from conversations."}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                    {skillsList.map((skill: any) => (
+                      <div key={skill.id} className="border border-border rounded-xl p-3 hover:border-primary/30 transition-all">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{skill.category || "general"}</span>
+                                <span className="text-[10px] text-text-secondary">×{skill.usage_count || 0}</span>
+                              </div>
+                              <p className="text-sm font-medium text-primary truncate">{skill.question}</p>
+                              <p className="text-xs text-text-secondary mt-1 line-clamp-2">{skill.answerPreview || skill.answer}</p>
+                              {skill.keywords && (
+                                <div className="flex gap-1 mt-1.5 flex-wrap">
+                                  {skill.keywords.split(",").slice(0, 5).map((kw: string, ki: number) => (
+                                    <span key={ki} className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{kw.trim()}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-text-secondary shrink-0">{skill.created_at?.split(" ")[0] || ""}</span>
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           )}
