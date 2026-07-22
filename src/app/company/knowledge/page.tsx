@@ -41,6 +41,10 @@ export default function KnowledgePage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
   const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState<{
+    inserted: number; skipped: number; total: number;
+    books: { sourceName: string; total: number; inserted: number; skipped: number }[];
+  } | null>(null);
   const [form, setForm] = useState({
     category: "psychology", subcategory: "", title: "", content: "",
     sourceType: "book", sourceName: "", sourceUrl: "", confidence: 0.85,
@@ -190,10 +194,15 @@ export default function KnowledgePage() {
   const handleSeed = async () => {
     if (!confirm(isBn ? "ডিফল্ট বইয়ের এন্ট্রি সিড করবেন? (ডুপ্লিকেট স্কিপ হবে)" : "Seed default book entries? (duplicates will be skipped)")) return;
     setSeeding(true);
+    setSeedResult(null);
     try {
       const res = await fetch("/api/knowledge/seed");
       const data: any = await res.json();
-      alert(data.message || data.error || "Done");
+      if (data.books) {
+        setSeedResult({ inserted: data.inserted, skipped: data.skipped, total: data.total, books: data.books });
+      } else {
+        alert(data.message || data.error || "Done");
+      }
       fetchData(filterCategory);
     } catch {
       alert("Seed failed");
@@ -441,6 +450,35 @@ export default function KnowledgePage() {
           {seeding ? (isBn ? "⏳ সিড হচ্ছে..." : "⏳ Seeding...") : (isBn ? "📚 বই সিড করুন" : "📚 Seed Books")}
         </button>
       </div>
+
+      {/* Seed Result Panel */}
+      {seedResult && (
+        <div className="mb-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-green-800">{isBn ? "📚 সিড সম্পন্ন!" : "📚 Seeding Complete!"}</h3>
+              <p className="text-xs text-green-600 mt-0.5">
+                {isBn
+                  ? `${seedResult.inserted}টি নতুন (${seedResult.skipped}টি স্কিপ) — মোট ${seedResult.total}টি`
+                  : `${seedResult.inserted} new (${seedResult.skipped} skipped) — ${seedResult.total} total`}
+              </p>
+            </div>
+            <button onClick={() => setSeedResult(null)} className="text-green-400 hover:text-green-600 text-lg leading-none">&times;</button>
+          </div>
+          <div className="space-y-1.5">
+            {seedResult.books.map((book, i) => (
+              <div key={i} className="flex items-center justify-between bg-white/60 rounded-xl px-3 py-2 text-xs">
+                <span className="font-medium text-green-900 truncate mr-2 flex-1">{book.sourceName}</span>
+                <span className="flex items-center gap-3 shrink-0">
+                  {book.inserted > 0 && <span className="text-green-600 font-bold">+{book.inserted}</span>}
+                  {book.skipped > 0 && <span className="text-amber-500 text-[10px]">{book.skipped} dup</span>}
+                  <span className="text-green-400 font-mono">{book.total} ch.</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-6 border-b border-border pb-3">
         {(["browse", "add"] as const).map(t => (
