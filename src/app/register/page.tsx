@@ -36,6 +36,13 @@ export default function RegisterPage() {
     }
   }, []);
 
+  const normalizePhone = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("880") && digits.length > 10) return digits.slice(3);
+    if (digits.startsWith("0")) return digits.slice(1);
+    return digits;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -47,8 +54,15 @@ export default function RegisterPage() {
       return;
     }
 
+    const cleanPhone = normalizePhone(form.phone);
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setError(lang === "bn" ? "সঠিক হোয়াটসঅ্যাপ নম্বর দিন (যেমন: ০১XXX-XXXXXX)" : "Enter a valid WhatsApp number (e.g. 01XXX-XXXXXX)");
+      setLoading(false);
+      return;
+    }
+
     const payload: Record<string, unknown> = {
-      phone: form.phone,
+      phone: cleanPhone,
       password: form.password,
       referralCode: form.referralCode || undefined,
       ...utmParams,
@@ -121,10 +135,11 @@ export default function RegisterPage() {
               💬 {lang === "bn" ? "হোয়াটসঅ্যাপ নম্বর" : "WhatsApp Number"} <span className="text-red-400">*</span>
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-text-secondary/50">+880</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-text-secondary/50">📞</span>
               <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)}
-                placeholder="1XXX-XXXXXX" className="input-field pl-12" required />
+                placeholder={lang === "bn" ? "০১XXX-XXXXXX" : "01XXX-XXXXXX"} className="input-field pl-10" required />
             </div>
+            <p className="text-[10px] text-text-secondary/40 mt-1">{lang === "bn" ? "উদাহরণ: ০১৭১২৩৪৫৬৭৮" : "Example: 01712345678"}</p>
           </div>
 
           <div>

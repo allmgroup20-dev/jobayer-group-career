@@ -159,7 +159,7 @@ const ALL_FIELDS: FieldDef[] = [
   },
 ];
 
-const TOTAL_STEPS = ALL_FIELDS.length + 1;
+  const TOTAL_STEPS = ALL_FIELDS.length + 2;
 
 function defaultValues(): Record<FieldKey, string> {
   return {
@@ -182,6 +182,8 @@ export default function OnboardingPage() {
   const [interests, setInterests] = useState<string[]>([]);
   const [showInterests, setShowInterests] = useState(false);
   const [interestSaved, setInterestSaved] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [consentBoxChecked, setConsentBoxChecked] = useState(false);
   const [done, setDone] = useState(false);
 
   const processed = useRef(false);
@@ -258,10 +260,23 @@ export default function OnboardingPage() {
     setLoading(false);
   }, [profileData, suggestions, suggestionsReady, workerId]);
 
-  const currentField = pendingFields[currentIdx];
+  const showingConsent = !consentGiven;
+  const currentField = showingConsent ? null : pendingFields[currentIdx];
   const fieldDef = currentField ? ALL_FIELDS.find(f => f.key === currentField) : null;
-  const completedCount = TOTAL_STEPS - (pendingFields.length - currentIdx) - (showInterests ? 0 : 0);
+  const completedCount = TOTAL_STEPS - (pendingFields.length - currentIdx) - (showInterests ? 0 : 0) - (showingConsent ? 1 : 0);
   const progressPct = Math.round((completedCount / TOTAL_STEPS) * 100);
+
+  const handleConsentAccept = async () => {
+    setSaving(true);
+    try {
+      await fetch("/api/privacy/consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, consentType: "onboarding", isGranted: 1 }),
+      }).catch(() => {});
+      setConsentGiven(true);
+    } catch {} finally { setSaving(false); }
+  };
 
   const setValue = (key: FieldKey, val: string) => {
     setValues(prev => ({ ...prev, [key]: val }));
@@ -363,7 +378,29 @@ export default function OnboardingPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-xl border border-border">
-          {!showInterests && fieldDef && (
+          {showingConsent && (
+            <div className="space-y-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center mx-auto shadow-lg">
+                <span className="text-3xl">🔒</span>
+              </div>
+              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "গোপনীয়তা ও শর্তাবলী" : "Privacy & Terms"}</h2>
+              <div className="bg-gray-50 rounded-xl p-4 text-xs text-text-secondary leading-relaxed text-left space-y-2 max-h-40 overflow-y-auto">
+                <p>{lang === "bn" ? "আমরা আপনার ব্যক্তিগত তথ্য সংগ্রহ করি শুধুমাত্র আপনার অভিজ্ঞতা উন্নত করতে। আপনার ডেটা কখনো তৃতীয় পক্ষের সাথে শেয়ার করা হয় না।" : "We collect your personal information solely to improve your experience. Your data is never shared with third parties."}</p>
+                <p>{lang === "bn" ? "কুকিজ ও ট্র্যাকিং ব্যবহার করে আমরা আপনার পছন্দ বুঝতে এবং ব্যক্তিগতকৃত কন্টেন্ট দেখাতে সক্ষম হই।" : "We use cookies and tracking to understand your preferences and show personalized content."}</p>
+                <p>{lang === "bn" ? "যেকোনো সময় আপনি আপনার প্রোফাইল থেকে তথ্য মুছতে বা এক্সপোর্ট করতে পারবেন।" : "You can delete or export your data at any time from your profile settings."}</p>
+              </div>
+              <label className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 cursor-pointer">
+                <input type="checkbox" checked={consentBoxChecked} onChange={() => setConsentBoxChecked(!consentBoxChecked)} className="w-5 h-5 accent-primary" />
+                <span className="text-sm font-medium text-text text-left">{lang === "bn" ? "আমি সকল শর্তাবলী, গোপনীয়তা নীতি ও কুকিজ পলিসি গ্রহণ করছি" : "I accept all terms, privacy policy & cookie policy"}</span>
+              </label>
+              <button onClick={handleConsentAccept} disabled={saving || !consentBoxChecked}
+                className="btn-primary w-full disabled:opacity-50">
+                {saving ? "..." : (lang === "bn" ? "✅ গ্রহণ করুন ও এগিয়ে যান" : "✅ Accept & Continue")}
+              </button>
+            </div>
+          )}
+
+          {!showingConsent && !showInterests && fieldDef && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs text-text-secondary bg-gray-100 px-2 py-0.5 rounded-full">

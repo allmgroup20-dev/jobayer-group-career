@@ -33,15 +33,28 @@ export default function LoginPage() {
     return () => clearTimeout(slowTimerRef.current);
   }, [loading]);
 
+  const normalizePhone = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("880") && digits.length > 10) return digits.slice(3);
+    if (digits.startsWith("0")) return digits.slice(1);
+    return digits;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    const cleanPhone = normalizePhone(phone);
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setError(lang === "bn" ? "সঠিক হোয়াটসঅ্যাপ নম্বর দিন (যেমন: ০১XXX-XXXXXX)" : "Enter a valid WhatsApp number (e.g. 01XXX-XXXXXX)");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/auth/worker-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ phone: cleanPhone, password }),
       });
       const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
       if (!res.ok) throw new Error(data.error || "Login failed");
