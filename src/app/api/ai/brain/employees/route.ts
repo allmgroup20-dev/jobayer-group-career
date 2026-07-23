@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/db";
-import { getAllDepartments, findAgent, getAgentsByDepartment } from "@/lib/ai/brain/registry/index";
+import { getAllDepartments } from "@/lib/ai/brain/registry/index";
 import { getDynamicEmployees, createDynamicEmployee, deleteDynamicEmployee, getEmployeeChainInfo } from "@/lib/ai/brain/negativity";
-import { CHAINS, CROSS_DEPT_CHAINS } from "@/lib/ai/brain/orchestrator";
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const view = searchParams.get("view") || "all";
     const db = await getDB();
-
     const departments = getAllDepartments().map((d) => ({
       id: d.id,
       name: d.name,
@@ -27,24 +23,9 @@ export async function GET(request: NextRequest) {
           description: a.description,
           tier: a.tier,
           priority: a.priority,
-          when: a.when,
           primaryModel: a.primaryModel,
         })),
       })),
-    }));
-
-    const chains = Object.entries(CHAINS).map(([key, agentIds]) => ({
-      key,
-      department: key.split("_")[0],
-      intent: key.split("_").slice(1).join("_"),
-      agents: agentIds,
-      stepCount: agentIds.length,
-    }));
-
-    const crossDeptChains = Object.entries(CROSS_DEPT_CHAINS).map(([key, steps]) => ({
-      key,
-      steps,
-      stepCount: steps.length,
     }));
 
     const dynamicEmployees = await getDynamicEmployees(db);
@@ -58,14 +39,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       departments,
-      chains,
-      crossDeptChains,
       dynamicEmployees,
       stats: {
         totalDepartments: departments.length,
         totalAgents,
-        totalChains: chains.length,
-        totalCrossDeptChains: crossDeptChains.length,
         totalDynamicEmployees: dynamicEmployees.length,
       },
     });

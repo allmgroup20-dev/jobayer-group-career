@@ -137,7 +137,7 @@ function parseIncomingMessage(body: any): { phone: string; text: string; name?: 
   return null;
 }
 
-const WEBHOOK_TIMEOUT = 25000;
+const WEBHOOK_TIMEOUT = 45000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -276,10 +276,28 @@ export async function POST(request: NextRequest) {
         setTimeout(() => reject(new Error("Brain processing timed out")), WEBHOOK_TIMEOUT)
       ),
     ]).catch(async () => {
+      const isBuyIntent = /(buy|purchase|join|register|কিনতে|জয়েন|রেজিস্টার|দাম|price|cost)/i.test(text);
+      const isComplaint = /(problem|complaint|fraud|scam|cheat|ভুয়া|প্রতারনা|সমস্যা|অভিযোগ)/i.test(text);
+      if (isBuyIntent) {
+        return {
+          text: lang === "en"
+            ? `Great to hear from you! I'd love to help you get started with Jobayer Group Career. We have Standard (free), Premium (1,500 TK), and VIP (5,000 TK) plans. Which one interests you? I can explain the benefits of each.`
+            : `আপনার আগ্রহ দেখে ভালো লাগলো! Jobayer Group Career-এ শুরু করতে আমরা Standard (ফ্রি), Premium (১,৫০০ টাকা), এবং VIP (৫,০০০ টাকা) প্ল্যান অফার করি। কোনটি আপনার আগ্রহের? আমি প্রতিটির সুবিধা বিস্তারিত বলতে পারি।`,
+          model: "smart-fallback" as const, tokens: 0, agentsUsed: [], departmentsUsed: [], department: "sales" as any, intent: "general" as any, ms: WEBHOOK_TIMEOUT,
+        };
+      }
+      if (isComplaint) {
+        return {
+          text: lang === "en"
+            ? `I understand you're frustrated. Please tell me what happened - I'm here to listen and help resolve any issue you're facing. Your satisfaction is our priority.`
+            : `আমি বুঝতে পারছি আপনি frustrated। দয়া করে বলুন কী হয়েছে - আমি শুনতে এবং আপনার সমস্যা সমাধান করতে এখানে আছি। আপনার সন্তুষ্টি আমাদের অগ্রাধিকার।`,
+          model: "smart-fallback" as const, tokens: 0, agentsUsed: [], departmentsUsed: [], department: "customer_experience" as any, intent: "general" as any, ms: WEBHOOK_TIMEOUT,
+        };
+      }
       const fallbackText = lang === "en"
-        ? `Thank you for your message! I'll make sure to get back to you with the information you need. In the meantime, feel free to check out our programs at career.jobayergroup.com`
-        : `আপনার মেসেজের জন্য ধন্যবাদ! আমি আপনার প্রয়োজনীয় তথ্য নিয়ে শীঘ্রই ফিরে আসব। ইতিমধ্যে, career.jobayergroup.com-এ আমাদের প্রোগ্রামগুলো দেখে নিতে পারেন।`;
-      return { text: fallbackText, model: "timeout-fallback" as const, tokens: 0, agentsUsed: [], departmentsUsed: [], department: "customer_experience" as any, intent: "general" as any, ms: WEBHOOK_TIMEOUT };
+        ? `I appreciate your message! I'm here to help you explore how Jobayer Group Career can create new income opportunities for you. Would you like to know about our training programs, membership plans, or commission structure?`
+        : `আপনার মেসেজের জন্য ধন্যবাদ! আমি আপনাকে সাহায্য করতে এখানে আছি। Jobayer Group Career কীভাবে আপনার জন্য নতুন আয়ের সুযোগ তৈরি করতে পারে তা জানতে চান? আমাদের ট্রেনিং প্রোগ্রাম, মেম্বারশিপ প্ল্যান, বা কমিশন স্ট্রাকচার সম্পর্কে জানতে চান?`;
+      return { text: fallbackText, model: "smart-fallback" as const, tokens: 0, agentsUsed: [], departmentsUsed: [], department: "customer_experience" as any, intent: "general" as any, ms: WEBHOOK_TIMEOUT };
     });
     let reply = brainResult.text;
 
