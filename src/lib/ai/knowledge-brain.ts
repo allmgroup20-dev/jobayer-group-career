@@ -221,3 +221,26 @@ export async function checkContradictions(category: string, newContent: string):
   }
   return contradictions;
 }
+
+// Auto-seed knowledge from database on first load
+let seeded = false;
+export async function ensureKnowledgeSeeded(): Promise<void> {
+  if (seeded) return;
+  try {
+    const db = await ensureDB();
+    const existing = await query<{ c: number }>(
+      { DB: db },
+      "SELECT COUNT(*) as c FROM knowledge_entries WHERE source_name = 'auto_seed'"
+    );
+    if (existing[0]?.c > 0) { seeded = true; return; }
+    const { autoSeedKnowledge } = await import("./knowledge-auto-seed");
+    const result = await autoSeedKnowledge();
+    if (result.seeded > 0) {
+      seeded = true;
+      console.log(`[Knowledge] Auto-seeded ${result.seeded} entries: ${result.categories.join(", ")}`);
+    }
+  } catch {}
+}
+
+// Trigger auto-seed on module load
+ensureKnowledgeSeeded();
