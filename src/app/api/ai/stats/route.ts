@@ -1,57 +1,34 @@
 import { NextResponse } from "next/server";
+import { getDB } from "@/lib/db";
 import { query, queryFirst } from "@/lib/db/queries";
-import { ensureDB } from "@/lib/db";
 
 export async function GET() {
   try {
-    const db = await ensureDB();
+    const env = await getDB();
 
-    const env = { DB: db };
+    const totalSkills = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills");
+    const promotedSkills = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills WHERE manual_override = 1");
+    const skillsThisWeek = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills WHERE created_at >= datetime('now', '-7 days')");
+    const activeSkills = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills WHERE usage_count > 3");
+    const deletedCount = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM skill_audit_log WHERE action = 'auto_deleted'");
+    const autoLearnCount = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills WHERE category = 'auto_learned'");
+    const faqCount = await queryFirst<{ c: number }>(env, "SELECT COUNT(*) as c FROM ai_skills WHERE category = 'faq'");
 
-    const [stateRows, activeModels, activeKeys, totalConversations, totalProfiles, skillCount, topPainPoints] = await Promise.all([
-      queryFirst<{ total_responses: number; today_responses: number }>(env,
-        "SELECT total_responses, today_responses FROM ai_model_failover_state WHERE id = 1"
-      ),
-      query<{ count: number }>(env, "SELECT COUNT(*) as count FROM ai_models WHERE is_active = 1"),
-      query<{ count: number }>(env, "SELECT COUNT(*) as count FROM ai_api_keys WHERE is_active = 1"),
-      query<{ count: number }>(env, "SELECT COUNT(*) as count FROM ai_conversations"),
-      query<{ count: number }>(env, "SELECT COUNT(*) as count FROM ai_phone_profiles"),
-      query<{ count: number }>(env, "SELECT COUNT(*) as count FROM ai_skills"),
-      query<{ pain_points: string }>(env,
-        "SELECT pain_points FROM ai_phone_profiles WHERE pain_points IS NOT NULL AND pain_points != '' ORDER BY priority_score DESC LIMIT 20"
-      ),
-    ]);
-
-    const painPointFrequency: Record<string, number> = {};
-    for (const row of topPainPoints) {
-      try {
-        const points = JSON.parse(row.pain_points) as string[];
-        for (const p of points) {
-          painPointFrequency[p] = (painPointFrequency[p] || 0) + 1;
-        }
-      } catch {}
-    }
+    const modelStats = await query<{ model: string; calls: number }>(env,
+      "SELECT model, COUNT(*) as calls FROM ai_conversations WHERE created_at >= datetime('now', '-30 days') GROUP BY model ORDER BY calls DESC LIMIT 5"
+    );
 
     return NextResponse.json({
-      responses: {
-        total: stateRows?.total_responses || 0,
-        today: stateRows?.today_responses || 0,
-      },
-      models: {
-        active: activeModels[0]?.count || 0,
-        total: 26,
-      },
-      keys: {
-        active: activeKeys[0]?.count || 0,
-      },
-      conversations: totalConversations[0]?.count || 0,
-      profiles: totalProfiles[0]?.count || 0,
-      skills: skillCount[0]?.count || 0,
-      painPointFrequency,
+      totalSkills: totalSkills?.c || 0,
+      promotedSkills: promotedSkills?.c || 0,
+      skillsThisWeek: skillsThisWeek?.c || 0,
+      activeSkills: activeSkills?.c || 0,
+      deletedCount: deletedCount?.c || 0,
+      autoLearnCount: autoLearnCount?.c || 0,
+      faqCount: faqCount?.c || 0,
+      modelStats,
     });
   } catch (error) {
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : "Failed to load stats",
-    }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

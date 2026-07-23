@@ -201,7 +201,7 @@ export default function AIHubPage() {
   };
 
   // ─── Skills State ──────────────────────────────────────
-  const [skillsStats, setSkillsStats] = useState<AIStats | null>(null);
+  const [skillsStats, setSkillsStats] = useState<any>(null);
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [skillsList, setSkillsList] = useState<any[]>([]);
   const [skillsTotal, setSkillsTotal] = useState(0);
@@ -442,8 +442,8 @@ export default function AIHubPage() {
         fetch("/api/ai/stats"),
         fetch(`/api/ai/skills?limit=500${skillsCategoryFilter ? `&category=${skillsCategoryFilter}` : ""}${skillsSearch ? `&search=${encodeURIComponent(skillsSearch)}` : ""}`),
       ]);
-      const statsData: AIStats = await statsRes.json();
-      if (statsData.responses) setSkillsStats(statsData);
+      const statsData: any = await statsRes.json();
+      if (statsData.totalSkills !== undefined || statsData.responses) setSkillsStats(statsData);
       const skillsData: { skills?: any[]; total?: number; categories?: string[] } = await skillsRes.json();
       if (skillsData.skills) { setSkillsList(skillsData.skills); setSkillsTotal(skillsData.total || 0); setSkillsCategories(skillsData.categories || []); }
     } catch {}
@@ -1797,12 +1797,12 @@ export default function AIHubPage() {
 
                 <div className="card p-5">
                   <h3 className="font-bold text-primary text-sm mb-3">{lang === "bn" ? "শীর্ষ পেইন পয়েন্ট" : "Top Pain Points"}</h3>
-                  {skillsStats?.painPointFrequency && Object.keys(skillsStats.painPointFrequency).length > 0 ? (
+                  {(skillsStats as any)?.painPointFrequency && Object.keys((skillsStats as any).painPointFrequency).length > 0 ? (
                     <div className="space-y-2">
-                      {Object.entries(skillsStats.painPointFrequency).sort(([, a], [, b]) => b - a).slice(0, 10).map(([point, count], i, arr) => (
+                      {Object.entries((skillsStats as any).painPointFrequency as Record<string, number>).sort(([, a], [, b]) => b - a).slice(0, 10).map(([point, count], i, arr) => (
                         <div key={i} className="flex items-center justify-between">
                           <span className="text-xs font-medium text-primary">{point}</span>
-                          <div className="flex items-center gap-2"><div className="h-1.5 bg-primary/20 rounded-full" style={{ width: `${Math.min(100, (count / arr[0][1]) * 100)}px` }} /><span className="text-xs font-bold text-text-secondary">{count}</span></div>
+                          <div className="flex items-center gap-2"><div className="h-1.5 bg-primary/20 rounded-full" style={{ width: `${Math.min(100, (count / (arr[0][1] as number)) * 100)}px` }} /><span className="text-xs font-bold text-text-secondary">{count}</span></div>
                         </div>
                       ))}
                     </div>
@@ -1814,7 +1814,7 @@ export default function AIHubPage() {
               <div className="card p-5">
                 {skillsMsg && <div className="text-xs font-medium text-center mb-3 p-2 rounded-xl bg-green-50 text-green-700">{skillsMsg}</div>}
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-primary text-sm">{lang === "bn" ? `🧠 শিখেছে ${skillsTotal}টি দক্ষতা` : `🧠 ${skillsTotal} Skills Learned`}</h3>
                   <div className="flex gap-2">
                     <input type="text" value={skillsSearch} onChange={e => { setSkillsSearch(e.target.value); setTimeout(loadSkills, 300); }} placeholder={lang === "bn" ? "দক্ষতা খুঁজুন..." : "Search skills..."} className="px-3 py-1.5 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20" />
@@ -1824,6 +1824,18 @@ export default function AIHubPage() {
                     </select>
                   </div>
                 </div>
+
+                {skillsStats && (skillsStats as any).totalSkills !== undefined && (
+                  <div className="flex flex-wrap gap-2 mb-3 p-2.5 bg-gray-50 rounded-xl text-[10px]">
+                    <span className="text-text-secondary">{lang === "bn" ? "📊 পরিসংখ্যান:" : "📊 Stats:"}</span>
+                    <span className="font-medium text-gray-700">{lang === "bn" ? "সপ্তাহে" : "Week"}: <b>{(skillsStats as any).skillsThisWeek}</b></span>
+                    <span className="font-medium text-gray-700">{lang === "bn" ? "প্রমোটেড" : "Promoted"}: <b>{(skillsStats as any).promotedSkills}</b></span>
+                    <span className="font-medium text-gray-700">{lang === "bn" ? "অ্যাকটিভ" : "Active"}: <b>{(skillsStats as any).activeSkills}</b></span>
+                    <span className="font-medium text-gray-700">{lang === "bn" ? "অটো-লার্ন" : "Auto"}: <b>{(skillsStats as any).autoLearnCount}</b></span>
+                    <span className="font-medium text-gray-700">{lang === "bn" ? "FAQ" : "FAQ"}: <b>{(skillsStats as any).faqCount}</b></span>
+                    <span className="font-medium text-red-600">{lang === "bn" ? "ডিলিটেড" : "Deleted"}: <b>{(skillsStats as any).deletedCount}</b></span>
+                  </div>
+                )}
 
                 {skillsList.length === 0 ? (
                   <div className="text-center py-8">
