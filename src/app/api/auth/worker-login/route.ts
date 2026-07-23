@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { queryFirst } from "@/lib/db/queries";
+import { getDB } from "@/lib/db";
 import { verifyWorkerPassword, generateToken, getJwtSecret } from "@/lib/auth";
 import { getCached, setCached } from "@/lib/cache";
 
 const MEMO = "__workerAuthMemo";
+const D1_TIMEOUT_MS = 8000;
 
 function getMemo(): Map<string, { worker_id: string; name: string; password: string }> {
   const g = globalThis as any;
@@ -42,23 +45,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
     }
 
-    // 3. D1 query via getCloudflareContext (bypasses schema init lock)
-    let worker: { worker_id: string; name: string; password: string } | null = null;
-    try {
-      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
-      const ctx = await getCloudflareContext({ async: true });
-      const db = (ctx.env as any)?.DB as D1Database | undefined;
-      if (db) {
-        const row = await db.prepare(
-          "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')"
-        ).bind(cleanPhone).first() as { worker_id: string; name: string; password: string } | undefined;
-        worker = row || null;
-      }
-    } catch (err) {
-      console.error("D1 query error:", (err as Error)?.message || err);
-    }
+    // 3. D1 query with timeout
+    let timedOut = false;
+    const db = await getDB();
+    const worker = await Promise.race([
+      queryFirst<{ worker_id: string; name: string; password: string }>(
+        db,
+        "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')",
+        [cleanPhone]
+      ),
+      new Promise<null>((_, reject) =>
+        setTimeout(() => { timedOut = true; reject(new Error("D1 query timed out")); }, D1_TIMEOUT_MS)
+      ),
+    ]).catch(() => null);
 
     if (!worker) {
+      if (timedOut) {
+        return NextResponse.json({ error: "Server busy, please try again", retryable: true }, { status: 503 });
+      }
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
@@ -73,7 +77,7 @@ export async function POST(request: NextRequest) {
     const token = await generateToken(worker.worker_id, getJwtSecret());
     return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
   } catch (error) {
-    console.error("Worker login error:", (error as Error)?.message || error);
+    console.error("Worker login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
