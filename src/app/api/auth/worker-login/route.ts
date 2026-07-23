@@ -1,29 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyWorkerPassword, generateToken, getJwtSecret } from "@/lib/auth";
 import { getCached, setCached } from "@/lib/cache";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const MEMO = "__workerAuthMemo";
-const D1_TIMEOUT = 8000;
 
 function getMemo(): Map<string, { worker_id: string; name: string; password: string }> {
   const g = globalThis as any;
   if (!g[MEMO]) g[MEMO] = new Map();
   return g[MEMO];
-}
-
-async function queryDB(phone: string): Promise<{ worker_id: string; name: string; password: string } | null> {
-  try {
-    const ctx = await getCloudflareContext({ async: true });
-    const db = (ctx.env as any)?.DB as D1Database | undefined;
-    if (!db) return null;
-    const row = await db.prepare(
-      "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')"
-    ).bind(phone).first() as { worker_id: string; name: string; password: string } | undefined;
-    return row || null;
-  } catch (err) {
-    return null;
-  }
 }
 
 export async function POST(request: NextRequest) {
@@ -58,11 +42,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
     }
 
-    // 3. Direct D1 query (bypasses schema init lock)
-    const worker = await Promise.race([
-      queryDB(cleanPhone),
-      new Promise<null>((_, reject) => setTimeout(() => reject(new Error("D1 timeout")), D1_TIMEOUT)),
-    ]).catch(() => null);
+    // 3. D1 query via getCloudflareContext (bypasses schema init lock)
+    let worker: { worker_id: string; name: string; password: string } | null = null;
+    try {
+      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+      const ctx = await getCloudflareContext({ async: true });
+      const db = (ctx.env as any)?.DB as D1Database | undefined;
+      if (db) {
+        const row = await db.prepare(
+          "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')"
+        ).bind(cleanPhone).first() as { worker_id: string; name: string; password: string } | undefined;
+        worker = row || null;
+      }
+    } catch (err) {
+      console.error("D1 query error:", (err as Error)?.message || err);
+    }
 
     if (!worker) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
