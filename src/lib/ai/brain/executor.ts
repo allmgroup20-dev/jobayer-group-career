@@ -3,15 +3,28 @@ import type { AgentDef, AgentOutput } from "./types";
 import { getConversationRules } from "../conversation-rules";
 import { execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
-import { findSkill } from "../skills";
 import { checkResponseCache, storeResponseCache } from "../response-cache";
 
-const TIER_MODELS: Record<number, { model: string; provider: string }> = {
-  1: { model: "meta-llama/llama-3.3-70b-instruct:free", provider: "openrouter" },
-  2: { model: "google/gemma-4-31b-it:free", provider: "openrouter" },
-  3: { model: "google/gemma-4-26b-a4b-it:free", provider: "openrouter" },
-  4: { model: "nvidia/nemotron-3-nano-30b-a3b:free", provider: "openrouter" },
+const MODEL_MAP: Record<string, { model: string; provider: string }> = {
+  "llama-3.3-70b": { model: "meta-llama/llama-3.3-70b-instruct:free", provider: "openrouter" },
+  "gemma-4-31b": { model: "google/gemma-4-31b-it:free", provider: "openrouter" },
+  "gemma-4-26b": { model: "google/gemma-4-26b-a4b-it:free", provider: "openrouter" },
+  "nemotron-3-nano": { model: "nvidia/nemotron-3-nano-30b-a3b:free", provider: "openrouter" },
+  "nemotron-3-super": { model: "nvidia/nemotron-3-super-120b-a12b:free", provider: "openrouter" },
+  "hermes-3-405b": { model: "nousresearch/hermes-3-llama-3.1-405b:free", provider: "openrouter" },
+  "deepseek-v4-flash-free": { model: "deepseek-v4-flash-free", provider: "opencode" },
+  "gpt-5.4-mini": { model: "meta-llama/llama-3.3-70b-instruct:free", provider: "openrouter" },
 };
+
+function resolveModel(agent: AgentDef): { model: string; provider: string } {
+  const fromPrimary = MODEL_MAP[agent.primaryModel];
+  if (fromPrimary) return fromPrimary;
+  for (const fb of agent.fallbackModels) {
+    const fromFallback = MODEL_MAP[fb];
+    if (fromFallback) return fromFallback;
+  }
+  return { model: "meta-llama/llama-3.3-70b-instruct:free", provider: "openrouter" };
+}
 
 export async function executeAgent(
   agent: AgentDef,
@@ -38,7 +51,7 @@ export async function executeAgent(
   } catch {}
 
   // 3) AI call — tokens consumed
-  const preferred = TIER_MODELS[agent.tier] || TIER_MODELS[3];
+  const preferred = resolveModel(agent);
   const lang = systemPrompt.includes("Bengali") ? "bn" : "en";
   const rules = getConversationRules(lang);
   const messages = [

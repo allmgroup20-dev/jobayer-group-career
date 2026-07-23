@@ -43,6 +43,33 @@ let startTime = null;
 let sentCount = 0;
 let receivedCount = 0;
 let logs = [];
+let shuttingDown = false;
+
+async function backupAuthToBase64() {
+  try {
+    if (!fs.existsSync(AUTH_DIR) || !fs.readdirSync(AUTH_DIR).length) return;
+    const backup = {};
+    for (const f of fs.readdirSync(AUTH_DIR)) {
+      backup[f] = fs.readFileSync(path.join(AUTH_DIR, f), "base64");
+    }
+    const encoded = Buffer.from(JSON.stringify(backup)).toString("base64");
+    logInfo(`AUTH_BASE64 backup ready (${encoded.length} chars). Set as env var to restore on restart.`);
+  } catch {}
+}
+
+function gracefulShutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logInfo("Shutting down gracefully...");
+  stopConnection();
+  setTimeout(() => {
+    logInfo("Exiting");
+    process.exit(0);
+  }, 5000).unref();
+}
+
+process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);
 
 function log(level, msg) {
   const line = `[${new Date().toISOString()}] [${level}] ${msg}`;
@@ -108,7 +135,10 @@ async function startConnection() {
 
     sock = makeWASocket(socketConfig);
 
-    sock.ev.on("creds.update", saveCreds);
+    sock.ev.on("creds.update", () => {
+      saveCreds();
+      try { backupAuthToBase64(); } catch {}
+    });
 
     sock.ev.on("connection.update", async ({ connection, lastDisconnect, qr }) => {
       if (qr) {
