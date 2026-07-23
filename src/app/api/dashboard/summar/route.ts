@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCached, setCached } from "@/lib/cache";
 import { initEnv } from "@/lib/env";
+import { ensureSchema } from "@/lib/db";
 
 const MEMO_DASH = "__dashboardMemo";
 const MEMO_TTL = 120_000;
@@ -52,6 +53,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
     }
     const db = ctx.DB;
+
+    // Ensure schema with 3s timeout — tables must exist for queries
+    await Promise.race([
+      ensureSchema({ DB: db }),
+      new Promise(r => setTimeout(r, 3000)),
+    ]).catch(() => {});
 
     const profile = await q<any>(db,
       `SELECT worker_id as workerId, name, phone, email, balance,

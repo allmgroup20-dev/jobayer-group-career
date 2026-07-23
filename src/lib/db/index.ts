@@ -9,7 +9,7 @@ let dbCache: { DB: D1Database } | null = null;
 
 const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original"];
 
-async function ensureSchema(env: { DB: D1Database }): Promise<void> {
+export async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
 
   // ── Forced migrations: run once per isolate even when schema fast check skips ──
