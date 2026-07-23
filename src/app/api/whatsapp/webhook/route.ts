@@ -273,15 +273,19 @@ export async function POST(request: NextRequest) {
       isPremium,
     };
 
+    const fromBrowser = body.fromBrowser === true;
+
     // ── Fast Lane: 0-token instant replies (skip brain entirely) ──
     const fastHit = fastLane(text, lang as "en" | "bn");
     if (fastHit) {
       await saveMessage(phone, "user", text, { language: lang, painPoints, interests, source: "whatsapp" });
       await saveMessage(phone, "assistant", fastHit.reply, { language: lang, source: "whatsapp" });
       await recordPlatformActivity(phone, "whatsapp");
-      const { sendMessage } = await import("@/lib/whatsapp");
-      await sendMessage(phone, fastHit.reply);
-      return NextResponse.json({ ok: true, fastLane: fastHit.lane });
+      if (!fromBrowser) {
+        const { sendMessage } = await import("@/lib/whatsapp");
+        await sendMessage(phone, fastHit.reply);
+      }
+      return NextResponse.json({ ok: true, fastLane: fastHit.lane, reply: fastHit.reply, phone, text });
     }
 
     const brainResult = await Promise.race([
@@ -368,8 +372,6 @@ export async function POST(request: NextRequest) {
 
     // Update lead status
     await updateLeadStatus(phone, "replied");
-
-    const fromBrowser = body.fromBrowser === true;
 
     if (!fromBrowser) {
       const sendResult = await sendMessage(phone, reply);
