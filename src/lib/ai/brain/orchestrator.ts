@@ -7,6 +7,7 @@ import { query } from "@/lib/db/queries";
 import { getContextualKnowledge, logConversationLearning } from "@/lib/ai/knowledge-brain";
 import { getContactIntelligence, extractInsightsFromText } from "../contact-intelligence";
 import { getSummary, getKeyPoints, getHistory } from "../history";
+import { classifyIntentFree } from "../intent-classifier";
 
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "greeting", department: "customer_experience" },
@@ -154,21 +155,12 @@ Last exchange: {{recentConversation}}
 
 async function detectIntent(text: string, isWorker: boolean): Promise<{ intent: Intent; department: DepartmentId }> {
   const fallbackDept: DepartmentId = isWorker ? "member_success" : "sales";
-  const lower = text.toLowerCase().trim();
 
-  if (/^(assalamu|waalaikum|hi\b|hello|hey|সালাম|হ্যালো|আসসালামু)/i.test(lower)) return { intent: "greeting", department: "customer_experience" };
-  if (/^(bye|thanks|thank you|ধন্যবাদ|আল্লাহ হাফেজ)/i.test(lower)) return { intent: "farewell", department: "customer_experience" };
-  if (/(কত টাকা|price|cost|দাম|মূল্য|rate|কত দাম|কেমন দাম)/i.test(lower)) return { intent: "price_inquiry", department: "sales" };
-  if (/(কিনতে|কিনব|order|purchase|buy|অর্ডার|পেমেন্ট|payment)/i.test(lower)) return { intent: "purchase", department: "sales" };
-  if (/(জয়েন|join|register|রেজিস্টার|যোগ দিতে|সাইন আপ|sign.?up)/i.test(lower)) return { intent: "registration", department: "member_success" };
-  if (/(problem|issue|complaint|fraud|scam|cheat|ভুয়া|প্রতারনা|ঠকানো|সমস্যা|অভিযোগ|বাজে)/i.test(lower)) return { intent: "complaint", department: "psychology" };
-  if (/(কমিশন|commission|referral|রেফারেল|আয়|income|earn|earning)/i.test(lower)) return { intent: "commission_inquiry", department: "member_success" };
-  if (/(ট্রেনিং|training|শিখতে|learn|কোর্স|course|স্কিল|skill)/i.test(lower)) return { intent: "training", department: "member_success" };
-  if (/(উত্তোলন|withdraw|টাকা তুলব|পেআউট|payout)/i.test(lower)) return { intent: "withdrawal", department: "operations" };
-  if (/(support|help|সাহায্য|হেল্প|কিভাবে)/i.test(lower)) return { intent: "support", department: "customer_experience" };
-  if (/(feedback|opinion|মতামত|suggest|সাজেশন)/i.test(lower)) return { intent: "feedback", department: "customer_experience" };
-  if (/(মোটিভেশন|motivation|উৎসাহ|উদ্বুদ্ধ|confidence|আত্মবিশ্বাস)/i.test(lower)) return { intent: "motivation", department: "psychology" };
+  // Free rule-based classifier first — zero token cost
+  const freeRoute = classifyIntentFree(text);
+  if (freeRoute) return freeRoute;
 
+  // AI fallback for ambiguous queries only
   try {
     const result = await callAI(
       {
