@@ -1,5 +1,6 @@
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
+import { semanticSearch, type SkillEntry } from "./semantic-cache";
 
 interface Skill {
   id: number;
@@ -36,13 +37,14 @@ export async function findSkill(text: string, phone = ""): Promise<string | null
     const db = await ensureDB();
     const skills = await query<Skill>(
       { DB: db },
-      "SELECT id, keywords, answer, usage_count FROM ai_skills WHERE manual_override = 1 OR usage_count > 3 ORDER BY usage_count DESC LIMIT 500"
+      "SELECT id, keywords, question, answer, usage_count FROM ai_skills WHERE manual_override = 1 OR usage_count > 3 ORDER BY usage_count DESC LIMIT 500"
     );
     if (skills.length === 0) return null;
 
     const normalizedText = text.toLowerCase();
     const words = normalizedText.split(/[\s,;:.!?()\[\]{}""'']+/).filter((w) => w.length > 2);
 
+    // Pass 1: Fast keyword matching (existing)
     for (const skill of skills) {
       const keywords = skill.keywords.split(",").map((k) => k.trim().toLowerCase()).filter(Boolean);
       if (keywords.length === 0) continue;
@@ -62,6 +64,21 @@ export async function findSkill(text: string, phone = ""): Promise<string | null
         return skill.answer;
       }
     }
+
+    // Pass 2: Semantic matching (TF-IDF + cosine similarity) — zero API cost
+    const skillEntries: SkillEntry[] = skills.map(s => ({
+      id: s.id, question: s.question, answer: s.answer, keywords: s.keywords,
+    }));
+    const semanticHit = semanticSearch(text, skillEntries);
+    if (semanticHit) {
+      await execute(
+        { DB: db },
+        "UPDATE ai_skills SET usage_count = usage_count + 1, updated_at = datetime('now') WHERE id = ?",
+        [semanticHit.skill.id]
+      );
+      return semanticHit.skill.answer;
+    }
+
     return null;
   } catch (e) {
     console.error("[Skills] findSkill error:", (e as Error)?.message);
@@ -80,11 +97,27 @@ export async function saveSkill(
     const db = await ensureDB();
     const normalizedQuestion = question.toLowerCase().trim();
 
-    const existing = await queryFirst<Skill>(
+    // Step 1: Exact match
+    let existing = await queryFirst<Skill>(
       { DB: db },
       "SELECT id, answer, keywords FROM ai_skills WHERE LOWER(question) = ?",
       [normalizedQuestion]
     );
+
+    // Step 2: Semantic dedup — check if a semantically similar skill exists
+    if (!existing) {
+      const allSkills = await query<Skill>(
+        { DB: db },
+        "SELECT id, keywords, question, answer FROM ai_skills LIMIT 500"
+      );
+      const entries: SkillEntry[] = allSkills.map(s => ({
+        id: s.id, question: s.question, answer: s.answer, keywords: s.keywords,
+      }));
+      const semanticHit = semanticSearch(question, entries);
+      if (semanticHit && semanticHit.score > 0.25) {
+        existing = allSkills.find(s => s.id === semanticHit.skill.id) || null;
+      }
+    }
 
     if (existing) {
       const oldAnswer = existing.answer || "";
