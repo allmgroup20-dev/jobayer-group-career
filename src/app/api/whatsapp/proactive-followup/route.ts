@@ -4,6 +4,7 @@ import { query, execute } from "@/lib/db/queries";
 import { sendMessage } from "@/lib/whatsapp";
 import { getOrCreateProfile, detectLanguage } from "@/lib/ai";
 import { callAI } from "@/lib/ai/router";
+import { getContactIntelligence } from "@/lib/ai/contact-intelligence";
 
 const PROACTIVE_SYSTEM_PROMPT = `You are a proactive business assistant at Jobayer Group Career. Your job is to reach out to potential and existing members with personalized, persuasive messages.
 
@@ -40,13 +41,20 @@ async function generateProactiveMessage(phone: string, contextType: string, name
       ? `Previous chats: ${profile.total_chats}.`
       : "New lead - no previous interaction.";
 
+    let contactIntel = "";
+    try { contactIntel = await getContactIntelligence(phone); } catch {}
+
+    const baseInfo = contactIntel
+      ? `KNOWN CONTACT INFO:\n${contactIntel}\n\n`
+      : "";
+
     const contextPrompt = contextType === "new_lead"
-      ? `This is a NEW LEAD who has never been contacted. Name: ${name}. ${contextInfo} Send a warm welcome message introducing Jobayer Group Career's value proposition. Focus on income opportunity and free registration.`
+      ? `${baseInfo}This is a NEW LEAD who has never been contacted. Name: ${name}. ${contextInfo} Send a warm welcome message introducing Jobayer Group Career's value proposition. Focus on income opportunity and free registration.`
       : contextType === "seen_no_reply"
-        ? `This lead SAW our message but didn't reply. Name: ${name}. ${contextInfo} Send a friendly follow-up that references the previous conversation and offers a different angle/value proposition.`
+        ? `${baseInfo}This lead SAW our message but didn't reply. Name: ${name}. ${contextInfo} Send a friendly follow-up that references the previous conversation and offers a different angle/value proposition.`
         : contextType === "stale"
-          ? `This contact has been INACTIVE for over 48 hours. Name: ${name}. ${contextInfo} Send a re-engagement message with a fresh perspective - share a success story or new opportunity angle. Focus on what they're missing out on.`
-          : `Send a general proactive message to ${name}. ${contextInfo} Be warm and value-focused.`;
+          ? `${baseInfo}This contact has been INACTIVE for over 48 hours. Name: ${name}. ${contextInfo} Send a re-engagement message with a fresh perspective - share a success story or new opportunity angle. Focus on what they're missing out on.`
+          : `${baseInfo}Send a general proactive message to ${name}. ${contextInfo} Be warm and value-focused.`;
 
     const result = await callAI(
       {
@@ -80,11 +88,40 @@ function getFallbackMessage(name: string, type: string, lang: string): string {
     : `আসসালামু আলাইকুম ${name}! অনেক দিন পরে মনে করিয়ে দিচ্ছি। আমাদের একজন সদস্য ফাতিমা, চট্টগ্রামের একজন গৃহিণী, এখন আমাদের সাথে মাসে ২৫,০০০+ টাকা প্যাসিভ আয় করেন। আপনিও পারেন! কীভাবে জানতে চান?`;
 }
 
+// Bangladesh time (UTC+6) send window: 8AM - 10PM
+function isWithinSendWindow(): boolean {
+  try {
+    const now = new Date();
+    const utcHour = now.getUTCHours();
+    const bdHour = (utcHour + 6) % 24;
+    return bdHour >= 8 && bdHour < 22;
+  } catch { return true; }
+}
+
+async function hasHardObjection(phone: string, env: any): Promise<boolean> {
+  try {
+    const rows = await query<{ value: string }>(
+      env,
+      "SELECT value FROM agent_memory WHERE phone = ? AND agent_id = '_profile' AND key = 'objections'",
+      [phone]
+    );
+    if (rows.length === 0) return false;
+    const objections = rows[0].value.toLowerCase();
+    const hardNos = /(don't contact|stop|block|never|not interested|না বলেছি|থামান|বিরক্ত)/i;
+    return hardNos.test(objections);
+  } catch { return false; }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const auth = request.nextUrl.searchParams.get("token");
     if (auth !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Only send during reasonable hours (8AM-10PM BD time)
+    if (!isWithinSendWindow()) {
+      return NextResponse.json({ skipped: "outside_send_window", window: "8AM-10PM BD time" });
     }
 
     const env = await getDB();
@@ -120,6 +157,7 @@ export async function GET(request: NextRequest) {
        WHERE (f.phone IS NULL OR f.followup_count < 3)
          AND p.total_chats > 1
          AND p.updated_at < datetime('now', '-48 hours')
+         AND p.updated_at > datetime('now', '-7 days')
        ORDER BY p.updated_at ASC
        LIMIT 5`
     );
@@ -127,9 +165,11 @@ export async function GET(request: NextRequest) {
     let sent = 0;
     let errors = 0;
     let generated = 0;
+    let skipped_by_objection = 0;
 
     for (const lead of newLeads) {
       try {
+        if (await hasHardObjection(lead.phone, env)) { skipped_by_objection++; continue; }
         const text = await generateProactiveMessage(lead.phone, "new_lead", lead.name || "Valued Customer");
         generated++;
         const result = await sendMessage(lead.phone, text);
@@ -154,6 +194,7 @@ export async function GET(request: NextRequest) {
 
     for (const lead of seenNoReply) {
       try {
+        if (await hasHardObjection(lead.phone, env)) { skipped_by_objection++; continue; }
         const text = await generateProactiveMessage(lead.phone, "seen_no_reply", lead.phone);
         generated++;
         const result = await sendMessage(lead.phone, text);
@@ -176,6 +217,7 @@ export async function GET(request: NextRequest) {
 
     for (const lead of staleContacts) {
       try {
+        if (await hasHardObjection(lead.phone, env)) { skipped_by_objection++; continue; }
         const text = await generateProactiveMessage(lead.phone, "stale", lead.name || "Valued Customer");
         generated++;
         const result = await sendMessage(lead.phone, text);
@@ -200,7 +242,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       scanned: { newLeads: newLeads.length, seenNoReply: seenNoReply.length, staleContacts: staleContacts.length },
-      generated, sent, errors,
+      generated, sent, errors, skipped_by_objection,
     });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });

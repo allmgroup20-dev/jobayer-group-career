@@ -5,6 +5,7 @@ import { getMemory, setMemory, buildMemoryContext } from "./memory";
 import { getDB } from "@/lib/db";
 import { query } from "@/lib/db/queries";
 import { getContextualKnowledge, logConversationLearning } from "@/lib/ai/knowledge-brain";
+import { getContactIntelligence, extractInsightsFromText } from "../contact-intelligence";
 
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "greeting", department: "customer_experience" },
@@ -93,6 +94,9 @@ const SYSTEM_PROMPT_TEMPLATE = `CRITICAL: You are a dedicated personal assistant
 
 {{productCatalog}}
 
+## CONTACT PROFILE
+{{contactIntelligence}}
+
 {{topTarget}}
 
 {{upsellContext}}
@@ -146,7 +150,7 @@ async function detectIntent(text: string, isWorker: boolean): Promise<{ intent: 
   return { intent: "general", department: fallbackDept };
 }
 
-function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, userMemories: any[], topTarget: string, upsellCtx: string): Record<string, any> {
+function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, userMemories: any[], contactIntelligence: string, topTarget: string, upsellCtx: string): Record<string, any> {
   const memoryStr = buildMemoryContext(userMemories);
   const tierSummary = ctx.isPremium ? "PREMIUM MEMBER - Upsell additional resources. High LTV customer."
     : ctx.role === "customer" ? "NEW LEAD - Build trust first, then guide to registration."
@@ -166,6 +170,7 @@ function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, use
     userMemory: memoryStr,
     knowledgeContext: knowledgeCtx || "",
     productCatalog: PRODUCT_CATALOG,
+    contactIntelligence: contactIntelligence || "",
     topTarget: topTarget || "",
     upsellContext: upsellCtx || "",
     customerTierSummary: tierSummary,
@@ -233,9 +238,12 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
     };
   }
 
-  // Load memory, knowledge, targets
+  // Load memory, contact intelligence, knowledge, targets
   let userMemories: any[] = [];
   try { userMemories = await getMemory(db, ctx.phone); } catch {}
+
+  let contactIntelligence = "";
+  try { contactIntelligence = await getContactIntelligence(ctx.phone); } catch {}
 
   let knowledgeCtx = "";
   try { knowledgeCtx = await getContextualKnowledge(intent, department, ctx.language || "bn"); } catch {}
@@ -275,7 +283,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
   }
 
   // Build context and system prompt
-  const contextVars = buildContext(ctx, intent, knowledgeCtx, userMemories, topTarget, upsellCtx);
+  const contextVars = buildContext(ctx, intent, knowledgeCtx, userMemories, contactIntelligence, topTarget, upsellCtx);
   const systemPrompt = buildSystemPrompt(contextVars);
 
   // Single AI call
@@ -323,6 +331,21 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
       setMemory(db, ctx.phone, "_meta", "last_response", finalText.slice(0, 500), "session", 1, 1440);
       if (ctx.name) setMemory(db, ctx.phone, "_meta", "customer_name", ctx.name, "profile", 5, 43200);
       if (ctx.dialect) setMemory(db, ctx.phone, "_meta", "dialect", ctx.dialect, "profile", 3, 43200);
+    } catch {}
+  }
+
+  // Store contact intelligence from this interaction
+  if (ctx.text && !ctx.text.startsWith("[Proactive")) {
+    try {
+      const { storeContactInsight } = await import("../contact-intelligence");
+      const insights = extractInsightsFromText(ctx.text, intent);
+      storeContactInsight(ctx.phone, {
+        name: ctx.name,
+        language: ctx.language,
+        intent,
+        mood: ctx.mood,
+        ...insights,
+      });
     } catch {}
   }
 

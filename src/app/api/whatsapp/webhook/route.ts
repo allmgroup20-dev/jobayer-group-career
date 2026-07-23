@@ -27,6 +27,7 @@ import { recordPlatformActivity } from "@/lib/platform-router";
 import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 import type { MediaResult } from "@/lib/whatsapp/media";
+import { storeContactInsight, extractInsightsFromText } from "@/lib/ai/contact-intelligence";
 
 // ── In-memory follow-up tracker (persisted via DB) ──
 const SEEN_FOLLOWUP_DELAY_MS = 120_000; // 2 min after "read" without reply
@@ -313,6 +314,18 @@ export async function POST(request: NextRequest) {
         ? `I understand you might not be ready yet. But let me ask you this — what if you're missing out on something that could truly change your life? Many of our members felt the same way at first. Let me share just one quick story...`
         : `আমি বুঝতে পারছি আপনি এখনই আগ্রহী নন। কিন্তু একটা কথা বলি — যদি আপনি সত্যিই এমন কিছু মিস করছেন যা আপনার জীবন বদলে দিতে পারে? আমাদের অনেক মেম্বার প্রথমে আপনার মতই অনুভব করেছিলেন। শুধু একটা ছোট গল্প বলি...`;
     }
+
+    // Store contact intelligence
+    try {
+      const insights = extractInsightsFromText(text, brainResult.intent || "general");
+      await storeContactInsight(phone, {
+        name: name || undefined,
+        language: lang,
+        intent: brainResult.intent || "general",
+        mood,
+        ...insights,
+      });
+    } catch {}
 
     // Auto-save to skills — so brain learns from this Q&A (with validation)
     try {
