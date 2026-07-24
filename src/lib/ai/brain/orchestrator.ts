@@ -15,6 +15,9 @@ import { calculateScores, buildScoreContext } from "../scoring-engine";
 import { getRecommendations, buildRecommendationContext } from "../recommendation-engine";
 import { detectSegment, suggestCampaign, buildSegmentContext } from "../marketing-intelligence";
 import { buildPurchaseContext, buildOrderContext, getRecommendedPlan } from "../purchase-automation";
+import { getContentIdeas } from "../content-engine";
+import { buildMultiChannelContext } from "../outreach/multi-channel";
+import type { OutreachChannel } from "../outreach/multi-channel";
 
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "greeting", department: "customer_experience" },
@@ -129,7 +132,11 @@ Last exchange: {{recentConversation}}
 
 {{teamCtx}}
 
-## THE CUSTOMER'S JOURNEY STAGE: {{customerTierSummary}}
+## CONTENT GENERATION
+You can generate blog posts, social media content, marketing copy, training materials, and newsletters.
+If a member asks you to write content, use the Content API or ask them for: topic, type (blog/social/marketing/training/newsletter), and language (en/bn).
+Content ideas by type — Blog: AI in MLM, success stories, tips. Social: short motivation posts. Marketing: persuasive offers. Training: educational modules. Newsletter: weekly updates.
+
 - **New inquiry**: Build trust, give free value first. Never pitch immediately.
 - **Interested but hesitant**: Use Future Pacing — "Imagine yourself 6 months from now earning X..."
 - **Objecting**: Use Feel-Felt-Found + specific proof from success stories.
@@ -409,6 +416,11 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         const campaign = suggestCampaign(segment, interests, ctx.language || "bn");
         miCtx = buildSegmentContext(segment, campaign, ctx.language || "bn");
       }
+    } catch {}
+    // Multi-channel outreach context
+    try {
+      const channels: OutreachChannel[] = ["whatsapp"];
+      miCtx += "\n" + buildMultiChannelContext(channels, ctx.language || "bn");
     } catch {}
   }
 
