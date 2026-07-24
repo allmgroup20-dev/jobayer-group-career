@@ -22,6 +22,7 @@ export default function InstitutionsTab() {
     websiteUrl: "", sortOrder: 0, isActive: 1,
   });
   const [saving, setSaving] = useState(false);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/institutions?all=1").then(r => r.json() as Promise<{ institutions: Institution[] }>);
@@ -71,7 +72,32 @@ export default function InstitutionsTab() {
     load();
   };
 
+  const handleDragStart = (e: React.DragEvent, id: number) => {
+    e.dataTransfer.setData("text/plain", String(id));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    setDragOverIdx(null);
+    const dragId = parseInt(e.dataTransfer.getData("text/plain"));
+    if (isNaN(dragId) || dragId === targetId) return;
+    const sorted = [...institutions].sort((a, b) => a.sort_order - b.sort_order);
+    const sourceIdx = sorted.findIndex(t => t.id === dragId);
+    const targetIdx = sorted.findIndex(t => t.id === targetId);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+    const [moved] = sorted.splice(sourceIdx, 1);
+    sorted.splice(targetIdx, 0, moved);
+    const updates: { id: number; sort_order: number }[] = [];
+    sorted.forEach((item, i) => { if (item.sort_order !== i) updates.push({ id: item.id, sort_order: i }); });
+    if (updates.length > 0) {
+      await Promise.all(updates.map(u => fetch(`/api/institutions/${u.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: u.sort_order }) })));
+      load();
+    }
+  };
+
   if (loading) return <Skeleton className="h-4 w-32 mx-auto" />;
+  const sortedInst = [...institutions].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
     <div className="space-y-6">
@@ -122,8 +148,14 @@ export default function InstitutionsTab() {
             </tr>
           </thead>
           <tbody>
-            {institutions.map(inst => (
-              <tr key={inst.id} className="border-t border-border hover:bg-gray-50">
+            {sortedInst.map((inst, i) => (
+              <tr key={inst.id} draggable="true"
+                onDragStart={e => handleDragStart(e, inst.id)}
+                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverIdx(i); }}
+                onDragLeave={() => setDragOverIdx(null)}
+                onDrop={e => handleDrop(e, inst.id)}
+                onDragEnd={() => setDragOverIdx(null)}
+                className={`border-t border-border transition-colors ${dragOverIdx === i ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"} cursor-grab active:cursor-grabbing`}>
                 <td className="p-3">
                   {inst.logo_url ? (
                     <img src={inst.logo_url} alt="" className="w-8 h-8 rounded-lg object-cover" />

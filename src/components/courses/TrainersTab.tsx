@@ -34,6 +34,7 @@ export default function TrainersTab() {
     coursesEnStr: "", coursesBnStr: "", isActive: 1,
   });
   const [saving, setSaving] = useState(false);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     const [tRes, iRes] = await Promise.all([
@@ -97,7 +98,32 @@ export default function TrainersTab() {
     load();
   };
 
+  const handleDragStart = (e: React.DragEvent, id: number) => {
+    e.dataTransfer.setData("text/plain", String(id));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    setDragOverIdx(null);
+    const dragId = parseInt(e.dataTransfer.getData("text/plain"));
+    if (isNaN(dragId) || dragId === targetId) return;
+    const sorted = [...trainers].sort((a, b) => a.sort_order - b.sort_order);
+    const sourceIdx = sorted.findIndex(t => t.id === dragId);
+    const targetIdx = sorted.findIndex(t => t.id === targetId);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+    const [moved] = sorted.splice(sourceIdx, 1);
+    sorted.splice(targetIdx, 0, moved);
+    const updates: { id: number; sort_order: number }[] = [];
+    sorted.forEach((item, i) => { if (item.sort_order !== i) updates.push({ id: item.id, sort_order: i }); });
+    if (updates.length > 0) {
+      await Promise.all(updates.map(u => fetch(`/api/trainers/${u.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sort_order: u.sort_order }) })));
+      load();
+    }
+  };
+
   if (loading) return <Skeleton className="h-4 w-32 mx-auto" />;
+  const sortedTrainers = [...trainers].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
     <div className="space-y-6">
@@ -166,8 +192,14 @@ export default function TrainersTab() {
             </tr>
           </thead>
           <tbody>
-            {trainers.map(t => (
-              <tr key={t.id} className="border-t border-border hover:bg-gray-50">
+            {sortedTrainers.map((t, i) => (
+              <tr key={t.id} draggable="true"
+                onDragStart={e => handleDragStart(e, t.id)}
+                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverIdx(i); }}
+                onDragLeave={() => setDragOverIdx(null)}
+                onDrop={e => handleDrop(e, t.id)}
+                onDragEnd={() => setDragOverIdx(null)}
+                className={`border-t border-border transition-colors ${dragOverIdx === i ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"} cursor-grab active:cursor-grabbing`}>
                 <td className="p-3">
                   {t.image_url ? (
                     <img src={t.image_url} alt="" className="w-9 h-9 rounded-lg object-cover" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
