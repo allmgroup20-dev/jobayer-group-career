@@ -27,6 +27,7 @@ import { getSkillScores, inferSkillFromText, buildSkillScoreContext } from "../s
 import { getReferralTree, getReferralStats, findNetworkGaps, getNetworkDepth, buildReferralIntelligenceContext } from "../referral-intelligence";
 import { triggerWorkflows, trackFunnelEvent } from "../workflow/engine";
 import { getFunnelAnalytics, buildFunnelAnalyticsContext } from "../analytics";
+import { getTeamMetrics, buildTeamPerfContext } from "../team-perf";
 
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "greeting", department: "customer_experience" },
@@ -485,6 +486,11 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         const gaps = await findNetworkGaps(ctx.phone);
         const networkSize = await getNetworkDepth(ctx.phone, 3);
         lifeCtx += "\n" + buildReferralIntelligenceContext(tree, stats, gaps, networkSize, ctx.language || "bn");
+      } catch {}
+      // Team performance metrics
+      try {
+        const teamMetrics = await getTeamMetrics(ctx.phone);
+        lifeCtx += "\n" + buildTeamPerfContext(teamMetrics, ctx.language || "bn");
       } catch {}
     }
     // Funnel analytics
