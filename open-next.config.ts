@@ -1,18 +1,21 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
+const cfConfig = defineCloudflareConfig({ enableCacheInterception: false });
+
 export default {
-  ...defineCloudflareConfig({ enableCacheInterception: false }),
+  ...cfConfig,
   default: {
+    ...cfConfig.default,
     minify: true,
     override: {
-      wrapper: "cloudflare-node",
-      converter: "edge",
-      proxyExternalRequest: "fetch",
+      ...cfConfig.default.override,
       incrementalCache: "dummy",
       tagCache: "dummy",
       queue: "dummy",
     },
   },
+  edgeExternals: [...(cfConfig.edgeExternals || [])],
+  cloudflare: cfConfig.cloudflare,
   dangerous: {
     disableTagCache: true,
     disableIncrementalCache: true,

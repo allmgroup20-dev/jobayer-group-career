@@ -20,3 +20,20 @@ for (const rel of removals) {
     console.log(`${rel} not found, skipping`);
   }
 }
+
+// Strip large .map files recursively (source maps are not needed at runtime)
+function stripSourceMaps(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      stripSourceMaps(fullPath);
+    } else if (entry.name.endsWith(".map")) {
+      const size = fs.statSync(fullPath).size;
+      fs.rmSync(fullPath);
+      if (size > 0) console.log(`Removed source map ${path.relative(serverDir, fullPath)} (${(size / 1024).toFixed(1)} KB)`);
+    }
+  }
+}
+stripSourceMaps(path.join(serverDir, ".next"));
+stripSourceMaps(path.join(serverDir, "node_modules"));
