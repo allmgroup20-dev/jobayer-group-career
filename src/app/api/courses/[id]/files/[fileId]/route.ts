@@ -14,7 +14,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const existing = await queryFirst<{ id: number }>(db, "SELECT id FROM course_files WHERE id = ? AND course_id = ?", [parseInt(fileId), parseInt(id)]);
     if (!existing) return NextResponse.json({ error: "File not found" }, { status: 404 });
 
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
+    await invalidateCache(`course:${id}`);
     await execute(db,
       `UPDATE course_files SET label=COALESCE(?,label), label_bn=COALESCE(?,label_bn),
        url=COALESCE(?,url), file_type=COALESCE(?,file_type), sort_order=COALESCE(?,sort_order)
@@ -32,7 +33,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   try {
     const { id, fileId } = await params;
     const db = await getDB();
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
+    await invalidateCache(`course:${id}`);
     await execute(db, "DELETE FROM course_files WHERE id = ? AND course_id = ?", [parseInt(fileId), parseInt(id)]);
     return NextResponse.json({ success: true });
   } catch (error) {

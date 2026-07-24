@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     const db = await getDB();
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
+    await invalidateCache("courses:categories");
     await execute(db,
       `INSERT INTO course_categories (name, name_bn, icon, is_visible, sort_order, parent_id)
        VALUES (?, ?, ?, ?, ?, ?)`,

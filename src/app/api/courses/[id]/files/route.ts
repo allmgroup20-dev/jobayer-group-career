@@ -36,7 +36,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const db = await getDB();
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
+    await invalidateCache(`course:${id}`);
     await invalidateCache(`course_files:${id}`);
     await execute(db,
       `INSERT INTO course_files (course_id, label, label_bn, url, file_type, sort_order)

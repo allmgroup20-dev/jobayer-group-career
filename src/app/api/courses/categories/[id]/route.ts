@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (!parent) return NextResponse.json({ error: "Parent category not found" }, { status: 404 });
     }
 
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
     await execute(db,
       `UPDATE course_categories SET name=COALESCE(?,name), name_bn=COALESCE(?,name_bn),
        icon=COALESCE(?,icon), is_visible=COALESCE(?,is_visible), sort_order=COALESCE(?,sort_order),
@@ -43,7 +43,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     const { id } = await params;
     const db = await getDB();
 
-    await invalidateCache("courses");
+    await invalidateCache("courses:*");
     // Uncouple courses from this category
     await execute(db, "UPDATE courses SET category_id = NULL WHERE category_id = ?", [parseInt(id)]);
     // Move child categories to root
