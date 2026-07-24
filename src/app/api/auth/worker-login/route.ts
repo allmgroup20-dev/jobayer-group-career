@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyWorkerPassword, generateToken, getJwtSecret, normalizePhone } from "@/lib/auth";
 import { getCached, setCached } from "@/lib/cache";
-import { initEnv } from "@/lib/env";
+import { getDB } from "@/lib/db";
+import { queryFirst } from "@/lib/db/queries";
 
 const MEMO = "__workerAuthMemo";
 const D1_TIMEOUT_MS = 8000;
@@ -44,18 +45,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
     }
 
-    // 3. Direct D1 query — bypass schema lock
-    const { DB: db } = await initEnv();
+    // 3. D1 query via getDB (schema lock already reduced to 3s)
+    const d1 = await getDB();
 
     // Try normalized phone first (880...), fallback to raw cleaned phone (017...) for existing users
     const rawPhone = phone.replace(/\D/g, "");
     const phoneVariants = cleanPhone === rawPhone ? [cleanPhone] : [cleanPhone, rawPhone];
 
-    let worker: { worker_id: string; name: string; password: string } | undefined;
+    let worker: { worker_id: string; name: string; password: string } | null | undefined;
     for (const variant of phoneVariants) {
       worker = await Promise.race([
-        db.prepare("SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')")
-          .bind(variant).first() as Promise<{ worker_id: string; name: string; password: string } | undefined>,
+        queryFirst<{ worker_id: string; name: string; password: string }>(d1,
+          "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')",
+          [variant]
+        ),
         new Promise<undefined>((_, reject) =>
           setTimeout(() => reject(new Error("D1 query timed out")), D1_TIMEOUT_MS)
         ),
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Update phone to normalized format for future logins
     if (worker && cleanPhone !== rawPhone) {
-      db.prepare("UPDATE workers SET phone = ? WHERE worker_id = ?").bind(cleanPhone, worker.worker_id).run().catch(() => {});
+      d1.DB.prepare("UPDATE workers SET phone = ? WHERE worker_id = ?").bind(cleanPhone, worker.worker_id).run().catch(() => {});
     }
 
     const valid = await verifyWorkerPassword(password, worker.password);

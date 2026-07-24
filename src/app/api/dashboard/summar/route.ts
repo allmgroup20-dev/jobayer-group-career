@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirstSafe, querySafe } from "@/lib/db/queries";
 import { getCached, setCached } from "@/lib/cache";
-import { initEnv } from "@/lib/env";
+import { getDB } from "@/lib/db";
 
 const MEMO_DASH = "__dashboardMemo";
 const MEMO_TTL = 120_000;
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached);
     }
 
-    // Direct D1 binding — bypass schema lock
-    const db = await initEnv();
+    // D1 via getDB (schema lock already reduced to 3s)
+    const db = await getDB();
 
     const profile = await queryFirstSafe<any>(db,
       `SELECT worker_id as workerId, name, phone, email, balance,
