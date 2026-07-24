@@ -8,6 +8,9 @@ import { getContextualKnowledge, logConversationLearning } from "@/lib/ai/knowle
 import { getContactIntelligence, extractInsightsFromText } from "../contact-intelligence";
 import { getSummary, getKeyPoints, getHistory } from "../history";
 import { classifyIntentFree } from "../intent-classifier";
+import { buildStageScriptsContext } from "../prompts/stage-scripts";
+import { buildTrainingContext } from "../prompts/training-modules";
+import { buildTeamContext } from "../prompts/team-tracker";
 
 const INTENT_ROUTES: { intent: Intent; department: DepartmentId }[] = [
   { intent: "greeting", department: "customer_experience" },
@@ -108,6 +111,11 @@ Last exchange: {{recentConversation}}
 {{topTarget}}
 {{upsellContext}}
 
+{{stageScripts}}
+{{trainingCtx}}
+
+{{teamCtx}}
+
 ## THE CUSTOMER'S JOURNEY STAGE: {{customerTierSummary}}
 - **New inquiry**: Build trust, give free value first. Never pitch immediately.
 - **Interested but hesitant**: Use Future Pacing — "Imagine yourself 6 months from now earning X..."
@@ -179,7 +187,7 @@ async function detectIntent(text: string, isWorker: boolean): Promise<{ intent: 
   return { intent: "general", department: fallbackDept };
 }
 
-function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, userMemories: any[], contactIntelligence: string, topTarget: string, upsellCtx: string, conversationSummary: string, conversationKeyPoints: string, recentConversation: string, productCatalog: string): Record<string, any> {
+function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, userMemories: any[], contactIntelligence: string, topTarget: string, upsellCtx: string, conversationSummary: string, conversationKeyPoints: string, recentConversation: string, productCatalog: string, stageScripts: string, trainingCtx: string, teamCtx: string): Record<string, any> {
   const memoryStr = buildMemoryContext(userMemories);
   const tierSummary = ctx.isPremium ? "PREMIUM MEMBER - Upsell additional resources. High LTV customer."
     : ctx.role === "customer" ? "NEW LEAD - Build trust first, then guide to registration."
@@ -206,6 +214,9 @@ function buildContext(ctx: MessageCtx, intent: Intent, knowledgeCtx: string, use
     conversationKeyPoints: conversationKeyPoints || "No key points recorded.",
     recentConversation: recentConversation || "No recent messages.",
     customerTierSummary: tierSummary,
+    stageScripts: stageScripts || "",
+    trainingCtx: trainingCtx || "",
+    teamCtx: teamCtx || "",
   };
 }
 
@@ -334,8 +345,39 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
     } catch {}
   }
 
+  // Team tracking context (only for workers/leaders)
+  let teamCtx = "";
+  if (ctx.isWorker && db) {
+    try { teamCtx = await buildTeamContext(db, ctx.phone, ctx.language || "bn"); } catch {}
+  }
+
+  // Build stage-aware scripts
+  const totalChats = ctx.totalChats || 0;
+  const stageMap: Record<string, string> = { "0": "stranger", "1-4": "stranger", "5-6": "lead", "7-8": "free_member", "9-12": "premium", "13+": "vip" };
+  const currentStage = ctx.funnelStage ? (stageMap[ctx.funnelStage] || "stranger") : (totalChats <= 4 ? "stranger" : totalChats <= 6 ? "lead" : totalChats <= 8 ? "free_member" : totalChats <= 12 ? "premium" : "vip");
+  const stageScripts = buildStageScriptsContext(currentStage, ctx.language || "bn");
+
+  // Build training context for coaching (select based on role, intent, isPremium)
+  const trainingModuleIds: string[] = [];
+  if (intent === "training" || intent === "motivation") {
+    trainingModuleIds.push("m3_communication_basics", "m3_question_techniques", "m19_smart_goals", "m30_learning_path");
+  }
+  if (intent === "referral" || ctx.isPremium) {
+    trainingModuleIds.push("m12_leadership_fundamentals", "m12_conflict_management");
+  }
+  if (intent === "purchase" || intent === "price_inquiry") {
+    trainingModuleIds.push("m29_upsell_cross_sell", "m24_negotiation_basics");
+  }
+  if (intent === "complaint" || intent === "support") {
+    trainingModuleIds.push("m21_ethical_selling", "m28_problem_solving");
+  }
+  if (intent === "commission_inquiry") {
+    trainingModuleIds.push("m20_financial_basics", "m19_smart_goals");
+  }
+  const trainingCtx = trainingModuleIds.length > 0 ? buildTrainingContext(trainingModuleIds, ctx.language || "bn") : "";
+
   // Build context and system prompt
-  const contextVars = buildContext(ctx, intent, knowledgeCtx, userMemories, contactIntelligence, topTarget, upsellCtx, conversationSummary, conversationKeyPoints, recentConversation, productCatalog);
+  const contextVars = buildContext(ctx, intent, knowledgeCtx, userMemories, contactIntelligence, topTarget, upsellCtx, conversationSummary, conversationKeyPoints, recentConversation, productCatalog, stageScripts, trainingCtx, teamCtx);
   const systemPrompt = buildSystemPrompt(contextVars);
 
   // Single AI call
