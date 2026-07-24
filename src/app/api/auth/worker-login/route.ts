@@ -87,6 +87,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
   } catch (error) {
     console.error("Worker login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
