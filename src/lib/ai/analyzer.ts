@@ -865,3 +865,129 @@ export function detectGrowthStrategy(text: string): { strategy: GrowthStrategy; 
   }
   return { strategy: best, confidence: bestScore > 0 ? Math.min(bestScore / 2, 1) : 0, evidence: bestEv };
 }
+
+// ── Education Level Detection ──
+const EDUCATION_PATTERNS: [RegExp, string][] = [
+  [/\b(?:ssc|এসএসসি|tenth|দশম|class\s*10|দশম শ্রেণী)\b/i, "ssc"],
+  [/\b(?:hsc|এইচএসসি|twelfth|দ্বাদশ|intermediate|ইন্টারমিডিয়েট|college|কলেজ)\b/i, "hsc"],
+  [/\b(?:graduate|graduation|স্নাতক|বিএ|বি.এ|bachelor|b\.sc|বি.এসসি|bba|বিবিএ|degree|ডিগ্রি|university|বিশ্ববিদ্যালয়)\b/i, "graduate"],
+  [/\b(?:masters|মাস্টার্স|এমএ|এম.এ|mba|এমবিএ|m\.sc|এম.এসসি|postgraduate|পোস্টগ্রাজুয়েট|post\s*graduate)\b/i, "masters"],
+  [/\b(?:phd|পিএইচডি|ডক্টরেট|doctorate|ডক্টর)\b/i, "phd"],
+  [/\b(?:no\s*education|পড়া\s*নাই|অশিক্ষিত|never\s*studied|school\s*nai)\b/i, "none"],
+];
+
+export function detectEducationLevel(text: string): { level: string; confidence: number } {
+  for (const [re, level] of EDUCATION_PATTERNS) {
+    if (re.test(text)) return { level, confidence: 1 };
+  }
+  return { level: "unknown", confidence: 0 };
+}
+
+// ── Income Range Detection ──
+const INCOME_PATTERNS: [RegExp, string][] = [
+  [/\b(?:\$\s*1000|১\s*হাজার|১০০০)(?:\s*-\s*(?:\$\s*5000|৫\s*হাজার|৫০০০))?\b/i, "lt_10k"],
+  [/\b(?:\$\s*5000|৫\s*হাজার|১০০০০?|১০,?০০০|১৫,?০০০)\b/i, "10k_25k"],
+  [/\b(?:২৫,?০০০|২৫\s*হাজার|৩০,?০০০|৫০,?০০০)\b/i, "25k_50k"],
+  [/\b(?:৫০,?০০০|৫০\s*হাজার|৭০,?০০০|১,?০০,?০০০|লক্ষ)\b/i, "50k_plus"],
+  [/\b(?:no\s*income|আয়\s*নাই|nothing|কিছু\s*না)\b/i, "no_income"],
+];
+
+export function detectIncomeRange(text: string): { range: string; confidence: number } {
+  for (const [re, range] of INCOME_PATTERNS) {
+    if (re.test(text)) return { range, confidence: 1 };
+  }
+  return { range: "unknown", confidence: 0 };
+}
+
+// ── Skill Detection ──
+const SKILL_KEYWORDS: Record<string, RegExp[]> = {
+  english: [/\b(?:english|ইংরেজি|spoken|ইংলিশ|language|ভাষা|ielts|আইইএলটিএস)\b/i],
+  marketing: [/\b(?:marketing|মার্কেটিং|digital|ডিজিটাল|social media|সোশ্যাল মিডিয়া|seo|এসইও)\b/i],
+  programming: [/\b(?:programming|প্রোগ্রামিং|python|পাইথন|javascript|জাভাস্ক্রিপ্ট|web|ওয়েব|app|অ্যাপ|software|সফটওয়্যার)\b/i],
+  design: [/\b(?:design|ডিজাইন|graphic|গ্রাফিক|photoshop|ফটোশপ|canva|ক্যানভা|ui|ux)\b/i],
+  video: [/\b(?:video|ভিডিও|editing|এডিটিং|youtube|ইউটিউব|content creation|কন্টেন্ট ক্রিয়েশন)\b/i],
+  business: [/\b(?:business|ব্যবসা|entrepreneur|উদ্যোক্তা|startup|স্টার্টআপ|ecommerce|ইকমার্স)\b/i],
+  teaching: [/\b(?:teaching|শিক্ষক|teacher|টিচার|coaching|কোচিং|training|ট্রেনিং)\b/i],
+  freelancing: [/\b(?:freelanc|ফ্রিল্যান্স|fiverr|ফাইভার|upwork|আপওয়ার্ক)\b/i],
+};
+
+export function detectSkills(text: string): { skills: string[]; confidence: number } {
+  const found: string[] = [];
+  for (const [skill, patterns] of Object.entries(SKILL_KEYWORDS)) {
+    for (const re of patterns) {
+      if (re.test(text)) { found.push(skill); break; }
+    }
+  }
+  return { skills: found, confidence: found.length > 0 ? 1 : 0 };
+}
+
+// ── Goal Detection ──
+const GOAL_PATTERNS: [RegExp, string][] = [
+  [/\b(?:job|চাকরি|কাজ\s*চাই|employment|চাকুরী)\b/i, "job"],
+  [/\b(?:foreign|বিদেশ|abroad|বাইরে|canada|কানাডা|usa|america|আমেরিকা|uk|ইউকে|visa|ভিসা)\b/i, "foreign_travel"],
+  [/\b(?:business|ব্যবসা|startup|স্টার্টআপ|own work|নিজের কাজ)\b/i, "business_start"],
+  [/\b(?:admission|ভর্তি|university|বিশ্ববিদ্যালয়|college|কলেজ|study|পড়াশোনা)\b/i, "education"],
+  [/\b(?:skill|দক্ষতা|learn|শিখতে|training|ট্রেনিং|course|কোর্স)\b/i, "skill_development"],
+  [/\b(?:money|টাকা|income|আয়|earn|উপার্জন|rich|ধনি|wealth|সম্পদ)\b/i, "financial_freedom"],
+  [/\b(?:house|বাড়ি|home|property|সম্পত্তি|land|জমি)\b/i, "house_property"],
+  [/\b(?:marriage|বিয়ে|wedding|বিবাহ|family|পরিবার)\b/i, "family"],
+  [/\b(?:health|স্বাস্থ্য|fitness|ফিটনেস|medical|মেডিকেল|treatment|চিকিৎসা)\b/i, "health"],
+];
+
+export function detectGoal(text: string): { goal: string; confidence: number } {
+  for (const [re, goal] of GOAL_PATTERNS) {
+    if (re.test(text)) return { goal, confidence: 1 };
+  }
+  return { goal: "unknown", confidence: 0 };
+}
+
+// ── Family Status Detection ──
+const FAMILY_PATTERNS: [RegExp, string][] = [
+  [/\b(?:bachelor|single|একা|alone|একাকী|unmarried|অবিবাহিত)\b/i, "single"],
+  [/\b(?:married|বিবাহিত|wife|স্ত্রী|husband|স্বামী|spouse|partner)\b/i, "married"],
+  [/\b(?:child|বাচ্চা|kids|সন্তান|baby|শিশু|daughter|মেয়ে|son|ছেলে)\b/i, "parent"],
+  [/\b(?:guardian|অভিভাবক|care\s*of|দায়িত্ব)\b/i, "guardian"],
+];
+
+export function detectFamilyStatus(text: string): { status: string; confidence: number } {
+  for (const [re, status] of FAMILY_PATTERNS) {
+    if (re.test(text)) return { status, confidence: 1 };
+  }
+  return { status: "unknown", confidence: 0 };
+}
+
+// ── Life Situation Detection ──
+export type LifeSituation = "job_seeker" | "language_learner" | "abroad_aspirant" | "entrepreneur" | "student" | "homemaker" | "employed" | "retired" | "unknown";
+
+const LIFE_SITUATION_PATTERNS: [RegExp, LifeSituation][] = [
+  [/\b(?:job.*(?:search|hunt|apply|vacancy|চাকরি.*খুঁজ|বায়োডাটা|cv|resume)\b.{0,50})/i, "job_seeker"],
+  [/\b(?:english|ইংরেজি|spoken|ইংলিশ|ielts|আইইএলটিএস|language\s*learning|ভাষা শেখা)\b/i, "language_learner"],
+  [/\b(?:abroad|বিদেশ|canada|কানাডা|usa|আমেরিকা|uk|ইউকে|visa|ভিসা|immigrate|ইমিগ্রেশন)\b/i, "abroad_aspirant"],
+  [/\b(?:business.*(?:start|open|idea|ব্যবসা.*(?:শুরু|খুলতে)))\b.{0,50}/i, "entrepreneur"],
+  [/\b(?:student|ছাত্র|কলেজ|university|বিশ্ববিদ্যালয়|school|স্কুল|admission|ভর্তি)\b/i, "student"],
+  [/\b(?:homemaker|housewife|গৃহিণী|বাড়িতে থাকি)\b/i, "homemaker"],
+  [/\b(?:job.*(?:holder|employee|কর্মচারী|job\s*at|employee\s*at|work\s*at|কাজ\s*করি))\b/i, "employed"],
+  [/\b(?:retired|অবসর|pension|পেনশন|service\s*completed|চাকরি শেষ)\b/i, "retired"],
+];
+
+export function detectLifeSituation(text: string): { situation: LifeSituation; confidence: number } {
+  for (const [re, situation] of LIFE_SITUATION_PATTERNS) {
+    if (re.test(text)) return { situation, confidence: 1 };
+  }
+  return { situation: "unknown", confidence: 0 };
+}
+
+// ── Content Preference Detection ──
+const CONTENT_PREF_PATTERNS: [RegExp, string][] = [
+  [/\b(?:video|ভিডিও|youtube|ইউটিউব|watch|দেখি|visual)\b/i, "video"],
+  [/\b(?:read|পড়া|article|আর্টিকেল|blog|ব্লগ|text|লেখা)\b/i, "text"],
+  [/\b(?:audio|অডিও|listen|শুনতে|podcast|পডকাস্ট)\b/i, "audio"],
+  [/\b(?:practice|প্রাকটিস|hands.on|হাতে.কলমে|interactive|ইন্টারঅ্যাক্টিভ|exercise|এক্সারসাইজ)\b/i, "interactive"],
+];
+
+export function detectContentPreference(text: string): string {
+  for (const [re, pref] of CONTENT_PREF_PATTERNS) {
+    if (re.test(text)) return pref;
+  }
+  return "unknown";
+}

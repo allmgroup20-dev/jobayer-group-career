@@ -2,7 +2,7 @@ export { callAI } from "./router";
 export { buildSystemPrompt } from "./prompts";
 export { getPersona, releasePersona } from "./persona";
 export { analyzePainPoints, analyzeInterests, detectLanguage, detectMood, detectDialect, detectReligion, detectTrustLevel, detectControlResistance, detectManipulationVulnerability, detectFearProfile, detectMaskStatus, detectDecisionMode, detectSpendStyle, extractKeywords } from "./analyzer";
-export { getOrCreateProfile, updateProfileScore, updateProfileFromChat, updateProfileTrust, updateProfileCommunication } from "./profiler";
+export { getOrCreateProfile, updateProfileScore, updateProfileFromChat, updateProfileTrust, updateProfileCommunication, updateProfileLife, buildLifeProfileContext } from "./profiler";
 export { findSkill, saveSkill } from "./skills";
 export { getHistory, saveMessage } from "./history";
 export { isWorkerPhone, getWorkerByPhone, getWorkerPremiumStatus } from "./worker-detection";

@@ -1,6 +1,6 @@
 import { queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
-import { detectLanguage, detectCommStyle, detectTrustReadiness, detectBuyerPersonality, detectBuyingMotivation, detectCustomerNeed, detectMarketSegment, detectLoyaltyStage, detectBrandPosition, detectPLCStage, detectPricingStrategy, detectServiceQualityIssue, detectGrowthStrategy, detectTargetingStrategy, detectCommunicationChannel } from "./analyzer";
+import { detectLanguage, detectCommStyle, detectTrustReadiness, detectBuyerPersonality, detectBuyingMotivation, detectCustomerNeed, detectMarketSegment, detectLoyaltyStage, detectBrandPosition, detectPLCStage, detectPricingStrategy, detectServiceQualityIssue, detectGrowthStrategy, detectTargetingStrategy, detectCommunicationChannel, detectEducationLevel, detectIncomeRange, detectSkills, detectGoal, detectFamilyStatus, detectLifeSituation, detectContentPreference } from "./analyzer";
 
 export interface PhoneProfile {
   phone: string;
@@ -8,6 +8,16 @@ export interface PhoneProfile {
   gender_guess: string | null;
   age_group_guess: string | null;
   sector: string | null;
+  education_level: string | null;
+  occupation: string | null;
+  monthly_income_range: string | null;
+  skills: string | null;
+  short_term_goal: string | null;
+  long_term_goal: string | null;
+  family_status: string | null;
+  referral_source: string | null;
+  content_preferences: string | null;
+  active_hours: string | null;
   language: string;
   pain_points: string | null;
   interests: string | null;
@@ -71,7 +81,7 @@ export async function getOrCreateProfile(phone: string): Promise<PhoneProfile | 
   const db = await ensureDB();
   let profile = await queryFirst<PhoneProfile>(
     { DB: db },
-    "SELECT phone, name_guess, gender_guess, age_group_guess, sector, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
+    "SELECT phone, name_guess, gender_guess, age_group_guess, sector, education_level, occupation, monthly_income_range, skills, short_term_goal, long_term_goal, family_status, referral_source, content_preferences, active_hours, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
     [phone]
   );
 
@@ -83,7 +93,7 @@ export async function getOrCreateProfile(phone: string): Promise<PhoneProfile | 
     );
     profile = await queryFirst<PhoneProfile>(
       { DB: db },
-      "SELECT phone, name_guess, gender_guess, age_group_guess, sector, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
+      "SELECT phone, name_guess, gender_guess, age_group_guess, sector, education_level, occupation, monthly_income_range, skills, short_term_goal, long_term_goal, family_status, referral_source, content_preferences, active_hours, language, pain_points, interests, priority_score, total_chats, last_chat_at, status, notes FROM ai_phone_profiles WHERE phone = ?",
       [phone]
     );
   }
@@ -137,6 +147,9 @@ export async function updateProfileFromChat(
       params
     );
   }
+
+  // Life profile detection (async, non-blocking)
+  try { await updateProfileLife(phone, text); } catch {}
 }
 
 export async function updateProfileScore(phone: string, score: number): Promise<void> {
@@ -287,4 +300,102 @@ export async function updateProfileServiceQuality(
       [JSON.stringify({ dimension, severity, evidence }), phone]
     );
   } catch {}
+}
+
+export async function updateProfileLife(phone: string, text: string): Promise<void> {
+  const db = await ensureDB();
+  const { level: educationLevel } = detectEducationLevel(text);
+  const { range: incomeRange } = detectIncomeRange(text);
+  const { skills } = detectSkills(text);
+  const { goal } = detectGoal(text);
+  const { status: familyStatus } = detectFamilyStatus(text);
+  const { situation: lifeSituation } = detectLifeSituation(text);
+  const contentPref = detectContentPreference(text);
+
+  const updates: string[] = [];
+  const params: unknown[] = [];
+
+  if (lifeSituation !== "unknown") { updates.push("sector = ?"); params.push(lifeSituation); }
+  if (educationLevel !== "unknown") { updates.push("education_level = ?"); params.push(educationLevel); }
+  if (incomeRange !== "unknown") { updates.push("monthly_income_range = ?"); params.push(incomeRange); }
+  if (skills.length > 0) { updates.push("skills = ?"); params.push(skills.join(",")); }
+  if (goal !== "unknown") { updates.push("short_term_goal = ?"); params.push(goal); }
+  if (familyStatus !== "unknown") { updates.push("family_status = ?"); params.push(familyStatus); }
+  if (contentPref !== "unknown") { updates.push("content_preferences = ?"); params.push(contentPref); }
+
+  if (updates.length > 0) {
+    try {
+      params.push(phone);
+      await execute(
+        { DB: db },
+        `UPDATE ai_phone_profiles SET ${updates.join(", ")}, updated_at = datetime('now') WHERE phone = ?`,
+        params
+      );
+    } catch {
+      try {
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN education_level TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN occupation TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN monthly_income_range TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN skills TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN short_term_goal TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN long_term_goal TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN family_status TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN referral_source TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN content_preferences TEXT");
+        await execute({ DB: db }, "ALTER TABLE ai_phone_profiles ADD COLUMN active_hours TEXT");
+        await execute(
+          { DB: db },
+          `UPDATE ai_phone_profiles SET ${updates.join(", ")}, updated_at = datetime('now') WHERE phone = ?`,
+          params
+        );
+      } catch {}
+    }
+  }
+}
+
+export function buildLifeProfileContext(profile: PhoneProfile, lang: string): string {
+  const lines: string[] = [];
+
+  if (profile.education_level) {
+    const label = lang === "bn"
+      ? ({ ssc: "এসএসসি", hsc: "এইচএসসি", graduate: "স্নাতক", masters: "মাস্টার্স", phd: "পিএইচডি", none: "কোনো" } as Record<string, string>)
+      : ({ ssc: "SSC", hsc: "HSC", graduate: "Graduate", masters: "Masters", phd: "PhD", none: "No formal education" } as Record<string, string>);
+    lines.push(`Education: ${label[profile.education_level] || profile.education_level}`);
+  }
+
+  if (profile.monthly_income_range) {
+    const label = lang === "bn"
+      ? ({ lt_10k: "< ১০,০০০", "10k_25k": "১০,০০০-২৫,০০০", "25k_50k": "২৫,০০০-৫০,০০০", "50k_plus": "৫০,০০০+", no_income: "কোনো আয় নেই" } as Record<string, string>)
+      : ({ lt_10k: "< 10,000", "10k_25k": "10,000-25,000", "25k_50k": "25,000-50,000", "50k_plus": "50,000+", no_income: "No income" } as Record<string, string>);
+    lines.push(`Income: ${label[profile.monthly_income_range] || profile.monthly_income_range}`);
+  }
+
+  if (profile.skills) {
+    const skillsList = profile.skills.split(",").map((s) => s.trim()).join(", ");
+    lines.push(`Skills: ${skillsList}`);
+  }
+
+  if (profile.short_term_goal) {
+    const label = lang === "bn"
+      ? ({ job: "চাকরি", foreign_travel: "বিদেশ যাওয়া", business_start: "ব্যবসা শুরু", education: "শিক্ষা", skill_development: "দক্ষতা উন্নয়ন", financial_freedom: "আর্থিক স্বাধীনতা", house_property: "বাড়ি/সম্পত্তি", family: "পরিবার", health: "স্বাস্থ্য" } as Record<string, string>)
+      : ({ job: "Job", foreign_travel: "Going abroad", business_start: "Starting business", education: "Education", skill_development: "Skill development", financial_freedom: "Financial freedom", house_property: "House/Property", family: "Family", health: "Health" } as Record<string, string>);
+    lines.push(`Goal: ${label[profile.short_term_goal] || profile.short_term_goal}`);
+  }
+
+  if (profile.family_status) {
+    const label = lang === "bn"
+      ? ({ single: "একক", married: "বিবাহিত", parent: "সন্তান আছে", guardian: "অভিভাবক" } as Record<string, string>)
+      : ({ single: "Single", married: "Married", parent: "Has children", guardian: "Guardian" } as Record<string, string>);
+    lines.push(`Family: ${label[profile.family_status] || profile.family_status}`);
+  }
+
+  if (profile.content_preferences && profile.content_preferences !== "unknown") {
+    const label = lang === "bn"
+      ? ({ video: "ভিডিও", text: "লেখা", audio: "অডিও", interactive: "ইন্টারঅ্যাক্টিভ" } as Record<string, string>)
+      : ({ video: "Video", text: "Text", audio: "Audio", interactive: "Interactive" } as Record<string, string>);
+    lines.push(`Prefers: ${label[profile.content_preferences] || profile.content_preferences} content`);
+  }
+
+  if (lines.length === 0) return "";
+  return `## LIFE PROFILE\n${lines.join("\n")}\n`;
 }

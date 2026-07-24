@@ -26,6 +26,7 @@ import {
 } from "@/lib/ai";
 import { recordPlatformActivity } from "@/lib/platform-router";
 import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
+import { logEmotion } from "@/lib/ai/emotion-tracker";
 import type { MessageCtx } from "@/lib/ai/brain/types";
 import type { MediaResult } from "@/lib/whatsapp/media";
 import { storeContactInsight, extractInsightsFromText } from "@/lib/ai/contact-intelligence";
@@ -237,6 +238,9 @@ export async function POST(request: NextRequest) {
     const interests = analyzeInterests(text);
 
     await updateProfileFromChat(phone, text);
+
+    // Emotion timeline logging
+    try { logEmotion(phone, mood); } catch {}
 
     // Priority scoring
     const score = calculateSimpleScore(profile);

@@ -1105,6 +1105,30 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN trust_readiness TEXT DEFAULT 'needs_time'").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN value_sensitivity TEXT DEFAULT 'balanced'").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN listening_need TEXT DEFAULT 'medium'").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN education_level TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN occupation TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN monthly_income_range TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN skills TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN short_term_goal TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN long_term_goal TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN family_status TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN referral_source TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN content_preferences TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE ai_phone_profiles ADD COLUMN active_hours TEXT").run(); } catch {}
+
+    // ── Phase X: Emotion Timeline ──
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS emotion_timeline (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT NOT NULL,
+      mood TEXT NOT NULL,
+      trust_level TEXT,
+      fear_profile TEXT,
+      decision_mode TEXT,
+      trigger_event TEXT,
+      recorded_at TEXT NOT NULL
+    )`).run();
+    await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_emotion_phone ON emotion_timeline(phone)").run().catch(() => {});
+    await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_emotion_recorded ON emotion_timeline(recorded_at)").run().catch(() => {});
 
     // ── Phase 10: Knowledge Brain Tables ──
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS knowledge_entries (
