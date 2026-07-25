@@ -1500,6 +1500,24 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       id TEXT PRIMARY KEY, name TEXT NOT NULL, text TEXT NOT NULL,
       text_bn TEXT, category TEXT DEFAULT 'general'
     )`).run().catch(() => {});
+
+    // ── Phase 5: Team Performance Tables ──
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS team_perf_snapshots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT NOT NULL,
+      total_team_size INTEGER DEFAULT 0, active_team_size INTEGER DEFAULT 0,
+      personal_volume REAL DEFAULT 0, team_volume REAL DEFAULT 0,
+      total_commission REAL DEFAULT 0, new_members_7d INTEGER DEFAULT 0,
+      new_members_30d INTEGER DEFAULT 0,
+      snapshot_date TEXT DEFAULT (date('now'))
+    )`).run().catch(() => {});
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS team_daily_trends (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT NOT NULL,
+      record_date TEXT NOT NULL, new_members INTEGER DEFAULT 0,
+      volume REAL DEFAULT 0, commission REAL DEFAULT 0,
+      UNIQUE(phone, record_date)
+    )`).run().catch(() => {});
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_perf_phone ON team_perf_snapshots(phone)").run().catch(() => {});
+    env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_trends_date ON team_daily_trends(record_date)").run().catch(() => {});
   } catch (e) {
     g[DONE_FLAG] = false;
     g[DONE_LOCK] = false;

@@ -1,4 +1,3 @@
-import { execute, query } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
 
 export type NodeType = "user" | "skill" | "goal" | "course" | "product" | "interest" | "pain_point" | "topic" | "achievement";

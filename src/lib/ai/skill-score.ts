@@ -1,4 +1,4 @@
-import { query, execute } from "@/lib/db/queries";
+import { query } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
 
 export interface SkillScore {

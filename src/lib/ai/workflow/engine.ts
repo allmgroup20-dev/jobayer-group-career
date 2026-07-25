@@ -1,4 +1,4 @@
-import { execute, query } from "@/lib/db/queries";
+import { query } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
 import type { WorkflowDefinition, WorkflowExecution, WorkflowCondition, WorkflowAction, TriggerType } from "./types";
 
