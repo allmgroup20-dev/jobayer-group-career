@@ -48,9 +48,11 @@ export async function POST(request: NextRequest) {
     // 3. D1 query via getDB (schema lock already reduced to 3s)
     const d1 = await getDB();
 
-    // Try normalized phone first (880...), fallback to raw cleaned phone (017...) for existing users
+    // Try all possible phone formats (880..., 01..., and bare 10-digit)
     const rawPhone = phone.replace(/\D/g, "");
-    const phoneVariants = cleanPhone === rawPhone ? [cleanPhone] : [cleanPhone, rawPhone];
+    const phoneVariants: string[] = [cleanPhone];
+    if (rawPhone !== cleanPhone) phoneVariants.push(rawPhone);
+    if (!rawPhone.startsWith("0") && rawPhone.length === 10) phoneVariants.push("0" + rawPhone);
 
     let worker: { worker_id: string; name: string; password: string } | null | undefined;
     for (const variant of phoneVariants) {
