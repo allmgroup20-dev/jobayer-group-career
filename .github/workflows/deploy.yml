@@ -34,7 +34,7 @@ jobs:
           echo "${{ secrets.WHATSAPP_VERIFY_TOKEN }}" | npx wrangler secret put WHATSAPP_VERIFY_TOKEN
           echo "${{ secrets.SSLCOMMERZ_STORE_ID }}" | npx wrangler secret put SSLCOMMERZ_STORE_ID
           echo "${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}" | npx wrangler secret put SSLCOMMERZ_STORE_PASSWORD
-        if: success()
+        if: false
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
