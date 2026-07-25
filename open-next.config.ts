@@ -19,4 +19,5 @@ export default {
     disableTagCache: true,
     disableIncrementalCache: true,
   },
+  buildCommand: "next build",
 };
