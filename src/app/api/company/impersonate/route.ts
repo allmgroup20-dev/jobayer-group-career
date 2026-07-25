@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { generateToken, verifyCompanyToken } from "@/lib/auth";
+import { generateToken, verifyCompanyToken, getJwtSecret } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated as company" }, { status: 401 });
     }
 
-    const payload = await verifyCompanyToken(companyToken, process.env.JWT_SECRET || "default-secret");
+    const jwtSecret = getJwtSecret();
+    const payload = await verifyCompanyToken(companyToken, jwtSecret);
     if (!payload) {
       return NextResponse.json({ error: "Invalid or expired company session" }, { status: 401 });
     }
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Worker not found" }, { status: 404 });
     }
 
-    const token = await generateToken(worker.worker_id, process.env.JWT_SECRET || "default-secret");
+    const token = await generateToken(worker.worker_id, jwtSecret);
 
     return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
   } catch (error) {

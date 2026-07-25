@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     for (const variant of phoneVariants) {
       worker = await Promise.race([
         queryFirst<{ worker_id: string; name: string; password: string }>(d1,
-          "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IN ('general', 'premium')",
+          "SELECT worker_id, name, password FROM workers WHERE phone = ? AND membership_status IS NOT NULL",
           [variant]
         ),
         new Promise<undefined>((_, reject) =>
