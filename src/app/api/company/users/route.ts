@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { verifyCompanyToken, hashCompanyPassword, verifyCompanyPassword } from "@/lib/auth";
+import { verifyCompanyToken, hashCompanyPassword, verifyCompanyPassword, getJwtSecret } from "@/lib/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default-secret";
+const JWT_SECRET = getJwtSecret();
 
 async function getAuthUser(request: NextRequest) {
   const token = request.cookies.get("company_token")?.value;
