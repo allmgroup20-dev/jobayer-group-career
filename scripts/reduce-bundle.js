@@ -22,23 +22,32 @@ for (const rel of removals) {
   }
 }
 
-// Extra minification pass on handler.mjs using esbuild
-const handlerPath = path.join(serverDir, "handler.mjs");
-if (fs.existsSync(handlerPath)) {
-  const before = fs.statSync(handlerPath).size;
-  console.log(`\nhandler.mjs before extra minify: ${(before / 1024).toFixed(1)} KB`);
+function minifyAndPatch(absPath, label) {
+  if (!fs.existsSync(absPath)) {
+    console.log(`${label} not found, skipping`);
+    return;
+  }
+  const before = fs.statSync(absPath).size;
+  console.log(`\n${label} before extra minify: ${(before / 1024).toFixed(1)} KB`);
 
   try {
     execSync(
-      `npx esbuild "${handlerPath}" --minify --allow-overwrite --outfile="${handlerPath}"`,
-      { cwd: serverDir, stdio: "pipe", timeout: 60000 }
+      `npx esbuild "${absPath}" --minify --drop:console --drop:debugger --allow-overwrite --outfile="${absPath}" --log-level=warning`,
+      { stdio: "pipe", timeout: 120000 }
     );
-    const after = fs.statSync(handlerPath).size;
+    const after = fs.statSync(absPath).size;
     const saved = before - after;
-    console.log(`handler.mjs after extra minify: ${(after / 1024).toFixed(1)} KB (saved ${(saved / 1024).toFixed(1)} KB)`);
+    console.log(`${label} after extra minify: ${(after / 1024).toFixed(1)} KB (saved ${(saved / 1024).toFixed(1)} KB)`);
   } catch (err) {
-    console.error("Extra minify failed (non-fatal):", err.message);
+    console.error(`${label} esbuild failed:`, err.message);
   }
+}
+
+const handlerPath = path.join(serverDir, "handler.mjs");
+minifyAndPatch(handlerPath, "handler.mjs");
+
+const middlewarePath = path.resolve(__dirname, "..", ".open-next/middleware/handler.mjs");
+minifyAndPatch(middlewarePath, "middleware/handler.mjs");
 
   // Patch loadInstrumentationModule to tolerate errors without .code (Workers)
   let content = fs.readFileSync(handlerPath, "utf8");
