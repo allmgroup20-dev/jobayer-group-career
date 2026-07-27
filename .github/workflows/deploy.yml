@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Workers
+name: Deploy to Cloudflare Pages
 
 on:
   push:
@@ -19,21 +19,33 @@ jobs:
 
       - run: npm ci
 
-      - name: Build & Deploy
-        run: npm run build && npx opennextjs-cloudflare deploy
+      - name: Build
+        run: npm run build
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Create Pages project
+        run: npx wrangler pages project create jobayer-group-career --production-branch main || true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy to Pages
+        run: npx wrangler pages deploy .open-next --project-name jobayer-group-career --branch main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Set secrets
         run: |
-          echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET
-          echo "${{ secrets.OPENROUTER_API_KEY }}" | npx wrangler secret put OPENROUTER_API_KEY
-          echo "${{ secrets.WHATSAPP_API_KEY }}" | npx wrangler secret put WHATSAPP_API_KEY
-          echo "${{ secrets.WHATSAPP_PHONE_ID }}" | npx wrangler secret put WHATSAPP_PHONE_ID
-          echo "${{ secrets.WHATSAPP_VERIFY_TOKEN }}" | npx wrangler secret put WHATSAPP_VERIFY_TOKEN
-          echo "${{ secrets.SSLCOMMERZ_STORE_ID }}" | npx wrangler secret put SSLCOMMERZ_STORE_ID
-          echo "${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}" | npx wrangler secret put SSLCOMMERZ_STORE_PASSWORD
+          echo "${{ secrets.JWT_SECRET }}" | npx wrangler pages secret put JWT_SECRET --project-name jobayer-group-career
+          echo "${{ secrets.OPENROUTER_API_KEY }}" | npx wrangler pages secret put OPENROUTER_API_KEY --project-name jobayer-group-career
+          echo "${{ secrets.WHATSAPP_API_KEY }}" | npx wrangler pages secret put WHATSAPP_API_KEY --project-name jobayer-group-career
+          echo "${{ secrets.WHATSAPP_PHONE_ID }}" | npx wrangler pages secret put WHATSAPP_PHONE_ID --project-name jobayer-group-career
+          echo "${{ secrets.WHATSAPP_VERIFY_TOKEN }}" | npx wrangler pages secret put WHATSAPP_VERIFY_TOKEN --project-name jobayer-group-career
+          echo "${{ secrets.SSLCOMMERZ_STORE_ID }}" | npx wrangler pages secret put SSLCOMMERZ_STORE_ID --project-name jobayer-group-career
+          echo "${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}" | npx wrangler pages secret put SSLCOMMERZ_STORE_PASSWORD
         if: false
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
