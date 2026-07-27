@@ -7,6 +7,7 @@ export interface ChatMsg {
 }
 
 let _sessionId: string | null = null;
+let _offline = false;
 
 function getSessionId(): string {
   if (_sessionId) return _sessionId;
@@ -20,33 +21,48 @@ function getSessionId(): string {
   return id;
 }
 
+async function chatFetch(path: string, init?: RequestInit): Promise<any> {
+  if (_offline) return null;
+  try {
+    const res = await fetch(`${CHAT_WORKER}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...init?.headers },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    _offline = true;
+    return null;
+  }
+}
+
 export async function sendMessage(text: string): Promise<string> {
-  const res = await fetch(`${CHAT_WORKER}/webhook`, {
+  const data = await chatFetch("/webhook", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: text, sessionId: getSessionId() }),
   });
-  const data: any = await res.json();
-  return data.reply || "দুঃখিত, উত্তর পেতে ব্যর্থ হয়েছে।";
+  return data?.reply || "";
 }
 
 export async function getHistory(): Promise<ChatMsg[]> {
-  const res = await fetch(`${CHAT_WORKER}/history?session=${getSessionId()}`);
-  const data: any = await res.json();
-  return data.messages || [];
+  const data = await chatFetch(`/history?session=${getSessionId()}`);
+  return data?.messages || [];
 }
 
 let _lastTotal = 0;
 
 export async function pollNew(): Promise<ChatMsg[]> {
-  const res = await fetch(`${CHAT_WORKER}/poll?session=${getSessionId()}&after=${_lastTotal}`);
-  const data: any = await res.json();
-  if (data.total) _lastTotal = data.total;
-  return data.messages || [];
+  const data = await chatFetch(`/poll?session=${getSessionId()}&after=${_lastTotal}`);
+  if (data?.total) _lastTotal = data.total;
+  return data?.messages || [];
 }
+
+export function isOffline(): boolean { return _offline; }
 
 export function resetSession(): void {
   _sessionId = null;
   _lastTotal = 0;
+  _offline = false;
   localStorage.removeItem("chat_session_id");
 }
