@@ -14,8 +14,6 @@ const PerfMonitor = dynamic(() => import("@/components/system/PerfMonitor").then
 const SmartInstall = dynamic(() => import("@/components/home/SmartInstall"), { ssr: false });
 const CookieConsentBanner = dynamic(() => import("@/components/privacy/CookieConsentBanner").then(m => ({ default: m.CookieConsentBanner })), { ssr: false });
 const PwaRegister = dynamic(() => import("@/components/PwaRegister"), { ssr: false });
-const ChatBubble = dynamic(() => import("@/components/chat/ChatBubble"), { ssr: false });
-
 function ScrollProgressBar() {
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +81,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isCompany && <BottomNav />}
       <SmartInstall />
       <CookieConsentBanner />
-      <ChatBubble />
       <PwaRegister />
     </>
   );

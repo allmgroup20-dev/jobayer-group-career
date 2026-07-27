@@ -1519,13 +1519,6 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_perf_phone ON team_perf_snapshots(phone)").run().catch(() => {});
     env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_trends_date ON team_daily_trends(record_date)").run().catch(() => {});
 
-    // ── Web Chat Session Tables ──
-    env.DB.prepare(`CREATE TABLE IF NOT EXISTS web_chat_sessions (
-      session_id TEXT PRIMARY KEY, phone TEXT,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
-    )`).run().catch(() => {});
-    env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_web_chat_phone ON web_chat_sessions(phone)").run().catch(() => {});
   } catch (e) {
     g[DONE_FLAG] = false;
     g[DONE_LOCK] = false;

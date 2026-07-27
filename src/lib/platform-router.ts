@@ -4,10 +4,10 @@ import { sendMessage as sendWhatsApp } from "@/lib/whatsapp/sender";
 import { sendTelegramMessage } from "@/lib/telegram/sender";
 import { sendMessengerMessage } from "@/lib/messenger/sender";
 
-export type Platform = "whatsapp" | "messenger" | "telegram" | "web" | "web_agent";
+export type Platform = "whatsapp" | "messenger" | "telegram";
 
-// Ordered priority: WhatsApp > Messenger > Telegram > Web
-const PLATFORM_ORDER: Platform[] = ["whatsapp", "messenger", "telegram", "web", "web_agent"];
+// Ordered priority: WhatsApp > Messenger > Telegram
+const PLATFORM_ORDER: Platform[] = ["whatsapp", "messenger", "telegram"];
 
 interface PlatformUser {
   phone: string;                // unified ID: phone, tg_{chatId}, fb_{psid}
@@ -21,7 +21,6 @@ interface PlatformUser {
 function parsePhone(phone: string): { platform: Platform; nativeId: string } {
   if (phone.startsWith("tg_")) return { platform: "telegram", nativeId: phone.slice(3) };
   if (phone.startsWith("fb_")) return { platform: "messenger", nativeId: phone.slice(3) };
-  if (phone.startsWith("web_anon_") || phone.startsWith("web_")) return { platform: "web", nativeId: phone };
   return { platform: "whatsapp", nativeId: phone };
 }
 
@@ -109,17 +108,6 @@ export async function sendToPlatform(
     case "messenger": {
       const result = await sendMessengerMessage(nativeId, text);
       return { success: result.success, platform, error: result.error };
-    }
-    case "web":
-    case "web_agent": {
-      // Web chat messages are saved directly to DB and delivered via SSE
-      try {
-        const { saveMessage } = await import("@/lib/ai");
-        await saveMessage(nativeId, "assistant", text, { source: platform });
-        return { success: true, platform };
-      } catch (e) {
-        return { success: false, platform, error: (e as Error).message };
-      }
     }
   }
 }

@@ -457,17 +457,6 @@ export default function WorkerDashboard() {
             </div>
           </Link>
 
-          <Link href="/dashboard/inbox" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#25D366]/10 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#25D366]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-semibold text-primary text-sm">{lang === "bn" ? "ইনবক্স" : "Inbox"}</p>
-              <p className="text-xs text-text-secondary">{lang === "bn" ? "চ্যাট মেসেজ" : "Chat messages"}</p>
-            </div>
-          </Link>
 
           <Link href="/product-list" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
             <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
