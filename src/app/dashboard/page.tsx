@@ -457,7 +457,6 @@ export default function WorkerDashboard() {
             </div>
           </Link>
 
-
           <Link href="/product-list" className="card hover:shadow-lg hover:-translate-y-1 flex items-center gap-4">
             <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
               <svg className="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

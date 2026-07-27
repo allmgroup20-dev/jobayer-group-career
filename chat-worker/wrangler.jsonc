@@ -1,0 +1,17 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "jgcareer-chat",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jgcareer-db",
+      "database_id": "3e54502f-3cc2-4529-a082-3019726a7784"
+    }
+  ],
+  "vars": {
+    "SITE_NAME": "Jobayer Group Career"
+  }
+}

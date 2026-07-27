@@ -10,6 +10,7 @@ interface UserInfo { name: string; username: string; role: string; }
 
 const navTabs = [
   { href: "/company", en: "Home", bn: "হোম", icon: "🏠" },
+  { href: "/company/chat", en: "Chat", bn: "চ্যাট", icon: "💬" },
   { href: "/company/courses", en: "Courses", bn: "রিসোর্স", icon: "🎓" },
   { href: "/company/finance", en: "Finance", bn: "অর্থ", icon: "💰" },
   { href: "/company/ai", en: "AI", bn: "এআই", icon: "🤖" },

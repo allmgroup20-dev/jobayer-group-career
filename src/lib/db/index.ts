@@ -1518,7 +1518,6 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run().catch(() => {});
     env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_perf_phone ON team_perf_snapshots(phone)").run().catch(() => {});
     env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_team_trends_date ON team_daily_trends(record_date)").run().catch(() => {});
-
   } catch (e) {
     g[DONE_FLAG] = false;
     g[DONE_LOCK] = false;

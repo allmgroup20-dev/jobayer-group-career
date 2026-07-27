@@ -1,9 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "jobayer-group-career",
+  "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-12",
   "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": ".open-next",
+  "placement": { "mode": "smart" },
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
   "vars": {
     "DEFAULT_CURRENCY": "BDT",
     "SITE_NAME": "Jobayer Group Career",
@@ -24,3 +30,4 @@
     }
   ]
 }
+
