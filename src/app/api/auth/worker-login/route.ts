@@ -52,7 +52,10 @@ export async function POST(request: NextRequest) {
     const rawPhone = phone.replace(/\D/g, "");
     const phoneVariants: string[] = [cleanPhone];
     if (rawPhone !== cleanPhone) phoneVariants.push(rawPhone);
-    if (!rawPhone.startsWith("0") && rawPhone.length === 10) phoneVariants.push("0" + rawPhone);
+    if (!rawPhone.startsWith("0") && rawPhone.length === 10) {
+      phoneVariants.push("0" + rawPhone);
+      phoneVariants.push("880" + rawPhone);
+    }
 
     let worker: { worker_id: string; name: string; password: string } | null | undefined;
     for (const variant of phoneVariants) {

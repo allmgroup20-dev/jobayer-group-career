@@ -35,8 +35,9 @@ export default function LoginPage() {
 
   const normalizePhone = (raw: string) => {
     const digits = raw.replace(/\D/g, "");
-    if (digits.startsWith("880") && digits.length > 10) return digits.slice(3);
-    if (digits.startsWith("0")) return digits.slice(1);
+    if (digits.startsWith("880") && digits.length > 10) return digits;
+    if (digits.startsWith("0") && digits.length === 11) return digits;
+    if (digits.startsWith("0")) return digits;
     return digits;
   };
 

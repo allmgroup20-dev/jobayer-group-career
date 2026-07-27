@@ -44,31 +44,32 @@ if (fs.existsSync(handlerPath)) {
   let content = fs.readFileSync(handlerPath, "utf8");
 
   // catch in getInstrumentationModule (require shim in Workers produces code=undefined)
-  const patch1 = 'w.code!=="ENOENT"&&w.code!=="MODULE_NOT_FOUND"&&w.code!=="ERR_MODULE_NOT_FOUND"';
-  const patched1 = 'w.code&&w.code!=="ENOENT"&&w.code!=="MODULE_NOT_FOUND"&&w.code!=="ERR_MODULE_NOT_FOUND"';
-  if (content.includes(patch1)) {
-    content = content.replace(patch1, patched1);
-    console.log("Patched getInstrumentationModule catch (line 55)");
-  } else {
-    console.warn("getInstrumentationModule catch pattern not found");
+  const patch1 = /\.code!=="ENOENT"&&\.code!=="MODULE_NOT_FOUND"&&\.code!=="ERR_MODULE_NOT_FOUND"/;
+  const patched1 = '.code&&.code!=="ENOENT"&&.code!=="MODULE_NOT_FOUND"&&.code!=="ERR_MODULE_NOT_FOUND"';
+  // Already fixed in newer Next.js — skip if pattern not found
+  if (patch1.test(content)) {
+    content = content.replace(patch1, (m) => m[0] + "code&&" + m.slice(1));
+    console.log("Patched getInstrumentationModule catch");
   }
 
   // catch in loadInstrumentationModule (re-throws as "An error occurred while loading the instrumentation hook")
-  const patch2 = 'ae.code!=="MODULE_NOT_FOUND"';
-  const patched2 = 'ae.code&&ae.code!=="MODULE_NOT_FOUND"';
-  if (content.includes(patch2)) {
-    content = content.replace(patch2, patched2);
-    console.log("Patched loadInstrumentationModule catch (line 8409)");
-  } else {
-    console.warn("loadInstrumentationModule catch pattern not found");
+  const patch2 = /\.code!=="MODULE_NOT_FOUND"/;
+  // Already fixed in newer Next.js — skip if pattern not found
+  if (patch2.test(content)) {
+    content = content.replace(patch2, (m) => m[0] + "code&&" + m.slice(1));
+    console.log("Patched loadInstrumentationModule catch");
   }
 
   // Fix loadCustomCacheHandlers override: t/e variables are not defined (minification issue)
-  const patch3 = 't&&(0,ke.initializeCacheHandlers)(e))for(let[m,ge]of Object.entries(t))';
-  const patched3 = 'this.nextConfig.experimental&&this.nextConfig.experimental.cacheHandlers&&(0,ke.initializeCacheHandlers)(this.nextConfig.experimental))for(let[m,ge]of Object.entries(this.nextConfig.experimental.cacheHandlers))';
-  if (content.includes(patch3)) {
-    content = content.replace(patch3, patched3);
-    console.log("Patched loadCustomCacheHandlers t/e references");
+  // Use regex to match any 2-letter var name (esbuild minifier varies them across builds)
+  const patch3 = /t&&\(0,\w{2}\.initializeCacheHandlers\)\(e\)\)for\(let\[m,ge\]of Object\.entries\(t\)\)/;
+  const patch3Match = content.match(patch3);
+  if (patch3Match) {
+    const varName = patch3Match[0].match(/\(0,(\w{2})\./)?.[1] || "ke";
+    const exactOld = patch3Match[0];
+    const exactNew = `this.nextConfig.experimental&&this.nextConfig.experimental.cacheHandlers&&(0,${varName}.initializeCacheHandlers)(this.nextConfig.experimental))for(let[m,ge]of Object.entries(this.nextConfig.experimental.cacheHandlers))`;
+    content = content.replace(exactOld, exactNew);
+    console.log(`Patched loadCustomCacheHandlers t/e references (var=${varName})`);
   } else {
     console.warn("loadCustomCacheHandlers t/e pattern not found");
   }
