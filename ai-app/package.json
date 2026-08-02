@@ -1,0 +1,28 @@
+{
+  "name": "jgcareer-ai",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prebuild": "node -e \"process.platform==='linux'&&require('child_process').execSync('npm install --no-save @tailwindcss/oxide-linux-x64-gnu lightningcss-linux-x64-gnu @ast-grep/napi-linux-x64-gnu',{cwd:__dirname,stdio:'inherit'})\"",
+    "build": "node scripts/fix-turbopack.js && opennextjs-cloudflare build && node scripts/fix-chunks.js && node scripts/reduce-bundle.js",
+    "deploy": "node scripts/fix-turbopack.js && opennextjs-cloudflare build --skipNextBuild && node scripts/fix-chunks.js && node scripts/reduce-bundle.js && opennextjs-cloudflare deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260708.1",
+    "@opennextjs/cloudflare": "^1.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.118.0"
+  }
+}

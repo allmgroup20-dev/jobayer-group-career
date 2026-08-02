@@ -43,13 +43,3 @@ export async function initEnv(): Promise<{ DB: D1Database; CACHE: KVNamespace }>
 export function getCachedEnv(): { DB: D1Database; CACHE: KVNamespace } | null {
   return envCache;
 }
-
-export async function getAIEnv(): Promise<{ AI: Fetcher | null }> {
-  try {
-    const ctx = await getCloudflareContext({ async: true });
-    const e = ctx.env as any;
-    return { AI: (e.AI as Fetcher) ?? null };
-  } catch {
-    return { AI: null };
-  }
-}

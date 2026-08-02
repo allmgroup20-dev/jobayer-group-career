@@ -1,21 +1,17 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "jobayer-group-career",
+  "name": "jgcareer-ai",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-12",
   "compatibility_flags": ["nodejs_compat"],
   "placement": { "mode": "smart" },
-  "triggers": { "crons": ["*/5 * * * *"] },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
   "vars": {
-    "DEFAULT_CURRENCY": "BDT",
     "SITE_NAME": "Jobayer Group Career",
-    "SITE_URL": "https://career.jobayergroup.com",
-    "SSLCOMMERZ_IS_LIVE": "false",
-    "AI_WORKER_URL": "https://jgcareer-ai.allmgroup20.workers.dev"
+    "SITE_URL": "https://career.jobayergroup.com"
   },
   "d1_databases": [
     {
@@ -29,12 +25,5 @@
       "binding": "CACHE",
       "id": "6ee0dd4bc9b147feb8400759e6ce33be"
     }
-  ],
-  "services": [
-    {
-      "binding": "AI",
-      "service": "jgcareer-ai"
-    }
   ]
 }
-

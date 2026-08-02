@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDB } from "@/lib/db";
-import { getRateLimitStats } from "@/lib/ai/brain/rate-limit";
-import { getCircuitSummary } from "@/lib/ai/brain/circuit-breaker";
-import { getCacheSize } from "@/lib/ai/brain/cache";
+import { getAIEnv } from "@/lib/env";
 
 // Day 1/2/3 complete — 35/35 PASS — All 3 days verified
 export async function GET() {
@@ -20,36 +18,30 @@ export async function GET() {
     overall = "error";
   }
 
-  // 2. Cache
+  // 2. AI worker reachability
   try {
-    const size = getCacheSize();
-    checks.cache = { status: "ok", detail: `${size} entries` };
+    const { AI } = await getAIEnv();
+    const aiUrl = process.env.AI_WORKER_URL;
+    const aiCheck = AI
+      ? AI.fetch("https://jgcareer-ai/api/knowledge/summary")
+      : aiUrl
+        ? fetch(`${aiUrl}/api/knowledge/summary`, { headers: { Accept: "application/json" } })
+        : null;
+    if (aiCheck) {
+      const aiRes = await aiCheck;
+      const body = await aiRes.text();
+      checks.ai_worker = {
+        status: aiRes.ok ? "ok" : "error",
+        detail: aiRes.ok ? `reachable (${AI ? "service binding" : "public url"})` : `HTTP ${aiRes.status} (${body.slice(0, 120)})`,
+      };
+      if (!aiRes.ok && overall === "ok") overall = "degraded";
+    } else {
+      checks.ai_worker = { status: "degraded", detail: "AI binding and AI_WORKER_URL not set" };
+      if (overall === "ok") overall = "degraded";
+    }
   } catch (e) {
-    checks.cache = { status: "degraded", detail: (e as Error).message };
-    if (overall === "ok") overall = "degraded";
-  }
-
-  // 3. Rate limiter
-  try {
-    const rateStats = getRateLimitStats();
-    checks.rate_limiter = { status: "ok", detail: `${rateStats.totalTracked} active phones` };
-  } catch (e) {
-    checks.rate_limiter = { status: "degraded", detail: (e as Error).message };
-    if (overall === "ok") overall = "degraded";
-  }
-
-  // 4. Circuit breakers
-  try {
-    const circuits = getCircuitSummary();
-    const openCount = Object.values(circuits).filter((c: any) => c.state === 'open').length;
-    checks.circuit_breakers = {
-      status: openCount > 0 ? "degraded" : "ok",
-      detail: `${Object.keys(circuits).length} tracked, ${openCount} open`,
-    };
-    if (openCount > 0 && overall === "ok") overall = "degraded";
-  } catch (e) {
-    checks.circuit_breakers = { status: "degraded", detail: (e as Error).message };
-    if (overall === "ok") overall = "degraded";
+    checks.ai_worker = { status: "error", detail: (e as Error).message };
+    if (overall === "ok") overall = "error";
   }
 
   const mem = typeof process !== "undefined" && process.memoryUsage ? process.memoryUsage() : null;

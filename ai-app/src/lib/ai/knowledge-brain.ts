@@ -70,7 +70,7 @@ export async function searchKnowledge(
   params.push(limit);
 
   const sql = `SELECT id, category, subcategory, title, content, source_type, source_name, confidence, tags, version, created_at FROM knowledge_entries WHERE ${conditions.join(" AND ")} AND (title LIKE ? OR content LIKE ? OR tags LIKE ?) ORDER BY confidence DESC, created_at DESC LIMIT ?`;
-  return query<KnowledgeEntry>({ DB: db }, sql, ...params);
+  return query<KnowledgeEntry>({ DB: db }, sql, params);
 }
 
 export async function getKnowledgeByCategory(category: string, limit = 50): Promise<KnowledgeEntry[]> {
