@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLanguageStore } from "@/lib/store";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-const CHAT_WORKER = "https://jgcareer-chat.your-worker.workers.dev";
+const CHAT_WORKER = "https://jgcareer-chat.allmgroup20.workers.dev";
 
 interface Conversation {
   phone: string;

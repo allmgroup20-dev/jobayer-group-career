@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const CHAT_WORKER = "https://jgcareer-chat.your-worker.workers.dev";
+const CHAT_WORKER = "https://jgcareer-chat.allmgroup20.workers.dev";
 
 interface Conversation {
   phone: string;
