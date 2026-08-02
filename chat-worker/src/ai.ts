@@ -64,6 +64,18 @@ function buildContext(messages: ChatMessage[]): string {
   return recent.map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
 }
 
+async function getOpenRouterKey(env: Env): Promise<string | null> {
+  if (env.OPENROUTER_API_KEY) return env.OPENROUTER_API_KEY;
+  try {
+    const row = await env.DB.prepare(
+      "SELECT key_value FROM ai_api_keys WHERE provider = 'openrouter' AND is_active = 1 ORDER BY id ASC LIMIT 1",
+    ).first<{ key_value: string }>();
+    return row?.key_value || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function processAI(
   env: Env,
   text: string,
@@ -84,7 +96,7 @@ export async function processAI(
       : text,
   };
 
-  const apiKey = env.OPENROUTER_API_KEY;
+  const apiKey = await getOpenRouterKey(env);
   if (!apiKey) {
     return "দুঃখিত, বর্তমানে সিস্টেম কনফিগার করা নেই। পরে আবার চেষ্টা করুন।";
   }
