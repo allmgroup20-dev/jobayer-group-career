@@ -8,3 +8,4 @@ node_modules/
 jobayer-group-career/
 *.session.json
 
+chat-worker/.wrangler-dist/
