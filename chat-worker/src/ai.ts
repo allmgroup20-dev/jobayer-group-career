@@ -21,10 +21,12 @@ function detectLanguage(text: string): Lang {
   return "en";
 }
 
+const NOT_WORD = "[A-Za-z0-9_\\u0980-\\u09FF\\u0600-\\u06FF]";
+
 const FAST_LANES: [RegExp, string][] = [
-  [/^(hi|hello|hey|assalamualaikum|ওয়ে|হ্যালো|হাই|আসলামুআলাইকুম|আসসালামুআলাইকুম|سلام)\b/i, "greeting"],
-  [/^(thanks|thank you|ধন্যবাদ|জাজাকাল্লাহ)\b/i, "thanks"],
-  [/^(bye|goodbye|allah hafez|আল্লাহ হাফেজ|বাই)\b/i, "farewell"],
+  [new RegExp(`^(hi|hello|hey|assalamualaikum|ওয়েস?|হ্যালো|হাই|আসলামুআলাইকুম|আসসালামুআলাইকুম|سلام)(?!${NOT_WORD})`, "i"), "greeting"],
+  [new RegExp(`^(thanks|thank you|ধন্যবাদ|জাজাকাল্লাহ)(?!${NOT_WORD})`, "i"), "thanks"],
+  [new RegExp(`^(bye|goodbye|allah hafez|আল্লাহ হাফেজ|বাই)(?!${NOT_WORD})`, "i"), "farewell"],
 ];
 
 const FAST_REPLIES: Record<string, Record<string, string>> = {
@@ -46,9 +48,12 @@ const FAST_REPLIES: Record<string, Record<string, string>> = {
 };
 
 function getFastReply(text: string, lang: Lang): string | null {
+  const candidates = [text.trim(), text.replace(/\s+/g, "")];
   for (const [pattern, lane] of FAST_LANES) {
-    if (pattern.test(text.trim())) {
-      return FAST_REPLIES[lane]?.[lang] ?? FAST_REPLIES[lane].en;
+    for (const candidate of candidates) {
+      if (pattern.test(candidate)) {
+        return FAST_REPLIES[lane]?.[lang] ?? FAST_REPLIES[lane].en;
+      }
     }
   }
   return null;
