@@ -22,7 +22,7 @@ for (const rel of removals) {
   }
 }
 
-function minifyAndPatch(absPath, label) {
+function minify(absPath, label) {
   if (!fs.existsSync(absPath)) {
     console.log(`${label} not found, skipping`);
     return;
@@ -44,17 +44,17 @@ function minifyAndPatch(absPath, label) {
 }
 
 const handlerPath = path.join(serverDir, "handler.mjs");
-minifyAndPatch(handlerPath, "handler.mjs");
+minify(handlerPath, "handler.mjs");
 
 const middlewarePath = path.resolve(__dirname, "..", ".open-next/middleware/handler.mjs");
-minifyAndPatch(middlewarePath, "middleware/handler.mjs");
+minify(middlewarePath, "middleware/handler.mjs");
 
+if (fs.existsSync(handlerPath)) {
   // Patch loadInstrumentationModule to tolerate errors without .code (Workers)
   let content = fs.readFileSync(handlerPath, "utf8");
 
   // catch in getInstrumentationModule (require shim in Workers produces code=undefined)
   const patch1 = /\.code!=="ENOENT"&&\.code!=="MODULE_NOT_FOUND"&&\.code!=="ERR_MODULE_NOT_FOUND"/;
-  const patched1 = '.code&&.code!=="ENOENT"&&.code!=="MODULE_NOT_FOUND"&&.code!=="ERR_MODULE_NOT_FOUND"';
   // Already fixed in newer Next.js — skip if pattern not found
   if (patch1.test(content)) {
     content = content.replace(patch1, (m) => m[0] + "code&&" + m.slice(1));
@@ -69,23 +69,24 @@ minifyAndPatch(middlewarePath, "middleware/handler.mjs");
     console.log("Patched loadInstrumentationModule catch");
   }
 
-  // Fix loadCustomCacheHandlers override: t/e variables are not defined (minification issue)
-  // Use regex to match any 2-letter var name (esbuild minifier varies them across builds)
-  const patch3 = /t&&\(0,\w{2}\.initializeCacheHandlers\)\(e\)\)for\(let\[m,ge\]of Object\.entries\(t\)\)/;
-  const patch3Match = content.match(patch3);
-  if (patch3Match) {
-    const varName = patch3Match[0].match(/\(0,(\w{2})\./)?.[1] || "ke";
-    const exactOld = patch3Match[0];
-    const exactNew = `this.nextConfig.experimental&&this.nextConfig.experimental.cacheHandlers&&(0,${varName}.initializeCacheHandlers)(this.nextConfig.experimental))for(let[m,ge]of Object.entries(this.nextConfig.experimental.cacheHandlers))`;
-    content = content.replace(exactOld, exactNew);
-    console.log(`Patched loadCustomCacheHandlers t/e references (var=${varName})`);
+  // Fix loadCustomCacheHandlers override: t/e variables are not defined (minification issue).
+  // esbuild minifier renames all short identifiers unpredictably across builds, so match
+  // every 2-letter var position with a regex and preserve whatever names were generated.
+  const patch3 =
+    /([A-Za-z_$]{1,2})&&\(0,([A-Za-z_$]{1,2})\.initializeCacheHandlers\)\(([A-Za-z_$]{1,2})\)\)for\(let\[([A-Za-z_$]{1,2}),([A-Za-z_$]{1,2})\]of Object\.entries\(([A-Za-z_$]{1,2})\)\)/g;
+  let patch3Count = 0;
+  content = content.replace(patch3, (m, cond, mod, arg, k1, k2, entriesVar) => {
+    patch3Count++;
+    return `this.nextConfig.experimental&&this.nextConfig.experimental.cacheHandlers&&(0,${mod}.initializeCacheHandlers)(this.nextConfig.experimental))for(let[${k1},${k2}]of Object.entries(this.nextConfig.experimental.cacheHandlers))`;
+  });
+  if (patch3Count > 0) {
+    console.log(`Patched loadCustomCacheHandlers t/e references (${patch3Count} call-site(s))`);
   } else {
     console.warn("loadCustomCacheHandlers t/e pattern not found");
   }
 
   fs.writeFileSync(handlerPath, content);
   console.log(`handler.mjs patched: ${(fs.statSync(handlerPath).size / 1024).toFixed(1)} KB`);
-
 } else {
-  console.log("handler.mjs not found, skipping extra minify");
+  console.log("handler.mjs not found, skipping patch");
 }
