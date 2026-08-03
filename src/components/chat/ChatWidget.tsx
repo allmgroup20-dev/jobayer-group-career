@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { sendMessage, getHistory, pollNew, isOffline } from "@/lib/chat/client";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { sendMessage, pollNew, isOffline } from "@/lib/chat/client";
 import type { ChatMsg } from "@/lib/chat/client";
 
 function ChatIcon() {
@@ -33,54 +33,45 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
   const [offline, setOffline] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
-    if (!initialized) {
-      setInitialized(true);
-      getHistory().then(msgs => {
-        setMessages(msgs);
-        if (isOffline()) setOffline(true);
-      });
-    }
-  }, [open, initialized]);
+    setOffline(isOffline());
+  }, []);
 
   useEffect(() => {
-    if (!open || offline) return;
-    const id = setInterval(async () => {
+    if (!open) return;
+    let active = true;
+    const tick = async () => {
       const msgs = await pollNew();
-      if (msgs.length) setMessages(prev => {
-        const existing = new Set(prev.map(m => `${m.role}:${m.content}`));
-        const newOnes = msgs.filter(m => !existing.has(`${m.role}:${m.content}`));
-        return [...prev, ...newOnes];
-      });
-    }, 3000);
-    return () => clearInterval(id);
-  }, [open, offline]);
+      if (!active) return;
+      setOffline(isOffline());
+      if (msgs.length) {
+        setMessages(prev => [...prev, ...msgs]);
+      }
+    };
+    tick();
+    const id = setInterval(tick, 3000);
+    return () => { active = false; clearInterval(id); };
+  }, [open]);
 
   useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
-  }, [messages]);
+  }, [messages, loading]);
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || loading || offline) return;
     setInput("");
     setLoading(true);
     setMessages(prev => [...prev, { role: "user", content: text }]);
     const reply = await sendMessage(text);
-    setMessages(prev => {
-      if (!reply) {
-        setOffline(true);
-        return [...prev, { role: "assistant", content: "দুঃখিত, চ্যাট সার্ভার বর্তমানে সংযুক্ত নয়। পরে আবার চেষ্টা করুন।" }];
-      }
-      return [...prev, { role: "assistant", content: reply }];
-    });
     setLoading(false);
-  };
+    if (reply) {
+      setMessages(prev => [...prev, { role: "assistant", content: reply }]);
+    }
+  }, [input, loading, offline]);
 
   return (
     <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end gap-3" style={{ bottom: "20px", right: "20px" }}>
@@ -108,7 +99,7 @@ export default function ChatWidget() {
               </div>
             )}
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={`${m.role}-${i}`} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   m.role === "user"
                     ? "bg-[#0F1E36] text-white rounded-br-sm"
@@ -138,7 +129,7 @@ export default function ChatWidget() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSend()}
-                placeholder="আপনার বার্তা লিখুন..."
+                placeholder={offline ? "ওয়েট… সংযোগ ফিরে আসছে" : "আপনার বার্তা লিখুন..."}
                 disabled={offline}
                 className="flex-1 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#0F1E36] focus:ring-1 focus:ring-[#0F1E36]/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />

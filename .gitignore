@@ -9,3 +9,5 @@ jobayer-group-career/
 *.session.json
 
 chat-worker/.wrangler-dist/
+chat-worker/dist/
+tsconfig.tsbuildinfo

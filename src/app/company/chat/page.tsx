@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const CHAT_WORKER = "https://jgcareer-chat.allmgroup20.workers.dev";
+const CHAT_WORKER = "/api/chat/admin";
 
 interface Conversation {
   phone: string;

@@ -25,6 +25,15 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      - name: Set chat secret
+        run: |
+          echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET
+          if [ -n "${{ secrets.CHAT_API_SECRET }}" ]; then echo "${{ secrets.CHAT_API_SECRET }}" | npx wrangler secret put CHAT_API_SECRET; fi
+        if: false
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Set secrets
         run: |
           echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET

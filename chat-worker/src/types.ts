@@ -2,6 +2,9 @@ export interface Env {
   DB: D1Database;
   SITE_NAME?: string;
   OPENROUTER_API_KEY?: string;
+  CHAT_API_SECRET?: string;
+  ALLOWED_ORIGINS?: string;
+  BRAIN_API_URL?: string;
 }
 
 export interface ChatMessage {

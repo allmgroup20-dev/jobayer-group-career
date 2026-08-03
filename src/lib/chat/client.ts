@@ -8,29 +8,33 @@ export interface ChatMsg {
 
 let _sessionId: string | null = null;
 let _offline = false;
+let _lastTotal = 0;
 
 function getSessionId(): string {
   if (_sessionId) return _sessionId;
-  const stored = localStorage.getItem("chat_session_id");
-  if (stored) { _sessionId = stored; return stored; }
-  const workerId = localStorage.getItem("worker_id");
-  if (workerId) { _sessionId = workerId; return workerId; }
-  const id = `web_${Date.now().toString(36)}`;
-  _sessionId = id;
-  localStorage.setItem("chat_session_id", id);
-  return id;
+  let stored = localStorage.getItem("chat_session_id");
+  if (!stored) {
+    stored = `web_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    localStorage.setItem("chat_session_id", stored);
+  }
+  _sessionId = stored;
+  return stored;
 }
 
 async function chatFetch(path: string, init?: RequestInit): Promise<any> {
-  if (_offline) return null;
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(`${CHAT_WORKER}${path}`, {
       ...init,
       headers: { "Content-Type": "application/json", ...init?.headers },
-      signal: AbortSignal.timeout(10000),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+    _offline = false;
+    return data;
   } catch {
     _offline = true;
     return null;
@@ -38,23 +42,18 @@ async function chatFetch(path: string, init?: RequestInit): Promise<any> {
 }
 
 export async function sendMessage(text: string): Promise<string> {
+  const sessionId = getSessionId();
   const data = await chatFetch("/webhook", {
     method: "POST",
-    body: JSON.stringify({ message: text, sessionId: getSessionId() }),
+    body: JSON.stringify({ message: text, sessionId }),
   });
+  if (data?.total) _lastTotal = data.total;
   return data?.reply || "";
 }
 
-export async function getHistory(): Promise<ChatMsg[]> {
-  const data = await chatFetch(`/history?session=${getSessionId()}`);
-  return data?.messages || [];
-}
-
-let _lastTotal = 0;
-
 export async function pollNew(): Promise<ChatMsg[]> {
   const data = await chatFetch(`/poll?session=${getSessionId()}&after=${_lastTotal}`);
-  if (data?.total) _lastTotal = data.total;
+  if (data?.total != null) _lastTotal = data.total;
   return data?.messages || [];
 }
 
