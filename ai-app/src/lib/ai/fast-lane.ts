@@ -3,28 +3,32 @@ type FastLaneResult = { reply: string; lane: LaneType } | null;
 
 type Pattern = { regex: RegExp; lane: LaneType };
 
+// `\b` misbehaves around Bengali/Arabic script (\w only matches ASCII), so use
+// an explicit negative lookahead: next char must not be a letter/digit/underscore.
+const NOT_WORD = "[\\p{L}\\p{N}_]";
+
 const PATTERNS: Pattern[] = [
   // ── Greetings (English) ──
-  { regex: /^(hi|hello|hey|howdy|greetings)\b/i, lane: "greeting" },
-  { regex: /^(good\s*(morning|afternoon|evening|day))\b/i, lane: "greeting" },
-  { regex: /^(what'?s\s*up|sup|yo)\b/i, lane: "greeting" },
-  { regex: /^(nice\s*to\s*(meet|see)|pleased\s*to\s*meet)\b/i, lane: "greeting" },
+  { regex: new RegExp(`^(hi|hello|hey|howdy|greetings)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
+  { regex: new RegExp(`^(good\\s*(morning|afternoon|evening|day))(?!${NOT_WORD})`, "iu"), lane: "greeting" },
+  { regex: new RegExp(`^(what'?s\\s*up|sup|yo)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
+  { regex: new RegExp(`^(nice\\s*to\\s*(meet|see)|pleased\\s*to\\s*meet)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
   // ── Greetings (Bengali) ──
-  { regex: /^(আসসালামু|ওয়ালাইকুম|সালাম|হ্যালো|হাই|হেলো)\b/i, lane: "greeting" },
-  { regex: /^(শুনো|শুনি|কেমন\s*আছেন|কেমন\s*আছো|ভালো\s*ত)\b/i, lane: "greeting" },
-  { regex: /^(কে\s*আছেন|কেউ\s*আছেন)\b/i, lane: "greeting" },
+  { regex: new RegExp(`^(আসসালামু|ওয়ালাইকুম|সালাম|হ্যালো|হাই|হেলো)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
+  { regex: new RegExp(`^(শুনো|শুনি|কেমন\\s*আছেন|কেমন\\s*আছো|ভালো\\s*ত)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
+  { regex: new RegExp(`^(কে\\s*আছেন|কেউ\\s*আছেন)(?!${NOT_WORD})`, "iu"), lane: "greeting" },
   // ── Farewells ──
-  { regex: /^(bye|goodbye|see\s*you|talk\s*to\s*you\s*late?r|take\s*care)\b/i, lane: "farewell" },
-  { regex: /^(আল্লাহ\s*হাফেজ|খোদা\s*হাফেজ|বাই|বিদায়|পরে\s*কথা\s*বলবো|পরে\s*দেখা)\b/i, lane: "farewell" },
+  { regex: new RegExp(`^(bye|goodbye|see\\s*you|talk\\s*to\\s*you\\s*late?r|take\\s*care)(?!${NOT_WORD})`, "iu"), lane: "farewell" },
+  { regex: new RegExp(`^(আল্লাহ\\s*হাফেজ|খোদা\\s*হাফেজ|বাই|বিদায়|পরে\\s*কথা\\s*বলবো|পরে\\s*দেখা)(?!${NOT_WORD})`, "iu"), lane: "farewell" },
   // ── Thanks ──
-  { regex: /^(thanks|thank\s*you|thankyou|thnx|ty)\b/i, lane: "thanks" },
-  { regex: /^(ধন্যবাদ|থ্যাংকস|থ্যাংক\s*ইউ|অনেক\s*ধন্যবাদ)\b/i, lane: "thanks" },
+  { regex: new RegExp(`^(thanks|thank\\s*you|thankyou|thnx|ty)(?!${NOT_WORD})`, "iu"), lane: "thanks" },
+  { regex: new RegExp(`^(ধন্যবাদ|থ্যাংকস|থ্যাংক\\s*ইউ|অনেক\\s*ধন্যবাদ)(?!${NOT_WORD})`, "iu"), lane: "thanks" },
   // ── Confirmations ──
-  { regex: /^(ok|okay|k|kk|sure|yes|yeah|yep|yup|right|got\s*it|understood|cool|alright|fine)\b$/i, lane: "confirmation" },
-  { regex: /^(হ্যা|হ্যাঁ|ঠিক\s*আছে|আচ্ছা|থিক\s*আছে|বেশ|বুঝেছি|বুঝলাম|ওকে|ওকে)\b/i, lane: "confirmation" },
+  { regex: new RegExp(`^(ok|okay|k|kk|sure|yes|yeah|yep|yup|right|got\\s*it|understood|cool|alright|fine)(?!${NOT_WORD})$`, "iu"), lane: "confirmation" },
+  { regex: new RegExp(`^(হ্যা|হ্যাঁ|ঠিক\\s*আছে|আচ্ছা|থিক\\s*আছে|বেশ|বুঝেছি|বুঝলাম|ওকে)(?!${NOT_WORD})$`, "iu"), lane: "confirmation" },
   // ── Identity (who are you?) ──
-  { regex: /^(who\s*are\s*you|what\s*are\s*you|tell\s*me\s*about\s*yourself)\b/i, lane: "identity" },
-  { regex: /^(তুমি\s*কে|আপনি\s*কে|কে\s*তুমি|কে\s*আপনি|কি\s*তুমি|কী\s*তুমি)\b/i, lane: "identity" },
+  { regex: new RegExp(`^(who\\s*are\\s*you|what\\s*are\\s*you|tell\\s*me\\s*about\\s*yourself)(?!${NOT_WORD})`, "iu"), lane: "identity" },
+  { regex: new RegExp(`^(তুমি\\s*কে|আপনি\\s*কে|কে\\s*তুমি|কে\\s*আপনি|কি\\s*তুমি|কী\\s*তুমি)(?!${NOT_WORD})`, "iu"), lane: "identity" },
 ];
 
 const GREETING_REPLIES: Record<string, { en: string; bn: string }> = {

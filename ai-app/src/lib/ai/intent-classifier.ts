@@ -4,9 +4,9 @@ type IntentRoute = { intent: Intent; department: DepartmentId };
 
 const INTENT_PATTERNS: { regex: RegExp; route: IntentRoute }[] = [
   // ── greeting ──
-  { regex: /^(hi|hello|hey|howdy|greetings|good\s*(morning|afternoon|evening|day)|what'?s\s*up|sup|yo|নমস্কার|আসসালামু|ওয়ালাইকুম|সালাম|হ্যালো|হাই|হেলো)\b/i, route: { intent: "greeting", department: "customer_experience" } },
+  { regex: new RegExp(`^(hi|hello|hey|howdy|greetings|good\\s*(morning|afternoon|evening|day)|what'?s\\s*up|sup|yo|নমস্কার|আসসালামু|ওয়ালাইকুম|সালাম|হ্যালো|হাই|হেলো)(?![\\p{L}\\p{N}_])`, "iu"), route: { intent: "greeting", department: "customer_experience" } },
   // ── farewell ──
-  { regex: /^(bye|goodbye|see\s*you|talk\s*to\s*you\s*late?r|take\s*care|আল্লাহ\s*হাফেজ|খোদা\s*হাফেজ|বাই|বিদায়)\b/i, route: { intent: "farewell", department: "customer_experience" } },
+  { regex: new RegExp(`^(bye|goodbye|see\\s*you|talk\\s*to\\s*you\\s*late?r|take\\s*care|আল্লাহ\\s*হাফেজ|খোদা\\s*হাফেজ|বাই|বিদায়)(?![\\p{L}\\p{N}_])`, "iu"), route: { intent: "farewell", department: "customer_experience" } },
   // ── product_inquiry (courses, services, products) ──
   { regex: /(কি\s*কোর্স|কোন\s*কোর্স|course|training|প্রশিক্ষণ|শিখতে\s*চাই|পড়তে\s*চাই|program|প্রোগ্রাম|product|পণ্য|service|সেবা|offer|অফার|কি\s*আছে|কী\s*আছে|বিস্তারিত|details|কাজ\s*কি|বিষয়ে\s*বলুন)/i, route: { intent: "product_inquiry", department: "sales" } },
   // ── price_inquiry ──
