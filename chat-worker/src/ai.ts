@@ -1,6 +1,14 @@
 import type { Env, ChatMessage } from "./types";
 
-const SYSTEM_PROMPT = `You are a helpful assistant for Jobayer Group Career (জোবায়ের গ্রুপ ক্যারিয়ার). 
+const FALLBACK_MODELS = [
+  "openrouter/free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "nousresearch/hermes-3-llama-3.1-405b:free",
+  "google/gemma-4-31b-it:free",
+  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+];
+
+const SYSTEM_PROMPT = `You are a helpful AI assistant for Jobayer Group Career (জোবায়ের গ্রুপ ক্যারিয়ার). 
 You help with career guidance, course information, and business opportunities.
 Respond naturally in the same language the user writes in (Bengali or English).
 Keep responses concise, friendly, and helpful.
@@ -101,42 +109,52 @@ export async function processAI(
     return "দুঃখিত, বর্তমানে সিস্টেম কনফিগার করা নেই। পরে আবার চেষ্টা করুন।";
   }
 
-  try {
-    const res = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://career.jobayergroup.com",
+  const messages = [systemMsg, ...history.slice(-10).map(m => ({
+    role: m.role === "agent" ? "assistant" : m.role,
+    content: m.content,
+  })), userMsg];
+
+  for (const model of FALLBACK_MODELS) {
+    try {
+      const res = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+            "HTTP-Referer": "https://career.jobayergroup.com",
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            max_tokens: 500,
+            temperature: 0.7,
+          }),
         },
-        body: JSON.stringify({
-          model: "google/gemini-2.0-flash-exp:free",
-          messages: [systemMsg, ...history.slice(-10).map(m => ({
-            role: m.role === "agent" ? "assistant" : m.role,
-            content: m.content,
-          })), userMsg],
-          max_tokens: 500,
-          temperature: 0.7,
-        }),
-      },
-    );
+      );
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("OpenRouter error:", res.status, errText);
-      return "দুঃখিত, একটি ত্রুটি হয়েছে। পরে আবার চেষ্টা করুন।";
-    }
+      if (res.status === 429 || res.status === 500 || res.status === 503) {
+        const errText = await res.text();
+        console.error(`[FAILOVER] OpenRouter ${model} -> ${res.status}: ${errText.slice(0, 200)}`);
+        await new Promise((r) => setTimeout(r, 400));
+        continue;
+      }
 
-    const data: any = await res.json();
-    const reply = data?.choices?.[0]?.message?.content;
-    if (!reply) {
-      return "দুঃখিত, উত্তর পেতে ব্যর্থ হয়েছে।";
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error(`[FAILOVER] OpenRouter ${model} -> ${res.status}: ${errText.slice(0, 200)}`);
+        continue;
+      }
+
+      const data: any = await res.json();
+      const reply = data?.choices?.[0]?.message?.content;
+      if (reply) return reply;
+    } catch (err) {
+      console.error(`[FAILOVER] OpenRouter ${model} call failed:`, err);
+      await new Promise((r) => setTimeout(r, 400));
     }
-    return reply;
-  } catch (err) {
-    console.error("AI call failed:", err);
-    return "দুঃখিত, সংযোগে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।";
   }
+
+  return "দুঃখিত, বর্তমানে সার্ভারটি ব্যস্ত। কিছুক্ষণ পরে আবার চেষ্টা করুন।";
 }
