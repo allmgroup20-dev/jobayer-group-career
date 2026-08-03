@@ -3,7 +3,7 @@
   "name": "jgcareer-chat",
   "main": "src/index.ts",
   "compatibility_date": "2026-07-12",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "d1_databases": [
     {
       "binding": "DB",

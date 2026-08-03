@@ -3,7 +3,7 @@
   "name": "jobayer-group-career",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-12",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "placement": { "mode": "smart" },
   "triggers": { "crons": ["*/5 * * * *"] },
   "assets": {
