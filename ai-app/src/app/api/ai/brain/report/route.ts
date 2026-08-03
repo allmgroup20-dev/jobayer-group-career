@@ -68,7 +68,7 @@ Provide a concise 4-5 line executive summary in English. Include:
 
       const result = await callAI(
         { messages: [{ role: "system", content: reportPrompt }, { role: "user", content: "Generate the executive report." }] },
-        200, "llama-3.3-70b", "openrouter"
+        200, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
       );
       aiSummary = result.text;
     } catch {}

@@ -222,6 +222,17 @@ async function tryModel(
   return null;
 }
 
+// ─── Model ID Validation ──────────────────────────────
+// Rejects shorthand aliases (e.g. "llama-3.3-70b") that are not real provider
+// model IDs. Sending those to OpenRouter wastes a call + triggers cooldown.
+
+function isPlausibleModelId(provider: string, modelId: string | undefined): boolean {
+  if (!modelId) return false;
+  if (provider === "openrouter") return /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._:+~-]*$/.test(modelId);
+  if (provider === "opencode") return /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(modelId);
+  return false;
+}
+
 // ─── DB-Driven Model List ──────────────────────────────
 
 async function getDBModelList(db: D1Database, provider: string): Promise<string[] | null> {
@@ -274,7 +285,7 @@ export async function callAI(
     const modelList = await resolveModelList(db, provider);
     if (modelList.length === 0) continue;
 
-    const modelsToTry = preferredModel && providerOrder.indexOf(provider) === 0
+    const modelsToTry = preferredModel && providerOrder.indexOf(provider) === 0 && isPlausibleModelId(provider, preferredModel)
       ? [preferredModel, ...modelList.filter((m) => m !== preferredModel)]
       : modelList;
 

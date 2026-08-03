@@ -12,7 +12,14 @@ interface Conversation {
   interests: string | null;
 }
 
-export async function getHistory(phone: string): Promise<{ role: string; content: string }[] | null> {
+interface HistoryMessage {
+  role: string;
+  content: string;
+  created_at?: string;
+  source?: string | null;
+}
+
+export async function getHistory(phone: string): Promise<HistoryMessage[] | null> {
   const db = await ensureDB();
   const conv = await queryFirst<Conversation>(
     { DB: db },
@@ -21,7 +28,7 @@ export async function getHistory(phone: string): Promise<{ role: string; content
   );
   if (!conv?.messages) return null;
   try {
-    return JSON.parse(conv.messages) as { role: string; content: string }[];
+    return JSON.parse(conv.messages) as HistoryMessage[];
   } catch {
     return null;
   }
@@ -62,7 +69,7 @@ export async function saveMessage(
     language?: string;
     painPoints?: string[];
     interests?: string[];
-    source?: string;
+    source?: string | null;
     mood?: string;
     personality?: string;
     buyingStage?: string;
@@ -80,13 +87,18 @@ export async function saveMessage(
     [phone]
   );
 
-  let messages: { role: string; content: string }[] = [];
+  let messages: HistoryMessage[] = [];
   if (conv?.messages) {
     try { messages = JSON.parse(conv.messages); } catch { messages = []; }
   }
 
-  messages.push({ role, content });
-  if (messages.length > 3) messages = messages.slice(-3);
+  messages.push({
+    role,
+    content,
+    created_at: new Date().toISOString(),
+    source: context?.source || null,
+  });
+  if (messages.length > 50) messages = messages.slice(-50);
 
   const serialized = JSON.stringify(messages);
   const messageCount = messages.length;

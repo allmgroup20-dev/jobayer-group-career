@@ -209,7 +209,7 @@ async function detectIntent(text: string, isWorker: boolean): Promise<{ intent: 
         ],
         temperature: 0.1,
       },
-      50, "gemma-4-26b", "openrouter"
+      50, "google/gemma-4-26b-a4b-it:free", "openrouter"
     );
     const intent = result.text.trim().toLowerCase() as Intent;
     const route = INTENT_ROUTES.find((r) => r.intent === intent);
@@ -555,7 +555,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         { role: "system", content: systemPrompt + "\n\n" + getConversationRules(ctx.language) },
         { role: "user", content: ctx.text },
       ], temperature: 0.7 },
-      800, "llama-3.3-70b", "openrouter"
+      800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
     );
     finalText = result.text;
     finalModel = result.model;
@@ -567,7 +567,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
           { role: "system", content: `You are a dedicated personal assistant at Jobayer Group Career. Reply in ${ctx.language === "bn" ? "Bengali" : "English"}. Be warm, helpful, and persistent. Guide the customer step by step. Use real product info: Premium=1,500 TK, VIP=5,000 TK, commissions up to 35%. Success stories: Rahim (joined Standard, now earning 8-12k/month), Fatima (homemaker to 25k+/month passive). NEVER give up - pivot to a different benefit. Output ONLY your response.` },
           { role: "user", content: ctx.text },
         ], temperature: 0.7 },
-        800, "llama-3.3-70b", "openrouter"
+        800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
       );
       finalText = fb.text;
       finalModel = fb.model;
