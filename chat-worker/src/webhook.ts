@@ -19,10 +19,15 @@ async function callBrain(env: Env, sessionId: string, message: string): Promise<
       signal: ac.signal,
     });
     clearTimeout(timer);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`[Brain] POST ${base}/api/chat/web -> ${res.status}: ${body.slice(0, 200)}`);
+      return null;
+    }
     const data = await res.json() as { reply?: string };
     return data?.reply || null;
-  } catch {
+  } catch (e) {
+    console.error("[Brain] call failed:", (e as Error)?.message || String(e));
     return null;
   }
 }
