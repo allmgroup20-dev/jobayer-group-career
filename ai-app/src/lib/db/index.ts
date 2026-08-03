@@ -733,6 +733,15 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       error TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS proactive_followups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phone TEXT UNIQUE NOT NULL,
+      last_seen_at TEXT,
+      last_outbound_at TEXT,
+      followup_count INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
 
     // Cross-platform user preference table
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_platform_preferences (

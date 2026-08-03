@@ -143,9 +143,42 @@ function parseIncomingMessage(body: any): { phone: string; text: string; name?: 
 
 const WEBHOOK_TIMEOUT = 45000;
 
+// Meta sends x-hub-signature-256 = "sha256=" + HMAC-SHA256(app_secret, rawBody)
+async function verifyMetaSignature(rawBody: string, signature: string | null): Promise<boolean> {
+  const secret = process.env.WHATSAPP_HASH_SECRET;
+  if (!secret) return true; // not configured -> skip (log only)
+  if (!signature || !signature.startsWith("sha256=")) return false;
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(rawBody));
+    const hex = Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    const expected = "sha256=" + hex;
+    if (expected.length !== signature.length) return false;
+    let diff = 0;
+    for (let i = 0; i < expected.length; i++) {
+      diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
+    }
+    return diff === 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as Record<string, unknown>;
+    const raw = await request.text();
+    const verified = await verifyMetaSignature(raw, request.headers.get("x-hub-signature-256"));
+    if (!verified) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(raw) as Record<string, unknown>;
 
     // ── Handle status updates (sent/delivered/read) BEFORE messages ──
     const env = await getDB();
