@@ -38,6 +38,13 @@ export async function processQueue(batchSize = 3): Promise<number> {
     [batchSize]
   );
 
+  // If Meta API is not configured, hand queued items straight to the relay
+  // (pending_web) instead of calling sendMessage, which itself would re-enqueue
+  // into pending_web and cause an infinite loop.
+  const metaConfigured =
+    !!(process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN) &&
+    !!process.env.WHATSAPP_PHONE_ID;
+
   let sent = 0;
   for (const item of items) {
     await execute(
@@ -45,6 +52,15 @@ export async function processQueue(batchSize = 3): Promise<number> {
       "UPDATE wa_message_queue SET status = 'sending', attempts = attempts + 1 WHERE id = ?",
       [item.id]
     );
+
+    if (!metaConfigured) {
+      await execute(
+        { DB: db },
+        "UPDATE wa_message_queue SET status = 'pending_web', account_id = 'web_main', error = NULL WHERE id = ?",
+        [item.id]
+      );
+      continue;
+    }
 
     const result = await sendMessage(item.to, item.text);
 

@@ -10,13 +10,23 @@ export async function sendMessage(
   const phoneId = process.env.WHATSAPP_PHONE_ID;
 
   if (!token || !phoneId) {
-    const db = await ensureDB();
-    await execute(
-      { DB: db },
-      "INSERT INTO wa_logs (phone, message, direction, status, error, message_type, created_at) VALUES (?, ?, 'outbound', 'failed', 'WHATSAPP_API_KEY/WHATSAPP_META_TOKEN or WHATSAPP_PHONE_ID not set', 'text', datetime('now'))",
-      [to, text]
-    );
-    return { success: false, error: "WhatsApp API not configured" };
+    // Meta API is not configured → deliver through the Baileys relay queue so
+    // outbound messages still reach customers without WhatsApp/Meta secrets.
+    try {
+      const { enqueueMessage } = await import("./queue");
+      const id = await enqueueMessage(to, text, 1, { messageType: "text", viaRelay: true });
+      if (id) return { success: true, messageId: `relay:${id}` };
+      return { success: false, error: "Relay queue unavailable" };
+    } catch (e) {
+      console.error("[WhatsApp Send] Relay fallback failed:", (e as Error).message);
+      const db = await ensureDB();
+      await execute(
+        { DB: db },
+        "INSERT INTO wa_logs (phone, message, direction, status, error, message_type, created_at) VALUES (?, ?, 'outbound', 'failed', ?, 'text', datetime('now'))",
+        [to, text, (e as Error).message]
+      );
+      return { success: false, error: (e as Error).message };
+    }
   }
 
   try {

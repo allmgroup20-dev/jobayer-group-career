@@ -164,6 +164,9 @@ async function startConnection() {
         const errMsg = lastDisconnect?.error?.message || "unknown";
         logWarn(`Connection closed — code: ${code}, message: ${errMsg}`);
 
+        // Persist the latest credentials so a redeploy/restart can restore the session.
+        try { await backupAuthToBase64(); } catch {}
+
         if (code === DisconnectReason.loggedOut) {
           connStatus = "disconnected";
           connError = "Logged out";
@@ -291,7 +294,8 @@ function jsonResponse(res, data, status = 200) {
 }
 
 function requireAuth(req) {
-  if (!AUTH_TOKEN) return true;
+  // Fail closed: destructive/private endpoints must NEVER be reachable without a token.
+  if (!AUTH_TOKEN) return false;
   const provided = req.headers["x-auth-token"] || "";
   return provided === AUTH_TOKEN;
 }

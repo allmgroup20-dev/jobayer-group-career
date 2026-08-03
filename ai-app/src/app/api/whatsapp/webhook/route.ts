@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateContactStatus, createContact } from "@/lib/whatsapp/contacts";
-import { sendMessage, enqueueMessage } from "@/lib/whatsapp";
+import { sendMessage } from "@/lib/whatsapp";
 import { query, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import {
@@ -425,12 +425,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // fromBrowser = relay (Baileys) mode → also enqueue as pending_web for reliability
-    await enqueueMessage(phone, reply, 2, {
-      accountId: "web_main",
-      messageType: "reply",
-      viaRelay: true,
-    });
+    // fromBrowser = relay (Baileys) mode → the relay already sends `data.reply`
+    // directly over the socket. Do NOT enqueue here, otherwise the relay's 5s
+    // queue poll would send the SAME reply a second time (duplicate message).
     await updateContactStatus(phone, "replied", reply);
     return NextResponse.json({
       received: true,
