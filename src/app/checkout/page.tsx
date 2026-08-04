@@ -25,20 +25,14 @@ function CheckoutContent() {
   const [selectedMethod, setSelectedMethod] = useState<string>("sslcommerz");
   const [orderId, setOrderId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const wid = localStorage.getItem("worker_id");
-    const token = localStorage.getItem("worker_token");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestOtp, setGuestOtp] = useState("");
+  const [guestOtpSent, setGuestOtpSent] = useState(false);
+  const [guestDevCode, setGuestDevCode] = useState("");
+  const [guestBusy, setGuestBusy] = useState(false);
+  const [guestError, setGuestError] = useState("");
 
-    const paymentStatus = searchParams.get("payment");
-    if (paymentStatus === "success") {
-      setOrderId(searchParams.get("order")); setStep("ssl-success"); return;
-    } else if (paymentStatus === "failed") {
-      setOrderId(searchParams.get("order")); setStep("ssl-failed"); return;
-    } else if (paymentStatus === "cancelled") { setStep("ssl-cancelled"); return; }
-    else if (paymentStatus === "error") { setStep("ssl-error"); return; }
-
-    if (!wid || !token) { setStep("login-required"); return; }
-
+  const startCheckout = (wid: string) => {
     setWorkerId(wid);
     fetch(`/api/workers/profile?workerId=${wid}`)
       .then(r => r.json() as Promise<{ name?: string; phone?: string }>)
@@ -71,7 +65,68 @@ function CheckoutContent() {
         }
         setStep("form");
       });
+    if (typeof window !== "undefined") {
+      fetch("/api/track/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId: wid, eventType: "checkout_started", pageCategory: "checkout" }),
+      }).catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const wid = localStorage.getItem("worker_id");
+    const token = localStorage.getItem("worker_token");
+
+    const paymentStatus = searchParams.get("payment");
+    if (paymentStatus === "success") {
+      setOrderId(searchParams.get("order")); setStep("ssl-success"); return;
+    } else if (paymentStatus === "failed") {
+      setOrderId(searchParams.get("order")); setStep("ssl-failed"); return;
+    } else if (paymentStatus === "cancelled") { setStep("ssl-cancelled"); return; }
+    else if (paymentStatus === "error") { setStep("ssl-error"); return; }
+
+    if (!wid || !token) { setStep("login-required"); return; }
+
+    startCheckout(wid);
   }, []);
+
+  const handleGuestSendOtp = async () => {
+    setGuestBusy(true); setGuestError("");
+    try {
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: guestPhone }),
+      });
+      const data = await res.json() as { error?: string; devCode?: string };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      if (data.devCode) setGuestDevCode(data.devCode);
+      setGuestOtpSent(true);
+    } catch (e) {
+      setGuestError(e instanceof Error ? e.message : "Failed");
+    } finally { setGuestBusy(false); }
+  };
+
+  const handleGuestVerify = async () => {
+    setGuestBusy(true); setGuestError("");
+    try {
+      const referralCode = localStorage.getItem("referral_code") || undefined;
+      const res = await fetch("/api/auth/otp/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: guestPhone, code: guestOtp, referralCode }),
+      });
+      const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      localStorage.setItem("worker_token", data.token || "");
+      localStorage.setItem("worker_id", data.workerId || "");
+      localStorage.setItem("worker_name", data.name || "");
+      startCheckout(data.workerId || "");
+    } catch (e) {
+      setGuestError(e instanceof Error ? e.message : "Failed");
+    } finally { setGuestBusy(false); }
+  };
 
   const { hasPhysical, sslEnabled, codEnabled } = useMemo(() => {
     let physical = false;
@@ -147,9 +202,48 @@ function CheckoutContent() {
       <div className="min-h-screen py-24 px-4">
         <div className="max-w-md mx-auto text-center">
           <Card>
-            <div className="text-5xl mb-4">🔒</div>
-            <h2 className="text-xl font-bold text-primary mb-4">{lang === "bn" ? "অ্যাকাউন্ট প্রয়োজন" : "Account Required"}</h2>
-            <p className="text-text-secondary mb-6">{lang === "bn" ? "অর্ডার করার জন্য আপনার একটি অ্যাকাউন্ট প্রয়োজন" : "You need an account to place an order"}</p>
+            <div className="text-5xl mb-4">💬</div>
+            <h2 className="text-xl font-bold text-primary mb-2">{lang === "bn" ? "ফোন দিয়ে দ্রুত চেকআউট" : "Quick Checkout with Phone"}</h2>
+            <p className="text-text-secondary text-sm mb-6">{lang === "bn" ? "কোনো পাসওয়ার্ড লাগবে না — ওটিপি দিয়ে ১ ধাপে শুরু করুন" : "No password needed — verify with OTP in one step"}</p>
+
+            <div className="space-y-3">
+              <input
+                type="tel" value={guestPhone}
+                onChange={e => { setGuestPhone(e.target.value); setGuestOtpSent(false); setGuestOtp(""); setGuestDevCode(""); }}
+                placeholder={lang === "bn" ? "০১XXX-XXXXXX" : "01XXX-XXXXXX"}
+                className="input-field w-full" />
+              {!guestOtpSent ? (
+                <button onClick={handleGuestSendOtp} disabled={guestBusy || guestPhone.length < 10}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold">
+                  {guestBusy ? "..." : (lang === "bn" ? "📲 কোড পাঠান" : "Send Code")}
+                </button>
+              ) : (
+                <>
+                  {guestDevCode && (
+                    <p className="text-xs bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-700">
+                      {lang === "bn" ? "টেস্ট কোড" : "Test code"}: <b>{guestDevCode}</b>
+                    </p>
+                  )}
+                  <input
+                    type="text" inputMode="numeric" maxLength={6} value={guestOtp}
+                    onChange={e => setGuestOtp(e.target.value.replace(/\D/g, ""))}
+                    placeholder={lang === "bn" ? "6-অঙ্কের কোড" : "6-digit code"}
+                    className="input-field w-full text-center text-lg tracking-[0.5em]" />
+                  {guestError && <p className="text-xs text-red-500">{guestError}</p>}
+                  <button onClick={handleGuestVerify} disabled={guestBusy || guestOtp.length < 6}
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold">
+                    {guestBusy ? "..." : (lang === "bn" ? "✅ চেকআউট চালিয়ে যান" : "Continue Checkout")}
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="my-4 flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-text-secondary">{lang === "bn" ? "অথবা" : "or"}</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
             <div className="space-y-3">
               <Link href="/register"><Button className="w-full">{lang === "bn" ? "নতুন অ্যাকাউন্ট খুলুন" : "Create Account"}</Button></Link>
               <div className="text-sm text-text-secondary">
