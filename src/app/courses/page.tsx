@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useLanguageStore } from "@/lib/store";
 import { CardSkeleton } from "@/components/ui/Skeleton";
+import LivePurchaseTicker from "@/components/LivePurchaseTicker";
 
 const CheckoutModal = dynamic(() => import("@/components/courses/CheckoutModal"), { ssr: false });
 import { useDebounce } from "@/lib/use-debounce";
@@ -298,6 +299,7 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-bg">
+      <LivePurchaseTicker />
       {/* ── Hero Section ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

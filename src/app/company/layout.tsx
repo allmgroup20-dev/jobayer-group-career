@@ -13,6 +13,7 @@ const navTabs = [
   { href: "/company/chat", en: "Chat", bn: "চ্যাট", icon: "💬" },
   { href: "/company/courses", en: "Courses", bn: "রিসোর্স", icon: "🎓" },
   { href: "/company/finance", en: "Finance", bn: "অর্থ", icon: "💰" },
+  { href: "/company/goal", en: "Goal", bn: "৳১০ কোটি", icon: "🎯" },
   { href: "/company/ai", en: "AI", bn: "এআই", icon: "🤖" },
   { href: "/company/analytics", en: "Analytics", bn: "বিশ্লেষণ", icon: "📊" },
   { href: "/company/psychology", en: "Psychology", bn: "সাইকোলজি", icon: "🧠" },

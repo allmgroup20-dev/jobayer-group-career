@@ -2,13 +2,20 @@
 
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import LivePurchaseTicker from "@/components/LivePurchaseTicker";
 
 const tiers = [
   { qty: "১টি", qtyEn: "1", price: 99, noteBn: "একটি রিসোর্স আনলক", noteEn: "Unlock 1 resource" },
   { qty: "৩টি", qtyEn: "3", price: 220, noteBn: "৩-প্যাক অফার", noteEn: "3-pack offer", popular: true },
   { qty: "৫টি", qtyEn: "5", price: 350, noteBn: "৫-প্যাক অফার", noteEn: "5-pack offer" },
   { qty: "১০টি", qtyEn: "10", price: 650, noteBn: "১০-প্যাক অফার", noteEn: "10-pack offer" },
-  { qty: "সব", qtyEn: "All", price: 4999, noteBn: "৯৭০+ সব রিসোর্স", noteEn: "970+ all resources" },
+  { qty: "সব", qtyEn: "All", price: 5200, noteBn: "৯৭০+ সব রিসোর্স", noteEn: "970+ all resources" },
+];
+
+const trust = [
+  { icon: "🛡️", bn: "৭ দিনের মানি-ব্যাক গ্যারান্টি", en: "7-day money-back guarantee" },
+  { icon: "⚡", bn: "পেমেন্টের সাথে সাথে ডেলিভারি", en: "Instant delivery after payment" },
+  { icon: "🤝", bn: "৳২০ থেকেই কমিশন উইথড্র", en: "Withdraw commissions from ৳20" },
 ];
 
 export default function ResourcePackPage() {
@@ -63,6 +70,17 @@ export default function ResourcePackPage() {
             </Link>
           </div>
         </div>
+
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {trust.map((t) => (
+            <div key={t.icon} className="bg-white/70 border border-border/60 rounded-2xl p-4 flex items-center gap-3">
+              <span className="text-2xl shrink-0">{t.icon}</span>
+              <span className="text-sm font-bold text-text-primary">{lang === "bn" ? t.bn : t.en}</span>
+            </div>
+          ))}
+        </div>
+
+        <LivePurchaseTicker />
       </div>
     </div>
   );

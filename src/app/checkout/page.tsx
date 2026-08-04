@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
+import LivePurchaseTicker from "@/components/LivePurchaseTicker";
 
 type PageStep = "loading" | "login-required" | "form" | "ssl-success" | "ssl-failed" | "ssl-cancelled" | "ssl-error" | "cod-confirmed";
 
@@ -200,6 +201,7 @@ function CheckoutContent() {
   if (step === "login-required") {
     return (
       <div className="min-h-screen py-24 px-4">
+        <LivePurchaseTicker />
         <div className="max-w-md mx-auto text-center">
           <Card>
             <div className="text-5xl mb-4">💬</div>
@@ -354,6 +356,7 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen py-24 px-4">
+      <LivePurchaseTicker />
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Link href="/cart" className="text-sm text-action hover:underline">← {lang === "bn" ? "পিছনে" : "Back"}</Link>
@@ -436,6 +439,9 @@ function CheckoutContent() {
                     <Button onClick={doPayment} loading={loading} className="w-full !py-4 text-base font-bold">
                       {lang === "bn" ? "🚀 এখনই শুরু করুন — আজীবন অ্যাক্সেস" : "🚀 Start Now — Lifetime Access"}
                     </Button>
+                    <p className="text-[11px] text-text-secondary/80 text-center">
+                      🛡️ {lang === "bn" ? "৭ দিনের মানি-ব্যাক গ্যারান্টি · পেমেন্টের সাথে সাথে ডেলিভারি" : "7-day money-back guarantee · Instant delivery"}
+                    </p>
                   </div>
                 )}
               </Card>
