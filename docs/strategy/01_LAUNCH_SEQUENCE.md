@@ -1,104 +1,98 @@
-# 01_LAUNCH_SEQUENCE
-**Pre-Launch → Launch Day 0 → Day 30 / 60 / 90**
+# 01 — LAUNCH SEQUENCE
 
-> Context: `02_VIRAL_ENGINE.md`, `03_CONVERSION_FUNNEL.md`, `07_ROADMAP_TODAY_7_30_90_FUTURE.md`
+> Part of `docs/strategy/` — read `STRATEGY_REVIEW.md` first.
+> **Owner context:** single founder, pre-launch, zero external channels, referral-first strategy.
 
----
-
-## 1. Goal
-
-Get the first **500–1,000 engaged users into the built-in referral loop**, validate the ৳99 funnel, and reach launch-readiness — all by one founder. The referral engine already exists; this doc is the **sequence to seed and run it**.
-
----
-
-## 2. Launch-Readiness Checklist (verify, fix, mark)
-
-| # | Item | File(s) | Status |
-|---|------|---------|--------|
-| 1 | OTP send/verify/login | `src/app/api/auth/otp/{send,verify,login}/route.ts` | ✅ coded |
-| 2 | Guest checkout (phone → pay → auto-account) | `src/app/checkout/page.tsx` | ✅ coded |
-| 3 | Live purchase ticker | `src/components/LivePurchaseTicker.tsx`, `src/app/api/live/sales/route.ts` | ✅ coded |
-| 4 | SEO (sitemap/robots/canonical/OG) | `src/app/layout.tsx`, `sitemap.ts`, `robots.ts` | ✅ coded |
-| 5 | Referral share links + share-reward | `src/app/api/referrals/share-reward/route.ts` | ✅ coded |
-| 6 | Leaderboard | `src/app/api/affiliate/leaderboard/route.ts` | ✅ coded |
-| 7 | Commission engine (4-level gate) | `src/lib/affiliate/commission.ts` | ✅ coded |
-| 8 | Onboarding contact capture (fuels WhatsApp) | `src/app/onboarding/page.tsx` | ✅ coded |
-| 9 | Automation triggers | `src/app/api/company/automation/route.ts` | ✅ coded |
-| 10 | WhatsApp queue/relay wiring | `wa-relay/index.mjs`, `src/app/api/whatsapp/queue/route.ts` | **Needs Manual Verification** (live QR/auth + message send) |
-| 11 | SSLPayments live (SSLCommerz init/ipn) | `src/app/api/payment/{init,ipn,success,fail,cancel}/route.ts` | **Needs Manual Verification** (live sandbox → live) |
-| 12 | Prod env keys (WHATSAPP / payment) | `.env.example`, wrangler secrets | **Needs Manual Verification** |
-| 13 | Deploy pipeline working | `scripts/*`, `.github/workflows/ci.yml` | **Needs Manual Verification** |
-
-**Activity:** run the 4-actor pass — register → onboard (contact) → share → buy (test) → check commission. Confirm WA queue round-trip once.
-
----
-
-## 3. Launch Day 0 — Founder-led Seeding Sprint (30 days)
-
-Cold start has no channel. The **only** free multiplier a founder owns is their **personal + professional network** and **free short-form content**. The referral loop needs the first several hundred to begin compounding.
-
-### Sequence (Week 1–4)
+The launch has three distinct stages. Each stage must be **sequenced** — you cannot start official marketing before the funnel is load-bearing.
 
 ```
-Week 1  Build free content funnel (see 02_VIRAL_ENGINE.md)
-         ├─ Telegram channel + WhatsApp "Jobayer Group Community" (free)
-         ├─ 5 YouTube Shorts / FB Reels (career + "how a member earns")
-         └─ Auto-published daily summary (AI-generated ideas)
-Week 2  Personal seeding: invite + individually-onboard first 100 (family/friends/classmates/colleagues)
-         └─ Every onboarded gets a ready WhatsApp share-link (referral_share template)
-Week 3  Double-opt referral contest beta (see 06_NEW_FEATURE_PROPOSALS)
-         └─ Top-7 leaderboard broadcast on WhatsApp (wa-relay)
-Week 4  Measure: K (invites/user), active %, first ৳99 sale flows
-         └─ Decide KPI vs target
+Stage A: Launch-Readiness (this sprint, ~7 days)
+  └── 7-blocker checklist (below)
+Stage B: Seeding Sprint (Day 0 → 45)
+  └── Free content funnel + founder-led personal invites
+Stage C: Viral Cycle (Day 45 → 90)
+  └── Referral loop compounding on the seeded base
 ```
 
-### Day 0 rules for founder
-- Onboard each early member **personally** (WhatsApp), not just share a link. Attention beats link.
-- Every member must complete **contact capture** (onboarding step) — this fills the WA loop you can eventually notify.
-- Do **not** yet mass-broadcast via the personal bridge (`wa-relay`) — WhatsApp quotas / bans. Broadcast to **opt-in** group / channel only.
+---
+
+## Stage A — Launch-Readiness Checklist (must pass before "official launch")
+
+Each item marked ☐ must be confirmed **before** the first public campaign. Mark "Needs Manual Verification" for anything requiring a live environment.
+
+| # | Block | Check | Evidence (code) |
+|---|---|---|---|
+| 1 | Checkout has no login wall | ✔ | `src/app/checkout/page.tsx` — guest OTP flow |
+| 2 | OTP send/verify/login work in production | ☐ | `src/app/api/auth/otp/*`, `src/lib/whatsapp.ts`; needs `WHATSAPP_API_KEY`/META token |
+| 3 | SSLCommerz IPN returns `VALID` and marks order completed | ☐ | `src/app/api/payment/ipn/route.ts`, `src/app/api/resource-checkout/ipn/route.ts` — **Needs Manual Verification** (sandbox vs live) |
+| 4 | Order success → unlock granted (`membership_status='premium'`) | ☐ | `src/app/api/resource-checkout/success/route.ts`, `src/app/api/unlocks/route.ts` |
+| 5 | Commission auto-credits to referrer's sponsor on completed order | ☐ | `src/lib/affiliate/commission.ts`; verify in live order flow |
+| 6 | WhatsApp templates (share + OTP) approved & outbound works | ☐ | `src/lib/whatsapp.ts`, `wa-relay/*`; needs WhatsApp Business API + template approval |
+| 7 | Live ticker + KPI page render with real data | ✔/☐ | `src/app/api/live/sales/route.ts`, `src/app/company/goal/page.tsx` |
+| 8 | SEO (sitemap/robots/canonical/OG) indexable | ☐ | `src/app/layout.tsx`, `sitemap.ts`, `robots.ts`; submit to Search Console |
+
+**Minimum viable launch set:** 1, 2, 3, 4, 5. (6–8 can be parallel but WhatsApp is your primary retention channel — prioritize.)
 
 ---
 
-## 4. Day 30 — Validate the Funnel
+## Stage B — Seeding Sprint (Day 0 → 45)
 
-| Metric | Health target | Where to see |
-|--------|---------------|--------------|
-| Signups → active | ≥ 30% | Company segments |
-| Onboarding completion | ≥ 70% (OTP → contacts → interests) | onboarding tracking |
-| Share → new member (K) | ≥ 0.15 (before compounding) | leaderboard + referrals |
-| Visitor → sale | ≥ 1.5% | `/api/company/kpi` |
-| Abandoned checkout | recover ≥ 10% via automation | `automation GET triggers` |
+**Goal:** 500–1,000 registered users + 50–100 paid orders, with ZERO paid marketing.
 
-Reality-check via `/company/goal` (10-crore tracker) — see `03_CONVERSION_FUNNEL.md`.
+### B1. Free content funnel (the missing distribution layer)
+
+```
+YouTube Shorts / Facebook Reels (2–3/week, 30–60s)
+  ↓  career tips, salary truths, "how I earn ৳ with my phone"
+  ↓  link in bio/comments → Telegram channel
+Telegram channel (1 post/day)
+  ↓  free resource sample + WhatsApp invite link
+WhatsApp broadcast / community (invite-only)
+  ↓  → https://site/register?ref=<founder_code>
+Referral loop (built-in)
+  ↓  existing users invite more users → repeat
+```
+
+**Why this order:** Telegram and WhatsApp are the only channels that give you direct, free, repeatable reach. Shorts are the discovery engine (algorithmic, free). The site is the funnel's end, not its start.
+
+**Content system (single-founder, AI-assisted):** Use the existing AI worker (OpenRouter + DeepSeek, free models) to generate 10 script outlines per week from `extracted-texts/` + course catalog. You only record/edit. Estimated effort: 3–4 hrs/week.
+
+### B2. Founder seeding (highest ROI action in the whole plan)
+
+1. List your top 100 personal contacts (family, friends, former classmates/colleagues, local communities).
+2. Send each a personalized WhatsApp with your referral link (`/register?ref=<your_code>`) + one free sample resource.
+3. Ask them to send the same to 3 of their contacts. **Purpose: start the first 500 nodes of the referral tree manually.**
+4. Track progress via `src/app/api/company/kpi` (users) + `/company/members`.
+
+**Success criteria for the sprint:** ≥ 500 registered, ≥ 20 completed orders, onboarding completion ≥ 70%, first 3 active referrers (any user who invites ≥ 3).
 
 ---
 
-## 5. Day 60 / 90 — Scale
+## Stage C — Viral Cycle (Day 45 → 90)
 
-- Day 60: pick the **best** content channel by data (TG vs YT vs FB); double there. Launch "Creator / Ambassador" program (see `05_GAP_ANALYSIS`).
-- Day 90: if K ≥ 1.15 sustained for 2 weeks → increase group size + broadcast cadence (with cap). Else slow growth (document).
-- Open Telegram/WhatsApp community as the **retention + success-story** layer (UGC engine), linking predicted start of the 1-crore phase-2.
+Once the base is 1,000+, the built-in mechanics take over:
 
----
+- `api/referrals/share-reward` (+1 unlock quota / 24h) — incentive to share.
+- Leaderboard (`api/affiliate/leaderboard`) — competition, broadcast weekly.
+- Commission (৳20 + ৳10×3) — passive income story, honest framing.
+- WhatsApp automation (`api/company/automation`) — follow-ups on browse/checkout abandon, inactivity, churn.
 
-## 6. Risk table (launch)
-
-| Risk | Level | Mitigation |
-|------|-------|------------|
-| WhatsApp personal-bridge ban (Baileys) | High | never brute-force; add delay/rate-limit; keep only opt-in broadcasts; back up via `AUTH_BASE64` |
-| Payment failure loses trust | High | IPN test flow; manual verification |
-| Referral spam / fake invites | Medium | gate unlock per-day (`share_reward` 24h KV); require real onboarding |
-| Content funnel absent (zero distribution) | Medium | Week 1: build the free content channel first — it is the top priority |
-| SSLCommerz refund/chargeback handling | Medium | manual policy; later |
+**Growth hygiene:** do not launch all of Telegram + WhatsApp + Shorts at once. Launch **Shorts first** (2 weeks, discover if hooks land), then Telegram, then WhatsApp broadcast. Measure each with the tracking events already wired (`track/event`, `track/funnel`).
 
 ---
 
-## 7. বাংলা (owner) — কী, কেন, করণীয়
+## Bangla — লঞ্চ সিকোয়েন্স (Owner's summary)
 
-- **এই সেকশনটি** লঞ্চের আগে কী ঠিক আছে, কী যাচাই করা লাগবে এবং কীভাবে প্রথম মানুষ আনা হয় তা বোঝায়।
-- **কেন জরুরি:** সঠিক লঞ্চ-সিকোয়েন্সেই referral loop জীবিত হয়। ভুল হলে টাকা+সময় নষ্ট।
-- **সমস্যা:** সব ফিচার "লোকাল ঠিক" আছে কিন্তু লাইভ (WhatsApp সেন্ড, পেমেন্ট, ডিপ্লয়) যাচাই হয়নি — চিহ্নিত `Manual Verification`।
-- **Business impact:** লঞ্চ-রেডি হলে পো-লঞ্চের খরচ কমে, প্রথম sale দ্রুত আসে, আত্মবিশ্বাস তৈরি হয়। **Impact: High**
-- **Priority:** Critical (launch-blocker verification within 1 week)
-- **Effort:** ~20–30 solo-founder hours (mostly manual connective).
-- **দরকারি পদক্ষেপ:** ১) লাইভ চেকলিস্ট রান করুন; ২) সপ্তাহ-১ এ ফ্রি কনটেন্ট + টেলিগ্রাম চ্যানেল নিন; ৩) সপ্তাহ-২ এ ব্যক্তিগতভাবে ১০০ জনকে onboard করুন।
+**এখানে কী শেখানো হলো:** লঞ্চ ৩ ধাপে। প্রথমে লঞ্চ-রেডি চেকলিস্ট (৮টি ব্লকার — OTP কাজ করছে কিনা, পেমেন্ট IPN ঠিক আছে কিনা, কমিশন অটো-ক্রেডিট হচ্ছে কিনা) — এগুলো **লাইভ ওয়েবসাইটে ম্যানুয়ালি যাচাই** করতে হবে ("Needs Manual Verification")। এরপর **সিডিং স্প্রিন্ট** — ৪৫ দিনে ৫০০–১,০০০ মানুষ আনা। এর প্রধান হাতিয়ার: বিনামূল্যের কনটেন্ট (YouTube Shorts/FB Reels → Telegram → WhatsApp → আপনার সাইট) + আপনার নিজের ১০০ যোগাযোগকে ব্যক্তিগতভাবে invite করা।
+
+**কেন এটা গুরুত্বপূর্ণ:** এখন পর্যন্ত সাইটে কেউ আসছে না কারণ কোনো চ্যানেল নেই। এই সিকোয়েন্সই সেই শূন্যতা পূরণ করে — আর বিল্ট-ইন referral লুপ (শেয়ার-রিওয়ার্ড, লিডারবোর্ড, কমিশন) তখন থেকেই নিজে থেকে বাড়তে থাকবে।
+
+**Priority: Critical** · **Effort:** ৩–৪ ঘণ্টা/সপ্তাহ (কনটেন্ট) + স্প্রিন্টের সময় ফোন/হোয়াটসঅ্যাপ | **প্রত্যাশিত ফলাফল:** ৯০ দিনে ৫,০০০ user + ৫০০–১,০০০ sale।
+
+---
+
+## Cross-references
+
+- Funnel/psychology details: `03_CONVERSION_FUNNEL.md`
+- Channel playbooks: `02_VIRAL_ENGINE.md`
+- Timelines: `07_ROADMAP_TODAY_7_30_90_FUTURE.md`

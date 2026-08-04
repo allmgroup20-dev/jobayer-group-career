@@ -1,91 +1,80 @@
-# 03_CONVERSION_FUNNEL
-**Onboarding → Checkout → Payment + Marketing Psychology Audit**
+# 03 — CONVERSION FUNNEL
 
-> Context: `04_AI_OPPORTUNITIES.md`, `06_NEW_FEATURE_PROPOSALS.md`, `07_ROADMAP_TODAY_7_30_90_FUTURE.md`
+> Part of `docs/strategy/` — read `STRATEGY_REVIEW.md` first.
 
----
-
-## 1. Current funnel (verified)
+## 1. Current funnel (verified code path)
 
 ```
-Landing (SEO + OG + live ticker)
-  ↓
-Signup: register OR OTP guest login     [src/app/api/auth/{register,otp/*}]
-  ↓
-3-step onboarding (consent → WhatsApp OTP → contacts; optional interests)
-                                      [src/app/onboarding/page.tsx]
-  ↓
-Courses / Membership landing (tier ladder 99/220/350/650/5200)
-                                      [src/app/membership/page.tsx, courses/page.tsx]
-  ↓
-Cart → Checkout (form + SSLCommerz/COD + money-back note)
-                                      [src/app/checkout/page.tsx]
-  ↓
-Payment success → unlock + auto-account   [src/app/api/payment/*, resource-check*]
+Channel (Short/Telegram/WA/ref)
+  └─► /register?ref=<code>            (register/page.tsx; referral auto-attach)
+  └─► onboarding (4 steps: consent → OTP → contacts → interests)   (onboarding/page.tsx)
+  └─► /courses (browse; product_view event)                        (courses/page.tsx)
+  └─► cart / CheckoutModal (haggle)                                (components/courses/CheckoutModal.tsx)
+  └─► /checkout (guest OTP or login)                               (checkout/page.tsx)
+  └─► SSLCommerz init/success/ipn → order completed → unlock       (api/payment/*, resource-checkout/*)
+  └─► dashboard: premium badge, unlocks, commission preview        (dashboard/page.tsx)
 ```
 
-**Verified strengths:** OTP/guest checkout (low friction), live purchase ticker (social proof), money-back note, tier price ladder (anchoring), abandoned-checkout automation.
+Tracked events (already wired): `product_view`, `cart_add`, `checkout_started`, purchases — readable in `/company/analytics` Funnel tab + `api/company/kpi`.
 
----
+## 2. Psychology audit — what exists vs what's missing
 
-## 2. Psychology audit — present vs missing
+| Principle | Status | Where |
+|---|---|---|
+| Reciprocity | ✅ Built | share-to-unlock reward (`api/referrals/share-reward`) |
+| Social proof | ✅ Built | live ticker (`LivePurchaseTicker`), testimonials (`home/Testimonials`), reviews (`api/reviews`) |
+| Commitment | ✅ Built | 4-step onboarding (progressive commitment), contact capture |
+| Anchoring | ✅ Built | tier ladder 99/198/220/350/650/1200/2800/5200 (`api/pricing/tiers`) |
+| Loss aversion / instant gratification | ✅ Built | min withdrawal ৳20 |
+| **Scarcity / urgency** | ❌ Missing | no launch-price timer, no stock counter, no "offer ends" |
+| **Authority** | ❌ Missing | no expert/mentor badge; trainers exist in data but not surfaced as authority on buy pages |
+| **Curiosity gap** | ❌ Missing | no free sample download / teaser before paywall |
+| **Upsell / cross-sell** | ⚠️ Weak | post-purchase bulk-pack upsell not implemented |
+| CTA clarity | ⚠️ Mixed | many CTAs; need single primary action per screen |
 
-| Principle | Status | Evidence / gap |
-|-----------|--------|----------------|
-| Anchoring / price ladder | present | ৳99→220→350→650→5200 ladder |
-| Social proof | present | ticker + testimonials + leaderboard |
-| Reciprocity | present | share-reward (+1 unlock) |
-| Commitment | present | 3-step onboarding |
-| Scarcity | missing | no launch timer / limited "৳99" window |
-| Urgency | missing | no countdown |
-| Authority | weak | teacher/mentor badges not surfaced at checkout |
-| Curiosity gap | missing | no "free sample" unlock gate |
-| FOMO | partial | ticker; no leaderboard FOMO push |
+## 3. Conversion upgrades (ranked by ROI for single founder)
 
----
+### C1 — Launch-price urgency (HIGH)
+Add a countdown to the first 500 buyers: "লঞ্চ অফার ৳৯৯ → পরে ৳১৯৯" with a visible timer on `/membership`, `/courses`, `/checkout`.
+- Implementation: KV-stored `launch_end` date; small client component (reuse ticker pattern). **Effort: 3–4h.**
+- Note: only truthful scarcity — a real, expiring offer. Do not fake.
 
-## 3. Conversion wins (single-founder, cheapest first)
+### C2 — Authority: "Mentor/Expert" badge (MEDIUM-HIGH)
+Course detail (`courses/[id]`) already pulls trainer/institution (`api/courses/[id]`, trainers table, migration 012/013). Surface trainer credentials as an "কারিকুলাম মেন্টর" card on the buy panel. **Effort: 2–3h.**
 
-| # | Action | File(s) | Effort | Impact |
-|---|--------|---------|--------|--------|
-| 1 | Launch-price timer (৳99 for X time, then ৳220) | `membership/page.tsx` | 3–4 h | High |
-| 2 | Strikethrough "was" → "now" on tiers | membership + CheckoutModal | 2 h | Med |
-| 3 | Authority trust badges at checkout | `checkout/page.tsx` | 1–2 h | Med |
-| 4 | Social-proof line ("৩০০+ সদস্য কিনেছেন") | courses + membership | 1 h | Med |
-| 5 | Free-sample unlock (curiosity gate) | `api/unlocks`, course detail | 4–6 h | High |
-| 6 | Post-purchase bulk-pack upsell → raises AOV | `api/resource*` | 4–6 h | High |
-| 7 | Wire abandoned-cart recovery WA send | `api/company/automation/route.ts` | 3–4 h | High |
-| 8 | Cart-exit urgency popup | cart/checkout | 2–3 h | Med |
+### C3 — Curiosity gap: free sample unlock (HIGH)
+Allow 1 free sample file per user (already have downloads/unlocks infra `api/unlocks/*`, `api/downloads`). Add "ফ্রি স্যাম্পল ডাউনলোড" button → collects phone → WhatsApp follow-up (automation). **Effort: 4h.**
 
----
+### C4 — Post-purchase bulk upsell (HIGH, AOV)
+On success page (`/checkout` ssl-success + `resource-checkout/success`): "আর ২টি নিলে ২২০ (২-প্যাক)" — reuse cart + `api/pricing/tiers`. **Effort: 4h.** Lifts AOV from ~৳99 toward ৳200+.
 
-## 4. Success metrics
+### C5 — Checkout trust density (LOW-MED)
+Already added money-back line under pay CTA; add SSL/bKash logos row + "আজীবন অ্যাক্সেস" repeated. **Effort: 1h.**
 
-- Visitor → signup rate
-- Onboarding → active %
-- View → cart → checkout → paid %
-- **AOV** — lift from ~৳99 toward ~৳160 via upsell
-- Abandoned-cart recovery (target ≥ 10%)
-- Track via `/api/company/kpi` and `/company/goal`
+### C6 — Abandoned recovery copy (MEDIUM)
+Automation `checkout_abandon` trigger exists (Phase 4). Add 2-message sequence: t+2h value reminder, t+24h offer. **Effort: 3h.**
 
----
+## 4. Onboarding optimization (drop point #1)
 
-## 5. Risk table
+Current 4 steps: consent → OTP → contacts → interests. **Risk:** contact capture (step 3) is a known friction point. Mitigation:
+- Keep it mandatory for launch (it powers WhatsApp reach), but add a **progress indicator** + "৩টি স্টেপ মাত্র" reassurance.
+- If onboarding completion < 70% in data, A/B a 3-step variant (interests optional).
+- Measure via `track/event` + `/company/analytics` (Events tab).
 
-| Risk | Level | Mitigation |
-|------|-------|------------|
-| Fake urgency hurts trust | Med | honest timers + real limits |
-| Upsell feels aggressive | Med | post-purchase only, optional, non-blocking |
-| Missed payment step adds drop | Med | keep upsell out of the pay path |
+## Bangla — কনভার্শন ফানেল (Owner's summary)
 
----
+**ফানেল কীভাবে কাজ করে:** শর্ট/টেলিগ্রাম/রেফারেল → রেজিস্ট্রেশন → ৪-স্টেপ ওনবোর্ডিং → রিসোর্স ব্রাউজ → চেকআউট (গেস্ট OTP) → SSLCommerz পেমেন্ট → আনলক। প্রতিটি স্টেপের ইভেন্ট ইতিমধ্যেই ট্র্যাক হচ্ছে — `/company/analytics`-এ দেখতে পাবেন কোথায় ইউজার ড্রপ হচ্ছে।
 
-## 6. বাংলা (owner) — কী, কেন, করণীয়
+**সাইকোলজি অডিটের ফলাফল:** যা আছে — reciprocity (শেয়ার-রিওয়ার্ড), social proof (টিকার + টেস্টিমোনিয়াল + রিভিউ), commitment (ওনবোর্ডিং), anchoring (টিয়ার ৯৯→৫২০০), loss-aversion (৳২০ উইথড্র)। **যা নেই:** scarcity/urgency (লঞ্চ-প্রাইস টাইমার), authority (মেন্টর ব্যাজ), curiosity gap (ফ্রি স্যাম্পল), post-purchase আপসেল।
 
-- **এই সেকশনটি** ভিজিট→সেলের রূপান্তর ফানেল ও মার্কেটিং মনোবিজ্ঞান (Buyer Psychology)।
-- **কেন জরুরি:** ট্রাফিক কনটেন্ট/রেফারেল থেকে আসবে, কিন্তু sale হয় এখানে। ছোট পরিবর্তনেই রূপান্তর ২–৩× বাড়তে পারে।
-- **সমস্যা:** scarcity/urgency/curiosity-gap নেই; AOV কম (~৳৯৯); CTA খুব একটোন।
-- **Business impact:** ৫–১০% conversion লিফট + AOV ~৫০% বাড়ি = revenue ~১.৫×। **Impact: High**।
-- **Priority:** Critical — প্রথম ৩ সপ্তাহে #1, #5, #6, #7।
-- **Effort:** মোট ~২০–২৫ solo-founder ঘণ্টা।
-- **Expected benefit:** একই ট্রাফিকে বেশি sale → সবচেয়ে কম effort-এ সবচেয়ে বেশি ROI।
+**সবচেয়ে গুরুত্বপূর্ণ ৩টি কাজ (C1, C3, C4):**
+1. **C1** — সত্যিকারের লঞ্চ-অফার কাউন্টডাউন (৳৯৯ শেষ → ৳১৯৯) → জরুরি ভাব।
+2. **C3** — ফ্রি স্যাম্পল ডাউনলোড → ফোন নম্বর ক্যাপচার → WhatsApp ফলো-আপ।
+3. **C4** — কেনার পর "আর ২টি নিন ২২০" আপসেল → AOV বাড়বে।
+
+প্রতিটি ২–৪ ঘণ্টার কাজ। **Priority: High** · **Effort:** ~২০ ঘণ্টা | **প্রত্যাশিত ফলাফল:** ফানেল কনভার্শন ৫%→১০-১৫%, AOV ৳৯৯→৳২০০।
+
+## Cross-references
+- Automation triggers: `04_AI_OPPORTUNITIES.md`
+- Feature specs: `06_NEW_FEATURE_PROPOSALS.md`
+- Roadmap: `07_ROADMAP_TODAY_7_30_90_FUTURE.md`

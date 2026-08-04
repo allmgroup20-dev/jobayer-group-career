@@ -1,74 +1,54 @@
-# 04_AI_OPPORTUNITIES
-**AI capabilities to add — effort vs ROI (single-founder)**
+# 04 — AI OPPORTUNITIES
 
-> Context: `02_VIRAL_ENGINE.md`, `03_CONVERSION_FUNNEL.md`, `05_GAP_ANALYSIS.md`
+> Part of `docs/strategy/` — read `STRATEGY_REVIEW.md` first.
+> **Principle:** Reuse the existing 3-worker AI stack. Do NOT build new infrastructure. Each item = a feature on top of what already runs.
 
----
+## 1. Existing AI stack (verified)
 
-## 1. What the AI stack already does (verified)
+| Component | Evidence | Capability today |
+|---|---|---|
+| `jgcareer-ai` worker | `ai-app/`, `wrangler.jsonc` (service binding `AI` → `jgcareer-ai`) | routed AI model calls, model alias handling |
+| `chat-worker` | `chat-worker/` (own `wrangler.jsonc`) | OpenRouter + DeepSeek free-model failover, web chat brain `/api/chat/web`, 50-message history, Bengali fast-lane |
+| `wa-relay` | `wa-relay/` | WhatsApp outbound relay (templates + queue) |
+| Automation engine | `src/app/api/company/automation/route.ts` | browse_abandon, checkout_abandon, inactive_14d/30d, churn_risk → notify + WhatsApp |
+| Personalization | `src/app/api/personalize/*`, `track/score` | behavior scoring, insights |
+| Content source | `extracted-texts/` | corpus for AI content generation |
 
-| Capability | Where | Status |
-|------------|-------|--------|
-| Multi-model brain (OpenRouter + DeepSeek free failover) | `ai-app` worker + `chat-worker` | ✅ coded |
-| Web chat brain (cross-channel continuity) | `api/chat/web` | ✅ coded |
-| Sentiment / segments / psychology profiles | `ai-app` | ✅ coded |
-| Automation triggers (browse_abandon, checkout_abandon, inactive_14d/30d, churn_risk) | `src/app/api/company/automation/route.ts` | ✅ coded |
-| Contact capture + bulk phonebook sync | `api/track/phonebook/*` | ✅ coded |
-| Recommendation / personalization | `api/recommendations`, `PersonalizedSection` | ✅ coded |
+## 2. Opportunity matrix (single-founder, all reuse-based)
 
-**Verdict:** a real AI foundation already exists. The AI opportunities below are mostly **reuse + wiring**, not new infrastructure.
+| # | AI Opportunity | Reuses | Effort | Impact | Priority |
+|---|---|---|---|---|---|
+| A1 | **AI WhatsApp follow-up copy** — replace static automation messages with AI-personalized copy (based on user events) | automation route + chat-worker brain + wa-relay | 6h | High (retention + recovery) | HIGH |
+| A2 | **Career AI Coach** (free tier) — chat widget already exists (`components/chat/ChatWidget.tsx`); productize as "ক্যারিয়ার AI কোচ" upsell prompt | chat-worker brain, ChatWidget | 4h | High (differentiator, authority) | HIGH |
+| A3 | **AI content factory** — weekly batch of 10 Shorts scripts + 7 Telegram posts from `extracted-texts/` + course catalog | chat-worker brain | 3h | High (distribution engine) | HIGH |
+| A4 | **AI recommendations** — "আপনার জন্য বাছাই" on homepage/dashboard using `track/score` + behavior | `api/recommendations`, personalize endpoints | 5h | Medium (cross-sell) | MEDIUM |
+| A5 | **AI lead scoring** — score contacts from phonebook capture (`track/phonebook`) by likelihood to join/buy | behavior scores + events | 6h | Medium (seeding priority) | MEDIUM |
+| A6 | **AI churn save** — when churn_risk fires, generate a personalized re-engage offer | automation + brain | 4h | Medium | MEDIUM |
+| A7 | **AI upsell message** — post-purchase, suggest next pack via WhatsApp | automation + wa-relay | 4h | Medium (AOV) | MEDIUM |
 
----
+**Execution order:** A3 (content, Day 7) → A1 (Day 14) → A2 (Day 21) → A4/A5/A6/A7 (Day 30–60).
 
-## 2. Opportunity shortlist (ranked by ROI ÷ effort for a solo founder)
+## 3. Architecture note (keep it simple)
 
-| # | Opportunity | Reuses | Effort | ROI |
-|---|-------------|--------|--------|-----|
-| 1 | **AI Sales follow-up** — auto WhatsApp reply to checkout_abandon / browse_abandon with a personalized pitch | `automation` + `wa-relay` | 3–5 h | ★★★★★ |
-| 2 | **AI Career Coach (chat)** — publicize the existing chat brain as "Career AI Coach", free tier → upsell | `api/chat/web` | 2–4 h | ★★★★ |
-| 3 | **AI content ideation** — one prompt → 7 days of TG/YT post ideas (viral fuel) | `chat-worker` | 2–3 h | ★★★★ |
-| 4 | **AI recommendation** on landing — personalize "for you" packs | `api/recommendations` | 3–5 h | ★★★ |
-| 5 | **AI upsell / cross-sell** — after purchase, suggest the 3-pack or next course | `resource*` success | 3–4 h | ★★★ |
-| 6 | **AI churn outreach** — notify + WA for inactive_30d | `automation` | 2–3 h | ★★★ |
-| 7 | **AI community manager** — auto-reply in TG group (careful: needs moderation guard) | `chat-worker` | 6–10 h | ★★☆ (risk) |
-| 8 | **AI lead scoring** — score leads by intent (clicks, checkout) | `user_events` | 4–6 h | ★★☆ |
+```
+Next.js app ──service binding──► jgcareer-ai ──► chat-worker brain (OpenRouter/DeepSeek free)
+      ▲                                 │
+      └───────── API routes (personalize/automation/chat) ──► wa-relay ──► WhatsApp
+```
 
----
+All new AI features are just new **prompt templates + routing** in existing workers — no new deploy target.
 
-## 3. Guardrails
+> **Needs Manual Verification:** which exact model aliases are provisioned in the `ai_api_keys` D1 table (`bbe84bc`); whether `chat-worker` is reachable from `jgcareer-ai` in prod (worker-to-worker fetch fixed in `6d4cbfe`).
 
-- **Cost control:** use free-model failover (already in `chat-worker`); set daily token budgets via model alias router. **Needs Manual Verification** for live spend.
-- **Personalization privacy:** contact data from onboarding should only feed automated recovery to that same user — no cold spamming.
-- **Community AI:** an auto-reply bot in public Telegram can harm brand if it hallucinates — add approval queue / guardrails first.
-- Every AI message should carry a **human opt-out** (reply "STOP") — builds trust, lowers ban-risk.
+## Bangla — AI সুযোগ (Owner's summary)
 
----
+**আপনার AI সিস্টেম ইতিমধ্যেই চালু আছে** — ৩টি worker: `jgcareer-ai` (মূল AI), `chat-worker` (মুক্ত মডেল DeepSeek/OpenRouter), `wa-relay` (WhatsApp পাঠানো)। তাই নতুন AI-তে টাকা নয় — **বিদ্যমান worker-এ নতুন কাজ বসানো মাত্র**।
 
-## 4. Priority call (solo founder)
+**সবচেয়ে দামি ৩টি:** (A3) AI দিয়ে সপ্তাহে ১০টি শর্ট-স্ক্রিপ্ট + ৭টি টেলিগ্রাম পোস্ট — আপনার কনটেন্ট ফানেলের জ্বালানি; (A1) অটোমেশনের বার্তা এখন AI ব্যক্তিগত করবে — অ্যাব্যান্ডনড-কার্ট/চর্ন ইউজারকে ফেরানো; (A2) "ক্যারিয়ার AI কোচ" — চ্যাট উইজেট আছে, একে আলাদা ফিচার হিসেবে তুলে ধরলে কর্তৃত্ব + বিক্রি দুটোই।
 
-**Do first:** #1 (sales follow-up) and #3 (content ideation). They directly feed revenue and the viral fuel from `02`.
-**Do second:** #2 (Career AI Coach) — it is the differentiating product story ("AI-driven learning ecosystem").
-**Defer:** #7 (public auto-reply) until scale + moderation.
+**Priority: High** · **Effort:** ~৩২ ঘণ্টা (সবগুলো) | **প্রত্যাশিত ফলাফল:** রিকভারি ২×, কনটেন্ট কস্ট ~৫০% কম, ক্যারিয়ার-কোচ ফিচারকে বিক্রয়-পয়েন্ট।
 
----
-
-## 5. Risk table
-
-| Risk | Level | Mitigation |
-|------|-------|------------|
-| AI hallucination in user-facing chat | Med | free-tier guardrails, "this is AI" disclaimer, fallback |
-| Token cost blows up | Med | model alias caps, daily quotas |
-| WhatsApp spam bans | High | opt-in flows only, rate limits, STOP keyword |
-| Privacy / consent misuse | Med | reuse only user's own consent/contact |
-
----
-
-## 6. বাংলা (owner) — কী, কেন, করণীয়
-
-- **এই সেকশনটি** AI কীভাবে sale, retention ও growth-এ ব্যবহার হবে।
-- **কেন জরুরি:** AI ইতিমধ্যে আছে (চ্যাট, সেন্টিমেন্ট, অটোমেশন) — শুধু sale-ফোকাস ও কনটেন্ট ফোকাসে লাগান লাগবে।
-- **সমস্যা:** AI ফিচার আছে কিন্তু সরাসরি money/reach-এর সাথে সংযুক্ত নয়।
-- **Business impact:** AI সেলস-ফলোআপ = জরুরী ভোক্তা ফিরে আসা; AI কনটেন্ট = সপ্তাহে ঘণ্টা বাঁচায়। **Impact: High**।
-- **Priority:** High — প্রথম ৩০ দিনে #1 + #3; ৯০ দিনে #2 পণ্য-স্টোরি।
-- **Effort:** ~৮–১২ ঘণ্টা মোট (reuse-ভিত্তিক)।
-- **Expected benefit:** বেশি abandoned→sale, কনটেন্ট মিল ২×, "AI coach" ব্র্যান্ড ডিফারেন্সিয়েশন।
+## Cross-references
+- Automation engine detail: `03_CONVERSION_FUNNEL.md`
+- Feature specs: `06_NEW_FEATURE_PROPOSALS.md`
+- Roadmap: `07_ROADMAP_TODAY_7_30_90_FUTURE.md`

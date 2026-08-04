@@ -1,74 +1,50 @@
-# 05_GAP_ANALYSIS
-**Where we stand vs world-class learning + social platforms**
+# 05 — GAP ANALYSIS
 
-> Context: `02_VIRAL_ENGINE.md`, `03_CONVERSION_FUNNEL.md`, `06_NEW_FEATURE_PROPOSALS.md`
+> Part of `docs/strategy/` — read `STRATEGY_REVIEW.md` first.
+> Benchmark: world-class learning platforms (Udemy/BYJU's/10 Minute School), social products (Duolingo/WhatsApp groups), and viral network products.
 
----
+## 1. Core gaps vs world-class products
 
-## 1. Benchmark areas (what "world-class" does)
+| # | World-class | JG Career today | Gap | Severity |
+|---|---|---|---|---|
+| 1 | **Distribution engine** (content → channel → platform) | none | cold-start problem | **Critical** |
+| 2 | **Gamification layer** (streaks, XP, badges, leagues) | leaderboard only | missing daily habit loop | High |
+| 3 | **Free value before paywall** (sample lessons) | full paywall after 1 unlock | missing curiosity gap | High |
+| 4 | **Course quality signals** (preview video, curriculum depth, certification) | files + ratings exist; no preview | low trust on buy page | High |
+| 5 | **Community** (groups, mentors, peer review) | company-side tools only | missing user community | Medium |
+| 6 | **Multi-language content depth** (Bengali-first UX ✔ but content mixed) | bilingual UI | content localization incomplete | Medium |
+| 7 | **Analytics-driven growth loop** (cohort, LTV, activation) | events + KPI exist but underused | dashboard → action gap | Medium |
+| 8 | **Search & discovery** (tag search, related content) | categories/`search` partial | discovery weak | Medium |
+| 9 | **Certification / progress certificates** | progress tracking exists | no certificate export | Low |
+| 10 | **Creator/UGC engine** (users publish content) | none | long-term moat missing | Low (phase-2) |
 
-| Area | Industry standard | Jobayer Group Career | Gap |
-|------|-------------------|----------------------|-----|
-| Identity & onboarding | social-signup + phone, <30s | OTP + guest checkout ✅ | small |
-| Learning product | lessons, progress, certificates, streaks | resources + unlock + progress + ratings ✅ (partial) | certificates? |
-| Community | public profiles, groups, feeds | referral tree, leaderboard | no public feed/groups |
-| Gamification | streaks, badges, XP, challenges | share-reward + leaderboard | no streaks/badges/XP |
-| Distribution | built-in share, UGC, SEO, referrals | share card + referral ✅ | no native TG/FB share; no UGC engine |
-| Trust | verified reviews, guarantees, money-back | ticker + reviews + money-back ✅ | sample gate, verified-buyer badge |
-| Monetization | free-tier → upsell → subscription | ৳99 entry ✅ | no free tier with paid upgrade; low AOV |
-| Retention | daily content, notifications, streaks | automation triggers ✅ | no daily habit loop |
+## 2. What is ALREADY strong (protect these)
 
----
+- **Frictionless conversion:** guest OTP checkout is better than most local edtech (no signup wall).
+- **Trust building:** live ticker + money-back guarantee + reviews — rare for this market.
+- **Referral/commission backbone:** 4-level, ৳20 min withdraw, share-reward — the growth core is built.
+- **Automation + AI reuse:** browse/checkout abandon + churn triggers already wired to WhatsApp.
+- **Admin depth:** company suite (finance, analytics, members, marketing, psychology, AI) is unusually complete.
+- **Cost:** Cloudflare Workers/D1 free tier → near-$0 operating cost.
 
-## 2. Gaps ranked by business impact (solo-founder buildable)
+## 3. Prioritized gap-closing plan (tie to other docs)
 
-| # | Gap | Why it matters | Effort | Impact |
-|---|-----|----------------|--------|--------|
-| 1 | **No free content/distribution funnel** | cold start impossible | 2 h/week | Critical |
-| 2 | **No native TG/FB share** | BD audience lives there; copy-link is friction | 2–3 h | High |
-| 3 | **No gamification (streaks/badges/XP)** | retention + habit → referral frequency | 8–12 h | High |
-| 4 | **No UGC success-story engine** | social proof at scale | 6–8 h | High |
-| 5 | **No public community layer (groups/feed)** | retention + ambassador program | 8–12 h | Med |
-| 6 | **No free sample / trial tier** | curiosity→paid; low-risk entry | 4–6 h | High |
-| 7 | **Low AOV** (single ৳99) | revenue per traffic is thin | 4–6 h | High |
-| 8 | **No blog/guide content pages** | SEO long-tail reach | 4–6 h | Med |
+| Gap | Action | Owner doc |
+|---|---|---|
+| Distribution (1) | content funnel + seeding | `01_LAUNCH_SEQUENCE.md` |
+| Gamification (2) | streaks/badges | `02_VIRAL_ENGINE.md` G3 |
+| Free value (3) | free sample unlock | `03_CONVERSION_FUNNEL.md` C3 |
+| Trust signals (4) | mentor badge + preview | `03_CONVERSION_FUNNEL.md` C2 |
+| Analytics→action (7) | weekly KPI review ritual | `07_ROADMAP_TODAY_7_30_90_FUTURE.md` |
 
----
+## Bangla — গ্যাপ অ্যানালাইসিস (Owner's summary)
 
-## 3. What NOT to do (be honest)
+**বিশ্বমান প্ল্যাটফর্মের সাথে তুলনা করলে বড় ঘাটতি ৩টি:** (১) **ডিস্ট্রিবিউশন** — শূন্য চ্যানেল, এটাই সবচেয়ে জরুরি; (২) **গ্যামিফিকেশন** — শুধু লিডারবোর্ড আছে, ডেইলি স্ট্রিক/ব্যাজ নেই, ফলে দৈনিক ফিরে আসা কম; (৩) **পে-ওয়ালের আগে ফ্রি ভ্যালু** — ফ্রি স্যাম্পল নেই, তাই ক্রেতা আস্থা নিতে পারে না।
 
-- Do not rebuild the referral/commission system — it is complete (`commission.ts`, `share-reward`).
-- Do not add a full subscription layer in 90 days (was deliberately removed).
-- Do not build a complex "social network" — a lightweight community + UGC engine is enough for phase 1.
-- Do not add paid ad tooling — goal is 100% organic.
+**যা ইতিমধ্যে শক্ত (ভাঙবেন না):** গেস্ট OTP চেকআউট (অনেক এডটেকের চেয়ে ভালো), লাইভ টিকার + মানি-ব্যাক + রিভিউ (ট্রাস্ট), ৪-স্তর কমিশন ব্যাকবোন, অটোমেশন + AI রিইউজ, বিস্তৃত কোম্পানি প্যানেল, এবং প্রায় শূন্য অপারেটিং খরচ।
 
----
+**Priority: High** · বাকি গ্যাপগুলো `02`/`03`-এ বিস্তারিত সমাধানসহ আছে।
 
-## 4. Positioning note
-
-`AI_EXPANSION_PLAN.md` already recommends positioning the brand as an **"AI-driven affiliate learning ecosystem"** rather than an "MLM income" platform. That single reframe:
-- reduces compliance/trust risk,
-- differentiates from typical MLM pitches,
-- unlocks B2B/B2C upsell and creator programs.
-
----
-
-## 5. Risk table
-
-| Risk | Level | Mitigation |
-|------|-------|------------|
-| Feature creep kills focus | High | roadmap gates (see `07`); only the listed gaps |
-| Community moderation cost | Med | small groups first; founder-moderated |
-| AOV upsell hurts conversion | Med | non-blocking, post-purchase |
-
----
-
-## 6. বাংলা (owner) — কী, কেন, করণীয়
-
-- **এই সেকশনটি** বিশ্বমানের প্ল্যাটফর্মের সঙ্গে আমাদের পার্থক্য (gap)।
-- **কেন জরুরি:** শুধু নিজের খেলা দেখলে উন্নতি হয় না; বেঞ্চমার্কে দেখলে বিনিয়োগ কোথায় দরকার।
-- **সমস্যা:** মূল ঘাটতি হলো ডিস্ট্রিবিউশন (ফ্রি কনটেন্ট), নেটিভ শেয়ার, গেমিফিকেশন, UGC, ফ্রি-স্যাম্পল — এগুলোই growth/sale-এর মূল।
-- **Business impact:** gap বন্ধ হলে retention + referral + sale একসাথে বাড়ে। **Impact: High**।
-- **Priority:** High — top ৫ gap-এর সমাধান ৬০ দিনে।
-- **Effort:** ~২৫–৩৫ ঘণ্টা মোট।
-- **Expected benefit:** রেফারেল ফ্রিকোয়েন্সি ২–৩×, AOV +৫০%, SEO reach ৩–৬ মাসে।
+## Cross-references
+- `01_LAUNCH_SEQUENCE.md`, `02_VIRAL_ENGINE.md`, `03_CONVERSION_FUNNEL.md`
+- `06_NEW_FEATURE_PROPOSALS.md`, `07_ROADMAP_TODAY_7_30_90_FUTURE.md`
