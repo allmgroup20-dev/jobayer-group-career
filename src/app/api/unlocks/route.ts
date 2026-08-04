@@ -45,16 +45,17 @@ export async function POST(request: NextRequest) {
         [unlockPrice, body.workerId]
       );
     } else {
-      // Free unlock — check unlock limit
+      // Free unlock — check unlock limit (default 1 free sample when no limit row exists)
       const limit = await queryFirst<{ maxUnlocks: number }>(
         db, "SELECT max_unlocks as maxUnlocks FROM unlock_limits WHERE worker_id = ?", [body.workerId]
       );
-      if (limit && limit.maxUnlocks > 0) {
+      const maxUnlocks = limit?.maxUnlocks ?? 1;
+      if (maxUnlocks > 0) {
         const count = await queryFirst<{ cnt: number }>(
           db, "SELECT COUNT(*) as cnt FROM user_unlocks WHERE worker_id = ?", [body.workerId]
         );
-        if (count && count.cnt >= limit.maxUnlocks) {
-          return NextResponse.json({ error: "Unlock limit reached. Use resource income to unlock more." }, { status: 403 });
+        if (count && count.cnt >= maxUnlocks) {
+          return NextResponse.json({ error: "Free unlock used. Buy a resource pack or earn share bonuses to unlock more." }, { status: 403 });
         }
       }
     }

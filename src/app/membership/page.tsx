@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
 import LivePurchaseTicker from "@/components/LivePurchaseTicker";
+import LaunchOfferTimer from "@/components/LaunchOfferTimer";
 
 const tiers = [
-  { qty: "১টি", qtyEn: "1", price: 99, noteBn: "একটি রিসোর্স আনলক", noteEn: "Unlock 1 resource" },
-  { qty: "৩টি", qtyEn: "3", price: 220, noteBn: "৩-প্যাক অফার", noteEn: "3-pack offer", popular: true },
-  { qty: "৫টি", qtyEn: "5", price: 350, noteBn: "৫-প্যাক অফার", noteEn: "5-pack offer" },
-  { qty: "১০টি", qtyEn: "10", price: 650, noteBn: "১০-প্যাক অফার", noteEn: "10-pack offer" },
-  { qty: "সব", qtyEn: "All", price: 5200, noteBn: "৯৭০+ সব রিসোর্স", noteEn: "970+ all resources" },
+  { qty: "১টি", qtyEn: "1", price: 99, old: 129, noteBn: "একটি রিসোর্স আনলক", noteEn: "Unlock 1 resource" },
+  { qty: "৩টি", qtyEn: "3", price: 220, old: 299, noteBn: "৩-প্যাক অফার", noteEn: "3-pack offer", popular: true },
+  { qty: "৫টি", qtyEn: "5", price: 350, old: 499, noteBn: "৫-প্যাক অফার", noteEn: "5-pack offer" },
+  { qty: "১০টি", qtyEn: "10", price: 650, old: 899, noteBn: "১০-প্যাক অফার", noteEn: "10-pack offer" },
+  { qty: "সব", qtyEn: "All", price: 5200, old: 6499, noteBn: "৯৭০+ সব রিসোর্স", noteEn: "970+ all resources" },
 ];
 
 const trust = [
@@ -23,6 +24,7 @@ export default function ResourcePackPage() {
 
   return (
     <div className="min-h-screen bg-bg">
+      <LaunchOfferTimer />
       <div className="bg-gradient-to-br from-primary via-primary/90 to-accent/80 py-12 md:py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-xs font-bold mb-4 border border-white/10">
@@ -54,7 +56,12 @@ export default function ResourcePackPage() {
                 </span>
               )}
               <span className="text-sm font-bold text-text-secondary">{lang === "bn" ? t.qty : t.qtyEn}</span>
-              <span className="text-3xl font-black text-primary mt-2">৳{t.price}</span>
+              <span className="text-3xl font-black text-primary mt-2">
+                ৳{t.price}
+                {t.old && (
+                  <span className="block text-sm font-semibold text-text-secondary/60 line-through mt-0.5">৳{t.old}</span>
+                )}
+              </span>
               <span className="text-xs text-text-secondary mt-1">{lang === "bn" ? t.noteBn : t.noteEn}</span>
             </div>
           ))}

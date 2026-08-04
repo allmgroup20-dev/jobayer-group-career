@@ -159,12 +159,19 @@ export async function POST(request: NextRequest) {
         ).bind(w.worker_id, title, bodyMsg).run();
         affected++;
       } else if (action === "whatsapp") {
+        const fullMsg = `${title}\n\n${bodyMsg}`;
+        try {
+          const { enqueueMessage } = await import("@/lib/whatsapp");
+          await enqueueMessage(w.phone, fullMsg, 1, {
+            accountId: "web_main",
+            messageType: "automation",
+          });
+        } catch (e) {
+          console.error("Automation enqueue failed:", e);
+        }
         await db2.prepare(
-          "INSERT INTO wa_logs (phone, message, direction, status) VALUES (?, ?, 'outbound', 'pending')"
-        ).bind(w.phone, `${title}\n\n${bodyMsg}`).run();
-        await db2.prepare(
-          "INSERT INTO communication_history (worker_id, channel, direction, message, status) VALUES (?, 'whatsapp', 'outbound', ?, 'pending')"
-        ).bind(w.worker_id, `${title}\n\n${bodyMsg}`).run();
+          "INSERT INTO communication_history (worker_id, channel, direction, message, status) VALUES (?, 'whatsapp', 'outbound', ?, 'queued')"
+        ).bind(w.worker_id, fullMsg).run();
         affected++;
       }
     }

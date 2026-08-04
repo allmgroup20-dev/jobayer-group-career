@@ -16,15 +16,17 @@ export async function GET(request: NextRequest) {
     );
 
     let myRank: number | null = null;
+    let myTeamSize = 0;
     if (workerId) {
       const me = await queryFirst<{ total_team_members: number }>(
         env, "SELECT total_team_members FROM workers WHERE worker_id = ?", [workerId]
       );
       if (me) {
+        myTeamSize = me.total_team_members || 0;
         const ahead = await queryFirst<{ c: number }>(
           env,
           "SELECT COUNT(*) AS c FROM workers WHERE COALESCE(is_test_account, 0) != 1 AND total_team_members > ?",
-          [me.total_team_members || 0]
+          [myTeamSize]
         );
         myRank = (ahead?.c || 0) + 1;
       }
@@ -38,6 +40,7 @@ export async function GET(request: NextRequest) {
         teamSize: t.total_team_members || 0,
       })),
       myRank,
+      myTeamSize,
     });
   } catch (error) {
     console.error("Leaderboard error:", error);

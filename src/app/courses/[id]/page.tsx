@@ -319,6 +319,11 @@ export default function CourseDetailPage() {
                   💰 রিসোর্স আয় দিয়ে আনলক (৳৯৯)
                 </Button>
               )}
+              {(unlockLimit === null || unlockCount < unlockLimit) && (
+                <p className="w-full text-xs text-green-600 font-semibold">
+                  🎁 আপনার ১টি ফ্রি রিসোর্স বোনাস আছে — এখনই চেষ্টা করুন!
+                </p>
+              )}
             </>
           )}
           {!isLoggedIn && (
