@@ -822,8 +822,8 @@ export default function WorkerDashboard() {
                     <span className="text-text-secondary">
                       {lang === "bn" ? "প্রিমিয়াম সদস্য:" : "Premium:"} ⭐
                       {!isPremium && (
-                        <Link href="/membership" className="ml-2 text-xs text-action hover:underline">
-                          {lang === "bn" ? "আপগ্রেড করুন →" : "Upgrade →"}
+                        <Link href="/courses" className="ml-2 text-xs text-action hover:underline">
+                          {lang === "bn" ? "রিসোর্স আনলক করুন →" : "Unlock resources →"}
                         </Link>
                       )}
                     </span>

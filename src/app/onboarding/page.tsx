@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
-import { useSWRFetch } from "@/lib/use-swr-fetch";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const INTEREST_OPTIONS = [
@@ -14,305 +13,157 @@ const INTEREST_OPTIONS = [
   { en: "Video Editing", bn: "ভিডিও এডিটিং", icon: "🎬" },
   { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼" },
   { en: "English Learning", bn: "ইংলিশ লার্নিং", icon: "📖" },
-  { en: "Cyber Security", bn: "সাইবার সিকিউরিটি", icon: "🔒" },
   { en: "AI & ChatGPT", bn: "এআই ও চ্যাটজিপিটি", icon: "🤖" },
   { en: "Business", bn: "ব্যবসা", icon: "📊" },
 ];
 
-type FieldKey =
-  | "ageGroup" | "occupation" | "educationLevel" | "gender"
-  | "country" | "city" | "goal" | "preferredLearningTime"
-  | "referralSource" | "communicationPreference" | "budgetRange" | "religion";
-
-interface FieldDef {
-  key: FieldKey;
-  labelEn: string;
-  labelBn: string;
-  type: "select" | "text";
-  options?: { value: string; en: string; bn: string }[];
-}
-
-const ALL_FIELDS: FieldDef[] = [
-  {
-    key: "ageGroup", labelEn: "Age Group", labelBn: "বয়স গ্রুপ", type: "select",
-    options: [
-      { value: "under_18", en: "Under 18", bn: "১৮ এর নিচে" },
-      { value: "18_24", en: "18-24", bn: "১৮-২৪" },
-      { value: "25_34", en: "25-34", bn: "২৫-৩৪" },
-      { value: "35_44", en: "35-44", bn: "৩৫-৪৪" },
-      { value: "45_plus", en: "45+", bn: "৪৫+" },
-    ],
-  },
-  {
-    key: "occupation", labelEn: "Occupation", labelBn: "পেশা", type: "select",
-    options: [
-      { value: "student", en: "Student", bn: "ছাত্র/ছাত্রী" },
-      { value: "employed", en: "Employed", bn: "চাকরিজীবী" },
-      { value: "freelancer", en: "Freelancer", bn: "ফ্রিল্যান্সার" },
-      { value: "business", en: "Business Owner", bn: "ব্যবসায়ী" },
-      { value: "homemaker", en: "Homemaker", bn: "গৃহিণী" },
-      { value: "unemployed", en: "Unemployed", bn: "বেকার" },
-    ],
-  },
-  {
-    key: "educationLevel", labelEn: "Education Level", labelBn: "শিক্ষাগত যোগ্যতা", type: "select",
-    options: [
-      { value: "ssc", en: "SSC / O-Level", bn: "এসএসসি / ও-লেভেল" },
-      { value: "hsc", en: "HSC / A-Level", bn: "এইচএসসি / এ-লেভেল" },
-      { value: "bachelor", en: "Bachelor's", bn: "স্নাতক" },
-      { value: "master", en: "Master's", bn: "স্নাতকোত্তর" },
-      { value: "phd", en: "PhD", bn: "পিএইচডি" },
-    ],
-  },
-  {
-    key: "gender", labelEn: "Gender", labelBn: "লিঙ্গ", type: "select",
-    options: [
-      { value: "male", en: "Male", bn: "পুরুষ" },
-      { value: "female", en: "Female", bn: "মহিলা" },
-      { value: "other", en: "Other", bn: "অন্যান্য" },
-    ],
-  },
-  {
-    key: "country", labelEn: "Country", labelBn: "দেশ", type: "text",
-  },
-  {
-    key: "city", labelEn: "City", labelBn: "শহর", type: "text",
-  },
-  {
-    key: "goal", labelEn: "Your Goal", labelBn: "আপনার লক্ষ্য", type: "select",
-    options: [
-      { value: "career", en: "Build a Career", bn: "ক্যারিয়ার গড়তে" },
-      { value: "freelancing", en: "Start Freelancing", bn: "ফ্রিল্যান্সিং শুরু করতে" },
-      { value: "business", en: "Start a Business", bn: "ব্যবসা করতে" },
-      { value: "skill", en: "Develop Skills", bn: "স্কিল ডেভেলপ করতে" },
-      { value: "job", en: "Get a Job", bn: "চাকরি পেতে" },
-    ],
-  },
-  {
-    key: "preferredLearningTime", labelEn: "Preferred Learning Time", labelBn: "পড়ার সময়", type: "select",
-    options: [
-      { value: "morning", en: "Morning", bn: "সকাল" },
-      { value: "afternoon", en: "Afternoon", bn: "দুপুর" },
-      { value: "evening", en: "Evening", bn: "বিকেল" },
-      { value: "night", en: "Night", bn: "রাত" },
-    ],
-  },
-  {
-    key: "referralSource", labelEn: "How did you find us?", labelBn: "কীভাবে জানতে পেরেছেন?", type: "select",
-    options: [
-      { value: "facebook", en: "Facebook", bn: "ফেসবুক" },
-      { value: "google", en: "Google", bn: "গুগল" },
-      { value: "youtube", en: "YouTube", bn: "ইউটিউব" },
-      { value: "whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ" },
-      { value: "friend", en: "Friend/Family", bn: "বন্ধুর মাধ্যমে" },
-      { value: "other", en: "Other", bn: "অন্যান্য" },
-    ],
-  },
-  {
-    key: "communicationPreference", labelEn: "Preferred Contact", labelBn: "যোগাযোগের মাধ্যম", type: "select",
-    options: [
-      { value: "whatsapp", en: "WhatsApp", bn: "হোয়াটসঅ্যাপ" },
-      { value: "email", en: "Email", bn: "ইমেইল" },
-      { value: "sms", en: "SMS", bn: "এসএমএস" },
-    ],
-  },
-  {
-    key: "budgetRange", labelEn: "Budget Range (per course)", labelBn: "বাজেট (প্রতি কোর্সে)", type: "select",
-    options: [
-      { value: "under_1000", en: "Under 1,000 ৳", bn: "১,০০০ এর নিচে" },
-      { value: "1000_3000", en: "1,000 - 3,000 ৳", bn: "১,০০০ - ৩,০০০" },
-      { value: "3000_5000", en: "3,000 - 5,000 ৳", bn: "৩,০০০ - ৫,০০০" },
-      { value: "5000_10000", en: "5,000 - 10,000 ৳", bn: "৫,০০০ - ১০,০০০" },
-      { value: "over_10000", en: "Above 10,000 ৳", bn: "১০,০০০ এর উপরে" },
-    ],
-  },
-  {
-    key: "religion", labelEn: "Religion", labelBn: "ধর্ম", type: "select",
-    options: [
-      { value: "islam", en: "▸ Islam", bn: "▸ ইসলাম" },
-      { value: "islam_sunni", en: "  Sunni", bn: "  সুন্নি" },
-      { value: "islam_shia", en: "  Shia", bn: "  শিয়া" },
-      { value: "islam_ahle_sunnat", en: "  Ahle Sunnat Wal Jamaat", bn: "  আহলে সুন্নাত ওয়াল জামাত" },
-      { value: "islam_ahle_hadith", en: "  Ahle Hadith", bn: "  আহলে হাদীস" },
-      { value: "islam_ahle_quran", en: "  Ahle Quran", bn: "  আহলে কোরআন" },
-      { value: "islam_sufi", en: "  Sufi", bn: "  সুফি" },
-      { value: "islam_deobandi", en: "  Deobandi", bn: "  দেওবন্দি" },
-      { value: "islam_ismaili", en: "  Ismaili", bn: "  ইসমাইলি" },
-      { value: "hindu", en: "▸ Hindu", bn: "▸ হিন্দু" },
-      { value: "hindu_vaishnav", en: "  Vaishnav", bn: "  বৈষ্ণব" },
-      { value: "hindu_shaiva", en: "  Shaiva", bn: "  শৈব" },
-      { value: "hindu_shakta", en: "  Shakta", bn: "  শাক্ত" },
-      { value: "buddhist", en: "▸ Buddhist", bn: "▸ বৌদ্ধ" },
-      { value: "buddhist_theravada", en: "  Theravada", bn: "  থেরবাদ" },
-      { value: "buddhist_mahayana", en: "  Mahayana", bn: "  মহাযান" },
-      { value: "christian", en: "▸ Christian", bn: "▸ খ্রিস্টান" },
-      { value: "christian_catholic", en: "  Catholic", bn: "  ক্যাথলিক" },
-      { value: "christian_orthodox", en: "  Orthodox", bn: "  অর্থোডক্স" },
-      { value: "christian_protestant", en: "  Protestant", bn: "  প্রোটেস্ট্যান্ট" },
-      { value: "atheist", en: "Atheist", bn: "নাস্তিক" },
-      { value: "agnostic", en: "Agnostic", bn: "সঞ্চয়বাদী" },
-      { value: "sanatan", en: "Sanatan", bn: "সনাতন" },
-      { value: "sarbabadi", en: "Sarbabadi", bn: "সর্ববাদী" },
-      { value: "lgbtq", en: "LGBTQ+", bn: "এলজিবিটি" },
-      { value: "other", en: "Other", bn: "অন্যান্য" },
-    ],
-  },
-];
-
-  const TOTAL_STEPS = ALL_FIELDS.length + 2;
-
-function defaultValues(): Record<FieldKey, string> {
-  return {
-    ageGroup: "", occupation: "", educationLevel: "", gender: "",
-    country: "", city: "", goal: "", preferredLearningTime: "",
-    referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "",
-  };
-}
+type Step = "consent" | "otp" | "contacts" | "interests";
 
 export default function OnboardingPage() {
   const { lang } = useLanguageStore();
   const router = useRouter();
   const [workerId, setWorkerId] = useState("");
-  const [values, setValues] = useState<Record<FieldKey, string>>(defaultValues());
-  const [suggestions, setSuggestions] = useState<Record<string, string | null>>({});
-  const [pendingFields, setPendingFields] = useState<FieldKey[]>([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [saving, setSaving] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<Step>("consent");
   const [loading, setLoading] = useState(true);
-  const [interests, setInterests] = useState<string[]>([]);
-  const [showInterests, setShowInterests] = useState(false);
-  const [interestSaved, setInterestSaved] = useState(false);
-  const [consentGiven, setConsentGiven] = useState(false);
-  const [done, setDone] = useState(false);
 
-  const processed = useRef(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpDevCode, setOtpDevCode] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpBusy, setOtpBusy] = useState(false);
+
+  const [contacts, setContacts] = useState<{ name: string; phone: string }[]>([]);
+  const [pasteText, setPasteText] = useState("");
+  const [syncResult, setSyncResult] = useState<{ total?: number; matched?: number; bonus?: number } | null>(null);
+  const [syncBusy, setSyncBusy] = useState(false);
+
+  const [interests, setInterests] = useState<string[]>([]);
 
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
     if (!wid) { window.location.href = "/login"; return; }
     setWorkerId(wid);
+    fetch(`/api/workers/profile?workerId=${encodeURIComponent(wid)}`)
+      .then(r => r.json() as Promise<{ phone?: string }>)
+      .then(d => { if (d.phone) setPhone(d.phone); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const { data: profileData } = useSWRFetch<Record<string, any>>(
-    workerId ? `/api/workers/profile?workerId=${workerId}` : null,
-    { ttlMs: 180_000 }
-  );
+  const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
 
-  const [suggestionsReady, setSuggestionsReady] = useState(false);
-
-  useEffect(() => {
-    if (!workerId) return;
-    fetch("/api/profile/suggest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workerId }),
-    })
-      .then(r => r.json())
-      .then(sug => { setSuggestions(sug as Record<string, any>); setSuggestionsReady(true); })
-      .catch(() => setSuggestionsReady(true));
-  }, [workerId]);
-
-  useEffect(() => {
-    if (!profileData?.workerId || processed.current) return;
-    if (!profileData.profileCompleted && !suggestionsReady) return;
-    processed.current = true;
-
-    const existing = profileData;
-    const vals = defaultValues();
-    const missing: FieldKey[] = [];
-
-    for (const field of ALL_FIELDS) {
-      const existingVal = existing[field.key] as string | undefined;
-      const suggestedVal = suggestions[field.key] as string | undefined;
-
-      if (existingVal) {
-        vals[field.key] = existingVal;
-      } else {
-        missing.push(field.key);
-        vals[field.key] = suggestedVal || "";
-      }
-    }
-
-    setValues(vals);
-
-    const storedIdx = sessionStorage.getItem("onboarding_idx");
-    if (missing.length > 0 && storedIdx) {
-      const idx = parseInt(storedIdx);
-      const savedHalfway = sessionStorage.getItem("onboarding_last_key");
-      const savedField = ALL_FIELDS.find(f => f.key === savedHalfway);
-      if (savedField && !existing[savedField.key]) {
-        const fieldIdx = missing.indexOf(savedField.key as FieldKey);
-        setCurrentIdx(fieldIdx >= 0 ? fieldIdx : 0);
-      } else {
-        setCurrentIdx(0);
-      }
-    } else {
-      setCurrentIdx(0);
-    }
-
-    if (missing.length === 0 && existing.profileCompleted) {
-      setDone(true);
-    } else {
-      setPendingFields(missing);
-    }
-
-    setLoading(false);
-  }, [profileData, suggestions, suggestionsReady, workerId]);
-
-  const showingConsent = !consentGiven;
-  const currentField = showingConsent ? null : pendingFields[currentIdx];
-  const fieldDef = currentField ? ALL_FIELDS.find(f => f.key === currentField) : null;
-  const fk = currentField as FieldKey | null;
-  const completedCount = TOTAL_STEPS - (pendingFields.length - currentIdx) - (showInterests ? 0 : 0) - (showingConsent ? 1 : 0);
-  const progressPct = Math.round((completedCount / TOTAL_STEPS) * 100);
-
-  const handleConsentAccept = async () => {
-    setSaving(true);
+  const handleConsent = async () => {
+    setLoading(true);
     try {
       await fetch("/api/privacy/consent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workerId, consentType: "onboarding", isGranted: 1 }),
       }).catch(() => {});
-      setConsentGiven(true);
-    } catch {} finally { setSaving(false); }
+      setStep("otp");
+    } catch {} finally { setLoading(false); }
   };
 
-  const setValue = (key: FieldKey, val: string) => {
-    setValues(prev => ({ ...prev, [key]: val }));
-  };
-
-  const saveCurrent = useCallback(async () => {
-    if (!workerId || !currentField) return;
-    const val = values[currentField];
-    if (!val) return;
-
-    setSaving(true);
+  const handleSendOtp = async () => {
+    setOtpBusy(true); setOtpError("");
     try {
-      await fetch("/api/workers/profile", {
-        method: "PUT",
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workerId, [currentField]: val }),
+        body: JSON.stringify({ phone }),
       });
-      sessionStorage.setItem("onboarding_idx", String(currentIdx));
-      sessionStorage.setItem("onboarding_last_key", currentField);
-    } catch {} finally { setSaving(false); }
-  }, [workerId, currentField, values, currentIdx]);
-
-  const handleNext = async () => {
-    await saveCurrent();
-
-    if (currentIdx < pendingFields.length - 1) {
-      setCurrentIdx(i => i + 1);
-    } else {
-      sessionStorage.removeItem("onboarding_idx");
-      sessionStorage.removeItem("onboarding_last_key");
-      setShowInterests(true);
-    }
+      const data = await res.json() as { error?: string; devCode?: string };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      if (data.devCode) setOtpDevCode(data.devCode);
+      setOtpSent(true);
+    } catch (e) {
+      setOtpError(e instanceof Error ? e.message : "Failed");
+    } finally { setOtpBusy(false); }
   };
 
-  const handleInterestDone = async () => {
-    setSaving(true);
+  const handleVerifyOtp = async () => {
+    setOtpBusy(true); setOtpError("");
+    try {
+      const res = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, code: otpCode }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setOtpVerified(true);
+      setStep("contacts");
+    } catch (e) {
+      setOtpError(e instanceof Error ? e.message : "Failed");
+    } finally { setOtpBusy(false); }
+  };
+
+  const pickContacts = async () => {
+    const anyNav = navigator as unknown as {
+      contacts?: { select: (fields: string[], opts: { multiple: boolean }) => Promise<{ name?: string; tel?: string[] }[]> };
+    };
+    if (anyNav.contacts?.select) {
+      try {
+        const picked = await anyNav.contacts.select(["name", "tel"], { multiple: true });
+        const mapped = picked
+          .map(c => ({ name: c.name || "", phone: (c.tel?.[0] || "").replace(/[^0-9]/g, "") }))
+          .filter(c => c.phone.length >= 10);
+        setContacts(prev => mergeContacts(prev, mapped));
+        return;
+      } catch { /* user cancelled or unsupported */ }
+    }
+    // Fallback: prompt user to paste contacts
+    const pasted = window.prompt(t("ফোনবুক না খুললে কন্টাক্টগুলো পেস্ট করুন (প্রতি লাইনে: নাম, ০১XXXXXXXXX)", "Paste contacts (one per line: Name, 01XXXXXXXXX)"));
+    if (pasted) { setPasteText(pasted); parsePasted(pasted); }
+  };
+
+  const mergeContacts = (prev: { name: string; phone: string }[], next: { name: string; phone: string }[]) => {
+    const map = new Map<string, string>();
+    for (const c of [...prev, ...next]) map.set(c.phone, c.name || c.phone);
+    return Array.from(map.entries()).map(([phone, name]) => ({ name, phone }));
+  };
+
+  const parsePasted = (text: string) => {
+    const rows = text.split(/\r?\n/).map(r => r.trim()).filter(Boolean);
+    const parsed = rows.map(r => {
+      const parts = r.split(/[,;\t]/).map(p => p.trim()).filter(Boolean);
+      if (parts.length === 0) return null;
+      const phone = (parts.find(p => /^\d{10,13}$/.test(p.replace(/[^0-9]/g, ""))) || parts[parts.length - 1]).replace(/[^0-9]/g, "");
+      const name = parts[0].replace(/[^0-9]/g, "").length > 8 ? "" : parts[0];
+      return { name, phone };
+    }).filter((c): c is { name: string; phone: string } => !!c && c.phone.length >= 10);
+    setContacts(mergeContacts(contacts, parsed));
+  };
+
+  const handleSync = async () => {
+    if (contacts.length === 0) return;
+    setSyncBusy(true);
+    try {
+      const res = await fetch("/api/track/phonebook/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, contacts }),
+      });
+      const data = await res.json() as { error?: string; total?: number; matched?: number; bonus?: number };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setSyncResult(data);
+    } catch { setSyncResult({ total: contacts.length, matched: 0, bonus: 0 }); }
+    finally { setSyncBusy(false); }
+  };
+
+  const inviteAll = () => {
+    const msg = encodeURIComponent(
+      t(
+        `🎯 আসুন! Jobayer Group Career-এ ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে।\nআমার রেফারেল: https://career.jobayergroup.com/register?ref=${workerId}`,
+        `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nMy referral: https://career.jobayergroup.com/register?ref=${workerId}`
+      )
+    );
+    window.open(`https://wa.me/?text=${msg}`, "_blank");
+  };
+
+  const handleFinish = async () => {
     try {
       for (const interest of interests) {
         await fetch("/api/track/event", {
@@ -322,11 +173,8 @@ export default function OnboardingPage() {
         }).catch(() => {});
       }
       await fetch(`/api/track/score?workerId=${workerId}`, { method: "POST" }).catch(() => {});
-      setInterestSaved(true);
-    } catch {} finally { setSaving(false); }
-  };
-
-  const handleFinish = () => {
+    } catch {}
+    localStorage.setItem("onboarding_done", "1");
     window.location.href = "/dashboard";
   };
 
@@ -338,171 +186,131 @@ export default function OnboardingPage() {
     );
   }
 
-  if (done) {
-    return (
-      <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-gray-50">
-        <div className="w-full max-w-lg animate-fade-up bg-white rounded-2xl p-6 shadow-xl border border-border text-center space-y-4 py-8">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-primary">{lang === "bn" ? "প্রোফাইল সম্পূর্ণ!" : "Profile Complete!"}</h2>
-          <p className="text-sm text-text-secondary">{lang === "bn" ? "আপনার প্রোফাইল আগেই কমপ্লিট ছিল" : "Your profile was already complete"}</p>
-          <button onClick={handleFinish} className="btn-primary w-full">{lang === "bn" ? "ড্যাশবোর্ডে যান" : "Go to Dashboard"}</button>
-        </div>
+  const header = (emoji: string, title: string, sub: string) => (
+    <div className="text-center mb-6">
+      <div className="w-16 h-16 gradient-premium rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+        <span className="text-2xl">{emoji}</span>
       </div>
-    );
-  }
+      <h1 className="text-xl font-bold text-primary">{title}</h1>
+      <p className="text-sm text-text-secondary mt-1">{sub}</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center py-20 px-4 bg-gray-50">
       <div className="w-full max-w-lg animate-fade-up">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 gradient-premium rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-            <span className="text-2xl text-white font-bold">JGC</span>
-          </div>
-          <h1 className="text-xl font-bold text-primary">
-            {lang === "bn" ? "আপনার প্রোফাইল কমপ্লিট করুন" : "Complete Your Profile"}
-          </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            {lang === "bn" ? "প্রত্যেকটি ধাপে একটি করে তথ্য দিন" : "One step at a time"}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-action to-secondary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
-          </div>
-          <span className="text-xs font-bold text-action whitespace-nowrap">{progressPct}%</span>
-        </div>
-
         <div className="bg-white rounded-2xl p-6 shadow-xl border border-border">
-          {showingConsent && (
+
+          {step === "consent" && (
             <div className="space-y-4 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center mx-auto shadow-lg">
-                <span className="text-3xl">🔒</span>
+              {header("🔒", t("সবকিছু এক বাটনে সম্মতি দিন", "Grant Everything in One Tap"), t("এক ক্লিকে উন্নত অভিজ্ঞতা", "One tap for the best experience"))}
+              <div className="bg-gray-50 rounded-xl p-4 text-xs text-text-secondary leading-relaxed text-left space-y-2">
+                <p>✅ {t("কুকিজ ও ট্র্যাকিং — আপনার আগ্রহ বুঝে ব্যক্তিগতকৃত কন্টেন্ট", "Cookies & tracking for personalized content")}</p>
+                <p>✅ {t("ডিভাইসের ইন্টারেস্ট ও আচরণ বিশ্লেষণ", "Device interest & behaviour analysis")}</p>
+                <p>✅ {t("কন্টাক্ট লিস্ট সিঙ্ক — আয়ের সুযোগ তৈরি", "Contact list sync to unlock earning opportunities")}</p>
+                <p>✅ {t("WhatsApp নোটিফিকেশন", "WhatsApp notifications")}</p>
+                <p className="text-[10px] text-text-secondary/50">{t("আপনার ডেটা কখনো তৃতীয় পক্ষের কাছে বিক্রি হয় না।", "Your data is never sold to third parties.")}</p>
               </div>
-              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "গোপনীয়তা ও শর্তাবলী" : "Privacy & Terms"}</h2>
-              <div className="bg-gray-50 rounded-xl p-4 text-xs text-text-secondary leading-relaxed text-left space-y-2 max-h-40 overflow-y-auto">
-                <p>{lang === "bn" ? "আমরা আপনার ব্যক্তিগত তথ্য সংগ্রহ করি শুধুমাত্র আপনার অভিজ্ঞতা উন্নত করতে। আপনার ডেটা কখনো তৃতীয় পক্ষের সাথে শেয়ার করা হয় না।" : "We collect your personal information solely to improve your experience. Your data is never shared with third parties."}</p>
-                <p>{lang === "bn" ? "কুকিজ ও ট্র্যাকিং ব্যবহার করে আমরা আপনার পছন্দ বুঝতে এবং ব্যক্তিগতকৃত কন্টেন্ট দেখাতে সক্ষম হই।" : "We use cookies and tracking to understand your preferences and show personalized content."}</p>
-                <p>{lang === "bn" ? "যেকোনো সময় আপনি আপনার প্রোফাইল থেকে তথ্য মুছতে বা এক্সপোর্ট করতে পারবেন।" : "You can delete or export your data at any time from your profile settings."}</p>
-              </div>
-              <label className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 cursor-pointer">
-                <input type="checkbox" checked={consentGiven} onChange={handleConsentAccept} className="w-5 h-5 accent-primary" />
-                <span className="text-sm font-medium text-text text-left">{lang === "bn" ? "আমি সকল শর্তাবলী, গোপনীয়তা নীতি ও কুকিজ পলিসি গ্রহণ করছি" : "I accept all terms, privacy policy & cookie policy"}</span>
-              </label>
-              <button onClick={handleConsentAccept} disabled={saving}
-                className="btn-primary w-full">
-                {saving ? "..." : (lang === "bn" ? "✅ গ্রহণ করুন ও এগিয়ে যান" : "✅ Accept & Continue")}
+              <button onClick={handleConsent} disabled={loading} className="btn-primary w-full">
+                {t("✅ সব গ্রহণ করুন ও এগিয়ে যান", "✅ Accept All & Continue")}
               </button>
             </div>
           )}
 
-          {!showingConsent && !showInterests && fieldDef && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-text-secondary bg-gray-100 px-2 py-0.5 rounded-full">
-                  {currentIdx + 1} / {pendingFields.length}
-                </span>
-              </div>
-              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? fieldDef.labelBn : fieldDef.labelEn}</h2>
-
-              {fieldDef.type === "select" && fieldDef.options ? (
-                <select
-                  value={fk ? values[fk] : ""}
-                  onChange={e => setValue(currentField!, e.target.value)}
-                  className="input-field text-base"
-                >
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  {fieldDef.options.map(opt => (
-                    <option key={opt.value} value={opt.value}>
-                      {lang === "bn" ? opt.bn : opt.en}
-                    </option>
-                  ))}
-                </select>
+          {step === "otp" && (
+            <div className="space-y-4 text-center">
+              {header("💬", t("WhatsApp নম্বর ভেরিফাই করুন", "Verify Your WhatsApp Number"), t("এই নম্বরে একটি ভেরিফিকেশন কোড যাবে", "We will send a verification code here"))}
+              <div className="bg-gray-50 rounded-xl p-3 text-sm font-bold text-primary">{phone}</div>
+              {!otpSent ? (
+                <button onClick={handleSendOtp} disabled={otpBusy} className="btn-primary w-full">
+                  {otpBusy ? "..." : t("কোড পাঠান", "Send Code")}
+                </button>
               ) : (
-                <input
-                  type="text"
-                  value={fk ? values[fk] : ""}
-                  onChange={e => setValue(currentField!, e.target.value)}
-                  className="input-field text-base"
-                  placeholder={lang === "bn" ? "আপনার উত্তর লিখুন" : "Type your answer"}
-                />
+                <div className="space-y-3">
+                  {otpDevCode && (
+                    <p className="text-xs bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-700">
+                      {t("টেস্ট কোড", "Test code")}: <b>{otpDevCode}</b>
+                    </p>
+                  )}
+                  <input
+                    type="text" inputMode="numeric" maxLength={6} value={otpCode}
+                    onChange={e => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="6-অঙ্কের কোড" className="input-field w-full text-center text-lg tracking-[0.5em]" />
+                  {otpError && <p className="text-xs text-red-500">{otpError}</p>}
+                  <button onClick={handleVerifyOtp} disabled={otpBusy || otpCode.length < 6} className="btn-primary w-full">
+                    {otpBusy ? "..." : t("✅ ভেরিফাই করুন", "✅ Verify")}
+                  </button>
+                  <button onClick={handleSendOtp} disabled={otpBusy} className="text-xs text-action hover:underline">
+                    {t("আবার কোড পাঠান", "Resend code")}
+                  </button>
+                </div>
               )}
-
-              {fk && suggestions[fk] && !values[fk] && (
-                <p className="text-xs text-action/70">
-                  {lang === "bn" ? "পরামর্শ" : "Suggested"}: {suggestions[fk]}
-                </p>
-              )}
-
-              <button
-                onClick={handleNext}
-                disabled={saving || !(fk && values[fk]?.trim())}
-                className="btn-primary w-full"
-              >
-                {saving ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    {lang === "bn" ? "সংরক্ষণ..." : "Saving..."}
-                  </span>
-                ) : (
-                  lang === "bn" ? "পরবর্তী →" : "Next →"
-                )}
-              </button>
             </div>
           )}
 
-          {showInterests && !interestSaved && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-primary">{lang === "bn" ? "আপনার আগ্রহ কী?" : "What are you interested in?"}</h2>
-              <p className="text-sm text-text-secondary">{lang === "bn" ? "এক বা একাধিক সিলেক্ট করুন" : "Select one or more topics"}</p>
+          {step === "contacts" && (
+            <div className="space-y-4 text-center">
+              {header("📒", t("কন্টাক্ট সিঙ্ক করুন", "Sync Your Contacts"), t("বন্ধুদের আমন্ত্রণ জানালে আপনি বোনাস ও কমিশন পান", "Invite friends and earn bonus & commission"))}
+              <div className="bg-gray-50 rounded-xl p-3 text-left space-y-2">
+                <button onClick={pickContacts} className="w-full py-3 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-sm">
+                  📒 {t("কন্টাক্ট থেকে নির্বাচন করুন", "Pick from Contacts")}
+                </button>
+                <textarea
+                  value={pasteText} onChange={e => { setPasteText(e.target.value); parsePasted(e.target.value); }}
+                  placeholder={t("অথবা এখানে পেস্ট করুন (প্রতি লাইনে: নাম, ০১XXXXXXXXX)", "Or paste here (one per line: Name, 01XXXXXXXXX)")}
+                  className="input-field w-full text-xs h-24" />
+              </div>
+              {contacts.length > 0 && (
+                <p className="text-xs text-text-secondary">📇 {contacts.length} {t("টি কন্টাক্ট যোগ হয়েছে", "contacts added")}</p>
+              )}
+              {syncResult && (
+                <div className="text-xs bg-green-50 border border-green-200 rounded-lg p-3 text-green-700">
+                  ✅ {t("সিঙ্ক সম্পন্ন", "Sync complete")} — {syncResult.matched ?? 0} {t("জন ম্যাচ", "matched")} · +৳{syncResult.bonus ?? 0} {t("বোনাস", "bonus")}
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <button onClick={handleSync} disabled={syncBusy || contacts.length === 0} className="btn-primary w-full">
+                  {syncBusy ? "..." : t("✅ কন্টাক্ট সিঙ্ক করুন", "✅ Sync Contacts")}
+                </button>
+                {syncResult && (
+                  <button onClick={inviteAll} className="btn-outline w-full">
+                    📲 {t("সবাইকে WhatsApp-এ আমন্ত্রণ পাঠান", "Invite everyone on WhatsApp")}
+                  </button>
+                )}
+                <button onClick={() => setStep("interests")} className="text-xs text-action hover:underline">
+                  {t("এড়িয়ে যান →", "Skip →")}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === "interests" && (
+            <div className="space-y-4 text-center">
+              {header("🎯", t("আপনার আগ্রহ কী?", "What are you interested in?"), t("আপনার জন্য সেরা রিসোর্স দেখাব", "We will show the best resources for you"))}
               <div className="grid grid-cols-2 gap-3">
                 {INTEREST_OPTIONS.map((opt) => {
                   const selected = interests.includes(opt.en);
                   return (
-                    <button
-                      key={opt.en}
+                    <button key={opt.en}
                       onClick={() => setInterests(prev => prev.includes(opt.en) ? prev.filter(i => i !== opt.en) : [...prev, opt.en])}
-                      className={`p-4 rounded-xl border-2 text-left transition-all ${
-                        selected ? "border-action bg-action/10" : "border-border hover:border-action/50"
-                      }`}
-                    >
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${selected ? "border-action bg-action/10" : "border-border hover:border-action/50"}`}>
                       <span className="text-2xl">{opt.icon}</span>
                       <p className="text-sm font-semibold text-primary mt-1">{lang === "bn" ? opt.bn : opt.en}</p>
                     </button>
                   );
                 })}
               </div>
-              <button onClick={handleInterestDone} disabled={saving || interests.length === 0} className="btn-primary w-full">
-                {saving ? "..." : lang === "bn" ? "সম্পন্ন" : "Finish"}
+              <button onClick={handleFinish} className="btn-primary w-full">
+                {t("🚀 শুরু করুন", "🚀 Get Started")}
               </button>
             </div>
           )}
 
-          {interestSaved && (
-            <div className="text-center space-y-4 py-4">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-                <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-primary">{lang === "bn" ? "শুরু করা যাক!" : "Let's Get Started!"}</h2>
-              <p className="text-sm text-text-secondary">
-                {lang === "bn" ? "আপনার প্রোফাইল কমপ্লিট। এখন আপনার জন্য ব্যক্তিগতকৃত অভিজ্ঞতা তৈরি করছি..." : "Profile complete! Personalizing your experience..."}
-              </p>
-              <button onClick={handleFinish} className="btn-primary w-full">
-                {lang === "bn" ? "ড্যাশবোর্ডে যান" : "Go to Dashboard"}
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="flex justify-center gap-2 mt-6">
-          {ALL_FIELDS.slice(0, 6).map((_, i) => (
-            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i <= currentIdx && !showInterests && i < pendingFields.length ? "bg-action" : "bg-gray-300"}`} />
+          {(["consent", "otp", "contacts", "interests"] as Step[]).map((s) => (
+            <div key={s} className={`w-2.5 h-2.5 rounded-full transition-all ${step === s ? "bg-action scale-125" : "bg-gray-300"}`} />
           ))}
         </div>
       </div>

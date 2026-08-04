@@ -181,7 +181,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
             ) : (
               <>
                 <p className="text-xs text-text-secondary text-center mb-1 font-medium">
-                  ⚡ সকল প্যাকেজের সাথে ফ্রি প্রিমিয়াম মেম্বারশিপ
+                  ⚡ যেকোনো প্যাকেজের সাথে ফ্রি প্রিমিয়াম ব্যাজ
                 </p>
                 <div className="space-y-2.5">
                   {tiers.map(tier => (
@@ -225,18 +225,18 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-lg">👑</span>
                     <p className="text-purple-700 font-semibold">
-                      যেকোনো প্যাকেজ কিনলেই ফ্রি প্রিমিয়াম মেম্বারশিপ!
+                      যেকোনো প্যাকেজ কিনলেই ফ্রি প্রিমিয়াম ব্যাজ!
                     </p>
                   </div>
                   <ul className="mt-2 space-y-1">
                     <li className="text-xs text-purple-600/80 flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-purple-400" /> সব রিসোর্স আনলিমিটেড এক্সেস
+                      <span className="w-1 h-1 rounded-full bg-purple-400" /> বাকি রিসোর্স আলাদা দরে কেনা যায়
                     </li>
                     <li className="text-xs text-purple-600/80 flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-purple-400" /> কমিশন হার বৃদ্ধি
+                      <span className="w-1 h-1 rounded-full bg-purple-400" /> উত্তোলনে কোনো প্ল্যাটফর্ম ট্যাক্স নেই
                     </li>
                     <li className="text-xs text-purple-600/80 flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-purple-400" /> ন্যূনতম উইথড্রয়াল ৳২০০
+                      <span className="w-1 h-1 rounded-full bg-purple-400" /> ন্যূনতম উত্তোলন মাত্র ৳২০
                     </li>
                   </ul>
                 </div>
@@ -317,7 +317,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
                 <p className="text-2xl font-black text-primary">{finalAmount.toLocaleString()} ৳</p>
                 <p className="text-sm text-text-secondary">{finalCredits}টি রিসোর্স আনলক</p>
                 <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold border border-green-200">
-                  ⭐ প্রিমিয়াম মেম্বারশিপ ফ্রি
+                  ⭐ প্রিমিয়াম ব্যাজ ফ্রি
                 </div>
               </div>
 
@@ -338,7 +338,7 @@ export default function CheckoutModal({ workerId, cusName, cusPhone, cusEmail, o
           )}
 
           <p className="text-center text-xs text-text-secondary/40 pt-2">
-            🔒 SSLCommerz এর মাধ্যমে নিরাপদ পেমেন্ট | পেমেন্ট সম্পন্ন হলে অটো প্রিমিয়াম মেম্বারশিপ
+            🔒 SSLCommerz এর মাধ্যমে নিরাপদ পেমেন্ট | পেমেন্ট সম্পন্ন হলে আনলক কোটা + প্রিমিয়াম ব্যাজ
           </p>
         </div>
       </div>

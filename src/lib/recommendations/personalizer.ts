@@ -205,7 +205,7 @@ export async function getPersonalizedInsights(workerId: string): Promise<Persona
             title: "You've completed 5+ courses! Upgrade to Premium",
             titleBn: "আপনি ৫+ কোর্স সম্পন্ন করেছেন! প্রিমিয়ামে আপগ্রেড করুন",
             priority: 2,
-            actionUrl: "/membership",
+            actionUrl: "/courses",
             reason: "Milestone: 5+ courses purchased — premium unlocks more",
             expiresAt: new Date(now.getTime() + 30 * 86400000).toISOString(),
             emoji: "⭐",

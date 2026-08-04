@@ -239,16 +239,19 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('company_name', 'Jobayer Group Career', 'text'),
       ('site_description', 'A premium JG Career and e-commerce platform for career growth', 'text'),
       ('payment_system_active', '1', 'boolean'),
-      ('min_withdrawal', '500', 'number'),
+      ('min_withdrawal', '20', 'number'),
       ('min_withdrawal_premium', '20', 'number'),
       ('general_member_withdrawal_tax_percent', '5', 'number')
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO commission_levels (level_number, level_name, level_name_bn, percentage, fixed_amount, commission_type, min_referral_base) VALUES
-      (1, 'Associate', 'সহযোগী', 10, 20, 'both', 0),
-      (2, 'Executive Officer', 'কার্যনির্বাহী কর্মকর্তা', 0, 10, 'fixed', 3),
-      (3, 'Senior Manager', 'জ্যেষ্ঠ ব্যবস্থাপক', 0, 10, 'fixed', 9),
-      (4, 'Director', 'পরিচালক', 0, 10, 'fixed', 27)
+      (1, 'Associate', 'সহযোগী', 0, 20, 'fixed', 0),
+      (2, 'Executive Officer', 'কার্যনির্বাহী কর্মকর্তা', 0, 10, 'fixed', 11),
+      (3, 'Senior Manager', 'জ্যেষ্ঠ ব্যবস্থাপক', 0, 10, 'fixed', 11),
+      (4, 'Director', 'পরিচালক', 0, 10, 'fixed', 11)
     `).run();
+    // Enforce new commission structure on existing rows (INSERT OR IGNORE does not update)
+    await env.DB.prepare(`UPDATE commission_levels SET percentage = 0, commission_type = 'fixed', min_referral_base = CASE level_number WHEN 1 THEN 0 ELSE 11 END, fixed_amount = CASE level_number WHEN 1 THEN 20 ELSE 10 END WHERE level_number BETWEEN 1 AND 4`).run();
+    await env.DB.prepare(`DELETE FROM commission_levels WHERE level_number > 4`).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO company_users (username, password, name, role) VALUES
       ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Company Admin', 'superadmin')
     `).run();

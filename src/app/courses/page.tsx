@@ -566,12 +566,12 @@ export default function CoursesPage() {
           <div className="relative mt-10 mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-purple-500/5 to-secondary/5 border border-primary/10">
             <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-500 via-transparent to-transparent" />
             <div className="relative p-6 md:p-8 text-center">
-              <span className="text-4xl mb-2 block">👑</span>
-              <p className="text-lg font-bold text-primary mb-1">{lang === "bn" ? "প্রিমিয়াম মেম্বারশিপ নিন" : "Get Premium Membership"}</p>
-              <p className="text-sm text-text-secondary/70 mb-4 max-w-md mx-auto">{lang === "bn" ? "প্রিমিয়াম মেম্বার হয়ে সব রিসোর্স আনলিমিটেড এক্সেস করুন" : "Get unlimited access to all resources with premium membership"}</p>
-              <a href="/dashboard/profile"
+              <span className="text-4xl mb-2 block">🎯</span>
+              <p className="text-lg font-bold text-primary mb-1">{lang === "bn" ? "রিসোর্স প্যাক আনলক করুন" : "Unlock Resource Packs"}</p>
+              <p className="text-sm text-text-secondary/70 mb-4 max-w-md mx-auto">{lang === "bn" ? "৳৯৯ থেকে শুরু — এককালীন, কোনো সাবস্ক্রিপশন নেই। বাল্ক অফারে দাম কমে যায়!" : "From just ৳99 — one-time, no subscription. Bulk packs cost less!"}</p>
+              <a href="/courses"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/20">
-                👑 {lang === "bn" ? "প্রিমিয়াম হোন এখনই" : "Become Premium Now"}
+                🔓 {lang === "bn" ? "রিসোর্স নির্বাচন করুন" : "Choose Resources"}
               </a>
             </div>
           </div>

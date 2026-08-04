@@ -7,6 +7,7 @@ interface CommissionLevel {
   fixedAmount: number;
   currency: string;
   isActive?: number;
+  minReferralBase?: number;
 }
 
 interface CommissionResult {
@@ -77,6 +78,8 @@ export async function distributeCommissions(
   sponsorUpline: { workerId: string; level: number }[],
   productId?: number
 ): Promise<{ success: boolean; distributed: number }> {
+  let commissions: CommissionResult[] = [];
+
   if (productId) {
     const product = await queryFirst<{ enable_commission: number; commission_override: string | null }>(
       env, "SELECT enable_commission, commission_override FROM products WHERE id = ?", [productId]
@@ -87,35 +90,36 @@ export async function distributeCommissions(
         try {
           const override = JSON.parse(product.commission_override) as CommissionLevel[];
           if (override.length > 0) {
-            const commissions = calculateCommissions(orderAmount, currency, sponsorUpline, override);
-            let distributed = 0;
-            for (const comm of commissions) {
-              const commissionId = generateId("COM");
-              await execute(env,
-                `INSERT INTO commissions (commission_id, order_id, from_worker_id, to_worker_id, level_number, percentage, fixed_amount, total_amount, currency, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
-                [commissionId, orderId, fromWorkerId, comm.workerId, comm.levelNumber, comm.percentage, comm.fixedAmount, comm.totalAmount, currency]
-              );
-              distributed++;
-            }
-            return { success: true, distributed };
+            commissions = calculateCommissions(orderAmount, currency, sponsorUpline, override);
           }
         } catch { /* fall through to global levels */ }
       }
     }
   }
 
-  const levelSettings = await query<CommissionLevel>(
-    env,
-    "SELECT level_number as levelNumber, percentage, fixed_amount as fixedAmount, currency, is_active as isActive FROM commission_levels WHERE is_active = 1 ORDER BY level_number ASC"
-  );
+  if (commissions.length === 0) {
+    const levelSettings = await query<CommissionLevel>(
+      env,
+      "SELECT level_number as levelNumber, percentage, fixed_amount as fixedAmount, currency, is_active as isActive, min_referral_base as minReferralBase FROM commission_levels WHERE is_active = 1 AND level_number <= 4 ORDER BY level_number ASC"
+    );
+    if (!levelSettings || levelSettings.length === 0) return { success: false, distributed: 0 };
+    commissions = calculateCommissions(orderAmount, currency, sponsorUpline, levelSettings);
+  }
 
-  if (!levelSettings || levelSettings.length === 0) return { success: false, distributed: 0 };
-
-  const commissions = calculateCommissions(orderAmount, currency, sponsorUpline, levelSettings);
   let distributed = 0;
-
   for (const comm of commissions) {
+    if (comm.levelNumber > 4) continue;
+    const levelSetting = await queryFirst<CommissionLevel>(
+      env, "SELECT min_referral_base as minReferralBase FROM commission_levels WHERE level_number = ? AND is_active = 1", [comm.levelNumber]
+    );
+    const minBase = levelSetting?.minReferralBase || 0;
+    if (minBase > 0) {
+      const worker = await queryFirst<{ total_team_members: number }>(
+        env, "SELECT total_team_members FROM workers WHERE worker_id = ?", [comm.workerId]
+      );
+      if (!worker || (worker.total_team_members || 0) < minBase) continue;
+    }
+
     const commissionId = generateId("COM");
     await execute(env,
       `INSERT INTO commissions (commission_id, order_id, from_worker_id, to_worker_id, level_number, percentage, fixed_amount, total_amount, currency, status)

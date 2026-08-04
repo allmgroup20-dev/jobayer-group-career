@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const TIERS = [
-  { id: "try", credits: 1, retailPrice: 149, offerPrice: 99, floor: 89, savings: 0, popular: false },
-  { id: "mini", credits: 5, retailPrice: 549, offerPrice: 399, floor: 349, savings: 27, popular: false },
-  { id: "value", credits: 15, retailPrice: 1299, offerPrice: 899, floor: 749, savings: 31, popular: true },
-  { id: "pro", credits: 35, retailPrice: 2499, offerPrice: 1599, floor: 1299, savings: 36, popular: false },
-  { id: "mega", credits: 75, retailPrice: 4299, offerPrice: 2499, floor: 1999, savings: 42, popular: false },
+  { id: "one", credits: 1, retailPrice: 99, offerPrice: 99, floor: 89, savings: 0, popular: false },
+  { id: "duo", credits: 2, retailPrice: 198, offerPrice: 198, floor: 179, savings: 0, popular: false },
+  { id: "trio", credits: 3, retailPrice: 297, offerPrice: 220, floor: 200, savings: 26, popular: true },
+  { id: "five", credits: 5, retailPrice: 495, offerPrice: 350, floor: 315, savings: 29, popular: false },
+  { id: "ten", credits: 10, retailPrice: 990, offerPrice: 650, floor: 585, savings: 34, popular: false },
+  { id: "twenty", credits: 20, retailPrice: 1980, offerPrice: 1200, floor: 1080, savings: 39, popular: false },
+  { id: "fifty", credits: 50, retailPrice: 4950, offerPrice: 2800, floor: 2520, savings: 43, popular: false },
+  { id: "hundred", credits: 100, retailPrice: 9900, offerPrice: 5200, floor: 4680, savings: 47, popular: false },
 ];
 
 export async function GET() {
