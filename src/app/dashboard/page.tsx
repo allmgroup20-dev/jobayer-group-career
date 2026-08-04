@@ -66,6 +66,10 @@ export default function WorkerDashboard() {
   const [personalizedInsights, setPersonalizedInsights] = useState<{
     insights: { type: string; title: string; titleBn: string; priority: number; actionUrl: string; emoji: string }[];
   } | null>(null);
+  const [leaderboard, setLeaderboard] = useState<{ rank: number; name: string; teamSize: number }[]>([]);
+  const [myRank, setMyRank] = useState<number | null>(null);
+  const [shareRewardBusy, setShareRewardBusy] = useState(false);
+  const [shareRewardMsg, setShareRewardMsg] = useState("");
 
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
@@ -75,6 +79,31 @@ export default function WorkerDashboard() {
     }
     setWorkerId(wid);
   }, []);
+
+  useEffect(() => {
+    if (!workerId) return;
+    fetch(`/api/affiliate/leaderboard?workerId=${encodeURIComponent(workerId)}`)
+      .then(r => r.json() as Promise<{ leaderboard?: { rank: number; name: string; teamSize: number }[]; myRank?: number | null }>)
+      .then(d => { setLeaderboard((d.leaderboard || []).slice(0, 5)); setMyRank(d.myRank ?? null); })
+      .catch(() => {});
+  }, [workerId]);
+
+  const handleShareReward = async () => {
+    if (!workerId) return;
+    setShareRewardBusy(true); setShareRewardMsg("");
+    try {
+      const res = await fetch("/api/referrals/share-reward", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId }),
+      });
+      const data = await res.json() as { error?: string; granted?: number };
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setShareRewardMsg(lang === "bn" ? "🎁 ১টি ফ্রি রিসোর্স আনলক হয়েছে!" : "1 free resource unlocked!");
+    } catch (e) {
+      setShareRewardMsg(e instanceof Error ? e.message : (lang === "bn" ? "ব্যর্থ" : "Failed"));
+    } finally { setShareRewardBusy(false); }
+  };
 
   useEffect(() => {
     if (!workerId) {
@@ -94,7 +123,8 @@ export default function WorkerDashboard() {
         const p = data.profile;
         if (p) {
           setWorker(p);
-          if (!p.profileCompleted) {
+          const onboardingDone = typeof window !== "undefined" && !!localStorage.getItem("onboarding_done");
+          if (!p.profileCompleted && !onboardingDone) {
             window.location.href = "/onboarding";
             setLoading(false);
             return;
@@ -477,8 +507,11 @@ export default function WorkerDashboard() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
-            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "রেফারেল লিংক" : "Referral Link"}</h3>
-            <div className="flex gap-2">
+            <h3 className="font-bold text-primary mb-2">{lang === "bn" ? "রেফারেল লিংক" : "Referral Link"}</h3>
+            <p className="text-xs text-success font-semibold mb-3">
+              🎯 {lang === "bn" ? "এই লিংক থেকে কেউ রিসোর্স কিনলে আপনি পাবেন ৳২০ কমিশন!" : "When someone buys via this link, you earn ৳20 commission!"}
+            </p>
+            <div className="flex gap-2 mb-3">
               <input
                 readOnly
                 value={`${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`}
@@ -491,6 +524,66 @@ export default function WorkerDashboard() {
                 {lang === "bn" ? "কপি" : "Copy"}
               </button>
             </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const link = `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`;
+                  const msg = encodeURIComponent(
+                    lang === "bn"
+                      ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
+                      : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
+                  );
+                  window.open(`https://wa.me/?text=${msg}`, "_blank");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white text-xs font-bold cursor-pointer"
+              >
+                📲 WhatsApp
+              </button>
+              <button
+                onClick={() => {
+                  const link = `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`;
+                  const msg = encodeURIComponent(
+                    lang === "bn"
+                      ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
+                      : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
+                  );
+                  window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, "_blank");
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#2AABEE] to-[#229ED9] text-white text-xs font-bold cursor-pointer"
+              >
+                ✈️ Telegram
+              </button>
+              <button
+                onClick={handleShareReward}
+                disabled={shareRewardBusy}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold cursor-pointer disabled:opacity-50"
+              >
+                {shareRewardBusy ? "..." : "🎁 শেয়ার বোনাস"}
+              </button>
+            </div>
+            {shareRewardMsg && (
+              <p className="mt-2 text-xs text-text-secondary">{shareRewardMsg}</p>
+            )}
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "টপ রেফারার" : "Top Referrers"}</h3>
+            {leaderboard.length === 0 ? (
+              <p className="text-xs text-text-secondary">{lang === "bn" ? "এখনো কোনো ডেটা নেই — আপনার টিম গড়ুন!" : "No data yet — build your team!"}</p>
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((m) => (
+                  <div key={m.rank} className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">#{m.rank}</span>
+                    <span className="text-sm font-medium text-text flex-1 truncate">{m.name}</span>
+                    <span className="text-xs text-action font-semibold">{m.teamSize} {lang === "bn" ? "জন" : "members"}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {myRank && (
+              <p className="mt-3 text-xs text-text-secondary">{lang === "bn" ? `আপনার র‍্যাংক: #${myRank}` : `Your rank: #${myRank}`}</p>
+            )}
           </Card>
 
           <Card>
