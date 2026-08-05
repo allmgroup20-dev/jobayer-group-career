@@ -6,6 +6,30 @@
 
 ---
 
+## ✅ PHASE D REMEDIATION STATUS (as of this commit)
+
+| ID | Status | Fix location |
+|----|--------|--------------|
+| C1 | ✅ FIXED — SHA-512 IPN signature verify (crypto) | `src/lib/payment/sslcommerz.ts` `verifyIPNSignature` |
+| C2 | ✅ FIXED — `val_id` mandatory in every payment path | `verifyWithGateway` + both IPN & success routes |
+| C3 | ✅ FIXED — success GET never grants; defers to IPN | `resource-checkout/success` + `payment/success` |
+| C4 | ✅ FIXED — server-side price from `products`/`company_settings` | `payment/init`, `resource-checkout`, `unlocks` |
+| C5 | ✅ FIXED — idempotent grant + UNIQUE `transaction_id` | IPN routes (WHERE `payment_status != …`) + migration `019` + `db/index.ts` |
+| C6 | 🟡 PARTIAL — auth on money/unlock routes (auto-payout, share-reward, unlocks, resource-checkout); read routes (GET) still open | see each route; remaining listed in "Remaining" |
+| C7 | ✅ FIXED — company-admin auth required | `withdrawals/auto-payout` |
+| C8 | 🟡 PARTIAL — approved-template support added; template names still require Meta business setup (H5 secrets) | `src/lib/whatsapp/sender.ts` + `otp/send` + `queue.ts` |
+| C9 | ✅ FIXED — phone-ownership OTP proof required at registration | `auth/register` + `otp/verify` + `otp/login` |
+| H1 | ✅ FIXED — 5-attempt OTP lockout | `otp/verify` + `otp/login` |
+| H2 | ✅ FIXED — wa-relay `/qr`, `/logs`, `/`, `/health` now auth-gated | `wa-relay/index.mjs` |
+| H3 | ⏳ OPEN — Baileys→official API migration (large infra; needs Meta setup) | see "Remaining" |
+| H4 | ✅ FIXED — OTP TTL 5 min enforced via `getCached(key,300)` + attempt counter | `otp/send` + `otp/verify` |
+| H5 | 🟡 PARTIAL — CI secret steps re-enabled (`if: false` → `if: secrets…`); actual secrets must be set in GitHub + `wrangler secret put` | `.github/workflows/deploy.yml` |
+| H6 | ✅ FIXED — share-reward requires worker Bearer token (self-only) | `referrals/share-reward` + `unlocks` |
+
+**Remaining before Level 3+:** runtime verification of the fixed paths (`RT-20..22`, `RT-32`, `RT-42`), C8 template provisioning (Meta), H3 official-API migration, H5 secret provisioning.
+
+---
+
 ## 🔴 CRITICAL FINDINGS
 
 ### C1 — SSLCommerz IPN signature is never cryptographically verified (forgeable `VALID`)

@@ -161,17 +161,13 @@ function CheckoutContent() {
     }
     setLoading(true);
     try {
-      const totalAmount = items.reduce((s, i) => s + i.price * i.quantity, 0);
       const firstItem = items[0];
       const res = await fetch("/api/payment/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workerId,
-          productId: firstItem.productId,
-          productName: items.map(i => i.name).join(", "),
-          quantity: items.reduce((s, i) => s + i.quantity, 0),
-          totalAmount,
+          items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
           currency: firstItem.currency || "BDT",
           cusName: form.name,
           cusPhone: form.phone,

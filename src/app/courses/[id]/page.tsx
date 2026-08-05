@@ -145,7 +145,7 @@ export default function CourseDetailPage() {
     if (!workerId || !course) return;
     setUnlocking(true);
     try {
-      const res = await fetch("/api/unlocks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId, courseId: course.id, unlockedBy: "user" }) });
+      const res = await fetch("/api/unlocks", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("worker_token") || ""}` }, body: JSON.stringify({ workerId, courseId: course.id, unlockedBy: "user" }) });
       const data = await res.json() as { error?: string };
       if (!res.ok) { alert(data.error || "Failed"); return; }
       setIsUnlocked(true); setUnlockCount(prev => prev + 1);
@@ -156,7 +156,7 @@ export default function CourseDetailPage() {
     if (!workerId || !course || resourceIncome < 99) return;
     setRiUnlocking(true);
     try {
-      const res = await fetch("/api/unlocks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId, courseId: course.id, unlockedBy: "user", useResourceIncome: true }) });
+      const res = await fetch("/api/unlocks", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("worker_token") || ""}` }, body: JSON.stringify({ workerId, courseId: course.id, unlockedBy: "user", useResourceIncome: true }) });
       const data = await res.json() as { error?: string };
       if (!res.ok) { alert(data.error || "Failed"); return; }
       setResourceIncome(prev => prev - 99);
@@ -318,11 +318,6 @@ export default function CourseDetailPage() {
                   variant="outline" className="!border-blue-300 !text-blue-700 hover:!bg-blue-50">
                   💰 রিসোর্স আয় দিয়ে আনলক (৳৯৯)
                 </Button>
-              )}
-              {(unlockLimit === null || unlockCount < unlockLimit) && (
-                <p className="w-full text-xs text-green-600 font-semibold">
-                  🎁 আপনার ১টি ফ্রি রিসোর্স বোনাস আছে — এখনই চেষ্টা করুন!
-                </p>
               )}
             </>
           )}

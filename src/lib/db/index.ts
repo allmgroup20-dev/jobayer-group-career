@@ -543,6 +543,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       completed_at TEXT
     )`).run();
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_resource_purchases_worker ON resource_purchases(worker_id)`).run().catch(() => {});
+    // C5: a given gateway transaction may only ever grant once
+    await env.DB.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS uq_orders_transaction_id ON orders(transaction_id) WHERE transaction_id IS NOT NULL`).run().catch(() => {});
+    await env.DB.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS uq_resource_purchases_transaction_id ON resource_purchases(transaction_id) WHERE transaction_id IS NOT NULL`).run().catch(() => {});
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_platform_links (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       worker_id TEXT NOT NULL,

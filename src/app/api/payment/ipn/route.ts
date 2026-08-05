@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const env = await getDB();
     const service = await SslcommerzService.fromDB(env);
-    if (!service.validateIPNResponse(params)) {
+    if (!(await service.validateIPNResponse(params))) {
       return NextResponse.json({ status: "FAILED", reason: "IPN validation failed" }, { status: 400 });
     }
 
@@ -27,15 +27,8 @@ export async function POST(request: NextRequest) {
     const transactionId = params.bank_tran_id || params.tran_id;
     const valId = params.val_id;
 
-    if (!orderId) {
-      return NextResponse.json({ status: "FAILED", reason: "No transaction ID" });
-    }
-
-    if (valId) {
-      const validation = await service.validatePayment(valId);
-      if (!validation.validated) {
-        return NextResponse.json({ status: "FAILED", reason: "Payment validation failed" });
-      }
+    if (!orderId || !valId) {
+      return NextResponse.json({ status: "FAILED", reason: "Missing transaction identifier" });
     }
 
     const order = await queryFirst<{ payment_status: string; worker_id: string; total_amount: number; currency: string; product_id: number | null }>(
@@ -46,14 +39,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "FAILED", reason: "Order not found" });
     }
 
-    if (order.payment_status === "paid") {
-      return NextResponse.json({ status: "OK", reason: "Already processed" });
+    // C4: reconcile gateway amount with the order the client was billed
+    const gatewayAmount = Number(params.amount);
+    if (Number.isFinite(gatewayAmount) && Math.abs(gatewayAmount - order.total_amount) > 0.01) {
+      return NextResponse.json({ status: "FAILED", reason: "Amount mismatch" });
     }
 
-    await execute(env,
-      `UPDATE orders SET payment_status = 'paid', transaction_id = ?, order_status = 'confirmed' WHERE order_id = ?`,
+    // C5: idempotent grant — only the first transition to 'paid' distributes
+    const result = await execute(env,
+      `UPDATE orders SET payment_status = 'paid', transaction_id = ?, order_status = 'confirmed'
+       WHERE order_id = ? AND payment_status != 'paid'`,
       [transactionId, orderId]
     );
+    if (!result.meta.changes) {
+      return NextResponse.json({ status: "OK", reason: "Already processed" });
+    }
 
     const sponsorChain = await getSponsorUpline(env, order.worker_id);
     await distributeCommissions(env, orderId, order.worker_id, order.total_amount, order.currency, sponsorChain, order.product_id ?? undefined);

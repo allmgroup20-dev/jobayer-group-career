@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
+import { verifyToken, getJwtSecret } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,11 +30,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "workerId and courseId required" }, { status: 400 });
     }
 
+    // C6: only the authenticated worker may unlock for themselves —
+    // prevents draining another account's resource income or quota
+    const authHeader = request.headers.get("authorization") || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const payload = token ? await verifyToken(token, getJwtSecret()) : null;
+    if (!payload || payload.type !== "worker" || payload.sub !== body.workerId) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const db = await getDB();
 
     if (body.useResourceIncome) {
-      // Unlock using resource income (99 BDT per resource)
-      const unlockPrice = 99;
+      // C4: price resolved server-side from company settings, never hardcoded
+      const settingsRow = await queryFirst<{ setting_value: string }>(
+        db, "SELECT setting_value FROM company_settings WHERE setting_key = 'resource_unlock_price'"
+      );
+      const unlockPrice = Number(settingsRow?.setting_value);
+      if (!Number.isFinite(unlockPrice) || unlockPrice <= 0) {
+        return NextResponse.json({ error: "Resource unlock price not configured" }, { status: 500 });
+      }
       const worker = await queryFirst<{ resource_income: number }>(
         db, "SELECT resource_income FROM workers WHERE worker_id = ?", [body.workerId]
       );
@@ -45,17 +61,16 @@ export async function POST(request: NextRequest) {
         [unlockPrice, body.workerId]
       );
     } else {
-      // Free unlock — check unlock limit (default 1 free sample when no limit row exists)
+      // Free unlock — check unlock limit
       const limit = await queryFirst<{ maxUnlocks: number }>(
         db, "SELECT max_unlocks as maxUnlocks FROM unlock_limits WHERE worker_id = ?", [body.workerId]
       );
-      const maxUnlocks = limit?.maxUnlocks ?? 1;
-      if (maxUnlocks > 0) {
+      if (limit && limit.maxUnlocks > 0) {
         const count = await queryFirst<{ cnt: number }>(
           db, "SELECT COUNT(*) as cnt FROM user_unlocks WHERE worker_id = ?", [body.workerId]
         );
-        if (count && count.cnt >= maxUnlocks) {
-          return NextResponse.json({ error: "Free unlock used. Buy a resource pack or earn share bonuses to unlock more." }, { status: 403 });
+        if (count && count.cnt >= limit.maxUnlocks) {
+          return NextResponse.json({ error: "Unlock limit reached. Use resource income to unlock more." }, { status: 403 });
         }
       }
     }

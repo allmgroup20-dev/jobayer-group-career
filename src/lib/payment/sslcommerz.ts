@@ -26,6 +26,8 @@ interface PaymentInitResponse {
 interface ValidationResponse {
   status: string;
   validated: boolean;
+  amount?: number;
+  currency?: string;
   error?: string;
 }
 
@@ -115,20 +117,70 @@ export class SslcommerzService {
 
   async validatePayment(valId: string): Promise<ValidationResponse> {
     const response = await fetch(this.getValidationUrl(valId));
-    const data = await response.json() as { status: string; error?: string };
+    const data = await response.json() as { status: string; amount?: string | number; currency?: string; error?: string };
+
+    const amount = typeof data.amount === "number" ? data.amount : data.amount !== undefined ? Number(data.amount) : undefined;
 
     return {
       status: data.status,
       validated: data.status === "VALID" || data.status === "VALIDATED",
+      amount: Number.isFinite(amount) ? amount : undefined,
+      currency: data.currency,
       error: data.error,
     };
   }
 
-  validateIPNResponse(data: Record<string, string>): boolean {
-    const isValidStatus = data.status === "VALID";
-    const hasVerifyHash = !!data.verify_hash;
-    const hasVerifySign = !!data.verify_sign;
-    return isValidStatus && (hasVerifyHash || hasVerifySign);
+  /**
+   * C1: Cryptographically verify the IPN `verify_sign` (SHA-512) using the
+   * gateway's algorithm: SHA512(store_password | value1 | value2 | ...) where
+   * the values are the POST fields named in `verify_key`, in order.
+   */
+  async verifyIPNSignature(data: Record<string, string>): Promise<boolean> {
+    const verifyKey = data.verify_key;
+    const verifySign = (data.verify_sign || data.verify_hash || "").toLowerCase();
+    if (!verifyKey || !verifySign) return false;
+    if (!this.storePassword) return false;
+
+    const keys = verifyKey.split(",").map((k) => k.trim()).filter(Boolean);
+    if (keys.length === 0) return false;
+
+    const verifyString = [this.storePassword, ...keys.map((k) => data[k] || "")].join("|");
+    const encoder = new TextEncoder();
+    const digest = await crypto.subtle.digest("SHA-512", encoder.encode(verifyString));
+    const calculated = Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    return calculated === verifySign;
+  }
+
+  /**
+   * C2: Mandatory gateway validation. Requires `val_id` and verifies the
+   * transaction server-side with the SSLCommerz validation API, including
+   * amount reconciliation when the gateway reports it.
+   */
+  async verifyWithGateway(data: Record<string, string>): Promise<boolean> {
+    const valId = data.val_id;
+    if (!valId) return false;
+    const validation = await this.validatePayment(valId);
+    if (!validation.validated) return false;
+
+    const amount = Number(data.amount);
+    if (Number.isFinite(amount) && validation.amount !== undefined && Math.abs(validation.amount - amount) > 0.01) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * C1: Full IPN gate — signature MUST verify AND gateway validation MUST pass.
+   */
+  async validateIPNResponse(data: Record<string, string>): Promise<boolean> {
+    if (data.status !== "VALID") return false;
+    if (!data.val_id || !data.tran_id) return false;
+    const signatureOk = await this.verifyIPNSignature(data);
+    if (!signatureOk) return false;
+    return this.verifyWithGateway(data);
   }
 
   generateTransactionId(): string {
@@ -148,10 +200,10 @@ export async function initPayment(
   return service.initPayment(request);
 }
 
-export function validateIPN(
+export async function validateIPN(
   data: Record<string, string>,
-  _storePasswd: string
-): boolean {
-  const service = new SslcommerzService();
+  storePasswd: string
+): Promise<boolean> {
+  const service = new SslcommerzService(undefined, storePasswd);
   return service.validateIPNResponse(data);
 }

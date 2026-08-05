@@ -383,8 +383,10 @@ function startServer() {
 
     try {
       if (path === "/" || path === "/dashboard") {
+        if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         serveDashboard(req, res);
       } else if (path === "/health") {
+        if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         jsonResponse(res, {
           status: connStatus,
           error: connError,
@@ -395,8 +397,10 @@ function startServer() {
           node: process.version,
         });
       } else if (path === "/qr") {
+        if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         jsonResponse(res, { qr: qrCode });
       } else if (path === "/logs") {
+        if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100"), 500);
         jsonResponse(res, logs.slice(0, limit));
       } else if (path === "/start" && req.method === "POST") {

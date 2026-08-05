@@ -15,6 +15,11 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpBusy, setOtpBusy] = useState(false);
+  const [otpMsg, setOtpMsg] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
 
   const [redirectAfter, setRedirectAfter] = useState("/onboarding");
   const [utmParams, setUtmParams] = useState({ utmSource: "", utmMedium: "", utmCampaign: "" });
@@ -43,10 +48,58 @@ export default function RegisterPage() {
     return digits;
   };
 
+  const handleSendOtp = async () => {
+    setOtpBusy(true); setOtpMsg(""); setError("");
+    const cleanPhone = normalizePhone(form.phone);
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setError(lang === "bn" ? "সঠিক হোয়াটসঅ্যাপ নম্বর দিন (যেমন: ০১XXX-XXXXXX)" : "Enter a valid WhatsApp number (e.g. 01XXX-XXXXXX)");
+      setOtpBusy(false);
+      return;
+    }
+    try {
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleanPhone }),
+      });
+      const data = await res.json() as { error?: string; devCode?: string };
+      if (!res.ok) throw new Error(data.error || "Failed to send OTP");
+      setOtpSent(true);
+      if (data.devCode) setOtpCode(data.devCode);
+      setOtpMsg(lang === "bn" ? "ওটিপি পাঠানো হয়েছে! আপনার হোয়াটসঅ্যাপে কোডটি দেখুন।" : "OTP sent! Check your WhatsApp for the code.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally { setOtpBusy(false); }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpBusy(true); setOtpMsg(""); setError("");
+    const cleanPhone = normalizePhone(form.phone);
+    try {
+      const res = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleanPhone, code: otpCode }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok) throw new Error(data.error || "Verification failed");
+      setPhoneVerified(true);
+      setOtpMsg(lang === "bn" ? "ফোন নম্বর যাচাই হয়েছে ✓" : "Phone verified ✓");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Verification failed");
+    } finally { setOtpBusy(false); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (!phoneVerified) {
+      setError(lang === "bn" ? "আগে ফোন নম্বর যাচাই করুন" : "Verify your phone number first");
+      setLoading(false);
+      return;
+    }
 
     if (form.password !== form.confirmPassword) {
       setError(lang === "bn" ? "পাসওয়ার্ড মিলছে না" : "Passwords do not match");
@@ -141,6 +194,31 @@ export default function RegisterPage() {
             </div>
             <p className="text-[10px] text-text-secondary/40 mt-1">{lang === "bn" ? "উদাহরণ: ০১৭১২৩৪৫৬৭৮" : "Example: 01712345678"}</p>
           </div>
+
+          {!phoneVerified && (
+            <div className="p-3 rounded-xl bg-[#25D366]/5 border border-[#25D366]/20">
+              <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">
+                🔐 {lang === "bn" ? "ফোন নম্বর যাচাই" : "Verify Phone"}
+              </label>
+              {!otpSent ? (
+                <button type="button" onClick={handleSendOtp} disabled={otpBusy}
+                  className="w-full py-3 rounded-xl bg-[#25D366] text-white font-bold text-sm disabled:opacity-60">
+                  {otpBusy ? <LoadingDots /> : lang === "bn" ? "ওটিপি পাঠান" : "Send OTP"}
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <input type="text" inputMode="numeric" maxLength={6} value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder={lang === "bn" ? "৬-ডিজিট কোড" : "6-digit code"} className="input-field text-center tracking-[0.3em]" />
+                  <button type="button" onClick={handleVerifyOtp} disabled={otpBusy || otpCode.length < 6}
+                    className="w-full py-3 rounded-xl bg-[#128C7E] text-white font-bold text-sm disabled:opacity-60">
+                    {otpBusy ? <LoadingDots /> : lang === "bn" ? "যাচাই করুন" : "Verify"}
+                  </button>
+                </div>
+              )}
+              {otpMsg && <p className="text-[11px] text-[#128C7E] font-medium mt-2">✅ {otpMsg}</p>}
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">

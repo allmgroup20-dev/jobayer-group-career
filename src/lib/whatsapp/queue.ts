@@ -46,7 +46,16 @@ export async function processQueue(batchSize = 3): Promise<number> {
       [item.id]
     );
 
-    const result = await sendMessage(item.to, item.text);
+    const templateName = item.messageType && item.messageType.startsWith("template:")
+      ? item.messageType.slice("template:".length)
+      : process.env.WHATSAPP_QUEUE_TEMPLATE;
+    const result = templateName
+      ? await sendMessage(item.to, item.text, {
+          templateName,
+          languageCode: process.env.WHATSAPP_TEMPLATE_LANG || "en",
+          components: [{ type: "body", parameters: [{ type: "text", text: item.text }] }],
+        })
+      : await sendMessage(item.to, item.text);
 
     if (result.success) {
       await execute(

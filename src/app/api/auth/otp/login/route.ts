@@ -18,8 +18,20 @@ export async function POST(request: NextRequest) {
 
     const cleanPhone = normalizePhone(phone);
     const key = `otp:${cleanPhone}`;
-    const record = await getCached<{ code?: string }>(key, 300);
-    if (!record || record.code !== code.trim()) {
+    const record = await getCached<{ code?: string; attempts?: number }>(key, 300);
+    if (!record || !record.code) {
+      return NextResponse.json({ error: "অকার্যকর বা মেয়াদোত্তীর্ণ কোড" }, { status: 400 });
+    }
+
+    // H1: lock after 5 failed attempts — prevent brute-forcing the 6-digit code
+    const attempts = record.attempts || 0;
+    if (attempts >= 5) {
+      await invalidateCache(key);
+      return NextResponse.json({ error: "অনেকবার ভুল কোড। আবার কোড পাঠান" }, { status: 429 });
+    }
+
+    if (record.code !== code.trim()) {
+      await setCached(key, { ...record, attempts: attempts + 1 });
       return NextResponse.json({ error: "অকার্যকর বা মেয়াদোত্তীর্ণ কোড" }, { status: 400 });
     }
     await invalidateCache(key);

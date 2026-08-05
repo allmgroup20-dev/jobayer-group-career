@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const db = await getDB();
     const service = await SslcommerzService.fromDB(db);
-    if (!service.validateIPNResponse(params)) {
+    if (!(await service.validateIPNResponse(params))) {
       return NextResponse.json({ status: "FAILED", reason: "IPN validation failed" }, { status: 400 });
     }
 
@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
     const transactionId = params.bank_tran_id || params.tran_id;
     const valId = params.val_id;
 
-    if (!orderId) {
-      return NextResponse.json({ status: "FAILED", reason: "No order ID" });
+    if (!orderId || !valId) {
+      return NextResponse.json({ status: "FAILED", reason: "Missing transaction identifier" });
     }
 
     const purchase = await queryFirst<any>(
@@ -36,14 +36,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "FAILED", reason: "Order not found" });
     }
 
-    if (purchase.payment_status === "completed") {
-      return NextResponse.json({ status: "OK", reason: "Already processed" });
+    // C4: reconcile gateway amount with the server-stored amount
+    const gatewayAmount = Number(params.amount);
+    if (Number.isFinite(gatewayAmount) && Math.abs(gatewayAmount - purchase.amount) > 0.01) {
+      return NextResponse.json({ status: "FAILED", reason: "Amount mismatch" });
     }
 
-    await execute(db,
-      `UPDATE resource_purchases SET payment_status = 'completed', transaction_id = ?, completed_at = datetime('now') WHERE order_id = ?`,
+    // C5: idempotent grant — only the first transition to 'completed' grants
+    const result = await execute(db,
+      `UPDATE resource_purchases SET payment_status = 'completed', transaction_id = ?, completed_at = datetime('now')
+       WHERE order_id = ? AND payment_status != 'completed'`,
       [transactionId || orderId, orderId]
     );
+    if (!result.meta.changes) {
+      return NextResponse.json({ status: "OK", reason: "Already processed" });
+    }
 
     const workerId = purchase.worker_id;
     const resourceCount = purchase.resource_count;

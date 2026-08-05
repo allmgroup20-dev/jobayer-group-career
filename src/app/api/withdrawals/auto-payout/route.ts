@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { execute, query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
+import { verifyCompanyToken, getJwtSecret } from "@/lib/auth";
+
+const JWT_SECRET = getJwtSecret();
 
 export async function POST(request: NextRequest) {
   try {
+    // C7: money-moving endpoint requires an authenticated company admin session
+    const token = request.cookies.get("company_token")?.value;
+    if (!token || !(await verifyCompanyToken(token, JWT_SECRET))) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const body = await request.json().catch(() => ({}));
     const { workerId: targetWorkerId, accountType, accountNumber } = body as {
       workerId?: string; accountType?: string; accountNumber?: string;

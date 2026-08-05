@@ -2,9 +2,16 @@ import { execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
 import type { SendResult } from "./types";
 
+export interface TemplateSend {
+  templateName: string;
+  languageCode?: string;
+  components?: { type: string; parameters: { type: string; text: string }[] }[];
+}
+
 export async function sendMessage(
   to: string,
-  text: string
+  text: string,
+  template?: TemplateSend
 ): Promise<SendResult> {
   const token = process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
@@ -20,18 +27,31 @@ export async function sendMessage(
   }
 
   try {
+    // C8: prefer an approved Meta template; free-form `text` is rejected by
+    // Meta (error 131047) for business-initiated messages.
+    const messageType = template?.templateName ? "template" : "text";
+    const payload: Record<string, unknown> = {
+      messaging_product: "whatsapp",
+      to,
+      type: messageType,
+    };
+    if (messageType === "template") {
+      payload.template = {
+        name: template!.templateName,
+        language: { code: template!.languageCode || "en" },
+        components: template!.components || [],
+      };
+    } else {
+      payload.text = { body: text };
+    }
+
     const res = await fetch(`https://graph.facebook.com/v18.0/${phoneId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "text",
-        text: { body: text },
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -44,8 +64,8 @@ export async function sendMessage(
     const db = await ensureDB();
     await execute(
       { DB: db },
-      "INSERT INTO wa_logs (phone, message, direction, status, message_type, created_at) VALUES (?, ?, 'outbound', 'sent', 'text', datetime('now'))",
-      [to, text]
+      "INSERT INTO wa_logs (phone, message, direction, status, message_type, created_at) VALUES (?, ?, 'outbound', 'sent', ?, datetime('now'))",
+      [to, text, messageType]
     );
 
     return { success: true, messageId: data.messages?.[0]?.id };

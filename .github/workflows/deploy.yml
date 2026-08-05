@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "${{ secrets.JWT_SECRET }}" | npx wrangler secret put JWT_SECRET
           if [ -n "${{ secrets.CHAT_API_SECRET }}" ]; then echo "${{ secrets.CHAT_API_SECRET }}" | npx wrangler secret put CHAT_API_SECRET; fi
-        if: false
+        if: ${{ secrets.JWT_SECRET != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -43,7 +43,7 @@ jobs:
           echo "${{ secrets.WHATSAPP_VERIFY_TOKEN }}" | npx wrangler secret put WHATSAPP_VERIFY_TOKEN
           echo "${{ secrets.SSLCOMMERZ_STORE_ID }}" | npx wrangler secret put SSLCOMMERZ_STORE_ID
           echo "${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}" | npx wrangler secret put SSLCOMMERZ_STORE_PASSWORD
-        if: false
+        if: ${{ secrets.JWT_SECRET != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

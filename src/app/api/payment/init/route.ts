@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execute, queryFirst } from "@/lib/db/queries";
+import { execute, query } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { SslcommerzService } from "@/lib/payment/sslcommerz";
 const siteUrl = process.env.SITE_URL || "http://localhost:3000";
 
-async function computeAiPrice(env: { DB: D1Database }, productId: number, _workerId: string): Promise<number | null> {
-  return null;
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const { workerId, productId, productName, quantity, totalAmount, currency, shippingAddress, cusName, cusPhone, cusEmail, paymentMethod } = await request.json() as {
+    const { workerId, items, currency, shippingAddress, cusName, cusPhone, cusEmail, paymentMethod } = await request.json() as {
       workerId: string;
-      productId?: number;
-      productName?: string;
-      quantity?: number;
-      totalAmount: number;
+      items: { productId: number; quantity?: number }[];
       currency?: string;
       shippingAddress?: string;
       cusName: string;
@@ -24,41 +17,56 @@ export async function POST(request: NextRequest) {
       paymentMethod?: string;
     };
 
-    if (!workerId || !cusName || !cusPhone || !totalAmount) {
+    if (!workerId || !cusName || !cusPhone || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const env = await getDB();
 
-    if (productId) {
-      const product = await queryFirst<{ enable_sslcommerz: number; enable_cod: number }>(
-        env, "SELECT enable_sslcommerz, enable_cod FROM products WHERE id = ? AND is_active = 1", [productId]
-      );
-      if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
-      if (paymentMethod === "sslcommerz" && !product.enable_sslcommerz) {
+    // C4: price is always resolved server-side from the products table — the client amount is never trusted
+    const qtyById = new Map<number, number>();
+    for (const it of items) {
+      qtyById.set(it.productId, (qtyById.get(it.productId) || 0) + Math.max(1, Math.floor(Number(it.quantity) || 1)));
+    }
+
+    const ids = [...qtyById.keys()];
+    const placeholders = ids.map(() => "?").join(",");
+    const productRows = await query<{ id: number; name: string; price: number; enable_sslcommerz: number; enable_cod: number; premium_membership: number }>(
+      env,
+      `SELECT id, name, price, enable_sslcommerz, enable_cod, premium_membership FROM products WHERE id IN (${placeholders}) AND is_active = 1`,
+      ids
+    );
+    if (productRows.length !== ids.length) {
+      return NextResponse.json({ error: "One or more products not found" }, { status: 404 });
+    }
+
+    const productById = new Map(productRows.map(p => [p.id, p]));
+    for (const it of items) {
+      const product = productById.get(it.productId);
+      if (paymentMethod === "sslcommerz" && product && !product.enable_sslcommerz) {
         return NextResponse.json({ error: "SSL Commerz is disabled for this product" }, { status: 400 });
       }
-      if (paymentMethod === "cod" && !product.enable_cod) {
+      if (paymentMethod === "cod" && product && !product.enable_cod) {
         return NextResponse.json({ error: "Cash on Delivery is disabled for this product" }, { status: 400 });
       }
     }
 
-    let finalAmount = totalAmount;
-
-    if (productId) {
-      const aiPrice = await computeAiPrice(env, productId, workerId);
-      if (aiPrice !== null) {
-        finalAmount = aiPrice;
-      }
+    let finalAmount = 0;
+    let premiumUpgrade = false;
+    for (const [pid, qty] of qtyById) {
+      const p = productById.get(pid)!;
+      finalAmount += p.price * qty;
+      if (p.premium_membership === 1) premiumUpgrade = true;
     }
 
     const pm = paymentMethod || "sslcommerz";
     const orderId = `ORD${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const productName = productRows.map(p => p.name).join(", ");
 
     await execute(env,
       `INSERT INTO orders (order_id, worker_id, product_id, product_name, quantity, total_amount, currency, payment_method, payment_status, order_status, shipping_address)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?)`,
-      [orderId, workerId, productId || null, productName || null, quantity || 1, finalAmount, currency || "BDT", pm, shippingAddress || null]
+      [orderId, workerId, ids[0], productName, qtyById.get(ids[0]), finalAmount, currency || "BDT", pm, shippingAddress || null]
     );
 
     if (pm === "cod") {

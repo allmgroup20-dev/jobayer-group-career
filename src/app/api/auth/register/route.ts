@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone } from "@/lib/auth";
-import { setCached } from "@/lib/cache";
+import { setCached, getCached, invalidateCache } from "@/lib/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +15,12 @@ export async function POST(request: NextRequest) {
     }
     const cleanPhone = normalizePhone(phone);
     const displayName = name || `User${cleanPhone.slice(-6)}`;
+
+    // C9: phone-ownership must be proven via OTP before an account is created
+    const verified = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 600);
+    if (!verified?.verified) {
+      return NextResponse.json({ error: "ফোন নম্বর যাচাই করুন" }, { status: 403 });
+    }
 
     const env = await getDB();
 
@@ -37,6 +43,9 @@ export async function POST(request: NextRequest) {
 
     const workerId = generateWorkerId(displayName, cleanPhone);
     const hashedPassword = await hashWorkerPassword(password);
+
+    // Consume the verification proof — one verified phone = one account
+    await invalidateCache(`otp_verified:${cleanPhone}`);
 
     await execute(env,
        `INSERT INTO workers (worker_id, name, phone, email, password, sponsor_id, sponsor_name, level, join_date, membership_status)

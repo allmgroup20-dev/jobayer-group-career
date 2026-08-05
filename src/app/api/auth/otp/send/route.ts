@@ -22,10 +22,20 @@ export async function POST(request: NextRequest) {
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    await setCached(key, { code, sentAt: Date.now() });
+    // H1/H4: code is stored with a 5-minute TTL (enforced via getCached ttl in verify)
+    // and a zeroed attempt counter so verify can lock after too many wrong guesses.
+    await setCached(key, { code, sentAt: Date.now(), attempts: 0 });
 
-    const message = `আপনার Jobayer Group Career ভেরিফিকেশন কোড: ${code}\nকোডটি ৫ মিনিটের জন্য বৈধ।`;
-    const result = await sendMessage(cleanPhone, message);
+    // C8: use an approved template when configured (Meta rejects free-form text
+    // for business-initiated messages); falls back to free-form text only in dev.
+    const templateName = process.env.WHATSAPP_OTP_TEMPLATE;
+    const result = templateName
+      ? await sendMessage(cleanPhone, "", {
+          templateName,
+          languageCode: process.env.WHATSAPP_TEMPLATE_LANG || "en",
+          components: [{ type: "body", parameters: [{ type: "text", text: code }] }],
+        })
+      : await sendMessage(cleanPhone, `আপনার Jobayer Group Career ভেরিফিকেশন কোড: ${code}\nকোডটি ৫ মিনিটের জন্য বৈধ।`);
 
     const configured = result.success || Boolean(process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN);
     return NextResponse.json({

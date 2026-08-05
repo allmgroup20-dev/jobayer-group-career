@@ -15,7 +15,7 @@ This certification is only valid when **ALL** hold:
 5. **Self-Review** (`06_…`) — completed + PASS; Opportunity Discovery updated.
 6. **Runtime & production evidence** (`40_…`) — PASS for all P0/P1 items with retained artifacts.
 
-**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.59 < 0.95 ⇒ provisional (4)🔴 open (CR-01..09, CR-11) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨.
+**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.59 < 0.95 ⇒ provisional (4)🔴 open (CR-01..09, CR-11) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨. **Phase D remediation:** C1–C5, C7, C9, H1, H2, H4, H6 fixed at source; C6/C8/H5 partial; H3 open (see `10_…` remediation table).
 
 ---
 
@@ -26,10 +26,10 @@ This certification is only valid when **ALL** hold:
 
 **Top 3 strengths:** (1) comprehensive product surface incl. AI + marketing tooling; (2) parameterized DB layer; (3) well-instrumented tracking/analytics (`track/*`, `company/kpi`).
 
-**Top 3 weaknesses (all static-confirmed):**
-1. **Payment/authorization can be fully bypassed** (C1–C7): forged IPN, default-VALID success URL, client-controlled price, replay, and a public payout endpoint → direct financial loss.
-2. **No API authentication** — every route trusts client `workerId` (C6 IDOR); middleware excludes `/api`.
-3. **WhatsApp delivery broken at launch** — free-form text (not approved templates) + unofficial Baileys relay (C8/H3) → OTP/notifications undeliverable; plus no phone verification → bot farming (C9).
+**Top 3 weaknesses (all static-confirmed; Phase D remediation merged for C1–C5/C7/C9/H1/H2/H4/H6):**
+1. **Payment/authorization was fully bypassable** (C1–C7): forged IPN, default-VALID success URL, client-controlled price, replay, public payout endpoint — now: crypto IPN verify + mandatory `val_id`, read-only success GET, server-side pricing, idempotent grants, UNIQUE `transaction_id`, admin-auth payout.
+2. **API authentication gaps remain** — write routes now verify worker Bearer tokens (unlocks, share-reward, resource-checkout, auto-payout); remaining unauthenticated read/management routes still tracked (C6 partial).
+3. **WhatsApp delivery still at risk** — approved-template support added (OTP/queue) but requires Meta template provisioning (C8/H5); unofficial Baileys relay still in user flows (H3) → OTP/notifications may not deliver.
 
 **Biggest risk if launched now:** immediate money loss + user-data breach + brand damage.
 **Biggest opportunity after fixes:** a genuinely viral ৳99 resource + referral + WhatsApp engine with strong instrumentation — the growth machinery is already mostly built.
@@ -57,7 +57,7 @@ This certification is only valid when **ALL** hold:
 | All Critical+High fixed; runtime ⏱/🏭 checks **pending** | **⚠ READY AFTER FIXES (conditional)** |
 | All Critical+High fixed AND every ⏱/🏭 test PASSES | **✅ READY FOR LAUNCH** |
 
-> **Today: condition = ⚠ READY AFTER FIXES (P0/P1 required).** The ✅ READY label will be stamped by a follow-up re-certification after runtime evidence is collected.
+> **Today: condition = ⚠ READY AFTER FIXES (P0/P1 required).** Phase D merged the static C-fixes; the remaining Critical-adjacent work is C6 (remaining unauth routes), C8 (Meta template provisioning), H3 (Baileys→official API) + runtime evidence. The ✅ READY label will be stamped by a follow-up re-certification after runtime evidence is collected.
 
 ---
 
@@ -69,17 +69,17 @@ This certification is only valid when **ALL** hold:
 | Domain | Static Score | Gate | Blocker refs |
 |---|---|---|---|
 | Technical | **55/100** | P0 | T1–T7, §20.7 |
-| Security & AuthN/Z | **20/100** | P0 | C1–C7, H1–H2, 21.8a–g |
-| Payments | **15/100** | P0 | C1–C5 |
-| Database Integrity | **45/100** | P0 | C5 |
-| WhatsApp / Messaging | **25/100** | P0 | C8, H2–H3, W5 |
+| Security & AuthN/Z | **45/100** | P0 | C1–C7 fixed; 21.8a–g partial |
+| Payments | **55/100** | P0 | C1–C5 all fixed |
+| Database Integrity | **50/100** | P0 | C5 (UNIQUE added) |
+| WhatsApp / Messaging | **30/100** | P0 | C8 partial, H3, W5 |
 | Business Model | **55/100** | P0-gated | B1–B4 |
 | Growth / Viral | **45/100** | P0/P1 | V1–V5 |
 | AI Ecosystem | **40/100** | P1 | A1–A3, W5 |
 | UX / SEO / Perf / A11y | **55/100** | ⏱/🏭 | S1–S4 |
-| Ops / CI-CD | **40/100** | P0/P1 | O1–O4, H5 |
+| Ops / CI-CD | **40/100** | P0/P1 | O1–O4, H5 partial |
 | Privacy / Trust / Compliance | **42/100** | P1 | 21.8e, LG1–LG3, TR2 |
-| **OVERALL (weighted, launch-readiness)** | **38/100** | **P0** | — |
+| **OVERALL (weighted, launch-readiness)** | **43/100** | **P0** | — |
 | Governance completeness (5 components) | **100/100** | ✅ | `02`–`06` |
 
 **Interpretation:** Below the 70/100 production-readiness bar. The single largest weighted driver is Security+Payments (must reach ≥75/100 in re-certification).

@@ -67,7 +67,6 @@ export default function WorkerDashboard() {
     insights: { type: string; title: string; titleBn: string; priority: number; actionUrl: string; emoji: string }[];
   } | null>(null);
   const [leaderboard, setLeaderboard] = useState<{ rank: number; name: string; teamSize: number }[]>([]);
-  const [myTeamSize, setMyTeamSize] = useState(0);
   const [myRank, setMyRank] = useState<number | null>(null);
   const [shareRewardBusy, setShareRewardBusy] = useState(false);
   const [shareRewardMsg, setShareRewardMsg] = useState("");
@@ -84,8 +83,8 @@ export default function WorkerDashboard() {
   useEffect(() => {
     if (!workerId) return;
     fetch(`/api/affiliate/leaderboard?workerId=${encodeURIComponent(workerId)}`)
-      .then(r => r.json() as Promise<{ leaderboard?: { rank: number; name: string; teamSize: number }[]; myRank?: number | null; myTeamSize?: number }>)
-      .then(d => { setLeaderboard((d.leaderboard || []).slice(0, 5)); setMyRank(d.myRank ?? null); setMyTeamSize(d.myTeamSize || 0); })
+      .then(r => r.json() as Promise<{ leaderboard?: { rank: number; name: string; teamSize: number }[]; myRank?: number | null }>)
+      .then(d => { setLeaderboard((d.leaderboard || []).slice(0, 5)); setMyRank(d.myRank ?? null); })
       .catch(() => {});
   }, [workerId]);
 
@@ -95,7 +94,10 @@ export default function WorkerDashboard() {
     try {
       const res = await fetch("/api/referrals/share-reward", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("worker_token") || ""}`,
+        },
         body: JSON.stringify({ workerId }),
       });
       const data = await res.json() as { error?: string; granted?: number };
@@ -525,16 +527,6 @@ export default function WorkerDashboard() {
                 {lang === "bn" ? "কপি" : "Copy"}
               </button>
             </div>
-            <div className="mb-3">
-              <div className="flex justify-between text-[11px] text-text-secondary mb-1">
-                <span>{lang === "bn" ? `আপনার টিম: ${myTeamSize} সদস্য` : `Your team: ${myTeamSize} members`}</span>
-                <span>{lang === "bn" ? "১১ হলে L2 কমিশন আনলক" : "11 unlocks L2 commission"}</span>
-              </div>
-              <div className="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-action transition-all"
-                  style={{ width: `${Math.min(100, (myTeamSize / 11) * 100)}%` }} />
-              </div>
-            </div>
             <div className="flex gap-2">
               <button
                 onClick={() => {
@@ -549,20 +541,6 @@ export default function WorkerDashboard() {
                 className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white text-xs font-bold cursor-pointer"
               >
                 📲 WhatsApp
-              </button>
-              <button
-                onClick={() => {
-                  const link = `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`;
-                  const msg = encodeURIComponent(
-                    lang === "bn"
-                      ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
-                      : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
-                  );
-                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${msg}`, "_blank");
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#1877F2] to-[#0f5fd1] text-white text-xs font-bold cursor-pointer"
-              >
-                f Share
               </button>
               <button
                 onClick={() => {

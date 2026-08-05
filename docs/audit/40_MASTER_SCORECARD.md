@@ -9,10 +9,10 @@
 | # | Domain | Weight | Score (interim, static) | Evidence refs | Gate |
 |---|---|---|---|---|---|
 | 1 | Technical | 5% | 55 | `20_…` T1–T7 + §20.7.9 (52.7) | P0 |
-| 2 | Security | 20% | **20** | `21_…` §21.8 (C1–C9, 21.8a–g) | P0 |
-| 3 | Payments | 15% | **15** | `10_…` C1–C5 | P0 |
-| 4 | Database Integrity | 10% | 45 | `22_…` (C5, constraints) | P0 |
-| 5 | WhatsApp/Messaging | 10% | 25 | `25_…` §25.2 W1–W6 (C8/H3/W5) | P0 |
+| 2 | Security | 20% | **45** | `21_…` §21.8 (C1–C9, 21.8a–g); Phase-D fixes | P0 |
+| 3 | Payments | 15% | **55** | `10_…` C1–C5 (all fixed) | P0 |
+| 4 | Database Integrity | 10% | 50 | `22_…` (C5, constraints; UNIQUE added) | P0 |
+| 5 | WhatsApp/Messaging | 10% | 30 | `25_…` §25.2 W1–W6 (C8 partial/H3 open/W5) | P0 |
 | 6 | Business Model | 10% | 55 | `23_…` §23.5/§23.6 (B1–B7) | P0-gated |
 | 7 | Growth/Viral | 10% | 45 | `24_…` §24.5 (V1–V5) | P0/P1 |
 | 8 | AI Ecosystem | 10% | 40 | `25_…` §25.3 A1–A5 | P1 |
@@ -24,12 +24,12 @@
 | 14 | Privacy | 3% | 45 | `21_…` §21.7/21.8e | P1 |
 | 15 | Trust | 2% | 45 | `23_…` B4; `21_…` §21.9.8 | P1 |
 | 16 | Compliance | 3% | 35 | `21_…` §21.9.7 (LG1–LG3) | P1 |
-| | **OVERALL (weighted)** | 100% | **38/100** | — | **P0** |
+| | **OVERALL (weighted)** | 100% | **43/100** | — | **P0** |
 | | Governance completeness (5 components) | — | **100/100** | `02_…`–`06_…` | ✅ |
 
 ## Computation
 
-`38.0 = 0.20·20 + 0.15·15 + 0.10·45 + 0.10·25 + 0.10·55 + 0.10·45 + 0.10·40 + 0.05·55 + 0.03·60 + 0.02·65 + 0.02·40 + 0.05·40 + 0.03·45 + 0.02·45 + 0.03·35 + 0.05·55`
+`43.0 = 0.20·45 + 0.15·55 + 0.10·50 + 0.10·30 + 0.10·55 + 0.10·45 + 0.10·40 + 0.05·55 + 0.03·60 + 0.02·65 + 0.02·40 + 0.05·40 + 0.03·45 + 0.02·45 + 0.03·35 + 0.05·55`
 
 > Note: rounded to whole points. Security+Payments (35% combined weight) are the dominant drivers and are P0-gated.
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 1 | Prototype (scope classified) | ✅ |
 | 2 | Development (static audit complete) | ✅ (this scorecard) |
-| 3 | Testing (all Critical resolved + verified) | ❌ — C1–C9 open |
+| 3 | Testing (all Critical resolved + verified) | ❌ — C8/H3 runtime-pending, C6 partial |
 | 4 | Beta (all High resolved) | ❌ |
 | 5 | Production Candidate (runtime ⏱ verified) | ⏳ pending |
 | 6 | Production Ready (production 🏭 verified) | ⏳ pending |
@@ -47,6 +47,6 @@
 
 ## Threshold interpretation
 
-**38/100 < 70** → Not ready. Security+Payments must reach ≥ 75 in re-certification (per `41_…` §interpretation). Re-certify per AIOS Part 03 · CERTIFICATION LEVELS / Part 13 · FINAL CERTIFICATION RULE after P0+P1 fixes + runtime PASS.
+**43/100 < 70** → Not ready. Security+Payments must reach ≥ 75 in re-certification (per `41_…` §interpretation). Re-certify per AIOS Part 03 · CERTIFICATION LEVELS / Part 13 · FINAL CERTIFICATION RULE after remaining P0 (C8/H3 runtime, C6 partial) + runtime PASS.
 
 *— Interim (static). Review draft; not committed.*
