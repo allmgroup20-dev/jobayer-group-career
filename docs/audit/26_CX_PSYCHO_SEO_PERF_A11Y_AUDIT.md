@@ -45,3 +45,29 @@
 | Mobile/PWA | 75/100 | strong |
 | Ethical UX | 55/100 | seed data honesty ⏱ |
 | **UX/SEO/Perf overall** | **55/100** | ⏱/🏭 gates |
+
+---
+
+## 26.7 AIOS Part 09 Sub-Audit Coverage (Phase-2.5)
+
+| Part 09 area | § | Coverage | New/confirmed |
+|---|---|---|---|
+| Customer experience | 9.1 | §26.4 + §26.5 | mobile-first strong; journey friction ⏱ |
+| Conversion & psychology | 9.2 | §26.5 | **LaunchOfferTimer deleted in WIP** (see `01_…` WIP note) — no fake countdown remains; **verify all live tickers real (🏭)** |
+| SEO | 9.3 | §26.1 | S1–S4 pending (⏱/🏭) |
+| Performance | 9.4 | §26.2 | CWV targets: LCP≤2.5s / INP≤200ms / CLS≤0.1 → 🏭 PageSpeed/CrUX on `career.jobayergroup.com` |
+| Accessibility | 9.5 | §26.3 | WCAG 2.1 AA checklist → **add to `40_RUNTIME_VERIFICATION`** (RT-a11y rows) |
+
+## 26.8 Accessibility / UX QA Checklist (to execute in `40_…`)
+1. Keyboard: full tab order on checkout + unlock + nav; visible focus ring.
+2. Form labels on OTP/register/login inputs (bn labels).
+3. Color-contrast AA on primary CTAs (checkout ৳99 button).
+4. Skip-to-content link on all app pages.
+5. `aria-live` for toast (react-hot-toast) + LivePurchaseTicker (screen-reader friendly).
+6. Reduced-motion handling for any animations.
+7. `<html lang>` switches bn/en (S3).
+8. Screen-reader check of checkout flow (🎧 manual).
+9. Touch target ≥ 44px on BottomNav + primary buttons.
+10. No content-only-on-hover critical info.
+
+> Rows will be linked as RT-a11y-01..10 in `40_RUNTIME_VERIFICATION.md`.

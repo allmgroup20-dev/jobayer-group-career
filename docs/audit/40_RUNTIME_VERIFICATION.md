@@ -77,6 +77,21 @@
 | RT-72 | ⏱ | Headers | curl -I prod | CSP, HSTS, no-cors issues | headers set | missing | header dump |
 | RT-73 | ⏱ | GDPR-export | Privacy export + delete | CSV export, then delete row | works | fails/leak | output |
 
+## I. Accessibility / UX QA (WCAG 2.1 AA — AIOS Part 09 §9.5)
+
+| ID | Tier | Test | Steps | Expected | Pass | Fail | Evidence |
+|---|---|---|---|---|---|---|---|
+| RT-a11y-01 | ⏱ | Keyboard nav | Tab through checkout + unlock + nav | full order, visible focus ring | pass | traps/focus lost | video |
+| RT-a11y-02 | ⏱ | Form labels | Inspect OTP/register/login inputs | every input has bn label | pass | missing labels | screenshot |
+| RT-a11y-03 | ⏱ | Color contrast | Contrast check on primary CTAs (৳99 button) | AA ≥4.5:1 | pass | fail | tool output |
+| RT-a11y-04 | ⏱ | Skip link | Home + dashboard | skip-to-content link present | pass | absent | code/screenshot |
+| RT-a11y-05 | ⏱ | Live regions | Trigger toast + LivePurchaseTicker | `aria-live` announced | pass | silent | NVDA/WAVES |
+| RT-a11y-06 | ⏱ | Reduced motion | Toggle prefers-reduced-motion | animations off | pass | on | video |
+| RT-a11y-07 | ⏱ | `lang` switch | Toggle bn/en | `<html lang>` switches | pass | static | DOM dump |
+| RT-a11y-08 | 🎧 | Screen reader flow | SR user completes checkout | guided, no dead ends | pass | blocker | SR recording |
+| RT-a11y-09 | ⏱ | Touch targets | BottomNav + primary buttons | ≥44px hit area | pass | too small | inspect |
+| RT-a11y-10 | ⏱ | No hover-only info | Hover-critical info on mobile | none | pass | present | manual |
+
 ---
 
 ## ✅ Completion Rule

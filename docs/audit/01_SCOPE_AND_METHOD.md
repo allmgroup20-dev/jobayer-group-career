@@ -20,7 +20,7 @@ Produce a single, unified, evidence-based **Production & Launch Readiness Certif
 | Cron triggers | 1 (`*/5 * * * *`) | `wrangler.jsonc:8` |
 | KPI/analytics routes | 12+ | `src/app/api/{track,kpi,personalize,maintenance}/*` |
 
-> Working-tree WIP (uncommitted sprint-A files: `src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/api/unlocks/route.ts`, `src/app/courses/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`) is **noted but not trusted** as launchable until committed and verified by `tsc --noEmit`.
+> **WIP exclusion (per founder rule, AIOS Part 13 §13.1):** the uncommitted working-tree WIP (`src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/api/unlocks/route.ts`, `src/app/courses/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`, `tsconfig.tsbuildinfo`) is **experimental/cleanup-only** (diff = deletions/trimming, no production features). It is therefore **explicitly EXCLUDED from the audit scope**, and **this certification applies only to the committed repository state** (HEAD `2702ef9`). No ambiguous state is certified. See `43_…` §12.2 decision log.
 
 ## 1.3 Phasing (hybrid priority-first — per founder decision)
 
@@ -63,17 +63,17 @@ FIX_SUGGESTION: (প্রস্তাবিত সমাধান — single-fo
 - **App source code will NOT be modified** unless the founder explicitly requests it.
 
 ## 1.8 Two-Layer Architecture & Mandatory Governance Components
-This audit is built on the **AIOS Governance Framework** (`docs/framework/INDEX.md`) — a reusable, project-agnostic standard. The framework layer defines *how to audit*; this `docs/audit/` layer holds *what was found* in THIS repository.
+This audit is built on the **canonical 13-part JGC-AIOS** (`docs/framework/INDEX.md`) — the immutable source of truth. The framework layer (Layer 1) defines *how to audit & certify*; this `docs/audit/` layer (Layer 2) holds *what was found* in THIS repository and explicitly references its governing AIOS part. Synchronization is maintained via [`docs/AIOS_TRACEABILITY_MATRIX.md`](../AIOS_TRACEABILITY_MATRIX.md) (bidirectional: every AIOS Part ↔ ≥1 audit document; every audit doc ↔ governing part). **On conflict, the canonical AIOS takes precedence** (Part 13 §13.1).
 
-**Five mandatory governance components (per framework §2.4) are implemented here as living documents:**
+**Five mandatory governance components (per AIOS Part 04 §4.7) are implemented here as living documents:**
 | # | Component config | Framework standard | Project implementation |
 |---|---|---|---|
-| 1 | Coverage Matrix (100% scope) | `docs/framework/07_COVERAGE_STANDARDS.md` | `02_COVERAGE_MATRIX.md` |
-| 2 | Assumption Register | `docs/framework/03_EVIDENCE_STANDARDS.md` | `03_ASSUMPTION_REGISTER.md` |
-| 3 | Confidence Matrix | `docs/framework/03_EVIDENCE_STANDARDS.md` | `04_CONFIDENCE_MATRIX.md` |
-| 4 | Contradiction Resolution Log | `docs/framework/02_AUDIT_STANDARDS.md` | `05_CONTRADICTION_RESOLUTION_LOG.md` |
-| 5 | Self-Review + Opportunity Discovery | `docs/framework/02_AUDIT_STANDARDS.md` | `06_SELF_REVIEW_OPPORTUNITY_DISCOVERY.md` |
+| 1 | Coverage Matrix (100% scope) | AIOS Part 04 §4.6 | `02_COVERAGE_MATRIX.md` |
+| 2 | Assumption Register | AIOS Part 04 §4.3 | `03_ASSUMPTION_REGISTER.md` |
+| 3 | Confidence Matrix | AIOS Part 04 §4.3 | `04_CONFIDENCE_MATRIX.md` |
+| 4 | Contradiction Resolution Log | AIOS Part 13 §13.2 | `05_CONTRADICTION_RESOLUTION_LOG.md` |
+| 5 | Self-Review + Opportunity Discovery | AIOS Part 13 §13.2 | `06_SELF_REVIEW_OPPORTUNITY_DISCOVERY.md` |
 
 **Rule:** any new finding/assumption/contradiction/opportunity discovered during this or later phases must be registered in the relevant doc with evidence class (✅ static / ⏱ runtime / 🏭 prod / ❓ manual) + confidence + status before use. No assumption is ever recorded as fact — a guessed item is recorded as ❓.
-- **Evidence classes:** see `docs/framework/03_EVIDENCE_STANDARDS.md`.
-- **Decision & governance gate:** see `docs/framework/06_DECISION_FRAMEWORK.md`.
+- **Evidence classes:** AIOS Part 04 §4.3.
+- **Decision & governance gate:** AIOS Part 13 §13.3 / §13.2.

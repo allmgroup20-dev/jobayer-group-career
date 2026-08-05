@@ -75,3 +75,87 @@
 | **Overall Security** | **20/100** | P0-gated (worse than Phase-1 est.) |
 
 > Final security score incorporated into `41_LAUNCH_READINESS_CERTIFICATION.md`.
+
+---
+
+## 21.9 The 17 Mandatory Security Sub-Audits (AIOS Part 08 §8.1 — Phase-2.5 mapping)
+
+| # | Sub-audit | Covered where | New findings |
+|---|---|---|---|
+| 1 | Authentication | §21.2, 21.3, C9, 21.8f | H1 brute-force; no phone-ownership at register |
+| 2 | Authorization | §21.2, C6, 21.8c/g | systemic IDOR; admin routes unverified |
+| 3 | API security | §21.4, 21.5, C1–C4, 21.8a/b | unauth send/queue; GET-with-side-effect |
+| 4 | Database security | `22_DATABASE_AUDIT` | see 22 (uniqueness/constraints) |
+| 5 | **File security** | §21.9.1 | new |
+| 6 | **AI security** | §21.9.2 | new |
+| 7 | **WhatsApp security** | §21.9.3 (+ C8, 21.8a/b) | new |
+| 8 | **Referral security** | §21.9.4 (+ C9) | new |
+| 9 | Payment security | §21.1 C1–C5 | see 10_ |
+| 10 | **Business fraud** | §21.9.5 | new |
+| 11 | **Bot abuse** | §21.9.6 | new |
+| 12 | Privacy | §21.7, 21.8e | account-number leak |
+| 13 | **Legal** | §21.9.7 | new |
+| 14 | **Trust** | §21.9.8 | new |
+| 15 | **Business risk** | §21.9.9 | new |
+| 16 | Disaster recovery | §21.9.10 | new |
+| 17 | **Incident response** | §21.9.11 | new |
+
+### 21.9.1 Sub-Audit #5 — File Security
+- F1 🟡 Medium: resource/premium **unlock access control relies on client-side success-status default** (C3 `resource-checkout/success:10` default `VALID`) → premium files can be granted without payment. Part of P0 #1–#3.
+- F2 🔵 Low: no upload endpoints found in audited surface (no path-traversal surface) — **verify** (❓ full inventory check).
+- F3 🟡 Medium: `dangerouslySetInnerHTML` at `src/app/layout.tsx:88` — verify no user-controlled content flows through it (⏱).
+
+### 21.9.2 Sub-Audit #6 — AI Security
+- AIS1 🟠 High: **prompt-injection surface** on `chat-worker` / `ai-app` (57 routes) — user input treated as instructions; **no injection-hardening / output schema validation confirmed** (⏱ deep-pass on `chat-worker/src/index.ts` + `ai-app` — pending).
+- AIS2 🟡 Medium: AI cost = business risk (open-ended prompts) — token budgets/caching unverified (`25_AI_ECOSYSTEM_AUDIT` A-category).
+- AIS3 🟡 Medium: PII into prompts — ensure phone/name not sent to AI models (❓ verify prompt templates).
+
+### 21.9.3 Sub-Audit #7 — WhatsApp Security
+- WS1 🔴 Critical: `/api/whatsapp/send` unauthenticated arbitrary message at founder's cost (21.8a).
+- WS2 🟠 High: `/api/whatsapp/queue` unauth queue tampering/DoS (21.8b).
+- WS3 🟠 High: wa-relay `/qr` public (H2) — anyone can hijack the WhatsApp session pairing.
+- WS4 🟠 High: free-form text (not approved template) → deliverability + Meta ban-risk (C8, ⏱).
+- WS5 🟡 Medium: consent record before outbound missing (21.7).
+
+### 21.9.4 Sub-Audit #8 — Referral Security
+- RS1 🟠 High: `share-reward` grants quota to arbitrary `workerId` (IDOR, §21.2).
+- RS2 🟠 High: registration w/o phone-ownership verification → **self-referral farming** feasible (C9).
+- RS3 🟡 Medium: no anti-self-referral/anti-fraud rules confirmed on reward claiming (⏱).
+
+### 21.9.5 Sub-Audit #10 — Business Fraud
+- BF1 🔴 Critical: forged IPN → free unlocks at scale (C1/C2).
+- BF2 🔴 Critical: public `auto-payout` + unauth PATCH withdrawal → treasury manipulation (C7, 21.8c).
+- BF3 🟠 High: multiple `pending` withdrawals, balance not reserved → over-payout (21.8d).
+- BF4 🟠 High: refund abuse / double-grant race (C5 idempotency).
+
+### 21.9.6 Sub-Audit #11 — Bot Abuse
+- BA1 🟠 High: **no Turnstile/captcha anywhere** (grep count 0) — OTP/register/login bots unmitigated.
+- BA2 🟠 High: no per-IP/global rate limits; OTP verify unlimited (H1, §21.3).
+- BA3 🟡 Medium: referral farming via bots (see RS2).
+
+### 21.9.7 Sub-Audit #13 — Legal
+- LG1 🟡 Medium: only `company/privacy/page.tsx` found; **no `terms`, `refund-policy`, `pricing` legal pages confirmed** (❓ verify full page inventory) — needed pre-launch for money platform.
+- LG2 🟠 High: WhatsApp/Meta policy compliance — template approval + opt-in required (C8); phonebook upload consent (21.7).
+- LG3 🟡 Medium: BDT payment/refund compliance (SSLCommerz terms) — ❓.
+
+### 21.9.8 Sub-Audit #14 — Trust
+- TR1 ✅ Positive: money-back guarantee + live purchase ticker + KPI tracker exist (per `docs/strategy/` sprint work) — strong trust foundation **if real** (🏭 verify ticker not fabricated).
+- TR2 🟠 High: any fabricated social proof / fake scarcity would violate AIOS Part 01 §1.4.6 — audit honesty of all social-proof widgets (🏭).
+
+### 21.9.9 Sub-Audit #15 — Business Risk
+- BR1 🟠 High: **single-founder + single wa-relay node** = key-person/availability risk (also SC1, `20.7.8`).
+- BR2 🟡 Medium: dependency on WhatsApp-scraping lib (Baileys RC, D1 in `20.7.2`) — platform-policy risk.
+- BR3 🟡 Medium: SSLCommerz sandbox flag (`wrangler.jsonc:17`) — live flip is a launch gate (🏭).
+
+### 21.9.10 Sub-Audit #16 — Disaster Recovery
+- DR1 🟠 High: **no D1 backup/restore confirmed** (`27_…` Backup/DR 30/100, unverified) — `wrangler d1 export` schedule required pre-launch (P1).
+- DR2 🟡 Medium: wa-relay `AUTH_BASE64` backup exists (positive) but restore/`/backup-auth` verification pending (⏱).
+- DR3 🟡 Medium: re-deploy path documented? (see `43_KNOWLEDGE_MANAGEMENT` runbooks).
+
+### 21.9.11 Sub-Audit #17 — Incident Response
+- IR1 🟠 High: **no incident-response runbook** (detect → contain → fix → verify → communicate) — required by AIOS Part 12; create before launch (P1).
+- IR2 🟡 Medium: no alerting wiring confirmed (Telegram/email) on failures (MN1, `20.7.6`).
+- IR3 🔵 Low: logging insufficient for post-incident forensics (LG1).
+
+### 21.9.12 Security Sub-Audit Coverage Score (interim)
+17/17 sub-audits mapped; new sub-audits add no further P0 beyond the confirmed set but confirm **Bot abuse (0 captcha), DR (no backup), IR (no runbook)** as P1 gaps. Overall Security remains **20/100 (P0-gated)** per §21.8.

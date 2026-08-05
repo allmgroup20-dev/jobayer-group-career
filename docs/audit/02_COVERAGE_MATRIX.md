@@ -1,6 +1,6 @@
 # 02 — Coverage Matrix (100% Scope Verification)
 
-> Implements `docs/framework/07_COVERAGE_STANDARDS.md`. Three layers. **No repository item is left unclassified.**
+> Implements AIOS Part 04 §4.6 (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Three layers. **No repository item is left unclassified.**
 > Status legend: `Audited` = evidence reviewed · `Partial` = structure confirmed, deep behavior ⏱/❓ · `Gap` = known, not yet reviewed · `Excluded` = justified.
 > Evidence classes: ✅ static · ⏱ runtime · 🏭 prod · ❓ manual.
 > *Last reviewed: 2026-08-04 · Review draft — not committed.*
@@ -19,7 +19,7 @@
 | Workers | 3 (app/ai/chat) + 1 relay | 4 | 0 | 0 | — | 80% / relay runtime ⏱ |
 | Configs | 6 (3 wrangler + deploy-ai/chat + docker/railway) | 6 | 0 | 0 | 0 | 100% |
 | Scripts | 0 standalone found (logic in routes) | — | — | — | — | n/a (none present) |
-| Documentation | docs/strategy (8) + docs/audit (13→21) + docs/framework (9) | all | 0 | 0 | 0 | 100% |
+| Documentation | docs/strategy (8) + docs/audit (24) + docs/framework (14 canonical) + traceability matrix (1) | all | 0 | 0 | 0 | 100% |
 | **OVERALL** | **≈429 items** | 74 deep | 352 | 0 | 0 | **100% classified** · deep % pending Phase-2 follow-through |
 
 > **Coverage policy:** "100% classified" is met because every item carries a status; deep-audit % is intentionally partial and tracked below as remaining work, not hidden.
@@ -51,7 +51,7 @@
 ### 3.1 API Routes — `src/app/api/**/route.ts` (149)
 
 **Audited (deep) — 20 ✅ static:**
-`payment/init`, `payment/ipn`, `payment/success`, `resource-checkout`, `resource-checkout/ipn`, `resource-checkout/success`, `auth/register`, `auth/otp/send`, `auth/otp/verify`, `auth/verify-password`, `auth/worker-login`, `auth/me`, `referrals/share-reward`, `unlocks`, `withdrawals`, `withdrawals/auto-payout`, `withdrawals/premium-eligible`, `whatsapp/send`, `whatsapp/queue`, `health` → evidence in `10_…` (C1–C9), `21_SECURITY_AUDIT` — **P0**.
+`payment/init`, `payment/ipn`, `payment/success`, `resource-checkout`, `resource-checkout/ipn`, `resource-checkout/success`, `auth/register`, `auth/otp/send`, `auth/otp/verify`, `auth/verify-password`, `auth/worker-login`, `auth/me`, `referrals/share-reward`, `unlocks`, `withdrawals`, `withdrawals/auto-payout`, `withdrawals/premium-eligible`, `whatsapp/send`, `whatsapp/queue`, `health` → evidence in `10_…` (C1–C9), `21_SECURITY_PRIVACY_TRUST_AUDIT` — **P0**.
 
 **Classified (review — 132):** all remaining routes (auth/*, accounts, bonus/award, affiliate/*, bookmarks, chat/*, company/*, complaints, courses/*, cron/keepwarm, customer360, dashboard/summar, db-check, diagnose, downloads, institutions, live/sales, maintenance/*, notifications/*, orders, personalize/*, permissions, platforms/links, privacy/*, products, profile/suggest, recommendations, reviews/*, seed, system/*, track/*, tracking/monitor, trainers, unlocks/limits, whatsapp/*, withdrawals/premium-eligible, workers/profile, [...proxy]) → **Status `Partial`**, Verification ⏱/❓, Deep pass scheduled Phase-2.5. Security-sensitive (company/*, maintenance/*, seed, db-check, diagnose, bonus/award) flagged **P1** auth-verify.
 
@@ -77,7 +77,7 @@ All listed (`30_FULL_INVENTORY` §30.5). `001`–`018` present. Applied-state on
 
 ### 3.7 Config / CI / Docs
 - `.env.example` ✅ (16 keys) · `.github/workflows/{deploy,deploy-ai,deploy-chat}.yml` ✅ (O1/H5) · `wa-relay/{Dockerfile,railway.json}` ✅.
-- Docs: `docs/strategy/*` (8) ✅ · `docs/audit/*` (this set) ✅ · `docs/framework/*` (9) ✅.
+- Docs: `docs/strategy/*` (8) ✅ · `docs/audit/*` (this set, 24) ✅ · `docs/framework/*` (canonical 13 parts + INDEX) ✅ · `docs/AIOS_TRACEABILITY_MATRIX.md` ✅.
 
 ### 3.8 Excluded (justified)
 - `node_modules`, `package-lock.json`, generated build outputs (`.open-next/`, `tsconfig.tsbuildinfo`), vendor/minified artifacts. — justified exclusion (generated/vendor).
@@ -88,7 +88,7 @@ All listed (`30_FULL_INVENTORY` §30.5). `001`–`018` present. Applied-state on
 ## 📊 Coverage Summary
 - **Total items classified:** ~429 · **Excluded (justified):** build/vendor only.
 - **Skipped items:** 0 · **Unknown items:** 0 (discovered via filesystem scan).
-- **Deep-audited:** 74 items (core security/commerce/DB) — **before launch certification all P0/P1-relevant items must be deep (Phase-2.5 follow-through).**
+- **Deep-audited:** 74 items (core security/commerce/DB) + Phase-2.5 extended forensic sub-audits (query/deps/code-quality/error-handling/logging/monitoring/tech-debt/scalability → `20_…` §20.7) — **before launch certification all P0/P1-relevant items must be deep + runtime-tested per `40_…`.**
 - **Coverage gaps to close pre-certification:** all `Partial` items in domains Payments, WhatsApp, Referral, AI, Ops (must be deep + runtime-tested per `40_…`).
 
 *— Living doc: update as Phase-2.5 deep passes and runtime tests complete.*

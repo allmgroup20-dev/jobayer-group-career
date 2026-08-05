@@ -41,3 +41,30 @@
 | **Business overall** | **55/100** | P0 payment-gated |
 
 > See `docs/strategy/STRATEGY_REVIEW.md` for the 90-day revenue/trust/growth targets this audit feeds.
+
+---
+
+## 23.6 Business OS Sub-Audit Coverage (AIOS Part 05 §5.1 — Phase-2.5)
+
+| # | Sub-audit | Score (interim) | Key evidence / note |
+|---|---|---|---|
+| 1 | Business model | 60 | ৳99-per-resource purchase; hard constraint respected (no subscription) |
+| 2 | Pricing | 55 | tiers exist (`pricing/tiers`) but client-controlled amount bypasses them (B2) |
+| 3 | Value proposition | 70 | free-first funnel + career content = strong for 18–35 Bengali users |
+| 4 | Conversion | 55 | funnel exists; payment friction + trust gaps (B4); CRO untested (⏱) |
+| 5 | Revenue leak | 25 | C1–C7 make revenue ≈ 0 until fixed (B1) |
+| 6 | Referral economics | 50 | commission tree (10 levels) + share reward; margin model missing (B7) |
+| 7 | Viral loop | 50 | share-to-unlock + commissions; loop fraud risk (RS2, `21.9.4`) |
+| 8 | Network effect | 40 | leaderboards/team stats exist; value-per-user growth unproven (⏱) |
+| 9 | WhatsApp business | 45 | outbound automation built (wa-relay) but template/consent gaps (C8, WS5) |
+| 10 | Customer psychology | 60 | money-back guarantee + live ticker (positive) — must be real (TR2) |
+| 11 | Marketing psychology | 65 | Bengali content, free samples, share mechanics built-in (positive) |
+| 12 | Trust | 45 | no refund path in code (B4); promise-real gap to verify (🏭) |
+| 13 | Growth engine | 55 | referral + WhatsApp = core engines; both have security blockers (P0) |
+| 14 | Competitive position | 55 | free alternatives abundant; differentiation via AI + Bengali focus |
+| 15 | Founder efficiency | 70 | most gaps are single-founder fixable; heavy items flagged (wa-relay scale) |
+
+**Business OS overall (weighted): 53/100 (interim, static)** — P0 payment-gated (B1).
+
+### 23.6.1 Margin model (P1 business exercise — needed before scale)
+Per ৳99 sale: resource cost (if any) + tree commissions (×10 levels) + share-reward quota + WhatsApp/AI message cost + platform fees. All values from `company/finance` + `company/kpi` + `system/perf` (⏱). Final decision per AIOS Part 05 §5.3.

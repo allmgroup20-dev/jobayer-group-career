@@ -6,7 +6,7 @@
 
 ---
 
-## 🛡 Governance Gate (mandatory — `docs/framework/06_DECISION_FRAMEWORK.md`)
+## 🛡 Governance Gate (mandatory — `docs/framework/13_AI_CONSTITUTION.md` §13.2)
 This certification is only valid when **ALL** hold:
 1. **Coverage Matrix** (`02_…`) — 100% classified, no silent gap, exclusions justified.
 2. **Assumption Register** (`03_…`) — evidence-classed; no guessed entries ≥ confirmed.
@@ -15,7 +15,7 @@ This certification is only valid when **ALL** hold:
 5. **Self-Review** (`06_…`) — completed + PASS; Opportunity Discovery updated.
 6. **Runtime & production evidence** (`40_…`) — PASS for all P0/P1 items with retained artifacts.
 
-**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.58 < 0.8 ⇒ provisional (4)🔴 open (CR-01..09) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨.
+**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.59 < 0.8 ⇒ provisional (4)🔴 open (CR-01..09, CR-11) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨.
 
 ---
 
@@ -63,23 +63,29 @@ This certification is only valid when **ALL** hold:
 
 ## 🎯 Final Scorecard (master)
 
+> Full 16-domain master scorecard: **`40_MASTER_SCORECARD.md`** (AIOS Part 10 §10.1). Condensed below.
 > Scores are **static-based** until runtime completes; runtime can only revise upward after evidence.
 
 | Domain | Static Score | Gate | Blocker refs |
 |---|---|---|---|
-| Security & AuthN/Z | **25/100** | P0 | C1–C7, H1–H2 |
+| Technical | **55/100** | P0 | T1–T7, §20.7 |
+| Security & AuthN/Z | **20/100** | P0 | C1–C7, H1–H2, 21.8a–g |
 | Payments | **15/100** | P0 | C1–C5 |
 | Database Integrity | **45/100** | P0 | C5 |
-| WhatsApp / Messaging | **25/100** | P0 | C8, H2–H3 |
+| WhatsApp / Messaging | **25/100** | P0 | C8, H2–H3, W5 |
 | Business Model | **55/100** | P0-gated | B1–B4 |
 | Growth / Viral | **45/100** | P0/P1 | V1–V5 |
-| AI Stack | **40/100** | P1 | A1–A3, W5 |
+| AI Ecosystem | **40/100** | P1 | A1–A3, W5 |
 | UX / SEO / Perf / A11y | **55/100** | ⏱/🏭 | S1–S4 |
-| Operations / CI/CD | **40/100** | P0/P1 | O1–O4, H5 |
+| Ops / CI-CD | **40/100** | P0/P1 | O1–O4, H5 |
+| Privacy / Trust / Compliance | **42/100** | P1 | 21.8e, LG1–LG3, TR2 |
 | **OVERALL (weighted, launch-readiness)** | **38/100** | **P0** | — |
 | Governance completeness (5 components) | **100/100** | ✅ | `02`–`06` |
 
 **Interpretation:** Below the 70/100 production-readiness bar. The single largest weighted driver is Security+Payments (must reach ≥75/100 in re-certification).
+
+### Certification Level (AIOS Part 03 §3.1)
+**Current: Level 2 of 7 — Static Audit Complete.** Levels 3–7 require blocker closure + runtime/production evidence (`40_RUNTIME_VERIFICATION.md`).
 
 ---
 

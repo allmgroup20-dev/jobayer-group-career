@@ -40,6 +40,10 @@
 - Confirmed unauthenticated `whatsapp/send` + `whatsapp/queue` (21.8a/b) → W5 upgraded to Critical static.
 - Confirmed `PATCH /withdrawals` arbitrary completion (21.8c), account-number PII leak (21.8e), login brute-force (21.8f).
 - Updated registers `03/04/05` + coverage `02` + security `21`. Overall confidence 0.59. **Security score 20/100.**
+- **Extended forensic (AIOS Part 04 §4.2):** 8 new technical sub-audits (`20_…` §20.7) — query 60 · deps 80 · code-quality 72 · error-handling 45 · logging 50 · monitoring 30 · tech-debt 58 · scalability 55 → forensic weighted 52.7/100.
+- **17 security sub-audits mapped** (`21_…` §21.9); new P1 gaps confirmed: no captcha anywhere (bot abuse), no D1 backup (DR), no incident-response runbook (IR), no monitoring config (MN1).
+- **15 business sub-audits** (`23_…` §23.6) · **50 experiments** (`24_…` §24.6) · **25 automations + 25 AI features** (`25_…` §25.6/§25.7) · Part 09 mapping + a11y checklist (`26_…` §26.7/§26.8).
+- **Two-layer realignment:** framework → canonical 13-part AIOS; audit docs renamed; `docs/AIOS_TRACEABILITY_MATRIX.md` created.
 
 ---
 
@@ -71,6 +75,12 @@
 | N8 | **Staging worker + secrets automation** — safe test-mode era before live | O1/H5 | P1 | open |
 | N9 | **Auth on `/api/whatsapp/*`** — closes free-spam/DoS vector (also protects the WhatsApp growth channel from abuse) | 21.8a/b | P0 | open |
 | N10 | **Admin-gate `PATCH /withdrawals`** — protects treasury state; prerequisite to any real payout | 21.8c | P0 | open |
+| N11 | **Turnstile/CAPTCHA + global rate limits** — bot abuse on OTP/register/login is currently open (0 captcha found) | `21_…` §21.9.6 (BA1/BA2) | P1 | open |
+| N12 | **D1 automated backup + restore drill** — only business DB has no confirmed backup | `21_…` §21.9.10 (DR1) | P1 | open |
+| N13 | **Incident-response runbook + alerting (Telegram)** — no IR path exists pre-launch | `21_…` §21.9.11 (IR1/IR2) | P1 | open |
+| N14 | **Structured logging + monitoring config** (free: wrangler tail + Cloudflare analytics) — currently `console.error` only | `20_…` §20.7.5/§20.7.6 | P1 | open |
+| N15 | **Server-side error envelope** — replace 197 empty `catch {}` + leaky messages | `20_…` §20.7.4 (EH1/EH2) | P1 | open |
+| N16 | **Runbook/SOP docs** (deploy/rollback/D1-restore/relay-reconnect) — closes Part 12 gaps | `43_…` §12.1 | P1 | open |
 
 ### B.3 Discovery cadence
 Update this log on every new evidence: after each runtime batch, each deep pass, and each strategy review. New opportunities get ID + priority + status; closed ones move to ✅ with date.**

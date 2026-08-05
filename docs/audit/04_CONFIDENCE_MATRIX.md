@@ -1,6 +1,6 @@
 # 04 — Confidence Matrix (Governance — Living Document)
 
-> Implements `docs/framework/03_EVIDENCE_STANDARDS.md (§3.3)`. Confidence = [0,1]; evidence-class cap: ✅0.95 / ⏱0.5 / 🏭0.3 / ❓n/a.
+> Implements AIOS Part 04 §4.3 (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Confidence = [0,1]; evidence-class cap: ✅0.95 / ⏱0.5 / 🏭0.3 / ❓n/a.
 > Gate: any finding with Confidence < 0.8 must be flagged ❓ or downgraded and cannot support a certification PASS.
 > *Last reviewed: 2026-08-04*
 
@@ -47,6 +47,6 @@
 
 ## 4.3 Current-Gate State
 - Findings with Confidence < 0.8 (C8, H3, H4, W5, A1, and domain-level UX/WhatsApp/AI) are **flagged for runtime** — they cannot yet support any PASS.
-- Overall confidence 0.58 ⇒ **audit is provisional** until `40_RUNTIME_VERIFICATION.md` evidence raises these.
+- Overall confidence 0.59 ⇒ **audit is provisional** until `40_RUNTIME_VERIFICATION.md` evidence raises these.
 
 *— Living doc. Recompute per-domain means after each runtime batch.*

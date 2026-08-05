@@ -22,10 +22,16 @@
 P0 ≈ 1–2 focused weeks (9 items, most S–M). P1 ≈ 30 days. Then run `40_…` runtime checks and re-certify.
 
 ## Score
-**Overall readiness (static): 38/100.** Security 25 · Payments 15 · DB 45 · WhatsApp 25 · Business 55 · Growth 45 · AI 40 · UX/SEO/Perf 55 · Ops 40.
+**Overall readiness (static): 38/100.** Technical 55 · Security 20 · Payments 15 · DB 45 · WhatsApp 25 · Business 55 · Growth 45 · AI 40 · UX/SEO/Perf 55 · Ops 40 · Privacy/Trust/Compliance 42. Full 16-domain master scorecard: **`40_MASTER_SCORECARD.md`**. Certification level: **2/7 (static complete)**.
+
+## Phase-2.5 (docs-only) Additions
+- 8 new technical forensic sub-audits (query/deps/code-quality/error-handling/logging/monitoring/tech-debt/scalability) → `20_…` §20.7
+- 17 security sub-audits (AIOS Part 08) + 7 new confirmed findings (21.8a–g) → `21_…` §21.9
+- Business OS 15 sub-audits → `23_…` §23.6 · 50-experiment engine → `24_…` §24.6 · 25 automations + 25 AI features → `25_…` §25.6/§25.7
+- Continuous improvement (20/30d + 20/90d) → `42_…` · Knowledge management + decision log → `43_…`
 
 ## Next Steps
 1. Founder approves P0/P1 fix plan (this audit does not modify source).
 2. Merge fixes → `tsc --noEmit` + build clean.
 3. Execute `40_RUNTIME_VERIFICATION.md` (⏱/🏭) with evidence.
-4. Re-certification → stamp ✅ READY FOR LAUNCH (scorecard ≥70).
+4. Re-certification → stamp ✅ READY FOR LAUNCH (scorecard ≥70) + governance gate green.
