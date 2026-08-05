@@ -1,6 +1,6 @@
 # 42 — Continuous Improvement Engine (AIOS Part 11)
 
-> Implements AIOS Part 11 §11.1–11.4. Cadence: **20 experiments per 30 days** + **20 product improvements per 90 days**, driven by the 50-experiment backlog (`24_…` §24.6) and KPI deltas.
+> Implements AIOS Part 11 · EXPERIMENTATION / FEATURE REVIEW. Cadence: **20 experiments per 30 days** + **20 product improvements per 90 days**, driven by the 50-experiment backlog (`24_…` §24.6) and KPI deltas.
 > **Status:** pre-launch — cycle 0 (baseline). Cycles 1+ begin after launch (Part 11).
 
 ## 11.1 Backlog Source
@@ -31,7 +31,7 @@
 | 19 | EXP-45 | trust A/B | conversion +5% |
 | 20 | EXP-49 | ops alerting | alerts firing |
 
-> Every experiment records: result (won/lost/inconclusive) + evidence + anti-abuse note in `docs/audit/evidence/`. Failed experiments are valid results (AIOS Part 11 §11.2).
+> Every experiment records: result (won/lost/inconclusive) + evidence + anti-abuse note in `docs/audit/evidence/`. Failed experiments are valid results (AIOS Part 11 · EXPERIMENTATION).
 
 ## 11.3 Cycle 2 — First 90 Days (20 product improvements — proposed pick)
 1. P0 payment hardening (server-side verify + idempotency) — `41_…` #1–#4
@@ -53,7 +53,7 @@
 17. AI cost budget + rate limits — A1
 18. Consent wiring for outbound — W3
 19. Incident-response runbook — IR1
-20. KPI founder dashboard polish — Part 10 §10.4
+20. KPI founder dashboard polish — Part 10 · FOUNDER DASHBOARD
 
 ## 11.4 KPI Monitoring Loop
 1. Weekly: pull KPI deltas (`company/kpi`) → flag anomalies.

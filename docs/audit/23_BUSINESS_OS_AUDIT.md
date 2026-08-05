@@ -44,7 +44,7 @@
 
 ---
 
-## 23.6 Business OS Sub-Audit Coverage (AIOS Part 05 §5.1 — Phase-2.5)
+## 23.6 Business OS Sub-Audit Coverage (AIOS Part 05 · BUSINESS MODEL AUDIT–FOUNDER EFFICIENCY — Phase-2.5)
 
 | # | Sub-audit | Score (interim) | Key evidence / note |
 |---|---|---|---|
@@ -67,4 +67,4 @@
 **Business OS overall (weighted): 53/100 (interim, static)** — P0 payment-gated (B1).
 
 ### 23.6.1 Margin model (P1 business exercise — needed before scale)
-Per ৳99 sale: resource cost (if any) + tree commissions (×10 levels) + share-reward quota + WhatsApp/AI message cost + platform fees. All values from `company/finance` + `company/kpi` + `system/perf` (⏱). Final decision per AIOS Part 05 §5.3.
+Per ৳99 sale: resource cost (if any) + tree commissions (×10 levels) + share-reward quota + WhatsApp/AI message cost + platform fees. All values from `company/finance` + `company/kpi` + `system/perf` (⏱). Final decision per AIOS Part 05 · FINAL BUSINESS DECISION.

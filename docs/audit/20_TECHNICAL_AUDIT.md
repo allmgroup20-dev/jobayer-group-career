@@ -42,9 +42,9 @@
 
 ---
 
-## 20.7 Extended Forensic Sub-Audits (AIOS Part 04 §4.2 — Phase 2.5)
+## 20.7 Extended Forensic Sub-Audits (AIOS Part 04 · REPOSITORY DISCOVERY–SCALABILITY — Phase 2.5)
 
-> The 18-sub-audit engine (AIOS Part 04 §4.2) requires the following additional deep dives. Items 1–6 of §4.2 are covered by `20.1–20.5` + `22_DATABASE_AUDIT` + `27_OPS_CICD_AUDIT`; the 8 below are newly added with static evidence. All unmeasured items are explicitly ⏱/🏭, never guessed.
+> The 18-sub-audit engine (AIOS Part 04 · REPOSITORY DISCOVERY–SCALABILITY) requires the following additional deep dives. Items 1–6 of the engine are covered by `20.1–20.5` + `22_DATABASE_AUDIT` + `27_OPS_CICD_AUDIT`; the 8 below are newly added with static evidence. All unmeasured items are explicitly ⏱/🏭, never guessed.
 
 ### 20.7.1 Sub-Audit #7 — Query Audit (`db.prepare` SQL)
 - **Evidence:** 428 `db.prepare(` call sites across `src/` (static scan); 125 `LIMIT` usages, 145 `ORDER BY` usages.
@@ -112,4 +112,4 @@
 - **Score (interim, static):** **55/100**.
 
 ### 20.7.9 Forensic Technical Score (interim — static only)
-Sub-audits with scores: Query 60 · Dependencies 80 · Code Quality 72 · Error Handling 45 · Logging 50 · Monitoring 30 · Tech Debt 58 · Scalability 55. Weighted (query 20%, deps 10%, code quality 15%, error handling 15%, logging 10%, monitoring 15%, tech debt 5%, scalability 10%): **52.7/100 (interim, static)** — final value requires runtime/production tiers (⏱/🏭) per AIOS Part 03 §3.5.1.
+Sub-audits with scores: Query 60 · Dependencies 80 · Code Quality 72 · Error Handling 45 · Logging 50 · Monitoring 30 · Tech Debt 58 · Scalability 55. Weighted (query 20%, deps 10%, code quality 15%, error handling 15%, logging 10%, monitoring 15%, tech debt 5%, scalability 10%): **52.7/100 (interim, static)** — final value requires runtime/production tiers (⏱/🏭) per AIOS Part 03 · FINAL CERTIFICATION.

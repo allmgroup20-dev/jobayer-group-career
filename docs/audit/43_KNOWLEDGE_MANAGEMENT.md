@@ -1,6 +1,6 @@
 # 43 — Enterprise Knowledge Management (AIOS Part 12)
 
-> Implements AIOS Part 12 §12.1–12.3. Status of the 13 mandatory documentation categories + decision log. **Goal: no knowledge gap is silent.**
+> Implements AIOS Part 12 · REPOSITORY DOCUMENTATION–DECISION LOG. Status of the 13 mandatory documentation categories + decision log. **Goal: no knowledge gap is silent.**
 
 ## 12.1 Documentation Category Status
 
@@ -26,7 +26,7 @@
 |---|---|---|---|---|
 | 2026-08-04 | Two-layer AIOS (framework + audit) adopted | reusable standards + project evidence | single-layer | Founder |
 | 2026-08-05 | Canonical 13-part AIOS mirrored in `docs/framework/`; standards folded; traceability matrix introduced | explicit canonical implementation + bidirectional sync | keep old standards layout | Founder |
-| 2026-08-05 | Audit docs renamed to AIOS part-aligned names; Phase-2.5 extended forensic sub-audits added | traceability + Part 04 §4.2 completeness | keep old names | Founder |
+| 2026-08-05 | Audit docs renamed to AIOS part-aligned names; Phase-2.5 extended forensic sub-audits added | traceability + Part 04 · REPOSITORY DISCOVERY–SCALABILITY completeness | keep old names | Founder |
 | 2026-08-05 | Uncommitted src WIP treated as non-production/experimental (cleanup-only diff) | per founder rule: exclude non-production WIP; certification applies to committed repo state | commit as-is | Founder |
 
 ## 12.3 Knowledge Gaps (scheduled)

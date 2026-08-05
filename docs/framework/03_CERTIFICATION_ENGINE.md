@@ -1,81 +1,737 @@
-# Part 03 — Final Production & Launch Readiness Certification Engine (AIOS)
+# PART 03
+# FINAL PRODUCTION & LAUNCH READINESS CERTIFICATION ENGINE
+# ================================================================================
 
-> Canonical AIOS Part 03. The audit layer's `10_…`, `11_…`, `40_…`, `41_…` documents implement this part.
+# MISSION
 
-## 3.1 Certification Levels (1–7)
+এটি একটি সাধারণ Audit নয়।
 
-| Level | Name | Meaning |
-|---|---|---|
-| 1 | Baseline | Static inventory captured; scope classified |
-| 2 | Static Audit Complete | Every route/API/component/DB object classified with evidence |
-| 3 | Blockers Closed | All Critical (P0) resolved + verified |
-| 4 | High Risks Closed | All High (P1) resolved + verified |
-| 5 | Runtime Verified | Every ⏱ test PASSES with retained evidence |
-| 6 | Production Verified | Every 🏭 test PASSES on the real production URL |
-| 7 | ✅ READY FOR LAUNCH | Levels 1–6 complete + governance gate green + master scorecard ≥ 70 |
+এটি একটি
 
-## 3.2 Global Launch Checklist (applies to every launch)
+FINAL PRODUCTION READINESS CERTIFICATION।
 
-- [ ] All Critical & High findings fixed and re-verified
-- [ ] Payments: server-side IPN signature + `val_id` validation, price enforcement, idempotency
-- [ ] Authentication: phone-ownership verification, rate-limited OTP, session security
-- [ ] Authorization: every API route authenticated; no client-trusted IDs
-- [ ] WhatsApp: approved templates only; consent recorded; no spam
-- [ ] Secrets: all prod secrets provisioned (no `if: false` steps); nothing committed
-- [ ] Database: constraints + uniqueness (transaction_id), indexes, transactional grants
-- [ ] Runtime + production test evidence retained
-- [ ] Governance gate (Part 13 §13.3) green
-- [ ] Founder explicit approval recorded
+তোমার কাজ হলো—
 
-## 3.3 Risk Classification
+আমার সম্পূর্ণ Project
 
-| Severity | Definition | Timing |
-|---|---|---|
-| Critical | Direct financial loss / breach / total feature failure | Must fix pre-launch (P0) |
-| High | Significant abuse, fraud, or major functional risk | Fix pre-scale (P1) |
-| Medium | Correctness, robustness, minor abuse | Fix within 90d (P2) |
-| Low | Polish / debt | Backlog (P3/P4) |
-| Informational | Observation, no action required | Log |
+Code
 
-## 3.4 Failure Modes (stress thinking — always ask)
+Architecture
 
-1. **"What happens if this is forged / bypassed?"** — payment IPN, status parameters, client amounts, worker IDs.
-2. **"What happens under replay / double-click / race?"** — grants, unlocks, withdrawals.
-3. **"What happens to the business if a user acts maliciously?"** — referral fraud, farming, chargeback abuse.
-4. **"What happens at scale (10× users)?"** — rate limits, bot abuse, D1 hot rows, WhatsApp bans.
-5. **"What happens if a provider fails?"** — SSLCommerz outage, WhatsApp disconnect, Worker crash.
-6. **"What happens on multi-tab / two devices?"** — idempotency + locking.
+Infrastructure
 
-## 3.5 13-Domain Scorecard (default; implemented in `docs/audit/40_MASTER_SCORECARD.md`)
+Business
 
-`Technical · Security · Database Integrity · Business Model · Growth/Viral · AI Ecosystem · UX · SEO · Performance · Accessibility · Ops/CI-CD · Privacy/Trust · Compliance`
+Growth
 
-### 3.5.1 Scoring Rules (folded from former `08_SCORECARD_STANDARDS`)
-- Every domain scored **/100**, derivable from its findings (list supporting finding IDs).
-- Evidence-class cap: a domain with unverified ⏱/🏭 critical items cannot exceed the evidence-adjusted ceiling.
-- Weights (default, business-first): Security 20% · Payments 15% · Database 10% · WhatsApp 10% · Business 10% · Growth 10% · AI 10% · UX/SEO/Perf/A11y 10% · Ops 5%. Weights configurable per project; record chosen weights in the certification.
-- Thresholds: **≥ 85** Launch-ready (with runtime evidence) · **70–84** Launch-ready after minor fixes · **< 70** Not ready.
+Security
 
-### 3.5.2 Interim vs Final
-- Interim scorecards are labeled **"interim (static)"** and finalized only after runtime PASS.
-- Re-certification must show previous score, new score, and the evidence delta.
-- Governance completeness (5 components, Part 04 §4.7) is scored and reported alongside domains.
+AI
 
-## 3.6 Final Launch Decision
+Automation
 
-| Condition | Decision |
-|---|---|
-| Any Critical unfixed | 🚨 DO NOT LAUNCH |
-| All Critical fixed; any High unfixed | ❌ NOT READY |
-| All Critical+High fixed; runtime ⏱/🏭 pending | ⚠ READY AFTER FIXES (conditional) |
-| All Critical+High fixed AND every ⏱/🏭 test PASSES | ✅ READY FOR LAUNCH |
+Referral
 
-## 3.7 Pre-Launch Checklist (executed at Level 7)
+WhatsApp
 
-- [ ] Production URL live; SSL enforced
-- [ ] Real provider checks pass (SSLCommerz live, Meta template approval)
-- [ ] Real CWV targets met on production
-- [ ] Monitoring + logging + alerting active
-- [ ] Backup/restore drill passed
-- [ ] Incident response runbook available (Part 12)
-- [ ] Founder final sign-off recorded in certification doc
+SEO
+
+Performance
+
+UX
+
+Legal
+
+Privacy
+
+Scalability
+
+Operations
+
+সবকিছু যাচাই করে
+
+চূড়ান্ত সিদ্ধান্ত দেওয়া—
+
+"এই Project কি এখন Public Launch করার জন্য প্রস্তুত?"
+
+-------------------------------------------------------------------------------
+
+# AUDIT PRINCIPLE
+
+কোনো Feature
+
+শুধু Code Compile হয়
+
+এজন্য Ready বলা যাবে না।
+
+কোনো Feature
+
+শুধু UI আছে
+
+এজন্য Ready বলা যাবে না।
+
+কোনো Feature
+
+শুধু API Response দেয়
+
+এজন্য Ready বলা যাবে না।
+
+একটি Feature তখনই Ready
+
+যখন—
+
+✔ Business Logic সঠিক
+
+✔ Security সঠিক
+
+✔ UX গ্রহণযোগ্য
+
+✔ Error Handling আছে
+
+✔ Abuse Protection আছে
+
+✔ Scale করা সম্ভব
+
+✔ Maintenance সম্ভব
+
+✔ Business Value আছে
+
+✔ ভবিষ্যতে সম্প্রসারণযোগ্য
+
+-------------------------------------------------------------------------------
+
+# PRODUCTION READINESS DEFINITION
+
+Production Ready অর্থ—
+
+যদি আগামীকাল
+
+১০ লক্ষ নতুন User আসে
+
+Website
+
+যথাসম্ভব স্থিতিশীলভাবে পরিচালিত হতে পারবে।
+
+যদি কোনো অংশ Code থেকে যাচাই করা সম্ভব না হয়
+
+লিখবে—
+
+Needs Manual Verification
+
+-------------------------------------------------------------------------------
+
+# CERTIFICATION LEVELS
+
+Level 1
+
+Prototype
+
+Level 2
+
+Development
+
+Level 3
+
+Testing
+
+Level 4
+
+Beta
+
+Level 5
+
+Production Candidate
+
+Level 6
+
+Production Ready
+
+Level 7
+
+Enterprise Ready
+
+তুমি প্রতিটি বড় অংশের Level নির্ধারণ করবে।
+
+-------------------------------------------------------------------------------
+
+# GLOBAL VERIFICATION CHECKLIST
+
+প্রতিটি Feature যাচাই করবে—
+
+১।
+
+Does it actually work?
+
+২।
+
+Is it secure?
+
+৩।
+
+Is it scalable?
+
+৪।
+
+Is it maintainable?
+
+৫।
+
+Is it understandable?
+
+৬।
+
+Can it fail safely?
+
+৭।
+
+Can it recover?
+
+৮।
+
+Can it be abused?
+
+৯।
+
+Does it increase business value?
+
+১০।
+
+Does it increase operational complexity?
+
+-------------------------------------------------------------------------------
+
+# LAUNCH BLOCKER DETECTION
+
+যে কোনো বিষয়
+
+Launch Blocker হতে পারে।
+
+যেমন—
+
+• Data Loss Risk
+
+• Security Risk
+
+• Revenue Loss
+
+• Payment Failure
+
+• Referral Fraud
+
+• WhatsApp Abuse
+
+• Spam
+
+• AI Hallucination
+
+• Missing Consent
+
+• Broken User Journey
+
+• Critical Performance Issue
+
+• Legal Risk
+
+• Privacy Risk
+
+• Business Logic Error
+
+• Deployment Risk
+
+• Monitoring Gap
+
+• Backup Failure
+
+• Recovery Failure
+
+-------------------------------------------------------------------------------
+
+# RISK CLASSIFICATION
+
+সব Issue
+
+নিচের চারটি শ্রেণিতে ভাগ করবে।
+
+🚨 Critical
+
+Launch বন্ধ রাখতে হবে।
+
+❗ High
+
+Launch করা সম্ভব
+
+কিন্তু দ্রুত ঠিক করতে হবে।
+
+⚠ Medium
+
+Launch-এর পরে ঠিক করা যাবে।
+
+ℹ Low
+
+ভবিষ্যতের উন্নয়ন।
+
+-------------------------------------------------------------------------------
+
+# FAILURE MODE ANALYSIS
+
+প্রতিটি বড় Feature-এর জন্য বিশ্লেষণ করবে—
+
+যদি এটি Fail করে
+
+কি হবে?
+
+User-এর ক্ষতি?
+
+Business-এর ক্ষতি?
+
+Revenue-এর ক্ষতি?
+
+Security Risk?
+
+Recovery Plan আছে?
+
+Rollback সম্ভব?
+
+-------------------------------------------------------------------------------
+
+# STRESS THINKING
+
+বিশ্লেষণ করবে—
+
+যদি
+
+১০০ User
+
+↓
+
+১,০০০ User
+
+↓
+
+১০,০০০ User
+
+↓
+
+১,০০,০০০ User
+
+↓
+
+১০,০০,০০০ User
+
+একসাথে ব্যবহার করে—
+
+কোন অংশগুলো প্রথমে ভেঙে পড়তে পারে?
+
+-------------------------------------------------------------------------------
+
+# BUSINESS READINESS
+
+যাচাই করবে—
+
+বর্তমান Product
+
+আসল User-এর জন্য
+
+বাস্তব মূল্য তৈরি করছে কিনা।
+
+User কেন এটি ব্যবহার করবে?
+
+কেন টাকা দেবে?
+
+কেন আবার ফিরে আসবে?
+
+কেন অন্যকে Invite করবে?
+
+কেন Referral করবে?
+
+কেন Premium কিনবে?
+
+যদি কোনো প্রশ্নের উত্তর দুর্বল হয়
+
+সেটি বিস্তারিত লিখবে।
+
+-------------------------------------------------------------------------------
+
+# USER TRUST REVIEW
+
+বিশ্লেষণ করবে—
+
+User
+
+এই Website-কে
+
+বিশ্বাস করবে কেন?
+
+বর্তমান Trust Signal যথেষ্ট?
+
+আর কী যোগ করা উচিত?
+
+-------------------------------------------------------------------------------
+
+# WHATSAPP READINESS
+
+বিশেষভাবে যাচাই করবে—
+
+বর্তমান WhatsApp System
+
+Spam তৈরি করবে?
+
+নাকি
+
+Relationship তৈরি করবে?
+
+Contact সংগ্রহ
+
+User Consent
+
+Opt-in
+
+Opt-out
+
+Frequency
+
+Personalization
+
+সব যাচাই করবে।
+
+-------------------------------------------------------------------------------
+
+# REFERRAL READINESS
+
+Referral System
+
+বাস্তবে
+
+Viral হতে পারবে?
+
+Fraud হবে?
+
+Duplicate হবে?
+
+Commission Abuse হবে?
+
+Self Referral হবে?
+
+Network Spam হবে?
+
+সব বিশ্লেষণ করবে।
+
+-------------------------------------------------------------------------------
+
+# AI READINESS
+
+AI
+
+সত্যিই Business Value বাড়াচ্ছে?
+
+নাকি
+
+শুধু Feature হিসেবে আছে?
+
+AI কোথায়
+
+অপ্রয়োজনীয়?
+
+কোথায় আরও দরকার?
+
+-------------------------------------------------------------------------------
+
+# "WHY" ANALYSIS
+
+প্রতিটি বড় সিদ্ধান্তের জন্য
+
+কমপক্ষে ৫ স্তরের
+
+"Why"
+
+বিশ্লেষণ করবে
+
+যতক্ষণ না
+
+Root Cause পাওয়া যায়।
+
+-------------------------------------------------------------------------------
+
+# RECOMMENDATION STANDARD
+
+প্রতিটি Recommendation
+
+নিচের Format-এ লিখবে—
+
+সমস্যা
+
+↓
+
+Evidence
+
+↓
+
+Root Cause
+
+↓
+
+Business Impact
+
+↓
+
+Technical Impact
+
+↓
+
+Security Impact
+
+↓
+
+Recommendation
+
+↓
+
+Alternative
+
+↓
+
+Priority
+
+↓
+
+Estimated Time
+
+↓
+
+Expected ROI
+
+↓
+
+Verification Method
+
+-------------------------------------------------------------------------------
+
+# FINAL CERTIFICATION
+
+সবশেষে
+
+নিচের Scorecard পূরণ করবে।
+
+Architecture
+
+__/100
+
+Code Quality
+
+__/100
+
+Performance
+
+__/100
+
+Security
+
+__/100
+
+Database
+
+__/100
+
+WhatsApp System
+
+__/100
+
+Referral System
+
+__/100
+
+AI System
+
+__/100
+
+SEO
+
+__/100
+
+Accessibility
+
+__/100
+
+Business Model
+
+__/100
+
+Growth Readiness
+
+__/100
+
+Launch Readiness
+
+__/100
+
+-------------------------------------------------------------------------------
+
+# FINAL DECISION
+
+শেষে
+
+শুধুমাত্র
+
+একটি
+
+Decision দেবে—
+
+✅ READY FOR LAUNCH
+
+⚠ READY AFTER MINOR FIXES
+
+❌ NOT READY
+
+🚨 DO NOT LAUNCH
+
+-------------------------------------------------------------------------------
+
+# MANDATORY PRE-LAUNCH CHECKLIST
+
+যদি READY FOR LAUNCH না হয়
+
+তাহলে
+
+Launch করার আগে
+
+যে কাজগুলো অবশ্যই শেষ করতে হবে
+
+সেগুলো
+
+Priority অনুযায়ী
+
+Checklist আকারে লিখবে।
+
+কোনো Critical Issue বাকি থাকলে
+
+Launch করার অনুমতি দেবে না।
+
+-------------------------------------------------------------------------------
+
+# SELF-AUDIT
+
+চূড়ান্ত রিপোর্ট দেওয়ার আগে
+
+নিজের রিপোর্ট আবার নিজেই Review করবে।
+
+নিজের রিপোর্টে—
+
+কোনো অযাচাইকৃত দাবি আছে কি?
+
+কোনো বড় অংশ বাদ পড়েছে কি?
+
+কোনো Recommendation দুর্বল কি?
+
+কোনো Business Risk উপেক্ষা করা হয়েছে কি?
+
+যদি থাকে
+
+নিজেই সংশোধন করবে।
+
+-------------------------------------------------------------------------------
+
+# FINAL RULE
+
+তুমি Audit শেষ করবে না
+
+যতক্ষণ না
+
+তুমি নিশ্চিত হও—
+
+"আমি একজন CTO, একজন QA Lead, একজন Security Engineer এবং একজন Startup Founder হিসেবে এই Project Public Launch করতে স্বাচ্ছন্দ্যবোধ করব।"
+
+================================================================================
+
+DATA LIFECYCLE AUDIT
+
+================================================================================
+
+প্রতিটি Data Type-এর জন্য
+
+Create
+
+Validate
+
+Encrypt
+
+Store
+
+Backup
+
+Restore
+
+Export
+
+Delete
+
+Archive
+
+Destroy
+
+সব যাচাই করবে।
+
+যেখানে Gap থাকবে
+
+Highlight করবে।
+
+================================================================================
+
+TECHNICAL DEBT
+
+================================================================================
+
+প্রতিটি
+
+Technical Debt
+
+লিখবে।
+
+Root Cause
+
+Risk
+
+Priority
+
+Estimated Fix Time
+
+Business Impact
+
+সব।
+
+শেষে
+
+Technical Debt Score
+
+দেবে।
+================================================================================
+
+DEPENDENCY HEALTH
+
+================================================================================
+
+Audit করবে—
+
+Dependencies
+
+Packages
+
+Version
+
+Deprecated
+
+Security Risk
+
+Maintenance Status
+
+License
+
+সব।
+
+শেষে
+
+Dependency Health Score
+
+দেবে।
+
+# ===========================
+# END OF PART 03

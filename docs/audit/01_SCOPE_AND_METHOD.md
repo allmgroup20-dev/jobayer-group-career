@@ -20,7 +20,7 @@ Produce a single, unified, evidence-based **Production & Launch Readiness Certif
 | Cron triggers | 1 (`*/5 * * * *`) | `wrangler.jsonc:8` |
 | KPI/analytics routes | 12+ | `src/app/api/{track,kpi,personalize,maintenance}/*` |
 
-> **WIP exclusion (per founder rule, AIOS Part 13 §13.1):** the uncommitted working-tree WIP (`src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/api/unlocks/route.ts`, `src/app/courses/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`, `tsconfig.tsbuildinfo`) is **experimental/cleanup-only** (diff = deletions/trimming, no production features). It is therefore **explicitly EXCLUDED from the audit scope**, and **this certification applies only to the committed repository state** (HEAD `2702ef9`). No ambiguous state is certified. See `43_…` §12.2 decision log.
+> **WIP exclusion (per founder rule, AIOS Part 13 · CONSTITUTION):** the uncommitted working-tree WIP (`src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/api/unlocks/route.ts`, `src/app/courses/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`, `tsconfig.tsbuildinfo`) is **experimental/cleanup-only** (diff = deletions/trimming, no production features). It is therefore **explicitly EXCLUDED from the audit scope**, and **this certification applies only to the committed repository state** (HEAD `2702ef9`). No ambiguous state is certified. See `43_…` §12.2 decision log.
 
 ## 1.3 Phasing (hybrid priority-first — per founder decision)
 
@@ -63,17 +63,17 @@ FIX_SUGGESTION: (প্রস্তাবিত সমাধান — single-fo
 - **App source code will NOT be modified** unless the founder explicitly requests it.
 
 ## 1.8 Two-Layer Architecture & Mandatory Governance Components
-This audit is built on the **canonical 13-part JGC-AIOS** (`docs/framework/INDEX.md`) — the immutable source of truth. The framework layer (Layer 1) defines *how to audit & certify*; this `docs/audit/` layer (Layer 2) holds *what was found* in THIS repository and explicitly references its governing AIOS part. Synchronization is maintained via [`docs/AIOS_TRACEABILITY_MATRIX.md`](../AIOS_TRACEABILITY_MATRIX.md) (bidirectional: every AIOS Part ↔ ≥1 audit document; every audit doc ↔ governing part). **On conflict, the canonical AIOS takes precedence** (Part 13 §13.1).
+This audit is built on the **canonical 13-part JGC-AIOS** (`docs/framework/INDEX.md`) — the immutable source of truth. The framework layer (Layer 1) defines *how to audit & certify*; this `docs/audit/` layer (Layer 2) holds *what was found* in THIS repository and explicitly references its governing AIOS part. Synchronization is maintained via [`docs/AIOS_TRACEABILITY_MATRIX.md`](../AIOS_TRACEABILITY_MATRIX.md) (bidirectional: every AIOS Part ↔ ≥1 audit document; every audit doc ↔ governing part). **On conflict, the canonical AIOS takes precedence** (Part 13 · CONSTITUTION).
 
-**Five mandatory governance components (per AIOS Part 04 §4.7) are implemented here as living documents:**
+**Five mandatory governance components (per AIOS Part 13 · EVIDENCE COVERAGE TARGET / ASSUMPTION REGISTER / RUNTIME CONFIDENCE MATRIX / CONTRADICTION DETECTOR / FINAL QUALITY REVIEW) are implemented here as living documents:**
 | # | Component config | Framework standard | Project implementation |
 |---|---|---|---|
-| 1 | Coverage Matrix (100% scope) | AIOS Part 04 §4.6 | `02_COVERAGE_MATRIX.md` |
-| 2 | Assumption Register | AIOS Part 04 §4.3 | `03_ASSUMPTION_REGISTER.md` |
-| 3 | Confidence Matrix | AIOS Part 04 §4.3 | `04_CONFIDENCE_MATRIX.md` |
-| 4 | Contradiction Resolution Log | AIOS Part 13 §13.2 | `05_CONTRADICTION_RESOLUTION_LOG.md` |
-| 5 | Self-Review + Opportunity Discovery | AIOS Part 13 §13.2 | `06_SELF_REVIEW_OPPORTUNITY_DISCOVERY.md` |
+| 1 | Coverage Matrix (100% scope) | Part 13 · EVIDENCE COVERAGE TARGET | `02_COVERAGE_MATRIX.md` |
+| 2 | Assumption Register | Part 13 · ASSUMPTION REGISTER | `03_ASSUMPTION_REGISTER.md` |
+| 3 | Confidence Matrix | Part 13 · RUNTIME CONFIDENCE MATRIX | `04_CONFIDENCE_MATRIX.md` |
+| 4 | Contradiction Resolution Log | Part 13 · CONTRADICTION DETECTOR | `05_CONTRADICTION_RESOLUTION_LOG.md` |
+| 5 | Self-Review + Opportunity Discovery | Part 13 · FINAL QUALITY REVIEW | `06_SELF_REVIEW_OPPORTUNITY_DISCOVERY.md` |
 
 **Rule:** any new finding/assumption/contradiction/opportunity discovered during this or later phases must be registered in the relevant doc with evidence class (✅ static / ⏱ runtime / 🏭 prod / ❓ manual) + confidence + status before use. No assumption is ever recorded as fact — a guessed item is recorded as ❓.
-- **Evidence classes:** AIOS Part 04 §4.3.
-- **Decision & governance gate:** AIOS Part 13 §13.3 / §13.2.
+- **Evidence classes:** AIOS Part 04 · EVIDENCE RULE.
+- **Decision & governance gate:** AIOS Part 13 · FINAL CERTIFICATION RULE / QUALITY GATE.

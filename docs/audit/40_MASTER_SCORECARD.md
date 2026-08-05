@@ -1,8 +1,8 @@
 # 40 — Master Scorecard (16 Domains) — Interim Static
 
-> Implements AIOS Part 10 §10.1 (16-domain master scorecard) + Part 03 §3.5 (scoring rules).
+> Implements AIOS Part 10 · EXECUTIVE SCORECARD (16-domain master scorecard) + Part 03 · FINAL CERTIFICATION (scoring rules).
 > **Label: interim (static)** — final values only after runtime (⏱) + production (🏭) evidence. Final version lands in `41_…`.
-> Scores are evidence-tied (finding IDs listed); weights per Part 10 §10.1 default.
+> Scores are evidence-tied (finding IDs listed); weights per Part 10 · EXECUTIVE SCORECARD default.
 
 ## Overall (weighted mean)
 
@@ -33,20 +33,20 @@
 
 > Note: rounded to whole points. Security+Payments (35% combined weight) are the dominant drivers and are P0-gated.
 
-## Certification Level (AIOS Part 03 §3.1)
+## Certification Level (AIOS Part 03 · CERTIFICATION LEVELS)
 
 | Level | Name | Status |
 |---|---|---|
-| 1 | Baseline (scope classified) | ✅ |
-| 2 | Static Audit Complete | ✅ (this scorecard) |
-| 3 | Blockers Closed (all Critical) | ❌ — C1–C9 open |
-| 4 | High Risks Closed | ❌ |
-| 5 | Runtime Verified | ⏳ pending |
-| 6 | Production Verified | ⏳ pending |
-| 7 | ✅ READY FOR LAUNCH | ❌ |
+| 1 | Prototype (scope classified) | ✅ |
+| 2 | Development (static audit complete) | ✅ (this scorecard) |
+| 3 | Testing (all Critical resolved + verified) | ❌ — C1–C9 open |
+| 4 | Beta (all High resolved) | ❌ |
+| 5 | Production Candidate (runtime ⏱ verified) | ⏳ pending |
+| 6 | Production Ready (production 🏭 verified) | ⏳ pending |
+| 7 | ✅ Enterprise Ready (READY FOR LAUNCH) | ❌ |
 
 ## Threshold interpretation
 
-**38/100 < 70** → Not ready. Security+Payments must reach ≥ 75 in re-certification (per `41_…` §interpretation). Re-certify per AIOS Part 03 §3.1 / Part 13 §13.3 after P0+P1 fixes + runtime PASS.
+**38/100 < 70** → Not ready. Security+Payments must reach ≥ 75 in re-certification (per `41_…` §interpretation). Re-certify per AIOS Part 03 · CERTIFICATION LEVELS / Part 13 · FINAL CERTIFICATION RULE after P0+P1 fixes + runtime PASS.
 
 *— Interim (static). Review draft; not committed.*

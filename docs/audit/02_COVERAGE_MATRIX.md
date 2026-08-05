@@ -1,6 +1,6 @@
 # 02 — Coverage Matrix (100% Scope Verification)
 
-> Implements AIOS Part 04 §4.6 (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Three layers. **No repository item is left unclassified.**
+> Implements AIOS Part 04 · EVIDENCE RULE / OUTPUT FORMAT (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Three layers. **No repository item is left unclassified.**
 > Status legend: `Audited` = evidence reviewed · `Partial` = structure confirmed, deep behavior ⏱/❓ · `Gap` = known, not yet reviewed · `Excluded` = justified.
 > Evidence classes: ✅ static · ⏱ runtime · 🏭 prod · ❓ manual.
 > *Last reviewed: 2026-08-04 · Review draft — not committed.*

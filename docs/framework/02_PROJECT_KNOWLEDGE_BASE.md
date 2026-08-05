@@ -1,44 +1,666 @@
-# Part 02 — Project Knowledge Base (AIOS)
+# PART 02
+# PROJECT KNOWLEDGE BASE • BUSINESS CONTEXT • GOALS • CONSTRAINTS
+# ================================================================================
 
-> Canonical AIOS Part 02 — the knowledge base every audit run MUST consult before starting.
+# PROJECT NAME
 
-## 2.1 Project Overview
+Jobayer Group Career
 
-- **Platform:** Jobayer Group Career Platform — an online career/course business.
-- **Stack:** Node + Vite + React + TypeScript + Next.js, deployed via **Cloudflare Workers (OpenNext) + D1 (SQLite)**; PostgreSQL-compatible via Drizzle ORM; 18 D1 migrations; 65 tables; `sslcommerz` payments; `wa-relay` WhatsApp (Baileys) service on Railway/Docker; 3 Cloudflare workers (app, ai-app, chat-worker).
-- **Repository layout:** `src/` (Next app), `ai-app/` (AI worker), `chat-worker/`, `wa-relay/`, `.github/workflows/`, `docs/` (framework + audit + strategy).
+-------------------------------------------------------------------------------
 
-## 2.2 Business Context
+# PROJECT TYPE
 
-- **Monetization model:** users purchase resources individually at **৳99 per purchase** — this is a **hard business constraint**, NOT a subscription. Resource-leakage risk means access control must be airtight.
-- **Target market:** **18–35 year-old Bengali smartphone users**; mobile-first; Bengali content; payments via **bKash/Nagad (BDT)**.
-- **Growth engines:** **referral program + WhatsApp automation** (approved templates only) are the core organic growth levers.
-- **Trust requirement:** real-money platform — payment verification, refunds, account security, and honest UX are business-critical.
+এটি শুধুমাত্র একটি Learning Website নয়।
 
-## 2.3 Goals
+এটি একটি সমন্বিত AI-Powered Career Growth Platform।
 
-| Horizon | Goal |
-|---|---|
-| Short | Fix all P0/P1 audit blockers; ship a safe, working launch |
-| Medium | Organic growth via referral + WhatsApp; reach a defensible viral loop; establish KPI dashboard |
-| Long | Become a leading Bengali career-growth platform via AI-assisted learning + automation |
+এটি Learning Platform
 
-## 2.4 Constraints
++
 
-1. **Single solo founder** — everything must be single-founder buildable.
-2. **Free-first** — no paid tools or paid marketing; organic-only.
-3. **Security-first** — money + user data involved; never compromise.
-4. **৳ only** — never use another currency.
-5. **Ethics** — real consent; no dark patterns; no spam (WhatsApp templates must be approved).
-6. **Business-first** — Revenue / Trust / Growth / Automation are the highest-priority domains.
+Digital Resource Marketplace
 
-## 2.5 Operational Environment
++
 
-| Concern | Detail |
-|---|---|
-| Runtime | Cloudflare Workers (OpenNext build) + D1 database + KV (CACHE) + cron (`*/5 * * * *`) |
-| Payments | SSLCommerz (sandbox: `SSLCOMMERZ_IS_LIVE=false`) — IPN + validation must be server-side |
-| Messaging | wa-relay (Baileys, Node, Docker on Railway) — template-based OTP/marketing only |
-| AI | ai-app worker (57 routes) + chat-worker — user-facing AI features |
-| CI/CD | 3 GitHub Actions workflows (deploy / deploy-ai / deploy-chat) + 3 wrangler configs |
-| Secrets | `.dev.vars` / wrangler secrets / GitHub Actions secrets — never committed |
+Career Platform
+
++
+
+Referral Network
+
++
+
+AI Automation Platform
+
++
+
+Community Driven Growth Platform
+
++
+
+Business Automation System
+
++
+
+Future AI Ecosystem
+
+-------------------------------------------------------------------------------
+
+# PROJECT STATUS
+
+এই Project
+
+Production Environment-এ রয়েছে।
+
+Website ইতোমধ্যেই তৈরি।
+
+Core Features বিদ্যমান।
+
+এটি Prototype নয়।
+
+এটি Demo নয়।
+
+এটি একটি Real Business Platform।
+
+তোমার কাজ
+
+নতুন Project তৈরি করা নয়।
+
+তোমার কাজ
+
+বর্তমান Project-কে
+
+বিশ্বমানে উন্নীত করা।
+
+-------------------------------------------------------------------------------
+
+# TECHNOLOGY STACK
+
+Frontend
+
+• Next.js
+
+Backend
+
+• Next.js API
+
+Hosting
+
+• Cloudflare Workers
+
+Database
+
+• Cloudflare D1
+
+ORM
+
+• Drizzle
+
+Deployment
+
+• GitHub Actions
+
+Repository
+
+GitHub
+
+Runtime
+
+Cloudflare Edge
+
+-------------------------------------------------------------------------------
+
+# LANGUAGE
+
+Primary
+
+বাংলা
+
+Secondary
+
+English
+
+Default Font
+
+SolaimanLipi
+
+-------------------------------------------------------------------------------
+
+# TARGET USERS
+
+বাংলাদেশের
+
+বাংলাভাষী
+
+১৮–৩৫ বছর
+
+Smartphone User
+
+Internet User
+
+Students
+
+Job Seekers
+
+Freelancers
+
+Entrepreneurs
+
+Professionals
+
+Skill Learners
+
+Career Builders
+
+People Looking To Earn Online
+
+-------------------------------------------------------------------------------
+
+# CURRENT BUSINESS MODEL
+
+বর্তমান Model
+
+Low Entry Barrier।
+
+User
+
+↓
+
+Free Registration
+
+↓
+
+Browse Resource
+
+↓
+
+Purchase Individual Resource
+
+↓
+
+Unlock Resource
+
+↓
+
+Receive Recommendation
+
+↓
+
+Purchase More Resources
+
+↓
+
+Referral
+
+↓
+
+Repeat Purchase
+
+-------------------------------------------------------------------------------
+
+# IMPORTANT PRODUCT DECISION
+
+বর্তমান Business Model
+
+Subscription ভিত্তিক নয়।
+
+Unlimited Access Membership
+
+বর্তমানে Business Model-এর অংশ নয়।
+
+কারণ
+
+Resource Download করে
+
+Permanent Save করা সম্ভব।
+
+সুতরাং
+
+Weekly
+
+Monthly
+
+Quarterly
+
+Yearly
+
+Unlimited Subscription
+
+বর্তমান Model-এর জন্য
+
+Business Risk তৈরি করতে পারে।
+
+এই কারণে
+
+Individual Resource Purchase Model
+
+বর্তমান Strategy।
+
+তুমি
+
+এই Decision-কে
+
+Business Constraint হিসেবে বিবেচনা করবে।
+
+যদি অন্য কোনো Model প্রস্তাব করো
+
+তাহলে
+
+স্পষ্টভাবে ব্যাখ্যা করবে
+
+কীভাবে
+
+Resource Leakage
+
+প্রতিরোধ করা হবে।
+
+-------------------------------------------------------------------------------
+
+# CURRENT OFFER
+
+প্রতিটি Resource
+
+আলাদাভাবে Purchase করা যায়।
+
+বর্তমান Entry Price
+
+৳99 (বাংলাদেশি টাকা)
+
+⚠️ গুরুত্বপূর্ণ
+
+কখনো
+
+₹
+
+(Indian Rupee)
+
+ব্যবহার করবে না।
+
+সবসময়
+
+৳
+
+(Bangladeshi Taka)
+
+ব্যবহার করবে।
+
+-------------------------------------------------------------------------------
+
+# CORE FEATURES
+
+বর্তমানে Project-এ রয়েছে—
+
+• User Dashboard
+
+• Company Dashboard
+
+• Admin Dashboard
+
+• AI Brain
+
+• AI Agents
+
+• Personalized Notification
+
+• Notification Center
+
+• Referral System
+
+• Networking System
+
+• Commission System
+
+• Resource Unlock
+
+• Payment System
+
+• Finance
+
+• WhatsApp Integration
+
+• WhatsApp Automation
+
+• User Tracking
+
+• Analytics
+
+• Quiz
+
+• Lead Generation
+
+• FAQ
+
+• PWA
+
+• SEO
+
+• AI Automation
+
+• Customer Experience System
+
+-------------------------------------------------------------------------------
+
+# REFERRAL SYSTEM
+
+Referral System
+
+এই Project-এর
+
+সবচেয়ে গুরুত্বপূর্ণ অংশগুলোর একটি।
+
+User
+
+তার Link
+
+Share করতে পারে।
+
+নতুন User
+
+Join করতে পারে।
+
+Reward পেতে পারে।
+
+Networking
+
+Business Growth
+
+Community Growth
+
+Organic Growth
+
+সবকিছু
+
+এই System-এর উপর নির্ভর করতে পারে।
+
+Audit করার সময়
+
+Referral System-কে
+
+বিশেষ গুরুত্ব দিতে হবে।
+
+-------------------------------------------------------------------------------
+
+# WHATSAPP SYSTEM
+
+WhatsApp System
+
+এই Project-এর
+
+Core Growth Engine।
+
+বিশেষভাবে যাচাই করবে—
+
+• Contact Collection
+
+• Consent
+
+• Personalization
+
+• Name Merge
+
+• Automation
+
+• Queue
+
+• Retry
+
+• Broadcast Logic
+
+• Follow-up
+
+• Reminder
+
+• Spam Prevention
+
+• Abuse Prevention
+
+• Privacy
+
+• Logging
+
+• Error Recovery
+
+• Scalability
+
+বিশেষভাবে বিশ্লেষণ করবে—
+
+বর্তমান System
+
+১ লক্ষ
+
+৫ লক্ষ
+
+১০ লক্ষ
+
+User Handle করতে পারবে কিনা।
+
+-------------------------------------------------------------------------------
+
+# AI SYSTEM
+
+বর্তমানে AI ব্যবহার করা হয়েছে।
+
+কিন্তু
+
+কোনো AI System-কে
+
+Perfect ধরে নেবে না।
+
+যাচাই করবে—
+
+AI
+
+আরও কোথায় ব্যবহার করা যায়।
+
+Automation
+
+আরও কোথায় করা যায়।
+
+Decision Making
+
+AI দিয়ে উন্নত করা যায় কিনা।
+
+-------------------------------------------------------------------------------
+
+# PRIMARY BUSINESS GOAL
+
+সবচেয়ে গুরুত্বপূর্ণ লক্ষ্য
+
+১ থেকে ৩ মাসের মধ্যে
+
+বাংলাভাষী
+
+১ কোটি মানুষের কাছে পৌঁছানো।
+
+এই লক্ষ্য
+
+অত্যন্ত উচ্চাভিলাষী।
+
+তুমি
+
+এটিকে
+
+Guaranteed Outcome
+
+হিসেবে বিবেচনা করবে না।
+
+বরং
+
+যাচাই করবে—
+
+বর্তমান Product
+
+এই লক্ষ্য অর্জনের জন্য
+
+যথেষ্ট প্রস্তুত কিনা।
+
+যদি না হয়
+
+কেন না
+
+সেটি বিস্তারিতভাবে লিখবে।
+
+-------------------------------------------------------------------------------
+
+# HARD CONSTRAINTS
+
+কোনো Paid Tool নয়।
+
+কোনো Paid Marketing নয়।
+
+কোনো Paid Advertisement নয়।
+
+কোনো Paid Growth Service নয়।
+
+কোনো Paid Automation নয়।
+
+কোনো Paid SaaS নয়।
+
+সব Recommendation
+
+সম্ভব হলে
+
+Free
+
+Open Source
+
+Cloudflare Free
+
+GitHub Free
+
+Organic Growth
+
+AI Automation
+
+Community Growth
+
+Referral Growth
+
+এর উপর ভিত্তি করে হবে।
+
+-------------------------------------------------------------------------------
+
+# FOUNDER CONSTRAINT
+
+বর্তমানে
+
+Founder
+
+একাই
+
+Project Build করছেন।
+
+বর্তমানে
+
+Active Team
+
+নিশ্চিত নয়।
+
+সুতরাং
+
+সব Recommendation
+
+Single Founder Friendly
+
+হতে হবে।
+
+যদি Team লাগে
+
+তাহলে
+
+Optional Scaling Strategy
+
+হিসেবে উল্লেখ করবে।
+
+-------------------------------------------------------------------------------
+
+# AUDIT PHILOSOPHY
+
+তোমার কাজ
+
+Feature Count করা নয়।
+
+তোমার কাজ
+
+Feature-এর
+
+Business Value
+
+Growth Value
+
+Revenue Value
+
+Automation Value
+
+Maintenance Cost
+
+Scalability
+
+Security
+
+Future Risk
+
+বিশ্লেষণ করা।
+
+-------------------------------------------------------------------------------
+
+# WHAT SUCCESS MEANS
+
+Audit শেষে
+
+শুধু Bug List
+
+দেওয়া যাবে না।
+
+তোমাকে বলতে হবে—
+
+• কী রাখা উচিত
+
+• কী বাদ দেওয়া উচিত
+
+• কী পুনর্নির্মাণ করা উচিত
+
+• কী Simplify করা উচিত
+
+• কী Automation করা উচিত
+
+• কী AI দিয়ে Replace করা উচিত
+
+• কী Viral করা উচিত
+
+• কী Monetize করা উচিত
+
+-------------------------------------------------------------------------------
+
+# FINAL OBJECTIVE
+
+এই Project-কে
+
+একটি
+
+World-Class
+
+AI Powered
+
+Highly Secure
+
+Highly Automated
+
+Highly Scalable
+
+High Conversion
+
+High Retention
+
+High Referral
+
+High Trust
+
+High Revenue
+
+Organic Growth Platform-এ
+
+রূপান্তর করা।
+
+# ===========================
+# END OF PART 02

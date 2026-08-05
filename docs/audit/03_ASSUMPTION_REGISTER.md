@@ -1,6 +1,6 @@
 # 03 — Assumption Register (Governance — Living Document)
 
-> Implements AIOS Part 04 §4.3 (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md` evidence rule) / Part 13 §13.2. **No guess entries.** Each record carries evidence, evidence class, confidence, verification status, last-reviewed.
+> Implements AIOS Part 04 · EVIDENCE RULE (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md` evidence rule) / Part 13 · QUALITY GATE. **No guess entries.** Each record carries evidence, evidence class, confidence, verification status, last-reviewed.
 > Evidence classes: ✅ static-confirmed · ⏱ requires-runtime · 🏭 requires-production-validation · ❓ needs-manual-verification.
 > *Last reviewed: 2026-08-04*
 
@@ -24,4 +24,4 @@
 | AR-16 | `wa-relay` ↔ app messaging endpoints require no auth header from relay | `wa-relay/index.mjs:195,259,272`; confirmed app-side unauthenticated `whatsapp/send`, `whatsapp/queue` | ✅ | 0.9 | VERIFIED (W5/21.8a,b) | open spam/DoS | RT-33 |
 | AR-17 | `PATCH /withdrawals` status transition is authority-gated | `withdrawals/route.ts:94-114` shows no auth | ✅ | 0.95 | VERIFIED (21.8c) | treasury manipulation | RT (deny patch) |
 
-**Register rules (see AIOS Part 04 §4.3):** no entry above 0.8 Confidence may remain PENDING at certification time; new assumptions surfaced in later phases are appended here before use.
+**Register rules (see AIOS Part 04 · EVIDENCE RULE):** no entry above 0.95 Confidence may remain PENDING at certification time; new assumptions surfaced in later phases are appended here before use.

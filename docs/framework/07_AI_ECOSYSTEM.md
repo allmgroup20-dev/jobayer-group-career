@@ -1,43 +1,724 @@
-# Part 07 — AI Ecosystem (AIOS)
+# PART 07
+#
+# AI ECOSYSTEM
+# AUTOMATION
+# WHATSAPP
+# NETWORKING
+# EXECUTIVE INTELLIGENCE ENGINE
+#
+# ================================================================================
 
-> Canonical AIOS Part 07. The audit layer's `25_AI_ECOSYSTEM_AUDIT.md` implements this part.
+# MISSION
 
-## 7.1 AI Architecture Audit
+তোমার কাজ শুধু AI Feature Audit করা নয়।
 
-- Inventory of AI surfaces: `ai-app` worker (57 routes), `chat-worker`, in-app AI features, WhatsApp AI flows.
-- Data flow, model/provider usage, caching (KV), cost per call.
+তোমার কাজ
 
-## 7.2 Prompt Engineering Standards
+পুরো AI Ecosystem
 
-- Prompts must be versioned, testable, and injection-resistant (user input never treated as instructions).
-- Dangerous-content and jailbreak mitigations required.
-- Output must be validated (schema/type) before use.
+পুনরায় ডিজাইন করা।
 
-## 7.3 Multi-Agent & Orchestration
+তোমাকে এমনভাবে Audit করতে হবে
 
-- Any multi-agent flow must define: agents, responsibilities, hand-off rules, failure handling, and human-approval boundaries.
+যেন
 
-## 7.4 Business Value of AI
+AI
 
-- Every AI feature must map to a business outcome (Revenue / Trust / Growth / Automation / Retention).
-- AI that has no measurable business value is flagged as waste.
+এই Business-এর
 
-## 7.5 Automation Engine — 25 Automations + 25 AI Features
+Virtual CEO
 
-The audit layer maintains two living inventories (implemented in `25_AI_ECOSYSTEM_AUDIT.md`):
+Virtual COO
 
-- **25 Automations** (operational): WhatsApp onboarding/OTP, order confirmation, refund flows, referral notifications, payment reconciliation, cron jobs, KPI alerts, reminders, etc.
-- **25 AI Features** (user-facing/assistant): AI tutor, resume/career assistant, Bengali learning paths, quiz generation, chat-worker Q&A, etc.
+Virtual CMO
 
-Each entry: purpose, AIOS part reference, status (done/planned/blocked), priority, single-founder effort, and abuse/security note.
+Virtual CRO
 
-## 7.6 WhatsApp Ecosystem
+Virtual Customer Success Manager
 
-- wa-relay (Baileys) audit: session persistence, reconnect, template-only messaging (no free-form spam), consent, ban-risk controls, queueing (`/api/whatsapp/queue`).
-- Approved Meta templates only for outbound; OTP must be template-based (C8 blocker).
+Virtual Support Manager
 
-## 7.7 AI Security, Observability & Cost
+Virtual Growth Manager
 
-- **Security:** prompt injection, data leakage (PII into prompts), tool/function-call abuse.
-- **Observability:** AI call logs, latency, error rates, cost per feature.
-- **Cost optimization:** caching, model tiering, token budgets — free-first (Part 01 §1.4.7).
+হিসেবে কাজ করতে পারে।
+
+-------------------------------------------------------------------------------
+
+# PRIMARY OBJECTIVE
+
+যাচাই করবে—
+
+বর্তমান AI
+
+শুধু Feature
+
+নাকি
+
+আসল Business Value তৈরি করছে।
+
+-------------------------------------------------------------------------------
+
+# AI ARCHITECTURE AUDIT
+
+বিশ্লেষণ করবে—
+
+AI Brain
+
+AI Agent
+
+AI Workflow
+
+AI Context
+
+AI Prompt
+
+AI Memory
+
+AI Decision
+
+AI Communication
+
+AI Logging
+
+AI Monitoring
+
+AI Feedback
+
+AI Learning
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# AI PROMPT ENGINEERING AUDIT
+
+যাচাই করবে—
+
+System Prompt
+
+Prompt Chain
+
+Prompt Injection
+
+Context Window
+
+Token Efficiency
+
+Prompt Reuse
+
+Prompt Version
+
+Prompt Security
+
+Hallucination Risk
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# MULTI AGENT AUDIT
+
+যদি
+
+একাধিক AI Agent থাকে
+
+যাচাই করবে—
+
+Agent Role
+
+Agent Responsibility
+
+Agent Communication
+
+Agent Routing
+
+Agent Delegation
+
+Agent Conflict
+
+Agent Memory
+
+Agent Performance
+
+-------------------------------------------------------------------------------
+
+# AI BUSINESS VALUE
+
+প্রতিটি AI Feature
+
+যাচাই করবে—
+
+Revenue বাড়ায়?
+
+Conversion বাড়ায়?
+
+Retention বাড়ায়?
+
+Referral বাড়ায়?
+
+Automation বাড়ায়?
+
+Founder-এর সময় বাঁচায়?
+
+-------------------------------------------------------------------------------
+
+# AI AUTOMATION ENGINE
+
+বর্তমান Automation
+
+যাচাই করবে।
+
+যেখানে Automation নেই
+
+সেখানে নতুন Automation
+
+প্রস্তাব করবে।
+
+যেমন—
+
+User Registration
+
+↓
+
+Welcome
+
+↓
+
+WhatsApp
+
+↓
+
+Onboarding
+
+↓
+
+Purchase
+
+↓
+
+Recommendation
+
+↓
+
+Referral Reminder
+
+↓
+
+Inactive Reminder
+
+↓
+
+Reactivation
+
+↓
+
+Repeat Purchase
+
+↓
+
+Feedback
+
+↓
+
+Review
+
+↓
+
+Community Join
+
+↓
+
+Loyalty
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# WHATSAPP ECOSYSTEM
+
+WhatsApp System
+
+শুধু Message পাঠায় কিনা
+
+তা নয়।
+
+পুরো Business Automation
+
+হিসেবে Audit করবে।
+
+যাচাই করবে—
+
+Lead Collection
+
+Consent
+
+Name Merge
+
+Personalization
+
+Dynamic Variables
+
+Campaign
+
+Broadcast
+
+Queue
+
+Retry
+
+Rate Limit
+
+Spam Protection
+
+Conversation Flow
+
+Follow-up
+
+Re-engagement
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# NETWORKING SYSTEM
+
+বর্তমান Networking System
+
+বিশ্লেষণ করবে।
+
+যাচাই করবে—
+
+User কেন
+
+অন্যকে Invite করবে?
+
+Network কেন
+
+নিজে নিজে বাড়বে?
+
+কোথায় Friction?
+
+কোথায় Abuse?
+
+কোথায় Automation?
+
+কোথায় AI ব্যবহার করা যায়?
+
+-------------------------------------------------------------------------------
+
+# AI SALES ENGINE
+
+যাচাই করবে—
+
+AI
+
+Sales বাড়াতে
+
+কি করছে?
+
+আর কি করতে পারে?
+
+যেমন—
+
+AI Recommendation
+
+AI Upsell
+
+AI Cross Sell
+
+AI Bundle Suggestion
+
+AI Next Best Offer
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# AI CUSTOMER SUCCESS
+
+যাচাই করবে—
+
+AI
+
+User Retention
+
+কিভাবে বাড়াতে পারে।
+
+যেমন—
+
+Reminder
+
+Learning Progress
+
+Purchase Reminder
+
+Goal Reminder
+
+Motivation
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# AI GROWTH ENGINE
+
+যাচাই করবে—
+
+AI
+
+Organic Growth
+
+দ্বিগুণ করতে
+
+কি করতে পারে।
+
+যেমন—
+
+AI Referral Coach
+
+AI Share Suggestion
+
+AI Community Coach
+
+AI Campaign Generator
+
+AI Growth Score
+
+-------------------------------------------------------------------------------
+
+# AI SECURITY
+
+যাচাই করবে—
+
+Prompt Injection
+
+Data Leakage
+
+Sensitive Data
+
+Access Control
+
+Prompt Exposure
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# AI OBSERVABILITY
+
+যাচাই করবে—
+
+AI
+
+কী করছে
+
+তা
+
+Audit করা যায়?
+
+Log আছে?
+
+Metrics আছে?
+
+Failure Tracking আছে?
+
+-------------------------------------------------------------------------------
+
+# AI COST OPTIMIZATION
+
+যাচাই করবে—
+
+Token Waste
+
+Repeated Prompt
+
+Duplicate Context
+
+Context Compression
+
+Caching
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# EXECUTIVE AI
+
+বিশ্লেষণ করবে—
+
+Founder-এর
+
+কোন কাজগুলো
+
+AI দিয়ে Replace করা যায়।
+
+যেমন—
+
+Support
+
+Marketing
+
+Follow-up
+
+Lead Qualification
+
+Sales
+
+Report
+
+Analytics
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# AUTOMATION GAP
+
+বর্তমান System-এ
+
+Automation কোথায় নেই?
+
+কোথায় যোগ করলে
+
+Founder-এর সময়
+
+সবচেয়ে বেশি বাঁচবে?
+
+-------------------------------------------------------------------------------
+
+# OUTPUT FORMAT
+
+প্রতিটি Finding
+
+নিচের Format-এ হবে।
+
+Problem
+
+↓
+
+Evidence
+
+↓
+
+Root Cause
+
+↓
+
+Business Impact
+
+↓
+
+AI Impact
+
+↓
+
+Automation Impact
+
+↓
+
+Priority
+
+↓
+
+Recommendation
+
+↓
+
+Alternative
+
+↓
+
+Estimated Time
+
+↓
+
+Difficulty
+
+↓
+
+Expected ROI
+
+↓
+
+Verification Method
+
+-------------------------------------------------------------------------------
+
+# AI SCORECARD
+
+AI Architecture
+
+__/100
+
+Prompt Engineering
+
+__/100
+
+Automation
+
+__/100
+
+WhatsApp System
+
+__/100
+
+Networking System
+
+__/100
+
+AI Sales
+
+__/100
+
+AI Growth
+
+__/100
+
+AI Security
+
+__/100
+
+AI Cost Efficiency
+
+__/100
+
+Executive AI Readiness
+
+__/100
+
+-------------------------------------------------------------------------------
+
+# FINAL AI DECISION
+
+সবশেষে
+
+উত্তর দেবে—
+
+বর্তমান AI
+
+Business-এর
+
+মূল Growth Engine
+
+হতে প্রস্তুত?
+
+YES / NO
+
+Founder-এর
+
+কোন ২৫টি কাজ
+
+AI দিয়ে Automation করা উচিত?
+
+কোন ২৫টি AI Feature
+
+সবচেয়ে বেশি Business Impact দেবে?
+
+-------------------------------------------------------------------------------
+
+# SELF REVIEW
+
+প্রথম রিপোর্ট দেওয়ার পরে
+
+নিজের AI Strategy
+
+নিজেই Audit করবে।
+
+যদি
+
+আরও ভালো
+
+Automation
+
+থাকে
+
+নিজেই যোগ করবে।
+
+যদি
+
+আরও ভালো
+
+AI Agent
+
+থাকে
+
+নিজেই প্রস্তাব করবে।
+
+যদি
+
+আরও ভালো
+
+Networking Intelligence
+
+থাকে
+
+সেটিও যোগ করবে।
+
+এই Review চলবে
+
+যতক্ষণ পর্যন্ত
+
+AI Strategy
+
+Business-কেন্দ্রিক
+
+Founder Friendly
+
+Scalable
+
+Automation First
+
+এবং
+
+Confidence Score ≥ 9.8/10
+
+না হয়।
+
+================================================================================
+
+AI RED TEAM
+
+================================================================================
+
+AI বাধ্য থাকবে
+
+নিজের বিরুদ্ধে
+
+Attack Simulation
+
+চালাতে।
+
+Prompt Injection
+
+Indirect Prompt Injection
+
+Jailbreak
+
+Data Extraction
+
+Prompt Leakage
+
+Role Escape
+
+Instruction Override
+
+Context Poisoning
+
+Prompt Collision
+
+Sensitive Data Exposure
+
+প্রতিটি Attack-এর জন্য
+
+Risk
+
+Impact
+
+Mitigation
+
+Verification
+
+সব লিখবে।
+
+# ================================================================================
+# END OF PART 07

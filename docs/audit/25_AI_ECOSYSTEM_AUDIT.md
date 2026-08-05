@@ -42,7 +42,7 @@
 
 ---
 
-## 25.6 Automation Engine — 25 Automations (AIOS Part 07 §7.5)
+## 25.6 Automation Engine — 25 Automations (AIOS Part 07 · AI AUTOMATION ENGINE)
 
 > Each: purpose → status (done/partial/planned/blocked) → priority → single-founder effort → note.
 
@@ -74,7 +74,7 @@
 | AU-24 | Support auto-responder (FAQ, AI) | planned | P2 | M | safe-guarded AI |
 | AU-25 | Monthly experiment review report | planned | P2 | S | Part 11 cadence |
 
-## 25.7 AI Features — 25 (AIOS Part 07 §7.5)
+## 25.7 AI Features — 25 (AIOS Part 07 · AI SCORECARD / AI AUTOMATION ENGINE)
 
 | ID | Feature | Status | Priority | Effort | Note |
 |---|---|---|---|---|---|
@@ -106,4 +106,4 @@
 
 ### Inventory status
 - Automations: **25/25 defined** (7 🔴 blocked by P0) · AI features: **25/25 defined** (majority planned).
-- Every AI feature maps to a business outcome (Revenue/Trust/Growth/Automation/Retention) per AIOS Part 07 §7.4; none relied on to ship launch.
+- Every AI feature maps to a business outcome (Revenue/Trust/Growth/Automation/Retention) per AIOS Part 07 · AI BUSINESS VALUE; none relied on to ship launch.

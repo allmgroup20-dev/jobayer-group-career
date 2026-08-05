@@ -78,7 +78,7 @@
 
 ---
 
-## 21.9 The 17 Mandatory Security Sub-Audits (AIOS Part 08 §8.1 — Phase-2.5 mapping)
+## 21.9 The 17 Mandatory Security Sub-Audits (AIOS Part 08 · AUTHENTICATION AUDIT–INCIDENT RESPONSE — Phase-2.5 mapping)
 
 | # | Sub-audit | Covered where | New findings |
 |---|---|---|---|
@@ -140,7 +140,7 @@
 
 ### 21.9.8 Sub-Audit #14 — Trust
 - TR1 ✅ Positive: money-back guarantee + live purchase ticker + KPI tracker exist (per `docs/strategy/` sprint work) — strong trust foundation **if real** (🏭 verify ticker not fabricated).
-- TR2 🟠 High: any fabricated social proof / fake scarcity would violate AIOS Part 01 §1.4.6 — audit honesty of all social-proof widgets (🏭).
+- TR2 🟠 High: any fabricated social proof / fake scarcity would violate AIOS Part 01 · GOLDEN RULES — audit honesty of all social-proof widgets (🏭).
 
 ### 21.9.9 Sub-Audit #15 — Business Risk
 - BR1 🟠 High: **single-founder + single wa-relay node** = key-person/availability risk (also SC1, `20.7.8`).

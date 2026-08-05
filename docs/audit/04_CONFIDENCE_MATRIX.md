@@ -1,7 +1,7 @@
 # 04 — Confidence Matrix (Governance — Living Document)
 
-> Implements AIOS Part 04 §4.3 (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Confidence = [0,1]; evidence-class cap: ✅0.95 / ⏱0.5 / 🏭0.3 / ❓n/a.
-> Gate: any finding with Confidence < 0.8 must be flagged ❓ or downgraded and cannot support a certification PASS.
+> Implements AIOS Part 04 · EVIDENCE RULE (`docs/framework/04_TECHNICAL_AUDIT_ENGINE.md`). Confidence = [0,1]; evidence-class cap: ✅0.95 / ⏱0.5 / 🏭0.3 / ❓n/a.
+> Gate: any finding with Confidence < 0.95 must be flagged ❓ or downgraded and cannot support a certification PASS (AIOS Part 13 · RUNTIME CONFIDENCE MATRIX).
 > *Last reviewed: 2026-08-04*
 
 ## 4.1 Blockers & Key Findings (by report)
@@ -43,10 +43,10 @@
 | Business/Growth | 0.55 | runtime/economic data needed |
 | UX/SEO/Perf/A11y | 0.35 | ⏱/🏭 gated |
 | Ops/CI-CD | 0.62 | static + ⏱ |
-| **Overall** | **0.59** | below 0.8 → certification PENDING evidence |
+| **Overall** | **0.59** | below 0.95 → certification PENDING evidence |
 
 ## 4.3 Current-Gate State
-- Findings with Confidence < 0.8 (C8, H3, H4, W5, A1, and domain-level UX/WhatsApp/AI) are **flagged for runtime** — they cannot yet support any PASS.
+- Findings with Confidence < 0.95 (C8, H3, H4, W5, A1, and domain-level UX/WhatsApp/AI) are **flagged for runtime** — they cannot yet support any PASS.
 - Overall confidence 0.59 ⇒ **audit is provisional** until `40_RUNTIME_VERIFICATION.md` evidence raises these.
 
 *— Living doc. Recompute per-domain means after each runtime batch.*

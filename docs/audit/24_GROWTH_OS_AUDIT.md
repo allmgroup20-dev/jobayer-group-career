@@ -49,9 +49,9 @@
 
 ---
 
-## 24.6 The 50-Experiment Engine (AIOS Part 06 §6.3 — living backlog)
+## 24.6 The 50-Experiment Engine (AIOS Part 06 · GROWTH EXPERIMENTS — living backlog)
 
-> Rules: each experiment has hypothesis → mechanics → effort (single-founder S/M/L) → expected impact → metric → anti-abuse. Order = priority. Feed Part 11 cadence (20 per 30 days). No dark patterns (AIOS Part 01 §1.4.6).
+> Rules: each experiment has hypothesis → mechanics → effort (single-founder S/M/L) → expected impact → metric → anti-abuse. Order = priority. Feed Part 11 cadence (20 per 30 days). No dark patterns (AIOS Part 01 · GOLDEN RULES).
 
 ### Acquisition (referral / WhatsApp / SEO) — EXP-01..15
 | ID | Hypothesis & mechanics | Effort | Impact | Metric | Anti-abuse |

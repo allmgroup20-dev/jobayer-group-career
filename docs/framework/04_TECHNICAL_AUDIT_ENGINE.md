@@ -1,113 +1,752 @@
-# Part 04 — Enterprise Technical Audit Engine (AIOS)
+# PART 04
+#
+# ENTERPRISE TECHNICAL AUDIT ENGINE
+# COMPLETE REPOSITORY FORENSIC ANALYSIS
+# ================================================================================
 
-> Canonical AIOS Part 04. The audit layer's `20_…`–`30_…` documents implement this part.
-> Folds the former `02_AUDIT_STANDARDS`, `03_EVIDENCE_STANDARDS`, `04_RUNTIME_VERIFICATION_STANDARDS`, `07_COVERAGE_STANDARDS`.
+# MISSION
 
-## 4.1 Audit Phasing (priority-first)
+তোমার কাজ শুধুমাত্র Code Review করা নয়।
 
-| Phase | Scope | Output |
-|---|---|---|
-| 0 — Recon | Repo state, git, configs, CI, deployment topology | Inventory + baseline |
-| 1 — Rapid Blockers | Critical/High only | Interim Go/No-Go immediately (`10_…`, `11_…`) |
-| 2 — Forensic | Every route/API/component/DB object/worker/flow | Domain reports + full inventory (`20_…`–`30_…`) |
-| 3 — Certification | Runtime verification + final certification | `40_…`, `41_…` |
+তোমার কাজ
 
-## 4.2 The Complete Repository Forensic (18 sub-audits)
+Repository Forensic Investigation।
 
-Every run MUST cover each sub-audit; each sub-audit produces an evidence-backed section.
+তুমি পুরো Repository
 
-1. **File inventory** — every file classified; nothing unknown (glob/scan).
-2. **Folder audit** — directory structure, orphaned folders, misplacement.
-3. **Route audit** — every page route vs actual `src/app/**/page.tsx`.
-4. **Component audit** — every component; unused/dead components flagged.
-5. **API audit** — every `route.ts` (method, auth, validation, idempotency, error handling).
-6. **Database audit** — schema, tables, constraints, indexes, migrations.
-7. **Query audit** — SQL in code; N+1, missing indexes, unbounded scans, hot rows (D1).
-8. **Cloudflare audit** — wrangler configs, KV, D1, cron, cache, R2.
-9. **GitHub Actions audit** — workflows, secrets steps (`if: false`), env, triggers.
-10. **Environment audit** — `.env`/`.dev.vars`/wrangler secrets; what is provisioned vs committed.
-11. **Dependency audit** — package.json deps, versions, bloat, known vulnerabilities.
-12. **Code quality audit** — TypeScript strictness, dead code, duplication, consistency.
-13. **Error handling audit** — unhandled rejections, silent fails, user-visible errors.
-14. **Logging audit** — what is logged (and what sensitive data must NOT be).
-15. **Monitoring audit** — CWV, errors, uptime, alerting (present/absent).
-16. **Technical debt audit** — TODOs, workarounds, legacy patterns.
-17. **Scalability audit** — rate limits, concurrency, D1 limits, WhatsApp abuse surface.
-18. **Documentation audit** — docs completeness against Part 12.
+File-by-File
 
-## 4.3 Evidence Rule (mandatory — from the former Evidence Standards)
+Folder-by-Folder
 
-### 4.3.1 Evidence Classes
-| Class | Label | Meaning | Default confidence |
-|---|---|---|---|
-| Static | `✅ static-confirmed` | Proven from repo/code/config (`file:line`) | 0.95 |
-| Runtime | `⏱ requires-runtime` | Needs a live deployed test | 0.50 (until tested) |
-| Production | `🏭 requires-production-validation` | Needs real providers/load/data | 0.30 (until validated) |
-| Manual | `❓ needs-manual-verification` | Evidence missing; must be recorded, never guessed | n/a (pending) |
+Module-by-Module
 
-### 4.3.2 Citation Rule
-- Every claim uses a locator `path/to/file.ts:line` (or artifact in `docs/audit/evidence/`).
-- Quote 1–4 lines of context; never paraphrase away the evidence.
-- A claim without a locator is automatically ❓.
+Runtime-by-Runtime
 
-### 4.3.3 Confidence Scoring
-- Each finding carries `Confidence ∈ [0.0, 1.0]`, based on class then ±0.1 for corroboration/contradiction risk.
-- Domain confidence = weighted mean of its findings.
-- **Gate:** anything with confidence < 0.8 must be flagged ❓ and cannot support a certification PASS.
+A-Z পর্যন্ত যাচাই করবে।
 
-### 4.3.4 Verification Lifecycle
-`PENDING → VERIFIED → REVIEWING → VERIFIED | REFUTED`. Registers record status + last-reviewed date.
+কোনো File
 
-### 4.3.5 Prohibited Anti-Patterns
-Inferred/assumed evidence; "probably works" without a test; using static proof for runtime claims; copying another project's verdict.
+কোনো Folder
 
-## 4.4 Classification & Finding-Block (mandatory — from the former Audit Standards)
+কোনো API
 
-Severity table is defined in Part 03 §3.3. Every finding uses this block:
+কোনো Config
 
-```
-SEVERITY / PRIORITY:  Critical|High|Medium|Low|Info   /   P0|P1|P2|P3|P4
-TITLE:
-PROBLEM:      (what is claimed vs what should be)
-EVIDENCE:     file:line + short quote (or artifact)
-ROOT_CAUSE:
-IMPACT:       (business/security/user impact)
-EFFORT / ROI: S|M|L|XL   /   High|Med|Low
-VERIFY:       ✅ static-confirmed | ⏱ requires-runtime | 🏭 requires-production-validation | ❓ needs-manual-verification
-FIX_SUGGESTION:
-```
+কোনো Migration
 
-## 4.5 Runtime Verification Standards (from the former Runtime Standards)
+কোনো Component
 
-### 4.5.1 Test-Case Row Template
-`ID (RT-<NN>) | Tier (⏱/🏭) | Test | Preconditions | Steps | Expected | Pass criteria | Fail criteria | Evidence`
+কোনো Worker
 
-### 4.5.2 Mandatory Feature Coverage
-Authentication/OTP · payments/IPN · WhatsApp templates · AI workflows · referral/commissions · notifications · background jobs (cron) · performance (CWV/load) · browser compatibility · privacy/consent · secrets/ops.
+কোনো Binding
 
-### 4.5.3 Rules
-- Every ⏱ item must PASS before "READY AFTER FIXES"; every 🏭 item must PASS on the real production URL before "✅ READY FOR LAUNCH".
-- A FAIL of any P0-related test immediately re-opens DO-NOT-LAUNCH.
-- Evidence artifacts stored in `docs/audit/evidence/`.
+কোনো Environment
 
-## 4.6 Coverage Standards — 3-Layer 100% Scope (from the former Coverage Standards)
+কোনো Dependency
 
-- **Layer 1 Executive:** coverage % per category (`Pages | API Routes | Components | DB Tables | Migrations | Workers | Configs | Scripts | Documentation`).
-- **Layer 2 Domain:** coverage % per domain (`Authentication | Payments | AI | WhatsApp/Messaging | Referral/Affiliate | Security | Database | UX | SEO | Operations`).
-- **Layer 3 Item-level:** every item classified with `Item | Category | Status (Audited/Partial/Gap/Excluded) | Evidence | Verification | Priority | Notes`.
+বাদ যাবে না।
 
-Rules: `Gap` must be scheduled; `Excluded` requires written justification; unknown items must be discovered; coverage % = (Audited + Excluded-with-justification) / Total.
+-------------------------------------------------------------------------------
 
-## 4.7 The 5 Mandatory Governance Components (every audit run)
+# REPOSITORY DISCOVERY
 
-1. **Coverage Matrix** (100% scope, §4.6) → `docs/audit/02_COVERAGE_MATRIX.md`
-2. **Assumption Register** (every assumption evidence-classed; no guesses) → `docs/audit/03_ASSUMPTION_REGISTER.md`
-3. **Confidence Matrix** (confidence + evidence class per finding) → `docs/audit/04_CONFIDENCE_MATRIX.md`
-4. **Contradiction Resolution Log** (every internal inconsistency logged + resolved) → `docs/audit/05_CONTRADICTION_RESOLUTION_LOG.md`
-5. **Self-Review + Opportunity Discovery** (mandatory closing review + living opportunity log) → `docs/audit/06_SELF_REVIEW_OPPORTUNITY_DISCOVERY.md`
+প্রথম ধাপ
 
-## 4.8 Output Format & Final Technical Score
+সম্পূর্ণ Repository Scan।
 
-- Per-domain reports per Part 05–12 structure, each using the finding block §4.4.
-- Full inventory catalog (every route/API/component/DB object/migration) → `docs/audit/30_FULL_INVENTORY.md`.
-- **Final technical score** = weighted mean of technical sub-audits (per Part 03 scorecard rules), labeled interim until runtime PASS, reported in `docs/audit/41_…`.
+যাচাই করবে—
+
+Repository Structure
+
+↓
+
+Folder Structure
+
+↓
+
+Runtime Structure
+
+↓
+
+Entry Points
+
+↓
+
+App Router
+
+↓
+
+API Routes
+
+↓
+
+Components
+
+↓
+
+Hooks
+
+↓
+
+Utilities
+
+↓
+
+Middleware
+
+↓
+
+Database
+
+↓
+
+Scripts
+
+↓
+
+Configuration
+
+↓
+
+CI/CD
+
+↓
+
+Workers
+
+↓
+
+External Services
+
+↓
+
+AI Services
+
+↓
+
+Background Jobs
+
+↓
+
+Cron
+
+↓
+
+Storage
+
+↓
+
+Assets
+
+↓
+
+Documentation
+
+-------------------------------------------------------------------------------
+
+# FILE INVENTORY
+
+প্রতিটি File-এর জন্য
+
+নিচের তথ্য লিখবে।
+
+• Purpose
+
+• Used?
+
+• Unused?
+
+• Duplicate?
+
+• Dead?
+
+• Deprecated?
+
+• Experimental?
+
+• Hidden?
+
+• Feature Flag?
+
+• Business Critical?
+
+• Technical Critical?
+
+• Security Critical?
+
+• Launch Blocking?
+
+-------------------------------------------------------------------------------
+
+# FOLDER AUDIT
+
+প্রতিটি Folder
+
+যাচাই করবে।
+
+src
+
+app
+
+api
+
+components
+
+hooks
+
+lib
+
+services
+
+workers
+
+scripts
+
+database
+
+migrations
+
+public
+
+styles
+
+.github
+
+ai-app
+
+chat-worker
+
+wa-relay
+
+configs
+
+সব।
+
+-------------------------------------------------------------------------------
+
+# ROUTE AUDIT
+
+প্রতিটি Route
+
+যাচাই করবে।
+
+Page Route
+
+API Route
+
+Dynamic Route
+
+Nested Route
+
+Protected Route
+
+Public Route
+
+Admin Route
+
+Company Route
+
+Internal Route
+
+Health Route
+
+Proxy Route
+
+সব।
+
+প্রতিটির জন্য
+
+Purpose
+
+Authentication
+
+Authorization
+
+Middleware
+
+Dependencies
+
+Security
+
+SEO
+
+Performance
+
+Business Value
+
+Risk
+
+-------------------------------------------------------------------------------
+
+# COMPONENT AUDIT
+
+প্রতিটি Component
+
+যাচাই করবে।
+
+Reusable?
+
+Duplicate?
+
+Props?
+
+State?
+
+Performance?
+
+Accessibility?
+
+Business Value?
+
+Unused?
+
+Simplify করা যায়?
+
+-------------------------------------------------------------------------------
+
+# API AUDIT
+
+প্রতিটি API
+
+যাচাই করবে।
+
+Method
+
+Validation
+
+Authentication
+
+Authorization
+
+Rate Limit
+
+Response
+
+Error
+
+Logging
+
+Monitoring
+
+Security
+
+Performance
+
+Idempotency
+
+Documentation
+
+-------------------------------------------------------------------------------
+
+# DATABASE AUDIT
+
+সব Table
+
+সব Migration
+
+সব Relation
+
+সব Index
+
+সব Query
+
+সব Constraint
+
+সব Foreign Key
+
+সব Transaction
+
+সব Seed
+
+সব Data Integrity
+
+যাচাই করবে।
+
+-------------------------------------------------------------------------------
+
+# QUERY AUDIT
+
+প্রতিটি গুরুত্বপূর্ণ Query
+
+যাচাই করবে।
+
+Slow?
+
+Duplicate?
+
+Unsafe?
+
+Indexed?
+
+Scalable?
+
+Caching Possible?
+
+-------------------------------------------------------------------------------
+
+# CLOUDFLARE AUDIT
+
+যাচাই করবে।
+
+Workers
+
+D1
+
+KV
+
+Cache
+
+R2
+
+Queues
+
+Bindings
+
+Wrangler
+
+Compatibility
+
+Environment
+
+-------------------------------------------------------------------------------
+
+# GITHUB ACTIONS
+
+যাচাই করবে।
+
+Workflow
+
+Secrets
+
+Deployment
+
+Rollback
+
+Failure Recovery
+
+-------------------------------------------------------------------------------
+
+# ENVIRONMENT AUDIT
+
+যাচাই করবে।
+
+Development
+
+Production
+
+Environment Variables
+
+Missing Variable
+
+Unused Variable
+
+Secret Leakage
+
+-------------------------------------------------------------------------------
+
+# DEPENDENCY AUDIT
+
+সব Dependency
+
+যাচাই করবে।
+
+Unused?
+
+Outdated?
+
+Security Risk?
+
+Replace করা উচিত?
+
+-------------------------------------------------------------------------------
+
+# CODE QUALITY
+
+যাচাই করবে।
+
+Code Smell
+
+Dead Code
+
+Duplicate Logic
+
+Large Function
+
+Large Component
+
+Nested Complexity
+
+Maintainability
+
+Readability
+
+Naming
+
+Architecture
+
+-------------------------------------------------------------------------------
+
+# ERROR HANDLING
+
+যাচাই করবে।
+
+Try Catch
+
+Fallback
+
+Recovery
+
+Logging
+
+User Friendly Message
+
+-------------------------------------------------------------------------------
+
+# LOGGING
+
+যাচাই করবে।
+
+Server Log
+
+Worker Log
+
+API Log
+
+Security Log
+
+Business Log
+
+-------------------------------------------------------------------------------
+
+# MONITORING
+
+যাচাই করবে।
+
+Health Check
+
+Error Monitoring
+
+Alert
+
+Recovery
+
+-------------------------------------------------------------------------------
+
+# TECHNICAL DEBT
+
+বিশ্লেষণ করবে।
+
+বর্তমান Technical Debt
+
+কি?
+
+কোথায়?
+
+কেন?
+
+কীভাবে কমানো যাবে?
+
+-------------------------------------------------------------------------------
+
+# SCALABILITY
+
+যাচাই করবে।
+
+১০ User
+
+↓
+
+১০০
+
+↓
+
+১,০০০
+
+↓
+
+১০,০০০
+
+↓
+
+১,০০,০০০
+
+↓
+
+১০,০০,০০০
+
+↓
+
+১ কোটি
+
+User এ
+
+কোথায় Bottleneck আসবে?
+
+-------------------------------------------------------------------------------
+
+# EVIDENCE RULE
+
+কোনো Claim
+
+Evidence ছাড়া করা যাবে না।
+
+প্রতিটি Claim
+
+File Path
+
++
+
+Line Number
+
+সহ লিখতে হবে।
+
+যদি Code থেকে প্রমাণ করা না যায়
+
+লিখবে—
+
+Needs Manual Verification
+
+-------------------------------------------------------------------------------
+
+# OUTPUT FORMAT
+
+প্রতিটি Finding
+
+নিচের Format-এ হবে।
+
+Problem
+
+Evidence
+
+Root Cause
+
+Technical Impact
+
+Business Impact
+
+Security Impact
+
+Severity
+
+Priority
+
+Recommendation
+
+Alternative
+
+Estimated Time
+
+Difficulty
+
+Expected ROI
+
+Verification Method
+
+-------------------------------------------------------------------------------
+
+# FINAL TECHNICAL SCORE
+
+শেষে
+
+Score দেবে।
+
+Architecture
+
+__/100
+
+Code Quality
+
+__/100
+
+Repository Structure
+
+__/100
+
+API Quality
+
+__/100
+
+Database Design
+
+__/100
+
+Cloudflare Setup
+
+__/100
+
+Deployment
+
+__/100
+
+Maintainability
+
+__/100
+
+Scalability
+
+__/100
+
+Technical Readiness
+
+__/100
+
+-------------------------------------------------------------------------------
+
+# FINAL DECISION
+
+শেষে লিখবে—
+
+Repository
+
+Production Ready?
+
+YES / NO
+
+যদি
+
+NO
+
+হয়
+
+তাহলে
+
+Critical Technical Checklist
+
+তৈরি করবে।
+
+কোন কাজগুলো শেষ না করলে
+
+Production Launch করা যাবে না
+
+তা Priority অনুযায়ী লিখবে।
+
+-------------------------------------------------------------------------------
+
+# SELF REVIEW
+
+নিজের Technical Audit
+
+নিজেই আবার Review করবে।
+
+যদি
+
+কোনো Folder
+
+কোনো Runtime
+
+কোনো API
+
+কোনো Worker
+
+কোনো Migration
+
+কোনো Config
+
+বাদ পড়ে
+
+নিজেই আবার Audit করবে।
+
+Repository-এর কোনো অংশ বাদ না থাকলে তবেই Technical Audit শেষ করবে।
+
+# ================================================================================
+# END OF PART 04

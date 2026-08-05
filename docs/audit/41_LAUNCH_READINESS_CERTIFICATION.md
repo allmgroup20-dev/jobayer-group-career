@@ -6,16 +6,16 @@
 
 ---
 
-## 🛡 Governance Gate (mandatory — `docs/framework/13_AI_CONSTITUTION.md` §13.2)
+## 🛡 Governance Gate (mandatory — `docs/framework/13_AI_CONSTITUTION.md` · QUALITY GATE)
 This certification is only valid when **ALL** hold:
 1. **Coverage Matrix** (`02_…`) — 100% classified, no silent gap, exclusions justified.
 2. **Assumption Register** (`03_…`) — evidence-classed; no guessed entries ≥ confirmed.
-3. **Confidence Matrix** (`04_…`) — no finding < 0.8 without ❓ flag; domain aggregates current.
+3. **Confidence Matrix** (`04_…`) — no finding < 0.95 without ❓ flag; domain aggregates current.
 4. **Contradiction Resolution Log** (`05_…`) — no 🔴/🟠 open contradiction with P0/P1 impact.
 5. **Self-Review** (`06_…`) — completed + PASS; Opportunity Discovery updated.
 6. **Runtime & production evidence** (`40_…`) — PASS for all P0/P1 items with retained artifacts.
 
-**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.59 < 0.8 ⇒ provisional (4)🔴 open (CR-01..09, CR-11) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨.
+**Today's state:** (1)✅ (2)✅ (3)✅—but overall confidence 0.59 < 0.95 ⇒ provisional (4)🔴 open (CR-01..09, CR-11) (5)✅ (6)⏳ pending ⇒ **governance gate NOT passed** → consistent with ❌/🚨.
 
 ---
 
@@ -63,7 +63,7 @@ This certification is only valid when **ALL** hold:
 
 ## 🎯 Final Scorecard (master)
 
-> Full 16-domain master scorecard: **`40_MASTER_SCORECARD.md`** (AIOS Part 10 §10.1). Condensed below.
+> Full 16-domain master scorecard: **`40_MASTER_SCORECARD.md`** (AIOS Part 10 · EXECUTIVE SCORECARD). Condensed below.
 > Scores are **static-based** until runtime completes; runtime can only revise upward after evidence.
 
 | Domain | Static Score | Gate | Blocker refs |
@@ -84,8 +84,8 @@ This certification is only valid when **ALL** hold:
 
 **Interpretation:** Below the 70/100 production-readiness bar. The single largest weighted driver is Security+Payments (must reach ≥75/100 in re-certification).
 
-### Certification Level (AIOS Part 03 §3.1)
-**Current: Level 2 of 7 — Static Audit Complete.** Levels 3–7 require blocker closure + runtime/production evidence (`40_RUNTIME_VERIFICATION.md`).
+### Certification Level (AIOS Part 03 · CERTIFICATION LEVELS)
+**Current: Level 2 of 7 — Development (static audit complete).** Levels 3–7 require blocker closure + runtime/production evidence (`40_RUNTIME_VERIFICATION.md`).
 
 ---
 

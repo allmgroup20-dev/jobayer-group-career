@@ -77,7 +77,7 @@
 | RT-72 | ⏱ | Headers | curl -I prod | CSP, HSTS, no-cors issues | headers set | missing | header dump |
 | RT-73 | ⏱ | GDPR-export | Privacy export + delete | CSV export, then delete row | works | fails/leak | output |
 
-## I. Accessibility / UX QA (WCAG 2.1 AA — AIOS Part 09 §9.5)
+## I. Accessibility / UX QA (WCAG 2.1 AA — AIOS Part 09 · ACCESSIBILITY)
 
 | ID | Tier | Test | Steps | Expected | Pass | Fail | Evidence |
 |---|---|---|---|---|---|---|---|
