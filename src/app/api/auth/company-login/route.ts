@@ -64,7 +64,9 @@ export async function POST(request: NextRequest) {
     const lowerUser = username.toLowerCase();
     for (const def of DEFAULT_ADMINS) {
       if (def.username === lowerUser) {
-        const inputHash = await hashCompanyPassword(password);
+        // Default admin hashes are stored in the legacy SHA-256 hex format
+        const inputHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password))))
+          .map((b) => b.toString(16).padStart(2, "0")).join("");
         if (inputHash === def.passwordHash) {
           const adminData = { username: def.username, name: def.name, password: def.passwordHash, role: def.role };
           memo.set(usernameHash, adminData);

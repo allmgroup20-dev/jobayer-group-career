@@ -158,13 +158,24 @@ export async function verifyAuthentication(
   signatureBase64: string,
   expectedChallenge: string,
   expectedOrigin: string,
-): Promise<boolean> {
+): Promise<{ valid: boolean; signCount: number | null }> {
   try {
     const clientDataBytes = b64Decode(clientDataJSONBase64);
     const clientData = JSON.parse(textDecoder.decode(clientDataBytes));
-    if (clientData.type !== "webauthn.get") return false;
-    if (clientData.challenge !== expectedChallenge) return false;
-    if (clientData.origin !== expectedOrigin) return false;
+    if (clientData.type !== "webauthn.get") return { valid: false, signCount: null };
+    if (clientData.challenge !== expectedChallenge) return { valid: false, signCount: null };
+    if (clientData.origin !== expectedOrigin) return { valid: false, signCount: null };
+
+    const authDataBytes = b64Decode(authenticatorDataBase64);
+    if (authDataBytes.length < 37) return { valid: false, signCount: null };
+
+    // Authenticator flags: UP (user-present) = 0x01, UV (user-verified) = 0x04
+    const flags = authDataBytes[32];
+    const userPresent = (flags & 0x01) === 0x01;
+    const userVerified = (flags & 0x04) === 0x04;
+    if (!userPresent || !userVerified) return { valid: false, signCount: null };
+
+    const signCount = ((authDataBytes[33] << 24) | (authDataBytes[34] << 16) | (authDataBytes[35] << 8) | authDataBytes[36]) >>> 0;
 
     const publicKey = await crypto.subtle.importKey(
       "jwk", storedPublicKeyJWK as any,
@@ -172,18 +183,20 @@ export async function verifyAuthentication(
       false, ["verify"]
     );
 
-    const authDataBytes = b64Decode(authenticatorDataBase64);
     const clientDataHash = await crypto.subtle.digest("SHA-256", clientDataBytes);
     const signedData = new Uint8Array(authDataBytes.length + clientDataHash.byteLength);
     signedData.set(authDataBytes, 0);
     signedData.set(new Uint8Array(clientDataHash), authDataBytes.length);
 
     const sigBytes = b64Decode(signatureBase64);
-    return await crypto.subtle.verify(
+    const valid = await crypto.subtle.verify(
       { name: "ECDSA", hash: "SHA-256" },
       publicKey, sigBytes, signedData
     );
-  } catch { return false; }
+    return { valid, signCount };
+  } catch {
+    return { valid: false, signCount: null };
+  }
 }
 
 // ── Registration Attestation Verification ──

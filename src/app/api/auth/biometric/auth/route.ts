@@ -4,6 +4,7 @@ import { getDB } from "@/lib/db";
 import { generateToken, getJwtSecret } from "@/lib/auth";
 import { generateCompanyToken } from "@/lib/auth/company-auth";
 import { issueChallenge, consumeChallenge, verifyAuthentication } from "@/lib/auth/webauthn";
+import { setSessionCookie } from "@/lib/auth/session";
 
 const jwtSecret = getJwtSecret();
 
@@ -58,16 +59,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Challenge expired or invalid. Please try again." }, { status: 400 });
       }
 
-      const creds = await query<{ worker_id: string; user_type: string; public_key: string }>(
+      const creds = await query<{ worker_id: string; user_type: string; public_key: string; sign_count: number }>(
         env,
-        "SELECT worker_id, user_type, public_key FROM biometric_credentials WHERE credential_id = ?",
+        "SELECT worker_id, user_type, public_key, sign_count FROM biometric_credentials WHERE credential_id = ?",
         [credentialId]
       );
       if (creds.length === 0) {
         return NextResponse.json({ error: "Credential not found" }, { status: 404 });
       }
 
-      const { worker_id: wid, user_type: ut, public_key: pubKeyStr } = creds[0];
+      const { worker_id: wid, user_type: ut, public_key: pubKeyStr, sign_count: storedSignCount } = creds[0];
 
       let storedPublicKey: any;
       try { storedPublicKey = JSON.parse(pubKeyStr); } catch {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       }
 
       const origin = request.headers.get("origin") || "";
-      const isValid = await verifyAuthentication(
+      const result = await verifyAuthentication(
         storedPublicKey,
         clientDataJSON,
         authenticatorData,
@@ -84,18 +85,33 @@ export async function POST(request: NextRequest) {
         origin
       );
 
-      if (!isValid) {
+      if (!result.valid) {
         return NextResponse.json({ error: "Biometric verification failed: signature mismatch" }, { status: 401 });
+      }
+
+      // signCount: reject cloned/replayed authenticators when the counter regresses
+      const newSignCount = result.signCount ?? 0;
+      if (storedSignCount > 0 && newSignCount > 0 && newSignCount <= storedSignCount) {
+        return NextResponse.json({ error: "Biometric verification failed: cloned authenticator" }, { status: 401 });
+      }
+      if (newSignCount > 0) {
+        await query(env,
+          "UPDATE biometric_credentials SET sign_count = ? WHERE credential_id = ?",
+          [newSignCount, credentialId]
+        ).catch(() => {});
       }
 
       const jwtSecret = getJwtSecret();
 
       if (ut === "company") {
         const token = await generateCompanyToken(wid, jwtSecret);
-        return NextResponse.json({ token, workerId: wid, userType: "company" });
+        const response = NextResponse.json({ workerId: wid, userType: "company" });
+        return response;
       } else {
         const token = await generateToken(wid, jwtSecret);
-        return NextResponse.json({ token, workerId: wid, userType: "worker" });
+        const response = NextResponse.json({ workerId: wid, userType: "worker" });
+        setSessionCookie(response, token);
+        return response;
       }
     }
 

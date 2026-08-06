@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { hashWorkerPassword } from "@/lib/auth";
+import { verifyWorkerPassword } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +14,7 @@ export async function POST(request: NextRequest) {
     if (!worker) {
       return NextResponse.json({ valid: false, error: "Worker not found" }, { status: 404 });
     }
-    const hashed = await hashWorkerPassword(password);
-    const valid = hashed === worker.password;
+    const valid = await verifyWorkerPassword(password, worker.password);
     return NextResponse.json({ valid });
   } catch {
     return NextResponse.json({ valid: false, error: "Internal error" }, { status: 500 });

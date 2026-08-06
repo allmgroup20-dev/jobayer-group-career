@@ -2,21 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { execute, query } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { issueChallenge, consumeChallenge, verifyRegistrationAttestation } from "@/lib/auth/webauthn";
+import { requireWorker } from "@/lib/auth/guard";
 
 export async function POST(request: NextRequest) {
   try {
     const { action, workerId, credentialId, publicKey, deviceName, userType, attestationObject, clientDataJSON, challengeId } = await request.json() as Record<string, string>;
 
+    if (!workerId) {
+      return NextResponse.json({ error: "workerId required" }, { status: 400 });
+    }
+
+    // Only the authenticated owner may register a biometric credential for their own account
+    const payload = await requireWorker(request, workerId);
+    if (!payload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const env = await getDB();
 
     if (action === "challenge") {
-      if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
       const { id, challenge } = await issueChallenge();
       return NextResponse.json({ challengeId: id, challenge, workerId, userType: userType || "worker" });
     }
 
     if (action === "complete") {
-      if (!workerId || !attestationObject || !clientDataJSON || !challengeId) {
+      if (!attestationObject || !clientDataJSON || !challengeId) {
         return NextResponse.json({ error: "Missing fields" }, { status: 400 });
       }
 
@@ -43,24 +53,15 @@ export async function POST(request: NextRequest) {
       }
 
       await execute(env,
-        `INSERT INTO biometric_credentials (worker_id, credential_id, public_key, device_name, user_type)
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO biometric_credentials (worker_id, credential_id, public_key, device_name, user_type, sign_count)
+         VALUES (?, ?, ?, ?, ?, 0)`,
         [workerId, finalCredentialId, publicKeyStr, deviceName || "", userType || "worker"]
       );
 
       return NextResponse.json({ success: true }, { status: 201 });
     }
 
-    // Legacy fallback: direct registration without attestation verification
-    if (!workerId || !credentialId || !publicKey) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
-    await execute(env,
-      `INSERT INTO biometric_credentials (worker_id, credential_id, public_key, device_name, user_type)
-       VALUES (?, ?, ?, ?, ?)`,
-      [workerId, credentialId, publicKey, deviceName || "", userType || "worker"]
-    );
-    return NextResponse.json({ success: true }, { status: 201 });
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
     if (error?.message?.includes("UNIQUE constraint")) {
       return NextResponse.json({ error: "Credential already registered" }, { status: 409 });
@@ -73,6 +74,8 @@ export async function DELETE(request: NextRequest) {
   try {
     const { workerId, userType } = await request.json() as { workerId?: string; userType?: string };
     if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
+    const payload = await requireWorker(request, workerId);
+    if (!payload) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     const env = await getDB();
     await execute(env,
       "DELETE FROM biometric_credentials WHERE worker_id = ? AND user_type = ?",

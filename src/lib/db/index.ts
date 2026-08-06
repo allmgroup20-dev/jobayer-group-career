@@ -100,6 +100,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     // Conditional ALTER TABLE — PRAGMA check first avoids unnecessary roundtrips
     await addCol("workers", "google_id", "TEXT");
     await addCol("workers", "facebook_id", "TEXT");
+    // Indexes for social-login lookups (avoid full-table scans on login)
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_workers_google_id ON workers(google_id)`).run().catch(() => {});
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_workers_facebook_id ON workers(facebook_id)`).run().catch(() => {});
     await addCol("workers", "preferred_language", "TEXT DEFAULT 'bn'");
     await addCol("workers", "age_group", "TEXT");
     await addCol("workers", "occupation", "TEXT");
@@ -816,6 +819,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
     // Migrate: add user_type column if missing (idempotent)
     await env.DB.prepare(`ALTER TABLE biometric_credentials ADD COLUMN user_type TEXT DEFAULT 'worker'`).run().catch(() => {});
+    // sign_count for cloned-authenticator detection
+    await addCol("biometric_credentials", "sign_count", "INTEGER DEFAULT 0");
 
     // ── Phase 1: User Tracking & Activity Tables ──
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS user_events (
