@@ -5,6 +5,7 @@ import { getCached, invalidateCache, setCached } from "@/lib/cache";
 import {
   hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone,
 } from "@/lib/auth";
+import { setSessionCookie } from "@/lib/auth/session";
 
 // OTP-based frictionless auth: verify code then login (existing) or auto-register (new)
 export async function POST(request: NextRequest) {
@@ -43,7 +44,9 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       const token = await generateToken(existing.worker_id, getJwtSecret());
-      return NextResponse.json({ token, workerId: existing.worker_id, name: existing.name, isNew: false });
+      const response = NextResponse.json({ token, workerId: existing.worker_id, name: existing.name, isNew: false });
+      setSessionCookie(response, token);
+      return response;
     }
 
     // Auto-register new worker
@@ -102,7 +105,9 @@ export async function POST(request: NextRequest) {
     setCached(`auth:worker:${phoneHash}`, { worker_id: workerId, name: displayName, password: tempPassword }).catch(() => {});
 
     const token = await generateToken(workerId, getJwtSecret());
-    return NextResponse.json({ token, workerId, name: displayName, isNew: true });
+    const response = NextResponse.json({ token, workerId, name: displayName, isNew: true });
+    setSessionCookie(response, token);
+    return response;
   } catch (error) {
     console.error("OTP login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

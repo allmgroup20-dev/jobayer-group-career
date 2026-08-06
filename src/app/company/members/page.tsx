@@ -147,8 +147,7 @@ export default function CompanyMembersPage() {
       });
       const data = await res.json() as { error?: string; token?: string; workerId?: string };
       if (!res.ok) throw new Error(data.error || "Impersonation failed");
-      if (data.token) {
-        localStorage.setItem("worker_token", data.token);
+      if (data.workerId) {
         localStorage.setItem("worker_id", data.workerId || m.workerId);
         window.open("/dashboard", "_blank");
       }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached } from "@/lib/cache";
-import { verifyToken, getJwtSecret } from "@/lib/auth";
+import { requireWorker } from "@/lib/auth/guard";
 
 // Share-to-unlock: granting +1 unlock quota per share, rate-limited to once per 24h
 export async function POST(request: NextRequest) {
@@ -14,10 +14,8 @@ export async function POST(request: NextRequest) {
 
     // H6: only the authenticated worker may grant themselves the reward —
     // prevent anyone from inflating arbitrary accounts' unlock quotas
-    const authHeader = request.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-    const payload = token ? await verifyToken(token, getJwtSecret()) : null;
-    if (!payload || payload.type !== "worker" || payload.sub !== workerId) {
+    const payload = await requireWorker(request, workerId);
+    if (!payload) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 

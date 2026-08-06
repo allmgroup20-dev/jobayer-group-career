@@ -16,7 +16,9 @@
     "SITE_URL": "https://career.jobayergroup.com",
     "SSLCOMMERZ_IS_LIVE": "false",
     "AI_WORKER_URL": "https://jgcareer-ai.allmgroup20.workers.dev",
-    "CHAT_WORKER_URL": "https://jgcareer-chat.allmgroup20.workers.dev"
+    "CHAT_WORKER_URL": "https://jgcareer-chat.allmgroup20.workers.dev",
+    "GOOGLE_CLIENT_ID": "",
+    "FACEBOOK_APP_ID": ""
   },
   "d1_databases": [
     {

@@ -94,10 +94,7 @@ export default function WorkerDashboard() {
     try {
       const res = await fetch("/api/referrals/share-reward", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("worker_token") || ""}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workerId }),
       });
       const data = await res.json() as { error?: string; granted?: number };

@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [slowWarning, setSlowWarning] = useState(false);
@@ -22,6 +23,108 @@ export default function LoginPage() {
   const [companyUsername, setCompanyUsername] = useState("");
   const [companyPassword, setCompanyPassword] = useState("");
   const [showCompanyPassword, setShowCompanyPassword] = useState(false);
+
+  // OAuth (Google One Tap / Facebook)
+  const [oauthConfig, setOauthConfig] = useState<{ googleClientId: string; facebookAppId: string }>({ googleClientId: "", facebookAppId: "" });
+  const [googleReady, setGoogleReady] = useState(false);
+  const [fbReady, setFbReady] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+
+  function loadScript(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("Failed to load " + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/oauth-config")
+      .then((r) => r.json() as Promise<{ googleClientId?: string; facebookAppId?: string }>)
+      .then((cfg) => {
+        if (cancelled) return;
+        setOauthConfig({ googleClientId: cfg.googleClientId || "", facebookAppId: cfg.facebookAppId || "" });
+        if (cfg.googleClientId) {
+          loadScript("https://accounts.google.com/gsi/client").then(() => setGoogleReady(true)).catch(() => {});
+        }
+        if (cfg.facebookAppId) {
+          loadScript("https://connect.facebook.net/en_US/sdk.js").then(() => {
+            (window as any).FB?.init({ appId: cfg.facebookAppId, version: "v19.0", xfbml: true, cookie: true });
+            setFbReady(true);
+          }).catch(() => {});
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!googleReady || !googleBtnRef.current) return;
+    const g = (window as any).google?.accounts?.id;
+    if (!g) return;
+    g.initialize({
+      client_id: oauthConfig.googleClientId,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      itp_support: true,
+    });
+    g.renderButton(googleBtnRef.current, {
+      theme: "outline", size: "large", shape: "pill", width: "100%", text: "continue_with",
+    });
+  }, [googleReady]);
+
+  const handleGoogleCredential = async (resp: { credential?: string }) => {
+    if (!resp?.credential) return;
+    setLoading(true); setError("");
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: resp.credential }),
+      });
+      const data = await res.json() as { error?: string; workerId?: string; name?: string };
+      if (!res.ok) throw new Error(data.error || "Google login failed");
+      if (data.workerId) {
+        localStorage.setItem("worker_id", data.workerId);
+        localStorage.setItem("worker_name", data.name || "");
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google login failed");
+    } finally { setLoading(false); }
+  };
+
+  const handleFbLogin = () => {
+    const FB = (window as any).FB;
+    if (!FB) return;
+    setError("");
+    FB.login((resp: { authResponse?: { accessToken?: string } }) => {
+      if (!resp.authResponse?.accessToken) {
+        setError(lang === "bn" ? "ফেসবুক লগইন বাতিল হয়েছে" : "Facebook login cancelled");
+        return;
+      }
+      setLoading(true);
+      fetch("/api/auth/facebook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: resp.authResponse.accessToken }),
+      })
+        .then((r) => r.json() as Promise<{ error?: string; workerId?: string; name?: string }>)
+        .then((data) => {
+          if (!data.workerId) throw new Error(data.error || "Facebook login failed");
+          localStorage.setItem("worker_id", data.workerId);
+          localStorage.setItem("worker_name", data.name || "");
+          window.location.href = "/dashboard";
+        })
+        .catch((err: unknown) => setError(err instanceof Error ? err.message : "Facebook login failed"))
+        .finally(() => setLoading(false));
+    }, { scope: "public_profile,email" });
+  };
 
   useEffect(() => {
     if (loading) {
@@ -55,13 +158,12 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/worker-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: cleanPhone, password }),
+        body: JSON.stringify({ phone: cleanPhone, password, remember }),
       });
       const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
       if (!res.ok) throw new Error(data.error || "Login failed");
-      if (data.token) {
-        localStorage.setItem("worker_token", data.token);
-        localStorage.setItem("worker_id", data.workerId || "");
+      if (data.workerId) {
+        localStorage.setItem("worker_id", data.workerId);
         localStorage.setItem("worker_name", data.name || "");
       }
       window.location.href = "/dashboard";
@@ -108,17 +210,30 @@ export default function LoginPage() {
       if (!window.PublicKeyCredential) {
         throw new Error(lang === "bn" ? "এই ব্রাউজার বায়োমেট্রিক সাপোর্ট করে না" : "Browser does not support biometric");
       }
+      const cleanPhone = normalizePhone(phone);
+      if (!cleanPhone || cleanPhone.length < 10) {
+        throw new Error(lang === "bn"
+          ? "ফিঙ্গারপ্রিন্ট লগইনের জন্য প্রথমে ফোন নম্বর দিন"
+          : "Enter your phone number first to login with fingerprint");
+      }
+
+      // Get challenge + registered credentials for this phone
       const chalRes = await fetch("/api/auth/biometric/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "challenge" }),
+        body: JSON.stringify({ action: "begin", phone: cleanPhone }),
       });
       if (!chalRes.ok) throw new Error(lang === "bn" ? "বায়োমেট্রিক চ্যালেঞ্জ ব্যর্থ" : "Biometric challenge failed");
-      const chalData = await chalRes.json() as { challenge?: string; allowCredentials?: { id: string; type: string }[] };
-      if (!chalData.challenge) throw new Error(lang === "bn" ? "কোনো বায়োমেট্রিক ডাটা পাওয়া যায়নি" : "No biometric data found");
-      const challenge = Uint8Array.from(atob(chalData.challenge.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+      const chalData = await chalRes.json() as {
+        challengeId?: string; challenge?: string; allowCredentials?: { id: string; type: string }[];
+      };
+      if (!chalData.challenge || !chalData.challengeId) {
+        throw new Error(lang === "bn" ? "কোনো বায়োমেট্রিক ডাটা পাওয়া যায়নি" : "No biometric data found");
+      }
+      const b64urlToBytes = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+      const challenge = b64urlToBytes(chalData.challenge);
       const allowCredentials = (chalData.allowCredentials || []).map((cred) => ({
-        id: Uint8Array.from(atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)),
+        id: b64urlToBytes(cred.id),
         type: cred.type as PublicKeyCredentialType,
       }));
       const cred = await navigator.credentials.get({
@@ -130,13 +245,15 @@ export default function LoginPage() {
         },
       }) as PublicKeyCredential;
       const authData = cred.response as AuthenticatorAssertionResponse;
-      const uh = authData.userHandle || new Uint8Array(0);
+      // credentialId must be the registered credential id (rawId), NOT the userHandle
+      const credentialId = base64url(cred.rawId);
       const verifyRes = await fetch("/api/auth/biometric/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "verify",
-          credentialId: base64url(uh instanceof Uint8Array ? uh.buffer : uh),
+          action: "complete",
+          challengeId: chalData.challengeId,
+          credentialId,
           authenticatorData: base64url(authData.authenticatorData),
           clientDataJSON: base64url(authData.clientDataJSON),
           signature: base64url(authData.signature),
@@ -144,8 +261,7 @@ export default function LoginPage() {
       });
       if (!verifyRes.ok) throw new Error(lang === "bn" ? "বায়োমেট্রিক যাচাই ব্যর্থ" : "Biometric verification failed");
       const verifyData = await verifyRes.json() as { token?: string; workerId?: string; name?: string };
-      if (verifyData.token) {
-        localStorage.setItem("worker_token", verifyData.token);
+      if (verifyData.workerId) {
         localStorage.setItem("worker_id", verifyData.workerId || "");
         localStorage.setItem("worker_name", verifyData.name || "");
         window.location.href = "/dashboard";
@@ -270,6 +386,21 @@ export default function LoginPage() {
               </button>
             </div>
 
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-xs font-medium text-text-secondary cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="w-4 h-4 accent-[#25D366]"
+                />
+                {lang === "bn" ? "মনে রাখুন (৩০ দিন)" : "Remember me (30 days)"}
+              </label>
+              <Link href="/forgot-password" className="text-xs font-bold text-accent hover:text-accent-light transition-colors">
+                {lang === "bn" ? "পাসওয়ার্ড ভুলে গেছেন?" : "Forgot password?"}
+              </Link>
+            </div>
+
             {slowWarning && (
               <div className="text-center text-xs text-text-secondary animate-loading-pulse py-1">
                 {lang === "bn"
@@ -291,46 +422,21 @@ export default function LoginPage() {
             </div>
 
             {/* Social & Biometric */}
-            <div className="grid grid-cols-2 gap-3">
+            {oauthConfig.googleClientId && (
+              <div>
+                <div ref={googleBtnRef} className="w-full [&>div]:w-full" />
+              </div>
+            )}
+            {oauthConfig.facebookAppId && (
               <button
                 type="button"
-                onClick={() => {
-                  const email = prompt(lang === "bn" ? "গুগল ইমেইল দিন:" : "Enter Google email:");
-                  if (email) {
-                    fetch("/api/auth/google", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) })
-                      .then(r => r.json() as Promise<Record<string, unknown>>).then((d) => {
-                        if (d.token) {
-                          localStorage.setItem("worker_token", d.token as string);
-                          localStorage.setItem("worker_name", (d.name as string) || "");
-                          window.location.href = "/dashboard";
-                        }
-                      }).catch(() => setError("Google login failed"));
-                  }
-                }}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all"
+                onClick={handleFbLogin}
+                disabled={loading || !fbReady}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all disabled:opacity-50"
               >
-                <span>🔵</span> Google
+                <span>🔷</span> {lang === "bn" ? "ফেসবুক দিয়ে লগইন" : "Continue with Facebook"}
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const email = prompt(lang === "bn" ? "ফেসবুক ইমেইল দিন:" : "Enter Facebook email:");
-                  if (email) {
-                    fetch("/api/auth/facebook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) })
-                      .then(r => r.json() as Promise<Record<string, unknown>>).then((d) => {
-                        if (d.token) {
-                          localStorage.setItem("worker_token", d.token as string);
-                          localStorage.setItem("worker_name", (d.name as string) || "");
-                          window.location.href = "/dashboard";
-                        }
-                      }).catch(() => setError("Facebook login failed"));
-                  }
-                }}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all"
-              >
-                <span>🔷</span> Facebook
-              </button>
-            </div>
+            )}
 
             <button
               type="button"

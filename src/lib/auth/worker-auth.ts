@@ -38,12 +38,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return hashedInput === hash;
 }
 
-export async function generateToken(workerId: string, secret: string): Promise<string> {
+export async function generateToken(workerId: string, secret: string, expiresInSec = 7 * 24 * 60 * 60): Promise<string> {
   const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
   const payload = btoa(JSON.stringify({
     sub: workerId, type: "worker",
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    exp: Math.floor(Date.now() / 1000) + expiresInSec,
   }));
   const signature = await signHMAC(secret, `${header}.${payload}`);
   return `${header}.${payload}.${signature}`;

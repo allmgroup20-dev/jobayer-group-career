@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { verifyToken, getJwtSecret } from "@/lib/auth";
+import { requireWorker } from "@/lib/auth/guard";
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,10 +32,8 @@ export async function POST(request: NextRequest) {
 
     // C6: only the authenticated worker may unlock for themselves —
     // prevents draining another account's resource income or quota
-    const authHeader = request.headers.get("authorization") || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-    const payload = token ? await verifyToken(token, getJwtSecret()) : null;
-    if (!payload || payload.type !== "worker" || payload.sub !== body.workerId) {
+    const payload = await requireWorker(request, body.workerId);
+    if (!payload) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 

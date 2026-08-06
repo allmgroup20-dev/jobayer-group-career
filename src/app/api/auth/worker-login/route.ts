@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyWorkerPassword, generateToken, getJwtSecret, normalizePhone } from "@/lib/auth";
+import { setSessionCookie } from "@/lib/auth/session";
 import { getCached, setCached } from "@/lib/cache";
 import { getDB } from "@/lib/db";
 import { queryFirst } from "@/lib/db/queries";
@@ -15,7 +16,7 @@ function getMemo(): Map<string, { worker_id: string; name: string; password: str
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone, password } = await request.json() as { phone: string; password: string };
+    const { phone, password, remember } = await request.json() as { phone: string; password: string; remember?: boolean };
     if (!phone || !password) {
       return NextResponse.json({ error: "Phone and password required" }, { status: 400 });
     }
@@ -31,8 +32,10 @@ export async function POST(request: NextRequest) {
     if (memoized) {
       const valid = await verifyWorkerPassword(password, memoized.password);
       if (!valid) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-      const token = await generateToken(memoized.worker_id, getJwtSecret());
-      return NextResponse.json({ token, workerId: memoized.worker_id, name: memoized.name });
+      const token = await generateToken(memoized.worker_id, getJwtSecret(), remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60);
+      const response = NextResponse.json({ token, workerId: memoized.worker_id, name: memoized.name });
+      setSessionCookie(response, token, !!remember);
+      return response;
     }
 
     // 2. KV cache (~20ms)
@@ -41,8 +44,10 @@ export async function POST(request: NextRequest) {
       const valid = await verifyWorkerPassword(password, cached.password);
       if (!valid) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
       memo.set(phoneHash, cached);
-      const token = await generateToken(cached.worker_id, getJwtSecret());
-      return NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
+      const token = await generateToken(cached.worker_id, getJwtSecret(), remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60);
+      const response = NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
+      setSessionCookie(response, token, !!remember);
+      return response;
     }
 
     // 3. D1 query via getDB (schema lock already reduced to 3s)
@@ -88,8 +93,10 @@ export async function POST(request: NextRequest) {
     setCached(`auth:worker:${phoneHash}`, { worker_id: worker.worker_id, name: worker.name, password: worker.password }).catch(() => {});
     memo.set(phoneHash, { worker_id: worker.worker_id, name: worker.name, password: worker.password });
 
-    const token = await generateToken(worker.worker_id, getJwtSecret());
-    return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
+    const token = await generateToken(worker.worker_id, getJwtSecret(), remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60);
+    const response = NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
+    setSessionCookie(response, token, !!remember);
+    return response;
   } catch (error) {
     console.error("Worker login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

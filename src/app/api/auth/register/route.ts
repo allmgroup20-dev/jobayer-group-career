@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone } from "@/lib/auth";
+import { setSessionCookie } from "@/lib/auth/session";
 import { setCached, getCached, invalidateCache } from "@/lib/cache";
 
 export async function POST(request: NextRequest) {
@@ -104,7 +105,9 @@ export async function POST(request: NextRequest) {
     setCached(`auth:worker:${phoneHash}`, { worker_id: workerId, name: displayName, password: hashedPassword }).catch(() => {});
 
     const token = await generateToken(workerId, getJwtSecret());
-    return NextResponse.json({ token, workerId, name: displayName }, { status: 201 });
+    const response = NextResponse.json({ token, workerId, name: displayName }, { status: 201 });
+    setSessionCookie(response, token);
+    return response;
   } catch (error) {
     console.error("Register error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

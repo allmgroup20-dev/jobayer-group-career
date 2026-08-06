@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { hashWorkerPassword } from "@/lib/auth";
+import { hashWorkerPassword, verifyWorkerPassword } from "@/lib/auth";
+import { requireWorker } from "@/lib/auth/guard";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const workerId = searchParams.get("workerId");
-
-  if (!workerId) {
-    return NextResponse.json({ error: "workerId required" }, { status: 400 });
-  }
-
   try {
+    // Profile is only readable by the authenticated owner (cookie-based)
+    const payload = await requireWorker(request);
+    if (!payload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+    const workerId = payload.sub;
+
     const worker = await queryFirst<Record<string, any>>(
       await getDB(),
       `SELECT w.worker_id, w.name, w.phone, w.email, w.sponsor_id, w.sponsor_name,
@@ -85,6 +86,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "workerId required" }, { status: 400 });
     }
 
+    // Only the authenticated owner may edit their own profile
+    const payload = await requireWorker(request, workerId);
+    if (!payload) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
     const env = await getDB();
     const updates: string[] = [];
     const params: unknown[] = [];
@@ -92,6 +99,16 @@ export async function PUT(request: NextRequest) {
     if (body.name) { updates.push("name = ?"); params.push(body.name); }
     if (body.email !== undefined) { updates.push("email = ?"); params.push(body.email || null); }
     if (body.password) {
+      // Changing password requires the current password as proof
+      if (!body.currentPassword) {
+        return NextResponse.json({ error: "currentPassword required to change password" }, { status: 400 });
+      }
+      const current = await queryFirst<{ password: string }>(
+        env, "SELECT password FROM workers WHERE worker_id = ?", [workerId]
+      );
+      if (!current || !(await verifyWorkerPassword(body.currentPassword, current.password))) {
+        return NextResponse.json({ error: "Invalid current password" }, { status: 401 });
+      }
       const hashed = await hashWorkerPassword(body.password);
       updates.push("password = ?");
       params.push(hashed);

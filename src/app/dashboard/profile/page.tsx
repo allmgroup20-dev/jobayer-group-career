@@ -15,7 +15,7 @@ export default function ProfilePage() {
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
     { ttlMs: 180_000 }
   );
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "", city: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "", city: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +26,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profileData?.workerId) return;
-    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: profileData.country || "", city: profileData.city || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
+    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: profileData.country || "", city: profileData.city || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
     if (profileData.membershipStatus) setMembershipStatus(profileData.membershipStatus);
   }, [profileData]);
 
@@ -48,6 +48,7 @@ export default function ProfilePage() {
     if (form.name) body.name = form.name;
     if (form.email !== undefined) body.email = form.email;
     if (form.password) body.password = form.password;
+    if (form.currentPassword) body.currentPassword = form.currentPassword;
     if (form.ageGroup) body.ageGroup = form.ageGroup;
     if (form.occupation) body.occupation = form.occupation;
     if (form.educationLevel) body.educationLevel = form.educationLevel;
@@ -70,7 +71,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error("Update failed");
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-      setForm((p) => ({ ...p, password: "" }));
+      setForm((p) => ({ ...p, password: "", currentPassword: "" }));
     } catch {
       setError(lang === "bn" ? "আপডেট ব্যর্থ" : "Update failed");
     } finally {
@@ -206,8 +207,12 @@ export default function ProfilePage() {
                 <input type="email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input-field" />
               </div>
               <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বর্তমান পাসওয়ার্ড" : "Current Password"}</label>
+                <input type="password" value={form.currentPassword} onChange={(e) => setForm({ ...form, currentPassword: e.target.value })} className="input-field" placeholder={lang === "bn" ? "পাসওয়ার্ড বদলাতে চাইলে দিন" : "Required to change password"} autoComplete="current-password" />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "নতুন পাসওয়ার্ড" : "New Password"}</label>
-                <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input-field" placeholder={lang === "bn" ? "ফাঁকা রাখলে অপরিবর্তিত" : "Leave blank to keep current"} />
+                <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input-field" placeholder={lang === "bn" ? "ফাঁকা রাখলে অপরিবর্তিত" : "Leave blank to keep current"} autoComplete="new-password" />
               </div>
 
               <div>

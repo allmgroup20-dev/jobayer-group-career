@@ -34,17 +34,18 @@ export async function POST(request: NextRequest) {
 
       if (!wid) return NextResponse.json({ error: "Identifier required" }, { status: 400 });
 
-      const exists = await query<{ found: number }>(
+      const creds = await query<{ credential_id: string }>(
         env,
-        "SELECT 1 as found FROM biometric_credentials WHERE worker_id = ? AND user_type = ? LIMIT 1",
+        "SELECT credential_id FROM biometric_credentials WHERE worker_id = ? AND user_type = ?",
         [wid, ut]
       );
-      if (!exists[0]?.found) {
+      if (creds.length === 0) {
         return NextResponse.json({ error: "No biometric credentials found" }, { status: 404 });
       }
 
       const { id, challenge } = issueChallenge();
-      return NextResponse.json({ challengeId: id, challenge, userType: ut });
+      const allowCredentials = creds.map((c) => ({ id: c.credential_id, type: "public-key" as const }));
+      return NextResponse.json({ challengeId: id, challenge, allowCredentials, userType: ut });
     }
 
     if (action === "complete") {

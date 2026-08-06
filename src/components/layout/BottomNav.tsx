@@ -61,7 +61,7 @@ export default function BottomNav() {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    setLoggedIn(!!localStorage.getItem("worker_token"));
+    setLoggedIn(!!localStorage.getItem("worker_id"));
     setUserName(localStorage.getItem("worker_name") || "");
   }, []);
 

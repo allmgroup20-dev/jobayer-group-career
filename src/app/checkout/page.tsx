@@ -77,7 +77,6 @@ function CheckoutContent() {
 
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
-    const token = localStorage.getItem("worker_token");
 
     const paymentStatus = searchParams.get("payment");
     if (paymentStatus === "success") {
@@ -87,7 +86,7 @@ function CheckoutContent() {
     } else if (paymentStatus === "cancelled") { setStep("ssl-cancelled"); return; }
     else if (paymentStatus === "error") { setStep("ssl-error"); return; }
 
-    if (!wid || !token) { setStep("login-required"); return; }
+    if (!wid) { setStep("login-required"); return; }
 
     startCheckout(wid);
   }, []);
@@ -120,9 +119,10 @@ function CheckoutContent() {
       });
       const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
       if (!res.ok) throw new Error(data.error || "Failed");
-      localStorage.setItem("worker_token", data.token || "");
-      localStorage.setItem("worker_id", data.workerId || "");
-      localStorage.setItem("worker_name", data.name || "");
+      if (data.workerId) {
+        localStorage.setItem("worker_id", data.workerId || "");
+        localStorage.setItem("worker_name", data.name || "");
+      }
       startCheckout(data.workerId || "");
     } catch (e) {
       setGuestError(e instanceof Error ? e.message : "Failed");

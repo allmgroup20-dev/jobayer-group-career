@@ -38,6 +38,16 @@ export async function POST(request: NextRequest) {
       : await sendMessage(cleanPhone, `আপনার Jobayer Group Career ভেরিফিকেশন কোড: ${code}\nকোডটি ৫ মিনিটের জন্য বৈধ।`);
 
     const configured = result.success || Boolean(process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN);
+
+    // Never leak the OTP to the client in production — devCode is for local/testing only.
+    const isProd = process.env.NODE_ENV === "production" ||
+      (!!process.env.SITE_URL && process.env.SITE_URL.startsWith("https://"));
+    if (!configured && isProd) {
+      return NextResponse.json({
+        error: "ভেরিফিকেশন কোড পাঠানো সম্ভব হচ্ছে না, পরে আবার চেষ্টা করুন",
+      }, { status: 503 });
+    }
+
     return NextResponse.json({
       ok: true,
       configured,

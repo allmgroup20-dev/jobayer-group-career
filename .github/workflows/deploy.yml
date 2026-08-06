@@ -42,6 +42,7 @@ jobs:
           if [ -n "$WHATSAPP_VERIFY_TOKEN" ]; then echo "$WHATSAPP_VERIFY_TOKEN" | npx wrangler secret put WHATSAPP_VERIFY_TOKEN; fi
           if [ -n "$SSLCOMMERZ_STORE_ID" ]; then echo "$SSLCOMMERZ_STORE_ID" | npx wrangler secret put SSLCOMMERZ_STORE_ID; fi
           if [ -n "$SSLCOMMERZ_STORE_PASSWORD" ]; then echo "$SSLCOMMERZ_STORE_PASSWORD" | npx wrangler secret put SSLCOMMERZ_STORE_PASSWORD; fi
+          if [ -n "$FACEBOOK_APP_SECRET" ]; then echo "$FACEBOOK_APP_SECRET" | npx wrangler secret put FACEBOOK_APP_SECRET; fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -52,3 +53,4 @@ jobs:
           WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
           SSLCOMMERZ_STORE_ID: ${{ secrets.SSLCOMMERZ_STORE_ID }}
           SSLCOMMERZ_STORE_PASSWORD: ${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}
+          FACEBOOK_APP_SECRET: ${{ secrets.FACEBOOK_APP_SECRET }}

@@ -13,7 +13,7 @@ async function signHMAC(secret: string, data: string): Promise<string> {
     .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-async function verifyToken(token: string, secret: string): Promise<{ sub: string } | null> {
+async function verifyToken(token: string, secret: string): Promise<{ sub: string; type?: string } | null> {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -21,23 +21,52 @@ async function verifyToken(token: string, secret: string): Promise<{ sub: string
     if (parts[2] !== expectedSig) return null;
     const payload = JSON.parse(atob(parts[1]));
     if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return { sub: payload.sub };
+    return { sub: payload.sub, type: payload.type };
   } catch {
     return null;
   }
 }
 
+const ALLOWED_ORIGINS = [
+  "career.jobayergroup.com",
+  "jobayer-group-career.allmgroup20.workers.dev",
+  "localhost",
+  "127.0.0.1",
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const method = request.method;
+  const jwtSecret = process.env.JWT_SECRET;
+
+  // CSRF: reject cross-origin state-changing requests to /api/*
+  if (pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    const origin = request.headers.get("origin");
+    if (origin) {
+      try {
+        const host = new URL(origin).hostname;
+        const allowed = ALLOWED_ORIGINS.some((a) => host === a || host.endsWith(`.${a}`));
+        if (!allowed) {
+          return NextResponse.json({ error: "Cross-origin request rejected" }, { status: 403 });
+        }
+      } catch {
+        return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+      }
+    }
+  }
 
   if (pathname.startsWith("/company") && pathname !== "/company/login") {
     const token = request.cookies.get("company_token")?.value;
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      console.error("JWT_SECRET is not configured");
-    }
     if (!token || !(await verifyToken(token, jwtSecret || ""))) {
       const loginUrl = new URL("/company/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  if ((pathname === "/dashboard" || pathname.startsWith("/dashboard/") || pathname === "/onboarding") && method === "GET") {
+    const token = request.cookies.get("session_token")?.value;
+    if (!token || !(await verifyToken(token, jwtSecret || ""))) {
+      const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
@@ -49,5 +78,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|icons|locales|_next/data|images|fonts|sounds|manifest\\.json|sw\\.js|workbox-.*\\.js).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icons|locales|_next/data|images|fonts|sounds|manifest\\.json|sw\\.js|workbox-.*\\.js).*)"],
 };

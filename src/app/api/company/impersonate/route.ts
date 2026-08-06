@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { generateToken, verifyCompanyToken, getJwtSecret } from "@/lib/auth";
+import { setSessionCookie } from "@/lib/auth/session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,8 +33,9 @@ export async function POST(request: NextRequest) {
     }
 
     const token = await generateToken(worker.worker_id, jwtSecret);
-
-    return NextResponse.json({ token, workerId: worker.worker_id, name: worker.name });
+    const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name });
+    setSessionCookie(response, token);
+    return response;
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

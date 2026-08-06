@@ -30,7 +30,7 @@ export default function Navbar() {
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    setWorkerLoggedIn(!!localStorage.getItem("worker_token"));
+    setWorkerLoggedIn(!!localStorage.getItem("worker_id"));
     setCompanyLoggedIn(document.cookie.includes("company_user"));
     setWorkerName(localStorage.getItem("worker_name") || "");
     fetch("/api/company/settings").then(r => r.json() as Promise<{ settings?: Record<string, string> }>).then(d => { if (d.settings?.company_name) setCompanyName(d.settings.company_name); }).catch(() => {});
@@ -49,7 +49,7 @@ export default function Navbar() {
       }
       window.location.href = "/login";
     } else {
-      localStorage.removeItem("worker_token");
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
       localStorage.removeItem("worker_id");
       localStorage.removeItem("worker_name");
       window.location.href = "/";
