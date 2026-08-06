@@ -1,12 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyWorkerPassword, generateToken, getJwtSecret, normalizePhone } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
-import { getCached, setCached } from "@/lib/cache";
+import { getCached, setCached, invalidateCache } from "@/lib/cache";
 import { getDB } from "@/lib/db";
 import { queryFirst } from "@/lib/db/queries";
 
 const MEMO = "__workerAuthMemo";
 const D1_TIMEOUT_MS = 8000;
+
+// H2: brute-force protection — 5 failed attempts per phone+IP locks out for 5 minutes
+const FAIL_LIMIT = 5;
+const FAIL_WINDOW_SEC = 300;
+
+function getClientIp(request: NextRequest): string {
+  return request.headers.get("cf-connecting-ip")
+    || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || "unknown";
+}
+
+async function checkBruteForce(phoneHash: string, ip: string): Promise<boolean> {
+  const phoneFails = await getCached<{ n: number }>(`auth:fail:${phoneHash}`, FAIL_WINDOW_SEC);
+  const ipFails = await getCached<{ n: number }>(`auth:fail:ip:${ip}`, FAIL_WINDOW_SEC);
+  return (phoneFails?.n || 0) >= FAIL_LIMIT || (ipFails?.n || 0) >= FAIL_LIMIT;
+}
+
+async function recordFailure(phoneHash: string, ip: string): Promise<void> {
+  const phoneFails = await getCached<{ n: number }>(`auth:fail:${phoneHash}`, FAIL_WINDOW_SEC);
+  await setCached(`auth:fail:${phoneHash}`, { n: (phoneFails?.n || 0) + 1 });
+  const ipFails = await getCached<{ n: number }>(`auth:fail:ip:${ip}`, FAIL_WINDOW_SEC);
+  await setCached(`auth:fail:ip:${ip}`, { n: (ipFails?.n || 0) + 1 });
+}
+
+async function clearFailures(phoneHash: string, ip: string): Promise<void> {
+  await invalidateCache(`auth:fail:${phoneHash}`);
+  await invalidateCache(`auth:fail:ip:${ip}`);
+}
 
 function getMemo(): Map<string, { worker_id: string; name: string; password: string }> {
   const g = globalThis as any;
@@ -24,6 +52,11 @@ export async function POST(request: NextRequest) {
     const cleanPhone = normalizePhone(phone);
     const phoneHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(cleanPhone))))
       .map(b => b.toString(16).padStart(2, "0")).join("");
+    const ip = getClientIp(request);
+
+    if (await checkBruteForce(phoneHash, ip)) {
+      return NextResponse.json({ error: "অনেকবার ভুল পাসওয়ার্ড। ৫ মিনিট পরে আবার চেষ্টা করুন" }, { status: 429 });
+    }
 
     const memo = getMemo();
 
@@ -31,7 +64,11 @@ export async function POST(request: NextRequest) {
     const memoized = memo.get(phoneHash);
     if (memoized) {
       const valid = await verifyWorkerPassword(password, memoized.password);
-      if (!valid) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      if (!valid) {
+        await recordFailure(phoneHash, ip);
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      }
+      await clearFailures(phoneHash, ip);
       const token = await generateToken(memoized.worker_id, getJwtSecret(), remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60);
       const response = NextResponse.json({ token, workerId: memoized.worker_id, name: memoized.name });
       setSessionCookie(response, token, !!remember);
@@ -42,7 +79,11 @@ export async function POST(request: NextRequest) {
     const cached = await getCached<{ worker_id: string; name: string; password: string }>(`auth:worker:${phoneHash}`, 1800);
     if (cached) {
       const valid = await verifyWorkerPassword(password, cached.password);
-      if (!valid) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      if (!valid) {
+        await recordFailure(phoneHash, ip);
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      }
+      await clearFailures(phoneHash, ip);
       memo.set(phoneHash, cached);
       const token = await generateToken(cached.worker_id, getJwtSecret(), remember ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60);
       const response = NextResponse.json({ token, workerId: cached.worker_id, name: cached.name });
@@ -77,6 +118,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!worker) {
+      await recordFailure(phoneHash, ip);
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
@@ -87,8 +129,10 @@ export async function POST(request: NextRequest) {
 
     const valid = await verifyWorkerPassword(password, worker.password);
     if (!valid) {
+      await recordFailure(phoneHash, ip);
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
+    await clearFailures(phoneHash, ip);
 
     setCached(`auth:worker:${phoneHash}`, { worker_id: worker.worker_id, name: worker.name, password: worker.password }).catch(() => {});
     memo.set(phoneHash, { worker_id: worker.worker_id, name: worker.name, password: worker.password });

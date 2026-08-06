@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const env = await getDB();
 
     if (action === "challenge") {
-      const { id, challenge } = issueChallenge();
+      const { id, challenge } = await issueChallenge();
       return NextResponse.json({ challengeId: id, challenge });
     }
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "No biometric credentials found" }, { status: 404 });
       }
 
-      const { id, challenge } = issueChallenge();
+      const { id, challenge } = await issueChallenge();
       const allowCredentials = creds.map((c) => ({ id: c.credential_id, type: "public-key" as const }));
       return NextResponse.json({ challengeId: id, challenge, allowCredentials, userType: ut });
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Missing assertion data" }, { status: 400 });
       }
 
-      const expectedChallenge = consumeChallenge(challengeId);
+      const expectedChallenge = await consumeChallenge(challengeId);
       if (!expectedChallenge) {
         return NextResponse.json({ error: "Challenge expired or invalid. Please try again." }, { status: 400 });
       }

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     if (action === "challenge") {
       if (!workerId) return NextResponse.json({ error: "workerId required" }, { status: 400 });
-      const { id, challenge } = issueChallenge();
+      const { id, challenge } = await issueChallenge();
       return NextResponse.json({ challengeId: id, challenge, workerId, userType: userType || "worker" });
     }
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Missing fields" }, { status: 400 });
       }
 
-      const expectedChallenge = consumeChallenge(challengeId);
+      const expectedChallenge = await consumeChallenge(challengeId);
       if (!expectedChallenge) {
         return NextResponse.json({ error: "Challenge expired or invalid. Please try again." }, { status: 400 });
       }

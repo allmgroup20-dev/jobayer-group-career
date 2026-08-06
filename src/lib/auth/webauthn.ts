@@ -1,4 +1,5 @@
 import type { JsonWebKey } from "crypto";
+import { getCached, setCached, invalidateCache } from "@/lib/cache";
 
 // ── Challenge Store ──
 
@@ -7,8 +8,10 @@ interface ChallengeEntry {
   expiresAt: number;
 }
 
+// In-memory fallback (same-isolate fast path) + KV for multi-isolate consistency.
+// Cloudflare isolates are ephemeral, so the authoritative store is KV.
 const challengeStore = new Map<string, ChallengeEntry>();
-const CHALLENGE_TTL = 300_000;
+const CHALLENGE_TTL_SEC = 300;
 let lastCleanup = 0;
 
 function cleanupStore(): void {
@@ -20,20 +23,25 @@ function cleanupStore(): void {
   }
 }
 
-export function issueChallenge(): { id: string; challenge: string } {
+export async function issueChallenge(): Promise<{ id: string; challenge: string }> {
   cleanupStore();
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   const challenge = base64urlEncode(bytes);
   const id = `ch_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  challengeStore.set(id, { challenge, expiresAt: Date.now() + CHALLENGE_TTL });
+  const entry: ChallengeEntry = { challenge, expiresAt: Date.now() + CHALLENGE_TTL_SEC * 1000 };
+  challengeStore.set(id, entry);
+  setCached(`wb:ch:${id}`, entry).catch(() => {});
   return { id, challenge };
 }
 
-export function consumeChallenge(id: string): string | null {
+export async function consumeChallenge(id: string): Promise<string | null> {
   cleanupStore();
-  const entry = challengeStore.get(id);
+  const cached = await getCached<ChallengeEntry>(`wb:ch:${id}`, CHALLENGE_TTL_SEC);
+  const local = challengeStore.get(id);
+  const entry = cached || local;
   if (!entry) return null;
   challengeStore.delete(id);
+  invalidateCache(`wb:ch:${id}`).catch(() => {});
   if (entry.expiresAt < Date.now()) return null;
   return entry.challenge;
 }

@@ -15,6 +15,9 @@ let _jwtSecretWarned = false;
 export function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("CRITICAL: JWT_SECRET env var is not set in production. Refusing to start.");
+    }
     if (!_jwtSecretWarned) {
       console.error("CRITICAL: JWT_SECRET env var is not set! Authentication tokens will be insecure. Set JWT_SECRET in wrangler.jsonc vars or .env");
       _jwtSecretWarned = true;
@@ -24,18 +27,57 @@ export function getJwtSecret(): string {
   return secret;
 }
 
+function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function b64url(bytes: Uint8Array): string {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromB64url(str: string): Uint8Array<ArrayBuffer> {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) str += "=";
+  const s = atob(str);
+  const buf = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) buf[i] = s.charCodeAt(i);
+  return buf;
+}
+
+const PBKDF2_ITERATIONS = 60000;
+const PBKDF2_SALT_BYTES = 16;
+
+async function pbkdf2(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number): Promise<Uint8Array> {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+    keyMaterial, 256
+  );
+  return new Uint8Array(bits);
+}
+
 export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  const salt = crypto.getRandomValues(new Uint8Array(PBKDF2_SALT_BYTES));
+  const hash = await pbkdf2(password, salt, PBKDF2_ITERATIONS);
+  return `pbkdf2$${PBKDF2_ITERATIONS}$${b64url(salt)}$${toHex(hash)}`;
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const hashedInput = await hashPassword(password);
-  return hashedInput === hash;
+  if (!hash.startsWith("pbkdf2$")) {
+    // Legacy format: unsalted SHA-256 hex
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
+    return toHex(new Uint8Array(digest)) === hash;
+  }
+  const parts = hash.split("$");
+  if (parts.length !== 4) return false;
+  const iterations = parseInt(parts[1], 10);
+  const salt = fromB64url(parts[2]);
+  const expected = parts[3];
+  const derived = await pbkdf2(password, salt, iterations);
+  return toHex(derived) === expected;
 }
 
 export async function generateToken(workerId: string, secret: string, expiresInSec = 7 * 24 * 60 * 60): Promise<string> {
