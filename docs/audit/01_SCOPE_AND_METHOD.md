@@ -20,7 +20,7 @@ Produce a single, unified, evidence-based **Production & Launch Readiness Certif
 | Cron triggers | 1 (`*/5 * * * *`) | `wrangler.jsonc:8` |
 | KPI/analytics routes | 12+ | `src/app/api/{track,kpi,personalize,maintenance}/*` |
 
-> **WIP exclusion (per founder rule, AIOS Part 13 · CONSTITUTION):** the uncommitted working-tree WIP (`src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/api/unlocks/route.ts`, `src/app/courses/[id]/page.tsx`, `src/app/dashboard/page.tsx`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`, `tsconfig.tsbuildinfo`) is **experimental/cleanup-only** (diff = deletions/trimming, no production features). It is therefore **explicitly EXCLUDED from the audit scope**, and **this certification applies only to the committed repository state** (HEAD `2702ef9`). No ambiguous state is certified. See `43_…` §12.2 decision log.
+> **WIP exclusion (per founder rule, AIOS Part 13 · CONSTITUTION):** the working-tree WIP was **experimental/cleanup-only** (diff = deletions/trimming, no production features) and was **explicitly EXCLUDED from the audit scope** at the time (certification applied only to HEAD `2702ef9`). **Resolved this session:** the remaining cleanup (`src/app/api/affiliate/leaderboard/route.ts`, `src/app/api/company/automation/route.ts`, `src/app/membership/page.tsx`, deleted `src/components/LaunchOfferTimer.tsx`) was **verified** (type-check ✅, build ✅, no dangling references; `unlocks/courses/dashboard` were already committed in Phase D `22f0b6d`) and **committed**. `tsconfig.tsbuildinfo` is tracked build-artifact churn. See `43_…` §12.2 decision log.
 
 ## 1.3 Phasing (hybrid priority-first — per founder decision)
 

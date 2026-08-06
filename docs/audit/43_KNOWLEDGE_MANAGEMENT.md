@@ -28,6 +28,7 @@
 | 2026-08-05 | Canonical 13-part AIOS mirrored in `docs/framework/`; standards folded; traceability matrix introduced | explicit canonical implementation + bidirectional sync | keep old standards layout | Founder |
 | 2026-08-05 | Audit docs renamed to AIOS part-aligned names; Phase-2.5 extended forensic sub-audits added | traceability + Part 04 · REPOSITORY DISCOVERY–SCALABILITY completeness | keep old names | Founder |
 | 2026-08-05 | Uncommitted src WIP treated as non-production/experimental (cleanup-only diff) | per founder rule: exclude non-production WIP; certification applies to committed repo state | commit as-is | Founder |
+| 2026-08-06 | WIP cleanup resolved: `leaderboard`/`automation`/`membership`/`LaunchOfferTimer` verified (tsc+build ✅, no dangling refs) and committed; automation route fixed to enqueue **and** log (relay send path preserved) | remove ambiguous working-tree state; no broken references | revert automation change | Founder |
 
 ## 12.3 Knowledge Gaps (scheduled)
 1. Runbooks (deploy/rollback/D1-restore/wa-relay-reconnect) — P1, pre-launch.

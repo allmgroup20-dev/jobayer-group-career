@@ -62,7 +62,7 @@
 ### 3.3 Components — `src/components/**` (89)
 **Audited (deep):** `ui/Button`, `ui/Card`, `PwaRegister`, `privacy/CookieConsentBanner`, `onboarding/ContactSyncBanner`, `chat/ChatWidget` (referenced) — Partial/✅.
 **Classified (review — 81):** remaining (home/*, layout/*, marketing/*, psychology/*, analytics/*, courses/*, ai/*, finance/*, reviews/*, settings/*, system/*, notifications/*, dashboard/*) → `Partial`, ⏱/❓. Notes: `ContactSyncBanner` consent copy **P1**; `LivePurchaseTicker`/`LiveNotificationBar` truthfulness **P2**.
-⏳ Working-tree WIP: `LaunchOfferTimer.tsx` deleted (uncommitted) — flagged, not certified.
+✅ Working-tree WIP resolved (committed this session, verified tsc+build clean, no dangling refs): `LaunchOfferTimer.tsx` deleted — fake countdown removed, no live ticker references remain.
 
 ### 3.4 Database Tables — `src/lib/db/schema.ts` (65)
 **Audited (deep — 24):** `workers`, `orders`, `commissions`, `withdrawals`, `resourcePurchases`, `userUnlocks`, `unlockLimits`, `affiliateTree`, `commissionLevels`, `savedAccounts`, `companyUsers`, `companySettings`, `privacyConsent`, `notificationPreferences`, `notifications`, `waLogs`, `whatsappLog`, `waContacts`, `waMessageQueue`, `userDevices`, `attributionLog`, `courseCategories`, `courses`, `products` → ✅ static (`22_DATABASE_AUDIT`); gaps: no `UNIQUE(transaction_id)` (C5).

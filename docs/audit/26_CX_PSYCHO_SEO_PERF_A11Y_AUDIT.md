@@ -32,7 +32,7 @@
 - Verify install flow + offline behavior ⏱.
 
 ## 26.5 UX Psychology (ethical — no dark patterns)
-- Present: `LivePurchaseTicker`, `LiveNotificationBar`, `live/sales`, scarcity/urgency copy (`LaunchOfferTimer` was deleted in WIP — WIP note).
+- Present: `LivePurchaseTicker`, `LiveNotificationBar`, `live/sales`, scarcity/urgency copy (`LaunchOfferTimer` was deleted in WIP and the deletion is now **committed** — no fake countdown remains).
 - **AIOS gate:** ensure these are truthful (no fake scarcity). `testimonials`/`stats` are static seed data (`src/data/home/*`) — must be labeled honestly or backed by real data (🏭).
 - `company/impersonate`, `psychology/*`, `persuasion/apply` — **internal/admin only**, never user-facing manipulative.
 
@@ -53,7 +53,7 @@
 | Part 09 area | § | Coverage | New/confirmed |
 |---|---|---|---|
 | Customer experience | 9.1 | §26.4 + §26.5 | mobile-first strong; journey friction ⏱ |
-| Conversion & psychology | 9.2 | §26.5 | **LaunchOfferTimer deleted in WIP** (see `01_…` WIP note) — no fake countdown remains; **verify all live tickers real (🏭)** |
+| Conversion & psychology | 9.2 | §26.5 | **LaunchOfferTimer deleted (committed this session)** — no fake countdown remains; **verify all live tickers real (🏭)** |
 | SEO | 9.3 | §26.1 | S1–S4 pending (⏱/🏭) |
 | Performance | 9.4 | §26.2 | CWV targets: LCP≤2.5s / INP≤200ms / CLS≤0.1 → 🏭 PageSpeed/CrUX on `career.jobayergroup.com` |
 | Accessibility | 9.5 | §26.3 | WCAG 2.1 AA checklist → **add to `40_RUNTIME_VERIFICATION`** (RT-a11y rows) |

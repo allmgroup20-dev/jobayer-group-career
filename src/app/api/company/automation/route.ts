@@ -170,6 +170,9 @@ export async function POST(request: NextRequest) {
           console.error("Automation enqueue failed:", e);
         }
         await db2.prepare(
+          "INSERT INTO wa_logs (phone, message, direction, status) VALUES (?, ?, 'outbound', 'pending')"
+        ).bind(w.phone, fullMsg).run();
+        await db2.prepare(
           "INSERT INTO communication_history (worker_id, channel, direction, message, status) VALUES (?, 'whatsapp', 'outbound', ?, 'queued')"
         ).bind(w.worker_id, fullMsg).run();
         affected++;

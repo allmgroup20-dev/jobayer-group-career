@@ -5,7 +5,7 @@
 >
 > **Tier legend:** ⏱ = requires-runtime (deployed test) · 🏭 = requires-production-validation (real providers/data/load).
 >
-> **Prerequisite to run:** deploy to a non-prod Worker + a prod Worker once P0/P1 static fixes are merged. Execute `npm run build && npx tsc --noEmit` first — current tree has uncommitted WIP and must compile clean.
+> **Prerequisite to run:** deploy to a non-prod Worker + a prod Worker once P0/P1 static fixes are merged. Execute `npm run build && npx tsc --noEmit` first — tree verified clean (tsc ✅, build ✅) as of commit `22f0b6d`; no uncommitted WIP remains.
 
 ---
 

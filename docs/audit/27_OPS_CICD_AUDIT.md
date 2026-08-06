@@ -18,7 +18,7 @@
 **Findings:**
 - **O1 — Secrets not provisioned (Critical):** `deploy.yml:32,46`; production will run with no `JWT_SECRET`, `WHATSAPP_*`, `SSLCOMMERZ_*`, `OPENROUTER_API_KEY` unless manually `wrangler secret put`. → P0.
 - **O2 — No environment separation:** single `main` → prod; risky for the "test-mode" era. Recommend a staging worker (P2).
-- **O3 — Build gate:** `npm run build && opennextjs deploy` — running `tsc --noEmit` first is recommended; WIP (uncommitted sprint-A) must compile before deploy (blocked: `tsconfig.tsbuildinfo` dirty) → **cannot certify current tree**.
+- **O3 — Build gate:** `npm run build && opennextjs deploy` — running `tsc --noEmit` first is recommended; WIP (uncommitted sprint-A) had to compile before deploy (blocked: `tsconfig.tsbuildinfo` dirty). **Resolved this session:** tree compiles clean (tsc ✅, build ✅) with WIP cleanup committed (`22f0b6d`); `tsconfig.tsbuildinfo` remains tracked churn → recommend adding to `.gitignore`.
 - **O4 — Cron `*/5`:** automation cadence on all 3 workers — verify no duplicate automation execution (main + ai-app both bound to same D1) (⏱).
 
 ## 27.3 Reliability & Monitoring
