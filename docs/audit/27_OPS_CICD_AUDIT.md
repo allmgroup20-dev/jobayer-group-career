@@ -16,7 +16,8 @@
 | `deploy-chat.yml` | push main | Verify chat secrets — ⏱ |
 
 **Findings:**
-- **O1 — Secrets not provisioned (Critical):** `deploy.yml:32,46`; production will run with no `JWT_SECRET`, `WHATSAPP_*`, `SSLCOMMERZ_*`, `OPENROUTER_API_KEY` unless manually `wrangler secret put`. → P0.
+- **O1 — Secrets not provisioned (Critical):** production will run with no `JWT_SECRET`, `WHATSAPP_*`, `SSLCOMMERZ_*`, `OPENROUTER_API_KEY` unless configured. → P0. **Resolved this session (H5):** `deploy.yml` now passes every secret via `env:` with `[ -n "$VAR" ]` shell guards (no `secrets` in `if:`, which GitHub Actions rejects — was the cause of "Invalid workflow file" on lines 32/46). Steps run only when the GitHub secret is set.
+- **O5 — Workflow parse failure (was breaking all deploys):** `if: ${{ secrets.JWT_SECRET != '' }}` in `deploy.yml:32,46` → GitHub Actions rejects `secrets` inside `if:`. **Fixed this session:** removed `if:` conditions; secrets now flow via `env:` + shell guards (mirrors `deploy-ai.yml`). YAML validated locally ✅.
 - **O2 — No environment separation:** single `main` → prod; risky for the "test-mode" era. Recommend a staging worker (P2).
 - **O3 — Build gate:** `npm run build && opennextjs deploy` — running `tsc --noEmit` first is recommended; WIP (uncommitted sprint-A) had to compile before deploy (blocked: `tsconfig.tsbuildinfo` dirty). **Resolved this session:** tree compiles clean (tsc ✅, build ✅) with WIP cleanup committed (`22f0b6d`); `tsconfig.tsbuildinfo` remains tracked churn → recommend adding to `.gitignore`.
 - **O4 — Cron `*/5`:** automation cadence on all 3 workers — verify no duplicate automation execution (main + ai-app both bound to same D1) (⏱).
