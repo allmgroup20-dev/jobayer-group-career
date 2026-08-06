@@ -3,12 +3,10 @@ import { query, execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { verifyCompanyToken, hashCompanyPassword, verifyCompanyPassword, getJwtSecret } from "@/lib/auth";
 
-const JWT_SECRET = getJwtSecret();
-
 async function getAuthUser(request: NextRequest) {
   const token = request.cookies.get("company_token")?.value;
   if (!token) return null;
-  return await verifyCompanyToken(token, JWT_SECRET);
+  return await verifyCompanyToken(token, getJwtSecret());
 }
 
 export async function GET() {

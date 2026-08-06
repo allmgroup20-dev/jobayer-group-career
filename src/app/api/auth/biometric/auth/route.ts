@@ -6,8 +6,6 @@ import { generateCompanyToken } from "@/lib/auth/company-auth";
 import { issueChallenge, consumeChallenge, verifyAuthentication } from "@/lib/auth/webauthn";
 import { setSessionCookie } from "@/lib/auth/session";
 
-const jwtSecret = getJwtSecret();
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as Record<string, string>;

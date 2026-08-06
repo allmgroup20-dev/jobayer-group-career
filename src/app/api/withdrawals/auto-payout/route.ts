@@ -3,10 +3,9 @@ import { execute, query, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { verifyCompanyToken, getJwtSecret } from "@/lib/auth";
 
-const JWT_SECRET = getJwtSecret();
-
 export async function POST(request: NextRequest) {
   try {
+    const JWT_SECRET = getJwtSecret();
     // C7: money-moving endpoint requires an authenticated company admin session
     const token = request.cookies.get("company_token")?.value;
     if (!token || !(await verifyCompanyToken(token, JWT_SECRET))) {
