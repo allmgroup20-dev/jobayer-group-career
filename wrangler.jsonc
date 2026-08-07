@@ -17,7 +17,7 @@
     "SSLCOMMERZ_IS_LIVE": "false",
     "AI_WORKER_URL": "https://jgcareer-ai.allmgroup20.workers.dev",
     "CHAT_WORKER_URL": "https://jgcareer-chat.allmgroup20.workers.dev",
-    "GOOGLE_CLIENT_ID": "",
+    "GOOGLE_CLIENT_ID": "403109702719-febj7lgvrlb8am6vh39e31k2lk5cfato.apps.googleusercontent.com",
     "FACEBOOK_APP_ID": ""
   },
   "d1_databases": [
