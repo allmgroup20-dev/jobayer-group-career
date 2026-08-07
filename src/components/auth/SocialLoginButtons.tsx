@@ -45,6 +45,7 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
   const [googleReady, setGoogleReady] = useState(false);
   const [fbReady, setFbReady] = useState(false);
   const [busy, setBusy] = useState<"google" | "facebook" | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -139,22 +140,28 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
     }, { scope: "public_profile,email" });
   };
 
-  const notConfiguredNote = lang === "bn" ? "· কনফিগার করা হয়নি" : "· not configured";
+  const notConfiguredClick = (provider: "Google" | "Facebook") => {
+    setNotice(lang === "bn"
+      ? `${provider === "Google" ? "গুগল" : "ফেসবুক"} লগইন এখনো সেটআপ করা হয়নি (Not Configured Yet)। পরে আবার চেষ্টা করুন।`
+      : `${provider} login is not configured yet. Please try again later.`);
+  };
 
   return (
     <div className="space-y-3">
       {config.googleClientId ? (
         <div ref={googleBtnRef} className="w-full [&>div]:w-full" />
       ) : (
-        <button
-          type="button"
-          disabled
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/60 text-sm font-bold text-text-secondary/60 bg-gray-50 cursor-not-allowed"
-        >
-          <GoogleG className="w-5 h-5" />
-          {lang === "bn" ? "গুগল দিয়ে লগইন" : "Continue with Google"}
-          <span className="text-[10px] font-semibold text-amber-600">{notConfiguredNote}</span>
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={() => notConfiguredClick("Google")}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all cursor-pointer"
+          >
+            <GoogleG className="w-5 h-5" />
+            {lang === "bn" ? "গুগল দিয়ে লগইন" : "Continue with Google"}
+          </button>
+          <p className="mt-1.5 text-[10px] font-semibold text-amber-600 text-center">⚠️ Google Login: Not Configured Yet</p>
+        </div>
       )}
 
       {config.facebookAppId ? (
@@ -168,15 +175,21 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
           {lang === "bn" ? "ফেসবুক দিয়ে লগইন" : "Continue with Facebook"}
         </button>
       ) : (
-        <button
-          type="button"
-          disabled
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/60 text-sm font-bold text-text-secondary/60 bg-gray-50 cursor-not-allowed"
-        >
-          <FacebookF className="w-5 h-5" />
-          {lang === "bn" ? "ফেসবুক দিয়ে লগইন" : "Continue with Facebook"}
-          <span className="text-[10px] font-semibold text-amber-600">{notConfiguredNote}</span>
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={() => notConfiguredClick("Facebook")}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all cursor-pointer"
+          >
+            <FacebookF className="w-5 h-5" />
+            {lang === "bn" ? "ফেসবুক দিয়ে লগইন" : "Continue with Facebook"}
+          </button>
+          <p className="mt-1.5 text-[10px] font-semibold text-amber-600 text-center">⚠️ Facebook Login: Not Configured Yet</p>
+        </div>
+      )}
+
+      {notice && (
+        <p className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">⚠️ {notice}</p>
       )}
     </div>
   );

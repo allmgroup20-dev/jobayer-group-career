@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [otpCode, setOtpCode] = useState("");
   const [otpBusy, setOtpBusy] = useState(false);
   const [otpMsg, setOtpMsg] = useState("");
+  const [otpNotice, setOtpNotice] = useState("");
   const [phoneVerified, setPhoneVerified] = useState(false);
 
   const [redirectAfter, setRedirectAfter] = useState("/onboarding");
@@ -50,7 +51,7 @@ export default function RegisterPage() {
   };
 
   const handleSendOtp = async () => {
-    setOtpBusy(true); setOtpMsg(""); setError("");
+    setOtpBusy(true); setOtpMsg(""); setError(""); setOtpNotice("");
     const cleanPhone = normalizePhone(form.phone);
     if (!cleanPhone || cleanPhone.length < 10) {
       setError(lang === "bn" ? "সঠিক হোয়াটসঅ্যাপ নম্বর দিন (যেমন: ০১XXX-XXXXXX)" : "Enter a valid WhatsApp number (e.g. 01XXX-XXXXXX)");
@@ -63,7 +64,14 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: cleanPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      if (data.configured === false) {
+        setOtpNotice(lang === "bn"
+          ? "ওটিপি সার্ভিস এখনো চালু হয়নি (Not Configured Yet)। পরে আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।"
+          : "OTP service is not configured yet. Please try again later or contact admin.");
+        setOtpBusy(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Failed to send OTP");
       setOtpSent(true);
       if (data.devCode) setOtpCode(data.devCode);
@@ -221,6 +229,7 @@ export default function RegisterPage() {
                 </div>
               )}
               {otpMsg && <p className="text-[11px] text-[#128C7E] font-medium mt-2">✅ {otpMsg}</p>}
+              {otpNotice && <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 font-medium mt-2">⚠️ {otpNotice}</p>}
             </div>
           )}
 

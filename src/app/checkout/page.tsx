@@ -99,7 +99,12 @@ function CheckoutContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: guestPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      if (data.configured === false) {
+        setGuestError("OTP service: Not Configured Yet — please try again later or contact admin.");
+        setGuestBusy(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Failed");
       if (data.devCode) setGuestDevCode(data.devCode);
       setGuestOtpSent(true);

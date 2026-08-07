@@ -72,7 +72,7 @@ export default function LiveNotificationBar({ message }: Props) {
   if (!visible || !notification) return null;
 
   return (
-    <div className="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-[9999] max-w-[94vw] md:max-w-[560px] px-4 py-3 rounded-xl bg-white border border-border shadow-xl flex items-center gap-2.5 animate-fade-up transition-all duration-[400ms]">
+    <div className="fixed left-1/2 -translate-x-1/2 z-[9999] max-w-[94vw] md:max-w-[560px] px-4 py-3 rounded-xl bg-white border border-border shadow-xl flex items-center gap-2.5 animate-fade-up transition-all duration-[400ms] float-slot-toast">
       <span className="flex-shrink-0 text-base">{String.fromCodePoint(0x1F389)}</span>
       <span className="font-bold text-sm leading-relaxed text-text">{notification}</span>
     </div>

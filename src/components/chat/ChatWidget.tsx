@@ -74,7 +74,7 @@ export default function ChatWidget() {
   }, [input, loading, offline]);
 
   return (
-    <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end gap-3" style={{ bottom: "20px", right: "20px" }}>
+    <div className="fixed right-5 z-[9999] flex flex-col items-end gap-3 float-slot">
       {open && (
         <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-[380px] max-w-[92vw] h-[540px] max-h-[80vh] flex flex-col overflow-hidden">
           <div className="bg-gradient-to-r from-[#0F1E36] to-[#1a2f4e] text-white px-4 py-3.5 flex items-center justify-between shrink-0">

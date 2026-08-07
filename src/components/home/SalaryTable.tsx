@@ -95,9 +95,41 @@ export default function SalaryTable({ onNewSuccess }: Props) {
         </div>
       </div>
 
-      <div className="mt-5 rounded-xl bg-bg border border-border overflow-x-auto">
-        <div className="min-w-[420px]">
-          <div className="grid grid-cols-[1fr_110px_90px_1fr] items-center px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
+      <div className="mt-5 rounded-xl bg-bg border border-border overflow-hidden">
+        {/* Mobile: stacked cards — all fields visible, nothing truncated */}
+        <div className="md:hidden divide-y divide-border/50">
+          {rows.map((row, i) => (
+            <div
+              key={i}
+              className={`px-4 py-3 ${
+                row.success ? "ring-2 ring-inset ring-green-400 bg-green-50" : i % 2 === 0 ? "bg-white/50" : ""
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className={`font-bold text-sm break-words min-w-0 ${row.success ? "text-green-700" : "text-text"}`}>
+                  {row.name}
+                </span>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 whitespace-normal text-right ${
+                    row.success ? "bg-green-100 text-green-700" : "bg-info/10 text-info"
+                  }`}
+                >
+                  {row.status}
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-center justify-between gap-3">
+                <span className={`font-black text-sm ${row.success ? "text-green-600" : "text-success"}`}>
+                  {toBn(row.amount)}৳
+                </span>
+                <span className="text-[11px] font-bold text-text-secondary/70">🕐 {row.time}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: 4-column table — all fields visible, no truncation */}
+        <div className="hidden md:block">
+          <div className="grid grid-cols-[minmax(0,1fr)_110px_90px_minmax(0,1.2fr)] items-center px-4 py-3 bg-white border-b border-border sticky top-0 z-10">
             <span className="font-black text-[11px] text-text-secondary">{lang === "bn" ? "নাম" : "Name"}</span>
             <span className="font-black text-[11px] text-text-secondary text-center">{lang === "bn" ? "বোনাস" : "Bonus"}</span>
             <span className="font-black text-[11px] text-text-secondary text-center">{lang === "bn" ? "সময়" : "Time"}</span>
@@ -107,13 +139,11 @@ export default function SalaryTable({ onNewSuccess }: Props) {
             {rows.map((row, i) => (
               <div
                 key={i}
-                className={`grid grid-cols-[1fr_110px_90px_1fr] items-center gap-x-2 px-4 py-3 border-b border-border/50 last:border-none ${
-                  row.success
-                    ? "ring-2 ring-inset ring-green-400 bg-green-50"
-                    : i % 2 === 0 ? "bg-white/50" : ""
+                className={`grid grid-cols-[minmax(0,1fr)_110px_90px_minmax(0,1.2fr)] items-center gap-x-3 px-4 py-3 border-b border-border/50 last:border-none ${
+                  row.success ? "ring-2 ring-inset ring-green-400 bg-green-50" : i % 2 === 0 ? "bg-white/50" : ""
                 }`}
               >
-                <span className={`font-bold text-xs truncate ${row.success ? "text-green-700" : "text-text"}`}>
+                <span className={`font-bold text-xs break-words min-w-0 ${row.success ? "text-green-700" : "text-text"}`}>
                   {row.name}
                 </span>
                 <span className={`font-black text-sm text-center ${row.success ? "text-green-600" : "text-success"}`}>
@@ -123,10 +153,8 @@ export default function SalaryTable({ onNewSuccess }: Props) {
                   🕐 {row.time}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full justify-self-end whitespace-nowrap ${
-                    row.success
-                      ? "bg-green-100 text-green-700"
-                      : "bg-info/10 text-info"
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full justify-self-end whitespace-normal text-right ${
+                    row.success ? "bg-green-100 text-green-700" : "bg-info/10 text-info"
                   }`}
                 >
                   {row.status}

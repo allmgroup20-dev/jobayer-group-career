@@ -154,7 +154,7 @@ export default function SmartInstall() {
   const showOneClick = deferredPrompt.current;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 md:bottom-8 md:left-auto md:right-8 md:w-80 animate-slide-up">
+    <div className="fixed left-4 right-4 z-[55] md:left-auto md:right-6 md:w-80 animate-slide-up float-slot">
       <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 relative">
         <button
           onClick={handleDismiss}

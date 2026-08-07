@@ -577,7 +577,7 @@ export default function CoursesPage() {
 
       {showScrollTop && (
         <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-purple-600 text-white shadow-xl shadow-primary/30 flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-primary/40 active:scale-95 cursor-pointer backdrop-blur-sm">
+          className="fixed right-6 z-40 w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-purple-600 text-white shadow-xl shadow-primary/30 flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-primary/40 active:scale-95 cursor-pointer backdrop-blur-sm float-slot-top">
           ↑
         </button>
       )}

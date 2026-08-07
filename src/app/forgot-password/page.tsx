@@ -15,6 +15,7 @@ export default function ForgotPasswordPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [otpMsg, setOtpMsg] = useState("");
+  const [otpNotice, setOtpNotice] = useState("");
 
   const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
 
@@ -26,7 +27,7 @@ export default function ForgotPasswordPage() {
   };
 
   const handleSendOtp = async () => {
-    setBusy(true); setError(""); setOtpMsg("");
+    setBusy(true); setError(""); setOtpMsg(""); setOtpNotice("");
     const cleanPhone = normalizePhone(phone);
     if (!cleanPhone || cleanPhone.length < 10) {
       setError(t("সঠিক হোয়াটসঅ্যাপ নম্বর দিন", "Enter a valid WhatsApp number"));
@@ -39,7 +40,15 @@ export default function ForgotPasswordPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: cleanPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      if (data.configured === false) {
+        setOtpNotice(t(
+          "ওটিপি সার্ভিস এখনো চালু হয়নি (Not Configured Yet)। পরে আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।",
+          "OTP service is not configured yet. Please try again later or contact admin."
+        ));
+        setBusy(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Failed to send OTP");
       if (data.devCode) setOtpCode(data.devCode);
       setOtpMsg(t("ওটিপি পাঠানো হয়েছে! হোয়াটসঅ্যাপে কোডটি দেখুন।", "OTP sent! Check your WhatsApp."));
@@ -134,6 +143,7 @@ export default function ForgotPasswordPage() {
           {step === "otp" && (
             <>
               {otpMsg && <p className="text-xs text-[#128C7E] font-medium">✅ {otpMsg}</p>}
+              {otpNotice && <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 font-medium mt-2">⚠️ {otpNotice}</p>}
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">
                   🔐 {t("৬-ডিজিট কোড", "6-digit code")}

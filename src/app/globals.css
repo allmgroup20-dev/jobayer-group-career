@@ -266,5 +266,46 @@
   .bottom-nav { display: none; }
 }
 
+/* ── Floating widget coordination ─────────────────────────────
+   All bottom-anchored floating widgets share a reserved slot so
+   they never overlap the bottom nav, the cookie banner or each
+   other. Cookie banner sets html[data-cookie="1"] while open. */
+:root {
+  --bottom-nav-h: calc(72px + env(safe-area-inset-bottom, 0px));
+  --cookie-h: 132px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --bottom-nav-h: 0px;
+    --cookie-h: 96px;
+  }
+}
+
+/* Persistent widgets (chat launcher, install prompt): sit above the nav,
+   lift above the cookie banner while it is open. */
+.float-slot {
+  bottom: calc(var(--bottom-nav-h) + 12px);
+}
+html[data-cookie="1"] .float-slot {
+  bottom: calc(var(--bottom-nav-h) + var(--cookie-h) + 12px);
+}
+
+/* Widgets that must sit above the chat launcher (e.g. scroll-to-top). */
+.float-slot-top {
+  bottom: calc(var(--bottom-nav-h) + 88px);
+}
+html[data-cookie="1"] .float-slot-top {
+  bottom: calc(var(--bottom-nav-h) + var(--cookie-h) + 88px);
+}
+
+/* Transient toasts: hidden while the cookie banner is open (they resume after). */
+.float-slot-toast {
+  bottom: calc(var(--bottom-nav-h) + 12px);
+}
+html[data-cookie="1"] .float-slot-toast {
+  display: none;
+}
+
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

@@ -34,6 +34,14 @@ export function CookieConsentBanner() {
     }
   }, []);
 
+  // Coordinate floating widgets: while the banner is open, the other
+  // bottom-anchored widgets lift/hide via html[data-cookie].
+  useEffect(() => {
+    const el = document.documentElement;
+    el.setAttribute("data-cookie", show && !consent ? "1" : "0");
+    return () => { el.setAttribute("data-cookie", "0"); };
+  }, [show, consent]);
+
   const saveConsent = (state: ConsentState) => {
     localStorage.setItem(CONSENT_KEY, JSON.stringify(state));
     setConsent(state);
@@ -76,7 +84,8 @@ export function CookieConsentBanner() {
       { key: "functional", labelEn: "Functional / Personalization", labelBn: "কার্যকরী / ব্যক্তিগতকরণ" },
     ];
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-6 animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-[60] p-6 animate-slide-up"
+        style={{ bottom: "var(--bottom-nav-h)" }}>
         <div className="max-w-2xl mx-auto">
           <h3 className="text-lg font-bold text-primary mb-4">
             {lang === "bn" ? "কুকি সেটিংস কাস্টমাইজ করুন" : "Customize Cookie Settings"}
@@ -109,8 +118,9 @@ export function CookieConsentBanner() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 p-4 animate-slide-up">
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-[60] animate-slide-up"
+      style={{ bottom: "var(--bottom-nav-h)" }}>
+      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
         <div className="flex-1">
           <p className="text-sm font-medium text-primary">
             {lang === "bn" ? "🍪 আমরা আপনার অভিজ্ঞতা উন্নত করতে কুকি ব্যবহার করি" : "🍪 We use cookies to improve your experience"}

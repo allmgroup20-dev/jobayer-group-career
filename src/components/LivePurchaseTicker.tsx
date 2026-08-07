@@ -55,7 +55,7 @@ export default function LivePurchaseTicker() {
   return (
     <div
       onClick={() => setDismissed(true)}
-      className="fixed bottom-4 left-4 z-[9999] max-w-xs cursor-pointer animate-pulse-once bg-white border border-border shadow-xl rounded-2xl p-3 pr-9"
+      className="fixed left-4 z-[9999] max-w-xs cursor-pointer animate-pulse-once bg-white border border-border shadow-xl rounded-2xl p-3 pr-9 float-slot-toast"
     >
       <button
         onClick={(e) => { e.stopPropagation(); setDismissed(true); }}

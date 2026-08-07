@@ -56,6 +56,8 @@ export async function POST(request: NextRequest) {
       if (isProd) {
         // Stable, explicit unconfigured state — do not pretend the OTP was sent.
         return NextResponse.json({
+          configured: false,
+          status: "not_configured",
           error: "ওটিপি সেবা এখনো সক্রিয় করা হয়নি। পরে আবার চেষ্টা করুন।",
         }, { status: 503 });
       }

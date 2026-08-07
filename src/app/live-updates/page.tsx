@@ -50,11 +50,8 @@ export default function LiveUpdatesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 space-y-6">
         <div className="text-center mb-2">
           <h1 className="text-xl md:text-2xl font-black text-text">
-            {lang === "bn" ? "সর্বশেষ বোনাস" : "Latest Bonuses"}
+            {lang === "bn" ? "এই মুহূর্তে বোনাস এবং আয়ের প্রমাণ" : "Bonuses & Proof of Earnings Right Now"}
           </h1>
-          <p className="text-[11px] text-text-secondary/60 font-semibold mt-1">
-            {lang === "bn" ? "প্রদর্শনমূলক নমুনা" : "Illustrative samples"}
-          </p>
         </div>
 
         <div className="flex justify-center gap-2 mb-2">
