@@ -14,7 +14,7 @@ const bdDistricts = [
 ];
 
 const tabs = [
-  { id: "salary", labelBn: "📊 লাইভ স্যালারি", labelEn: "📊 Live Earnings" },
+  { id: "salary", labelBn: "📊 সর্বশেষ বোনাস", labelEn: "📊 Latest Bonuses" },
   { id: "proof", labelBn: "💰 আয়ের প্রমাণপত্র", labelEn: "💰 Proof of Earnings" },
 ];
 
@@ -50,15 +50,15 @@ export default function LiveUpdatesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 space-y-6">
         <div className="text-center mb-2">
           <div className="badge mx-auto mb-3 border-success/20 bg-success/10 text-success">
-            📊 {lang === "bn" ? "লাইভ আপডেট" : "Live Updates"}
+            📊 {lang === "bn" ? "সর্বশেষ বোনাস" : "Latest Bonuses"}
           </div>
           <h1 className="text-2xl md:text-3xl font-black text-text">
-            {lang === "bn" ? "শিক্ষার্থীদের আয়ের বাস্তব চিত্র" : "Real Earnings of Our Students"}
+            {lang === "bn" ? "বোনাস ও আয়ের নমুনা" : "Sample Bonuses & Earnings"}
           </h1>
           <p className="text-text-secondary font-semibold mt-2 max-w-2xl mx-auto">
             {lang === "bn"
-              ? "প্রতি মুহূর্তে আপডেট হচ্ছে — বাস্তব শিক্ষার্থীদের প্রকৃত আয় ও পেমেন্ট প্রমাণ"
-              : "Updating in real-time — real income & payment proofs from actual students"}
+              ? "এখানে দেখানো বোনাস, আয় ও পেমেন্ট প্রমাণ প্রদর্শনমূলক নমুনা — প্ল্যাটফর্মের কার্যক্রম বোঝানোর জন্য"
+              : "The bonuses, earnings and payment proofs shown here are illustrative samples to explain how the platform works"}
           </p>
         </div>
 

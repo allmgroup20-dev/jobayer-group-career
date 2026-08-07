@@ -11,7 +11,7 @@ export default function Footer() {
     { en: "Home", bn: "হোম", href: "/" },
     { en: "Courses", bn: "কোর্স সমূহ", href: "/courses" },
     { en: "Reviews", bn: "মতামত", href: "/reviews" },
-    { en: "Live Updates", bn: "লাইভ", href: "/live-updates" },
+    { en: "Latest Bonuses", bn: "সর্বশেষ বোনাস", href: "/live-updates" },
     { en: "Login", bn: "লগইন", href: "/login" },
     { en: "Register", bn: "রেজিস্টার", href: "/register" },
   ];

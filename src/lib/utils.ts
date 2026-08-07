@@ -42,7 +42,7 @@ export function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
     active: "text-green-600 bg-green-50",
     pending: "text-yellow-600 bg-yellow-50",
-    completed: "text-blue-600 bg-blue-50",
+    completed: "text-green-600 bg-green-50",
     cancelled: "text-red-600 bg-red-50",
     paid: "text-green-600 bg-green-50",
     processing: "text-blue-600 bg-blue-50",

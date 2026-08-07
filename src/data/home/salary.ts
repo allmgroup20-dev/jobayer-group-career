@@ -27,12 +27,12 @@ export const liveNotifText = {
 };
 
 export const liveSalaryText = {
-  badgeBn: "📊 লাইভ আপডেট",
-  badgeEn: "📊 Live Updates",
-  titleBn: "লাইভ — বোনাস বিতরণ করা হচ্ছে 🟢",
-  titleEn: "Live — Bonuses Are Being Distributed 🟢",
-  subtitleBn: "এই মুহূর্তে কে কত টাকা আয় করছে তা নিচে দেখুন — প্রতি মুহূর্তে নতুন আয়ের খবর আসছে!",
-  subtitleEn: "See who is earning how much right now — new earnings updates every moment!",
+  badgeBn: "📊 সর্বশেষ বোনাস",
+  badgeEn: "📊 Latest Bonuses",
+  titleBn: "সর্বশেষ বোনাস ও পেমেন্ট 🟢",
+  titleEn: "Latest Bonuses & Payments 🟢",
+  subtitleBn: "সাম্প্রতিক বোনাস ও পেমেন্টের নমুনা (প্রদর্শনমূলক ডেটা)",
+  subtitleEn: "Sample of recent bonuses and payments (illustrative data)",
   successStatusBn: "নগদ অ্যাকাউন্টে ট্রান্সফার সম্পন্ন হয়েছে",
   successStatusEn: "Transfer to cash account completed",
   bonusStatusBn: "বোনাস দেওয়া হয়েছে",
