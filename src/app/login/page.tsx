@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
 import { FingerprintIcon } from "@/components/ui/FingerprintIcon";
-import { FaceIcon } from "@/components/ui/FaceIcon";
 import { LoadingDots } from "@/components/ui/LoadingDots";
+import SocialLoginButtons from "@/components/auth/SocialLoginButtons";
 
 export default function LoginPage() {
   const { lang } = useLanguageStore();
@@ -23,108 +23,6 @@ export default function LoginPage() {
   const [companyUsername, setCompanyUsername] = useState("");
   const [companyPassword, setCompanyPassword] = useState("");
   const [showCompanyPassword, setShowCompanyPassword] = useState(false);
-
-  // OAuth (Google One Tap / Facebook)
-  const [oauthConfig, setOauthConfig] = useState<{ googleClientId: string; facebookAppId: string }>({ googleClientId: "", facebookAppId: "" });
-  const [googleReady, setGoogleReady] = useState(false);
-  const [fbReady, setFbReady] = useState(false);
-  const googleBtnRef = useRef<HTMLDivElement>(null);
-
-  function loadScript(src: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
-      const s = document.createElement("script");
-      s.src = src;
-      s.async = true;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Failed to load " + src));
-      document.head.appendChild(s);
-    });
-  }
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/auth/oauth-config")
-      .then((r) => r.json() as Promise<{ googleClientId?: string; facebookAppId?: string }>)
-      .then((cfg) => {
-        if (cancelled) return;
-        setOauthConfig({ googleClientId: cfg.googleClientId || "", facebookAppId: cfg.facebookAppId || "" });
-        if (cfg.googleClientId) {
-          loadScript("https://accounts.google.com/gsi/client").then(() => setGoogleReady(true)).catch(() => {});
-        }
-        if (cfg.facebookAppId) {
-          loadScript("https://connect.facebook.net/en_US/sdk.js").then(() => {
-            (window as any).FB?.init({ appId: cfg.facebookAppId, version: "v19.0", xfbml: true, cookie: true });
-            setFbReady(true);
-          }).catch(() => {});
-        }
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    if (!googleReady || !googleBtnRef.current) return;
-    const g = (window as any).google?.accounts?.id;
-    if (!g) return;
-    g.initialize({
-      client_id: oauthConfig.googleClientId,
-      callback: handleGoogleCredential,
-      auto_select: false,
-      itp_support: true,
-    });
-    g.renderButton(googleBtnRef.current, {
-      theme: "outline", size: "large", shape: "pill", width: "100%", text: "continue_with",
-    });
-  }, [googleReady]);
-
-  const handleGoogleCredential = async (resp: { credential?: string }) => {
-    if (!resp?.credential) return;
-    setLoading(true); setError("");
-    try {
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken: resp.credential }),
-      });
-      const data = await res.json() as { error?: string; workerId?: string; name?: string };
-      if (!res.ok) throw new Error(data.error || "Google login failed");
-      if (data.workerId) {
-        localStorage.setItem("worker_id", data.workerId);
-        localStorage.setItem("worker_name", data.name || "");
-        window.location.href = "/dashboard";
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google login failed");
-    } finally { setLoading(false); }
-  };
-
-  const handleFbLogin = () => {
-    const FB = (window as any).FB;
-    if (!FB) return;
-    setError("");
-    FB.login((resp: { authResponse?: { accessToken?: string } }) => {
-      if (!resp.authResponse?.accessToken) {
-        setError(lang === "bn" ? "ফেসবুক লগইন বাতিল হয়েছে" : "Facebook login cancelled");
-        return;
-      }
-      setLoading(true);
-      fetch("/api/auth/facebook", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken: resp.authResponse.accessToken }),
-      })
-        .then((r) => r.json() as Promise<{ error?: string; workerId?: string; name?: string }>)
-        .then((data) => {
-          if (!data.workerId) throw new Error(data.error || "Facebook login failed");
-          localStorage.setItem("worker_id", data.workerId);
-          localStorage.setItem("worker_name", data.name || "");
-          window.location.href = "/dashboard";
-        })
-        .catch((err: unknown) => setError(err instanceof Error ? err.message : "Facebook login failed"))
-        .finally(() => setLoading(false));
-    }, { scope: "public_profile,email" });
-  };
 
   useEffect(() => {
     if (loading) {
@@ -422,21 +320,7 @@ export default function LoginPage() {
             </div>
 
             {/* Social & Biometric */}
-            {oauthConfig.googleClientId && (
-              <div>
-                <div ref={googleBtnRef} className="w-full [&>div]:w-full" />
-              </div>
-            )}
-            {oauthConfig.facebookAppId && (
-              <button
-                type="button"
-                onClick={handleFbLogin}
-                disabled={loading || !fbReady}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all disabled:opacity-50"
-              >
-                <span>🔷</span> {lang === "bn" ? "ফেসবুক দিয়ে লগইন" : "Continue with Facebook"}
-              </button>
-            )}
+            <SocialLoginButtons lang={lang} onError={setError} />
 
             <button
               type="button"

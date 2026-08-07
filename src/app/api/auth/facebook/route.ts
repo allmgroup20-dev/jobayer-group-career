@@ -20,6 +20,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "accessToken required" }, { status: 400 });
     }
 
+    const appId = process.env.FACEBOOK_APP_ID;
+    if (!appId) {
+      return NextResponse.json({ error: "Facebook login is not configured" }, { status: 501 });
+    }
+
     // Verify the Facebook access token server-side via the Graph API.
     // The appsecret_proof prevents token forgery when an app secret is configured.
     let graphUrl = `https://graph.facebook.com/me?fields=id,name,email&access_token=${encodeURIComponent(accessToken)}`;

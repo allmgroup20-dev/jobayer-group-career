@@ -11,6 +11,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "idToken required" }, { status: 400 });
     }
 
+    const expectedAud = process.env.GOOGLE_CLIENT_ID;
+    if (!expectedAud) {
+      return NextResponse.json({ error: "Google login is not configured" }, { status: 501 });
+    }
+
     // Verify the Google ID Token server-side via Google's tokeninfo endpoint.
     // Signature, issuer, audience and email_verified are all validated by Google here.
     let profile: { sub?: string; email?: string; email_verified?: string; name?: string; aud?: string };
@@ -24,8 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 400 });
     }
 
-    const expectedAud = process.env.GOOGLE_CLIENT_ID;
-    if (expectedAud && profile.aud !== expectedAud) {
+    if (profile.aud !== expectedAud) {
       return NextResponse.json({ error: "Invalid token audience" }, { status: 400 });
     }
     const googleId = profile.sub;

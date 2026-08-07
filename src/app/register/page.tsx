@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
 import { LoadingDots } from "@/components/ui/LoadingDots";
+import SocialLoginButtons from "@/components/auth/SocialLoginButtons";
 
 export default function RegisterPage() {
   const { lang } = useLanguageStore();
@@ -267,6 +268,24 @@ export default function RegisterPage() {
               : "By registering you agree to our Terms & Privacy Policy"}
           </p>
         </form>
+
+        <div className="relative py-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border/60" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="px-3 text-xs font-bold text-text-secondary bg-white">
+              {lang === "bn" ? "অথবা" : "OR"}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-border/80 space-y-3">
+          <p className="text-center text-[11px] text-text-secondary/70 font-medium">
+            {lang === "bn" ? "অথবা সামাজিক অ্যাকাউন্ট দিয়ে শুরু করুন" : "Or continue with a social account"}
+          </p>
+          <SocialLoginButtons lang={lang} redirectTo="/onboarding" onError={setError} />
+        </div>
 
         <p className="text-center text-sm text-text-secondary mt-6">
           {lang === "bn" ? "ইতিমধ্যে অ্যাকাউন্ট আছে?" : "Already have an account?"}{" "}
