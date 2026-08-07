@@ -39,7 +39,15 @@ export async function POST(request: NextRequest) {
 
     const db = await getDB();
 
-    if (body.useResourceIncome) {
+    // Resolve the course so we can enforce per-resource rules server-side.
+    const course = await queryFirst<{ id: number; is_premium: number }>(
+      db, "SELECT id, is_premium FROM courses WHERE id = ?", [body.courseId]
+    );
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
+
+    if (course.is_premium === 1) {
       // C4: price resolved server-side from company settings, never hardcoded
       const settingsRow = await queryFirst<{ setting_value: string }>(
         db, "SELECT setting_value FROM company_settings WHERE setting_key = 'resource_unlock_price'"
@@ -48,27 +56,35 @@ export async function POST(request: NextRequest) {
       if (!Number.isFinite(unlockPrice) || unlockPrice <= 0) {
         return NextResponse.json({ error: "Resource unlock price not configured" }, { status: 500 });
       }
-      const worker = await queryFirst<{ resource_income: number }>(
-        db, "SELECT resource_income FROM workers WHERE worker_id = ?", [body.workerId]
-      );
-      if (!worker || worker.resource_income < unlockPrice) {
-        return NextResponse.json({ error: "Insufficient resource income" }, { status: 400 });
-      }
-      await execute(db,
-        "UPDATE workers SET resource_income = resource_income - ? WHERE worker_id = ?",
-        [unlockPrice, body.workerId]
-      );
-    } else {
-      // Free unlock — check unlock limit
-      const limit = await queryFirst<{ maxUnlocks: number }>(
-        db, "SELECT max_unlocks as maxUnlocks FROM unlock_limits WHERE worker_id = ?", [body.workerId]
-      );
-      if (limit && limit.maxUnlocks > 0) {
-        const count = await queryFirst<{ cnt: number }>(
-          db, "SELECT COUNT(*) as cnt FROM user_unlocks WHERE worker_id = ?", [body.workerId]
+      if (body.useResourceIncome) {
+        const worker = await queryFirst<{ resource_income: number }>(
+          db, "SELECT resource_income FROM workers WHERE worker_id = ?", [body.workerId]
         );
-        if (count && count.cnt >= limit.maxUnlocks) {
-          return NextResponse.json({ error: "Unlock limit reached. Use resource income to unlock more." }, { status: 403 });
+        if (!worker || worker.resource_income < unlockPrice) {
+          return NextResponse.json({ error: "Insufficient resource income" }, { status: 400 });
+        }
+        await execute(db,
+          "UPDATE workers SET resource_income = resource_income - ? WHERE worker_id = ?",
+          [unlockPrice, body.workerId]
+        );
+        const orderId = `RI${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+        await execute(db,
+          `INSERT INTO resource_purchases (order_id, worker_id, course_id, amount, resource_count, payment_status, completed_at)
+           VALUES (?, ?, ?, ?, 1, 'completed', datetime('now'))`,
+          [orderId, body.workerId, course.id, unlockPrice]
+        );
+      } else {
+        // Premium resource requires an actual purchase — premium badge alone grants nothing.
+        const purchase = await queryFirst<{ id: number }>(
+          db, `SELECT id FROM resource_purchases
+               WHERE worker_id = ? AND course_id = ? AND payment_status = 'completed' LIMIT 1`,
+          [body.workerId, body.courseId]
+        );
+        if (!purchase) {
+          return NextResponse.json(
+            { error: `This resource is paid. Buy it (৳${unlockPrice}) or pay with resource income to unlock.` },
+            { status: 403 }
+          );
         }
       }
     }

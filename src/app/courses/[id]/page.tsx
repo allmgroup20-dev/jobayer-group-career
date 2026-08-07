@@ -71,6 +71,8 @@ export default function CourseDetailPage() {
   const [relatedCourses, setRelatedCourses] = useState<Course[]>([]);
   const [resourceIncome, setResourceIncome] = useState(0);
   const [riUnlocking, setRiUnlocking] = useState(false);
+  const [unlockPrice, setUnlockPrice] = useState(99);
+  const [buying, setBuying] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -84,6 +86,11 @@ export default function CourseDetailPage() {
         const courseData = await courseRes.json() as { course: Course; files: CourseFile[] };
         setCourse(courseData.course);
         setFiles(courseData.files || []);
+        try {
+          const priceRes = await fetch("/api/resource-checkout");
+          const priceData = await priceRes.json() as { price?: number };
+          if (priceData.price) setUnlockPrice(priceData.price);
+        } catch {}
         try { setRatings(await ratingsRes.json() as RatingData); } catch {}
 
         const profile: any = await profileRes.json().catch(() => ({}));
@@ -139,7 +146,7 @@ export default function CourseDetailPage() {
     load();
   }, [id]);
 
-  const canAccess = isPremium || (course && course.isPremium === 0) || isUnlocked;
+  const canAccess = (course && course.isPremium === 0) || isUnlocked;
 
   const handleUnlock = async () => {
     if (!workerId || !course) return;
@@ -153,15 +160,26 @@ export default function CourseDetailPage() {
   };
 
   const handleResourceIncomeUnlock = async () => {
-    if (!workerId || !course || resourceIncome < 99) return;
+    if (!workerId || !course || resourceIncome < unlockPrice) return;
     setRiUnlocking(true);
     try {
       const res = await fetch("/api/unlocks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId, courseId: course.id, unlockedBy: "user", useResourceIncome: true }) });
       const data = await res.json() as { error?: string };
       if (!res.ok) { alert(data.error || "Failed"); return; }
-      setResourceIncome(prev => prev - 99);
+      setResourceIncome(prev => prev - unlockPrice);
       setIsUnlocked(true);
     } catch { alert("Failed to unlock"); } finally { setRiUnlocking(false); }
+  };
+
+  const handleBuy = async () => {
+    if (!workerId || !course) return;
+    setBuying(true);
+    try {
+      const res = await fetch("/api/resource-checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId, courseId: course.id }) });
+      const data = await res.json() as { gatewayUrl?: string; error?: string };
+      if (!res.ok || !data.gatewayUrl) { alert(data.error || "পেমেন্ট শুরু করা যায়নি"); return; }
+      window.location.href = data.gatewayUrl;
+    } catch { alert("পেমেন্ট শুরু করতে ব্যর্থ"); } finally { setBuying(false); }
   };
 
   const handleBookmark = async () => {
@@ -307,16 +325,23 @@ export default function CourseDetailPage() {
         )}
 
         <div className="flex flex-wrap gap-3 mt-6">
-          {isLoggedIn && !isPremium && !isUnlocked && (
+          {isLoggedIn && !isUnlocked && (
             <>
-              <Button onClick={handleUnlock} loading={unlocking}
-                disabled={unlockLimit !== null && unlockCount >= unlockLimit}>
-                {unlockLimit !== null && unlockCount >= unlockLimit ? "👑 ফ্রি কোটা শেষ" : "🔓 ফ্রি আনলক"}
-              </Button>
-              {resourceIncome >= 99 && (
-                <Button onClick={handleResourceIncomeUnlock} loading={riUnlocking}
-                  variant="outline" className="!border-blue-300 !text-blue-700 hover:!bg-blue-50">
-                  💰 রিসোর্স আয় দিয়ে আনলক (৳৯৯)
+              {course.isPremium === 1 ? (
+                <>
+                  <Button onClick={handleBuy} loading={buying}>
+                    🛒 কিনে আনলক করুন (৳{unlockPrice})
+                  </Button>
+                  {resourceIncome >= unlockPrice && (
+                    <Button onClick={handleResourceIncomeUnlock} loading={riUnlocking}
+                      variant="outline" className="!border-blue-300 !text-blue-700 hover:!bg-blue-50">
+                      💰 রিসোর্স আয় দিয়ে আনলক (৳{unlockPrice})
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <Button onClick={handleUnlock} loading={unlocking}>
+                  🔓 ফ্রি আনলক
                 </Button>
               )}
             </>
@@ -327,13 +352,13 @@ export default function CourseDetailPage() {
           {isLoggedIn && <Button variant="outline" onClick={() => setComplaintOpen(true)}>⚠️ রিপোর্ট করুন</Button>}
         </div>
 
-        {resourceIncome > 0 && resourceIncome < 99 && isLoggedIn && !isPremium && !isUnlocked && (
+        {resourceIncome > 0 && resourceIncome < unlockPrice && isLoggedIn && !isUnlocked && course.isPremium === 1 && (
           <div className="mt-3 p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-700">
-            আপনার রিসোর্স আয় ৳৯৯ এর কম। আরও রিসোর্স আয় উপার্জন করতে রেজিস্ট্রেশন ও অন্যান্য কার্যক্রম সম্পন্ন করুন।
+            আপনার রিসোর্স আয় ৳{unlockPrice} এর কম। আরও রিসোর্স আয় উপার্জন করতে রেজিস্ট্রেশন ও অন্যান্য কার্যক্রম সম্পন্ন করুন।
           </div>
         )}
 
-        {unlockLimit !== null && isLoggedIn && !isPremium && (
+        {unlockLimit !== null && isLoggedIn && course.isPremium === 0 && (
           <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">আপনার আনলক কোটা: {unlockCount}/{unlockLimit}</div>
         )}
 

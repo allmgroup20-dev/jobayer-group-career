@@ -55,23 +55,34 @@ export async function POST(request: NextRequest) {
     const workerId = purchase.worker_id;
     const resourceCount = purchase.resource_count;
 
-    const existingLimit = await queryFirst<any>(
-      db, "SELECT max_unlocks FROM unlock_limits WHERE worker_id = ?", [workerId]
-    );
-    const currentMax = existingLimit?.max_unlocks || 0;
-    const newMax = currentMax + resourceCount;
+    if (purchase.course_id) {
+      // Per-resource purchase: unlock exactly this course, nothing else.
+      await execute(db,
+        `INSERT OR IGNORE INTO user_unlocks (worker_id, course_id, unlocked_by, unlocked_at)
+         VALUES (?, ?, 'purchase', datetime('now'))`,
+        [workerId, purchase.course_id]
+      );
+    } else {
+      // Legacy resource-pack purchase: grants quota + premium badge only
+      // (premium badge does NOT unlock any course by itself).
+      const existingLimit = await queryFirst<any>(
+        db, "SELECT max_unlocks FROM unlock_limits WHERE worker_id = ?", [workerId]
+      );
+      const currentMax = existingLimit?.max_unlocks || 0;
+      const newMax = currentMax + resourceCount;
 
-    await execute(db,
-      `INSERT INTO unlock_limits (worker_id, max_unlocks, set_by, set_at, updated_at)
-       VALUES (?, ?, 'payment', datetime('now'), datetime('now'))
-       ON CONFLICT(worker_id) DO UPDATE SET max_unlocks = excluded.max_unlocks, updated_at = datetime('now')`,
-      [workerId, newMax]
-    );
+      await execute(db,
+        `INSERT INTO unlock_limits (worker_id, max_unlocks, set_by, set_at, updated_at)
+         VALUES (?, ?, 'payment', datetime('now'), datetime('now'))
+         ON CONFLICT(worker_id) DO UPDATE SET max_unlocks = excluded.max_unlocks, updated_at = datetime('now')`,
+        [workerId, newMax]
+      );
 
-    const worker = await queryFirst<any>(db, "SELECT membership_status FROM workers WHERE worker_id = ?", [workerId]);
-    if (worker && worker.membership_status !== "premium") {
-      await execute(db, "UPDATE workers SET membership_status = 'premium' WHERE worker_id = ?", [workerId]);
-      await execute(db, "UPDATE resource_purchases SET premium_upgraded = 1 WHERE order_id = ?", [orderId]);
+      const worker = await queryFirst<any>(db, "SELECT membership_status FROM workers WHERE worker_id = ?", [workerId]);
+      if (worker && worker.membership_status !== "premium") {
+        await execute(db, "UPDATE workers SET membership_status = 'premium' WHERE worker_id = ?", [workerId]);
+        await execute(db, "UPDATE resource_purchases SET premium_upgraded = 1 WHERE order_id = ?", [orderId]);
+      }
     }
 
     return NextResponse.json({ status: "OK" });

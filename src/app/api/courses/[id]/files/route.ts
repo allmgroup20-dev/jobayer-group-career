@@ -1,21 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query, execute } from "@/lib/db/queries";
+import { query, execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached, invalidateCache } from "@/lib/cache";
+import { verifyWorkerFromCookies } from "@/lib/auth/session";
 
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    const db = await getDB();
+    const courseId = parseInt(id);
+
+    const course = await queryFirst<{ is_premium: number }>(
+      db, "SELECT is_premium FROM courses WHERE id = ?", [courseId]
+    );
+    if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
+
+    // Free courses are public; premium course files require an entitled worker.
+    if (course.is_premium === 1) {
+      const session = await verifyWorkerFromCookies(request);
+      if (!session || session.type !== "worker") {
+        return NextResponse.json({ error: "Please login and buy this resource to access files" }, { status: 403 });
+      }
+      const entitled = await queryFirst<{ id: number }>(db,
+        `SELECT u.id FROM user_unlocks u WHERE u.worker_id = ? AND u.course_id = ? LIMIT 1`,
+        [session.sub, courseId]
+      ) ?? await queryFirst<{ id: number }>(db,
+        `SELECT id FROM resource_purchases WHERE worker_id = ? AND course_id = ? AND payment_status = 'completed' LIMIT 1`,
+        [session.sub, courseId]
+      );
+      if (!entitled) {
+        return NextResponse.json({ error: "Please buy this resource to access files" }, { status: 403 });
+      }
+    }
+
     const cacheKey = `course_files:${id}`;
     const cached = await getCached<any[]>(cacheKey, 60);
     if (cached) return NextResponse.json({ files: cached });
 
     const files = await query<any>(
-      await getDB(),
+      db,
       `SELECT id, course_id as courseId, label, label_bn as labelBn, url,
               file_type as fileType, sort_order as sortOrder, created_at as createdAt
        FROM course_files WHERE course_id = ? ORDER BY sort_order ASC, id ASC`,
-      [parseInt(id)]
+      [courseId]
     );
     await setCached(cacheKey, files);
     return NextResponse.json({ files });

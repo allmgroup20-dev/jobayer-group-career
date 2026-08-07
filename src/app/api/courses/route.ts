@@ -70,12 +70,18 @@ export async function GET(request: NextRequest) {
     sql += " ORDER BY c.is_new DESC, c.created_at DESC";
 
     const rows = await querySafe<any>(await getDB(), sql, params, 10000);
-    const courses = rows.map((r: any) => ({
-      ...r,
-      categoryIds: JSON.parse(r.categoryIds),
-      categoryNames: JSON.parse(r.categoryNames),
-      categoryNamesBn: JSON.parse(r.categoryNamesBn),
-    }));
+    const courses = rows.map((r: any) => {
+      // Premium course file URLs are never exposed through the public list —
+      // access is granted per-resource through the detail endpoint.
+      const isPremium = Number(r.isPremium) === 1;
+      return {
+        ...r,
+        fileUrl: isPremium ? "" : (r.fileUrl || ""),
+        categoryIds: JSON.parse(r.categoryIds),
+        categoryNames: JSON.parse(r.categoryNames),
+        categoryNamesBn: JSON.parse(r.categoryNamesBn),
+      };
+    });
     await setCached(cacheKey, courses);
     const resp = NextResponse.json({ courses });
     resp.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");

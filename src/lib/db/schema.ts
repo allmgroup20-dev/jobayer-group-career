@@ -631,6 +631,7 @@ export const resourcePurchases = sqliteTable("resource_purchases", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   orderId: text("order_id").unique().notNull(),
   workerId: text("worker_id").notNull(),
+  courseId: integer("course_id"),
   amount: real("amount").notNull(),
   resourceCount: integer("resource_count").notNull(),
   currency: text("currency").default("BDT"),

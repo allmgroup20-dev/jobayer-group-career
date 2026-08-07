@@ -175,7 +175,6 @@ export default function CoursesPage() {
 
   const canAccess = (course: Course) => {
     if (!isLoggedIn) return false;
-    if (isPremium) return true;
     if (unlockedCourseIds.has(course.id)) return true;
     return course.isPremium === 0;
   };
@@ -190,7 +189,7 @@ export default function CoursesPage() {
       const data = await res.json() as { error?: string };
       if (!res.ok) {
         if (res.status === 403) {
-          alert("আনলক লিমিট পূর্ণ হয়েছে। প্রিমিয়াম মেম্বারশিপ নিন।");
+          alert("এই রিসোর্সটি পেইড। আনলক করতে রিসোর্সটির ডিটেইল পেজ থেকে কিনুন।");
         } else {
           throw new Error(data.error || "Failed");
         }
@@ -216,7 +215,7 @@ export default function CoursesPage() {
   };
 
   const count = courses.length;
-  const statusText = !isLoggedIn ? `লগইন করে ${count}টি প্রিমিয়াম রিসোর্স আনলক করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${count}টি রিসোর্স এক্সেস করুন` : `${count}টি প্রিমিয়াম রিসোর্স — লিমিট অনুযায়ী আনলক করুন`;
+  const statusText = !isLoggedIn ? `লগইন করে ${count}টি প্রিমিয়াম রিসোর্স আনলক করুন` : isPremium ? `প্রিমিয়াম সদস্য হিসাবে ${count}টি রিসোর্স দেখুন — প্রতিটি পেইড রিসোর্স আলাদাভাবে আনলক করতে হবে` : `${count}টি প্রিমিয়াম রিসোর্স — প্রতিটি রিসোর্স আলাদাভাবে ক্রয় করে আনলক করুন`;
 
   const courseCard = (item: Course, isRelated = false) => {
     const img = getCourseImage(item);
@@ -270,17 +269,13 @@ export default function CoursesPage() {
             </button>
           )}
         </div>
-        {isLoggedIn && !isPremium && item.isPremium === 1 && (
+        {isLoggedIn && item.isPremium === 1 && (
           unlockedCourseIds.has(item.id) ? (
             <div className="absolute top-3 right-3 z-20 px-2 py-1 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg">✅ আনলক করা</div>
           ) : (
             <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-              {unlockLimit === null || unlockCount < unlockLimit ? (
-                <button onClick={(e) => { e.preventDefault(); handleUnlock(item.id); }}
-                  className="px-5 py-2.5 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl text-xs font-bold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all cursor-pointer active:scale-95">🔓 আনলক করুন</button>
-              ) : (
-                <a href="/dashboard/profile" className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 text-white rounded-xl text-xs font-bold shadow-lg hover:shadow-xl hover:from-amber-400 hover:to-amber-500 transition-all">👑 প্রিমিয়াম হোন</a>
-              )}
+              <a href={`/courses/${item.id}`}
+                className="px-5 py-2.5 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl text-xs font-bold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all cursor-pointer active:scale-95">🛒 কিনে আনলক করুন</a>
             </div>
           )
         )}
@@ -569,8 +564,8 @@ export default function CoursesPage() {
             <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-500 via-transparent to-transparent" />
             <div className="relative p-6 md:p-8 text-center">
               <span className="text-4xl mb-2 block">🎯</span>
-              <p className="text-lg font-bold text-primary mb-1">{lang === "bn" ? "রিসোর্স প্যাক আনলক করুন" : "Unlock Resource Packs"}</p>
-              <p className="text-sm text-text-secondary/70 mb-4 max-w-md mx-auto">{lang === "bn" ? "৳৯৯ থেকে শুরু — এককালীন, কোনো সাবস্ক্রিপশন নেই। বাল্ক অফারে দাম কমে যায়!" : "From just ৳99 — one-time, no subscription. Bulk packs cost less!"}</p>
+              <p className="text-lg font-bold text-primary mb-1">{lang === "bn" ? "প্রতিটি রিসোর্স আলাদাভাবে আনলক করুন" : "Unlock Resources Individually"}</p>
+              <p className="text-sm text-text-secondary/70 mb-4 max-w-md mx-auto">{lang === "bn" ? "প্রতিটি পেইড রিসোর্স ৳৯৯ — আপনি যে রিসোর্সগুলো ব্যবহার করবেন শুধু সেগুলোই ক্রয় করুন। কোনো সাবস্ক্রিপশন নেই!" : "Each paid resource costs ৳99 — buy only the resources you actually use. No subscription!"}</p>
               <a href="/courses"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary/20">
                 🔓 {lang === "bn" ? "রিসোর্স নির্বাচন করুন" : "Choose Resources"}
