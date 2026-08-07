@@ -37,17 +37,20 @@ jobs:
         run: |
           if [ -n "$GOOGLE_CLIENT_ID" ]; then npx wrangler vars put GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"; fi
           if [ -n "$FACEBOOK_APP_ID" ]; then npx wrangler vars put FACEBOOK_APP_ID "$FACEBOOK_APP_ID"; fi
+          if [ -n "$WHATSAPP_OTP_TEMPLATE" ]; then npx wrangler vars put WHATSAPP_OTP_TEMPLATE "$WHATSAPP_OTP_TEMPLATE"; fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+          WHATSAPP_OTP_TEMPLATE: ${{ secrets.WHATSAPP_OTP_TEMPLATE }}
 
       - name: Set secrets
         run: |
           if [ -n "$JWT_SECRET" ]; then echo "$JWT_SECRET" | npx wrangler secret put JWT_SECRET; fi
           if [ -n "$OPENROUTER_API_KEY" ]; then echo "$OPENROUTER_API_KEY" | npx wrangler secret put OPENROUTER_API_KEY; fi
           if [ -n "$WHATSAPP_API_KEY" ]; then echo "$WHATSAPP_API_KEY" | npx wrangler secret put WHATSAPP_API_KEY; fi
+          if [ -n "$WHATSAPP_META_TOKEN" ]; then echo "$WHATSAPP_META_TOKEN" | npx wrangler secret put WHATSAPP_META_TOKEN; fi
           if [ -n "$WHATSAPP_PHONE_ID" ]; then echo "$WHATSAPP_PHONE_ID" | npx wrangler secret put WHATSAPP_PHONE_ID; fi
           if [ -n "$WHATSAPP_VERIFY_TOKEN" ]; then echo "$WHATSAPP_VERIFY_TOKEN" | npx wrangler secret put WHATSAPP_VERIFY_TOKEN; fi
           if [ -n "$SSLCOMMERZ_STORE_ID" ]; then echo "$SSLCOMMERZ_STORE_ID" | npx wrangler secret put SSLCOMMERZ_STORE_ID; fi
@@ -59,6 +62,7 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           WHATSAPP_API_KEY: ${{ secrets.WHATSAPP_API_KEY }}
+          WHATSAPP_META_TOKEN: ${{ secrets.WHATSAPP_META_TOKEN }}
           WHATSAPP_PHONE_ID: ${{ secrets.WHATSAPP_PHONE_ID }}
           WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
           SSLCOMMERZ_STORE_ID: ${{ secrets.SSLCOMMERZ_STORE_ID }}

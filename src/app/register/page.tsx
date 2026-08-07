@@ -214,6 +214,10 @@ export default function RegisterPage() {
                     className="w-full py-3 rounded-xl bg-[#128C7E] text-white font-bold text-sm disabled:opacity-60">
                     {otpBusy ? <LoadingDots /> : lang === "bn" ? "যাচাই করুন" : "Verify"}
                   </button>
+                  <button type="button" onClick={handleSendOtp} disabled={otpBusy}
+                    className="w-full text-xs font-bold text-[#128C7E] hover:underline">
+                    {lang === "bn" ? "আবার কোড পাঠান" : "Resend code"}
+                  </button>
                 </div>
               )}
               {otpMsg && <p className="text-[11px] text-[#128C7E] font-medium mt-2">✅ {otpMsg}</p>}

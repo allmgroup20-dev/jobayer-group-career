@@ -37,23 +37,36 @@ export async function POST(request: NextRequest) {
         })
       : await sendMessage(cleanPhone, `আপনার Jobayer Group Career ভেরিফিকেশন কোড: ${code}\nকোডটি ৫ মিনিটের জন্য বৈধ।`);
 
-    const configured = result.success || Boolean(process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN);
+    // Meta is considered configured only when both a token and a phone id exist.
+    // sendMessage falls back to the Baileys relay queue when Meta is absent, so a
+    // `success` here means the code was queued for delivery through one channel.
+    const metaConfigured =
+      Boolean(process.env.WHATSAPP_API_KEY || process.env.WHATSAPP_META_TOKEN) &&
+      Boolean(process.env.WHATSAPP_PHONE_ID);
 
     // Never leak the OTP to the client in production — devCode is for local/testing only.
     const isProd = process.env.NODE_ENV === "production" ||
       (!!process.env.SITE_URL && process.env.SITE_URL.startsWith("https://"));
-    if (!configured && isProd) {
-      return NextResponse.json({
-        error: "ভেরিফিকেশন কোড পাঠানো সম্ভব হচ্ছে না, পরে আবার চেষ্টা করুন",
-      }, { status: 503 });
+
+    if (result.success) {
+      return NextResponse.json({ ok: true, configured: true });
     }
 
+    if (!metaConfigured) {
+      if (isProd) {
+        // Stable, explicit unconfigured state — do not pretend the OTP was sent.
+        return NextResponse.json({
+          error: "ওটিপি সেবা এখনো সক্রিয় করা হয়নি। পরে আবার চেষ্টা করুন।",
+        }, { status: 503 });
+      }
+      // Local/test only: WhatsApp not configured → hand the code to the UI.
+      return NextResponse.json({ ok: true, configured: false, devCode: code });
+    }
+
+    // Meta is configured but delivery failed (bad token, template rejected, etc.)
     return NextResponse.json({
-      ok: true,
-      configured,
-      // Return dev code only when WhatsApp API is not configured (local/test)
-      devCode: configured ? undefined : code,
-    });
+      error: "ভেরিফিকেশন কোড পাঠানো সম্ভব হচ্ছে না, পরে আবার চেষ্টা করুন",
+    }, { status: 503 });
   } catch (error) {
     console.error("OTP send error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
