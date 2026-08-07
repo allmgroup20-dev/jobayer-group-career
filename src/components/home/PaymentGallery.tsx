@@ -28,9 +28,7 @@ export default function PaymentGallery() {
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
       <div className="section-header">
-        <div className="badge mx-auto mb-3 border-success/20 bg-success/10 text-success">{lang === "bn" ? t.badgeBn : t.badgeEn}</div>
-        <h3 className="text-lg md:text-xl font-black text-text">{lang === "bn" ? t.titleBn : t.titleEn}</h3>
-        <p className="text-sm font-semibold text-text-secondary mt-1">{lang === "bn" ? t.descBn : t.descEn}</p>
+        <h3 className="text-base md:text-lg font-black text-text">💰 {lang === "bn" ? t.titleBn : t.titleEn}</h3>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">

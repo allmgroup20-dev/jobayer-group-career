@@ -15,7 +15,7 @@ const bdDistricts = [
 
 const tabs = [
   { id: "salary", labelBn: "📊 সর্বশেষ বোনাস", labelEn: "📊 Latest Bonuses" },
-  { id: "proof", labelBn: "💰 আয়ের প্রমাণপত্র", labelEn: "💰 Proof of Earnings" },
+  { id: "proof", labelBn: "💰 আয়ের প্রমাণ", labelEn: "💰 Proof of Earnings" },
 ];
 
 export default function LiveUpdatesPage() {
@@ -49,16 +49,11 @@ export default function LiveUpdatesPage() {
       <LiveNotificationBar message={notifMessage} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 space-y-6">
         <div className="text-center mb-2">
-          <div className="badge mx-auto mb-3 border-success/20 bg-success/10 text-success">
-            📊 {lang === "bn" ? "সর্বশেষ বোনাস" : "Latest Bonuses"}
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black text-text">
-            {lang === "bn" ? "বোনাস ও আয়ের নমুনা" : "Sample Bonuses & Earnings"}
+          <h1 className="text-xl md:text-2xl font-black text-text">
+            {lang === "bn" ? "সর্বশেষ বোনাস" : "Latest Bonuses"}
           </h1>
-          <p className="text-text-secondary font-semibold mt-2 max-w-2xl mx-auto">
-            {lang === "bn"
-              ? "এখানে দেখানো বোনাস, আয় ও পেমেন্ট প্রমাণ প্রদর্শনমূলক নমুনা — প্ল্যাটফর্মের কার্যক্রম বোঝানোর জন্য"
-              : "The bonuses, earnings and payment proofs shown here are illustrative samples to explain how the platform works"}
+          <p className="text-[11px] text-text-secondary/60 font-semibold mt-1">
+            {lang === "bn" ? "প্রদর্শনমূলক নমুনা" : "Illustrative samples"}
           </p>
         </div>
 

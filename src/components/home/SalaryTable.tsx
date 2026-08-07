@@ -87,18 +87,12 @@ export default function SalaryTable({ onNewSuccess }: Props) {
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
       <div className="section-header">
-        <div className="badge mx-auto mb-3 border-success/20 bg-success/10 text-success">
-          📊 {lang === "bn" ? liveSalaryText.badgeBn : liveSalaryText.badgeEn}
-        </div>
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2">
           <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50" />
-          <h3 className="text-lg md:text-xl font-black text-text">
+          <h3 className="text-base md:text-lg font-black text-text">
             {lang === "bn" ? liveSalaryText.titleBn : liveSalaryText.titleEn}
           </h3>
         </div>
-        <p className="text-sm font-semibold text-text-secondary mt-1">
-          {lang === "bn" ? liveSalaryText.subtitleBn : liveSalaryText.subtitleEn}
-        </p>
       </div>
 
       <div className="mt-5 rounded-xl bg-bg border border-border overflow-x-auto">

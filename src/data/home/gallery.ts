@@ -19,10 +19,6 @@ export const galleryImages: GalleryImage[] = [
 ];
 
 export const paymentGalleryText = {
-  badgeBn: "💰 আয়ের প্রমাণ",
-  badgeEn: "💰 Proof of Earnings",
-  titleBn: "পেমেন্ট প্রমাণের নমুনা",
-  titleEn: "Sample Payment Proofs",
-  descBn: "প্রদর্শনমূলক পেমেন্ট প্রমাণের নমুনা",
-  descEn: "Illustrative sample payment proofs",
+  titleBn: "আয়ের প্রমাণ",
+  titleEn: "Proof of Earnings",
 };

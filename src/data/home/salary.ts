@@ -22,21 +22,17 @@ export const salaryNames = [
 ];
 
 export const liveNotifText = {
-  joinedRecent: "থেকে সদ্য যুক্ত হয়েছেন!",
+  joinedRecent: "থেকে যুক্ত হয়েছেন!",
   joinedRecentEn: "just joined!",
 };
 
 export const liveSalaryText = {
-  badgeBn: "📊 সর্বশেষ বোনাস",
-  badgeEn: "📊 Latest Bonuses",
-  titleBn: "সর্বশেষ বোনাস ও পেমেন্ট 🟢",
-  titleEn: "Latest Bonuses & Payments 🟢",
-  subtitleBn: "সাম্প্রতিক বোনাস ও পেমেন্টের নমুনা (প্রদর্শনমূলক ডেটা)",
-  subtitleEn: "Sample of recent bonuses and payments (illustrative data)",
+  titleBn: "সর্বশেষ বোনাস 🟢",
+  titleEn: "Latest Bonuses 🟢",
   successStatusBn: "নগদ অ্যাকাউন্টে ট্রান্সফার সম্পন্ন হয়েছে",
   successStatusEn: "Transfer to cash account completed",
   bonusStatusBn: "বোনাস দেওয়া হয়েছে",
   bonusStatusEn: "Bonus given",
-  liveNotifJoined: "থেকে সদ্য যুক্ত হয়েছেন এবং কোর্স এক্সেস পেয়েছেন!",
-  liveNotifJoinedEn: "just joined and got course access!",
+  liveNotifJoined: "থেকে যুক্ত হয়েছেন!",
+  liveNotifJoinedEn: "just joined!",
 };
