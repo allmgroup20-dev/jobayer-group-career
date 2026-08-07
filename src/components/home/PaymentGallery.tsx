@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useLanguageStore } from "@/lib/store";
 import { galleryImages, paymentGalleryText } from "@/data/home/gallery";
@@ -10,6 +10,21 @@ export default function PaymentGallery() {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const t = paymentGalleryText;
 
+  const go = useCallback((dir: 1 | -1) => {
+    setLightbox(prev => (prev === null ? prev : (prev + dir + galleryImages.length) % galleryImages.length));
+  }, []);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, go]);
+
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
       <div className="section-header">
@@ -18,14 +33,15 @@ export default function PaymentGallery() {
         <p className="text-sm font-semibold text-text-secondary mt-1">{lang === "bn" ? t.descBn : t.descEn}</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {galleryImages.map((img, i) => (
           <button
             key={i}
             onClick={() => setLightbox(i)}
+            aria-label={img.alt}
             className="group relative aspect-[3/4] rounded-xl overflow-hidden bg-bg border border-border cursor-pointer p-0 hover:shadow-lg transition-all"
           >
-            <Image src={img.src} alt={img.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw" />
+            <Image src={img.src} alt={img.alt} fill loading="lazy" className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw" />
           </button>
         ))}
       </div>
@@ -36,14 +52,16 @@ export default function PaymentGallery() {
           onClick={() => setLightbox(null)}
         >
           <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 text-white text-2xl border-none bg-transparent cursor-pointer z-10 w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full">✕</button>
+          <button onClick={(e) => { e.stopPropagation(); go(-1); }} className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 text-white text-3xl border-none bg-transparent cursor-pointer w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-white/10 rounded-full">←</button>
           <div className="relative max-w-3xl max-h-[90vh] w-full h-full" onClick={(e) => e.stopPropagation()}>
             <Image src={galleryImages[lightbox].src} alt={galleryImages[lightbox].alt} fill className="object-contain" sizes="(max-width: 768px) 100vw, 800px" />
           </div>
+          <button onClick={(e) => { e.stopPropagation(); go(1); }} className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 text-white text-3xl border-none bg-transparent cursor-pointer w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-white/10 rounded-full">→</button>
           <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2">
             {galleryImages.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setLightbox(i)}
+                onClick={(e) => { e.stopPropagation(); setLightbox(i); }}
                 className={`w-2 h-2 rounded-full border-none cursor-pointer transition-all ${i === lightbox ? "bg-white scale-125" : "bg-white/40"}`}
               />
             ))}
