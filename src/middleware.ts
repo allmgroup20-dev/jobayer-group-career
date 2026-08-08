@@ -34,10 +34,30 @@ const ALLOWED_ORIGINS = [
   "127.0.0.1",
 ];
 
+// Canonical host: keep every browser navigation on the origin registered in
+// Google Cloud Console. Otherwise Google OAuth fails with origin_mismatch on
+// the workers.dev link even though the same page works on the custom domain.
+const CANONICAL_HOST = "career.jobayergroup.com";
+const DEV_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
   const jwtSecret = process.env.JWT_SECRET;
+
+  // Redirect non-canonical hostname navigations (e.g. *.workers.dev, preview
+  // links) to the canonical domain so OAuth/CSRF always sees one origin.
+  // /api/* is excluded so same-origin fetches and external integrations
+  // keep working regardless of which host served them.
+  if (!pathname.startsWith("/api/") && (method === "GET" || method === "HEAD")) {
+    const host = request.nextUrl.hostname;
+    if (!DEV_HOSTS.has(host) && host !== CANONICAL_HOST) {
+      const url = request.nextUrl.clone();
+      url.protocol = "https:";
+      url.host = CANONICAL_HOST;
+      return NextResponse.redirect(url, 301);
+    }
+  }
 
   // CSRF: reject cross-origin state-changing requests to /api/*
   if (pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
-import { hashWorkerPassword, verifyWorkerPassword } from "@/lib/auth";
+import { hashWorkerPassword, verifyWorkerPassword, normalizePhone } from "@/lib/auth";
 import { requireWorker } from "@/lib/auth/guard";
+import { getCached } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -98,6 +99,28 @@ export async function PUT(request: NextRequest) {
 
     if (body.name) { updates.push("name = ?"); params.push(body.name); }
     if (body.email !== undefined) { updates.push("email = ?"); params.push(body.email || null); }
+    if (body.phone) {
+      // Phone changes are only allowed right after the new number passed OTP
+      // verification (proof cached by /api/auth/otp/verify). This prevents an
+      // account takeover by silently hijacking the phone field.
+      const cleanPhone = normalizePhone(body.phone);
+      if (!cleanPhone || cleanPhone.length < 10) {
+        return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+      }
+      const proof = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 300);
+      if (!proof?.verified) {
+        return NextResponse.json({ error: "Verify this phone number with an OTP first" }, { status: 400 });
+      }
+      // phone is UNIQUE — reject a number already taken by another worker.
+      const existing = await queryFirst<{ worker_id: string }>(
+        env, "SELECT worker_id FROM workers WHERE phone = ?", [cleanPhone]
+      );
+      if (existing && existing.worker_id !== workerId) {
+        return NextResponse.json({ error: "Phone number already registered" }, { status: 409 });
+      }
+      updates.push("phone = ?");
+      params.push(cleanPhone);
+    }
     if (body.password) {
       // Changing password requires the current password as proof
       if (!body.currentPassword) {

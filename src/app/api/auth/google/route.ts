@@ -69,15 +69,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Auto-register with google_id
-    const phone = email || `google_${googleId.slice(0, 8)}`;
-    const name = profile.name || `User${phone.slice(-6)}`;
+    // Auto-register with google_id.
+    // The phone column is UNIQUE NOT NULL, but an email is NOT a WhatsApp
+    // number — storing the email as phone breaks phone verification later.
+    // Use a stable unique placeholder and keep the real email in its own column.
+    const phone = `google_${googleId.slice(0, 12)}`;
+    const name = profile.name || `User${googleId.slice(0, 6)}`;
     const workerId = generateWorkerId(name, phone);
     const hashedPw = await hashWorkerPassword("google_oauth_" + googleId.slice(0, 8));
     await execute(env,
-       `INSERT INTO workers (worker_id, name, phone, password, google_id, join_date, membership_status)
-       VALUES (?, ?, ?, ?, ?, datetime('now'), 'general')`,
-      [workerId, name, phone, hashedPw, googleId]
+       `INSERT INTO workers (worker_id, name, phone, password, google_id, email, join_date, membership_status)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
+      [workerId, name, phone, hashedPw, googleId, email || null]
     );
 
     const token = await generateToken(workerId, getJwtSecret());

@@ -29,10 +29,10 @@ export default function OnboardingPage() {
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [otpVerified, setOtpVerified] = useState(false);
   const [otpDevCode, setOtpDevCode] = useState("");
   const [otpError, setOtpError] = useState("");
   const [otpBusy, setOtpBusy] = useState(false);
+  const [phoneSaved, setPhoneSaved] = useState(false);
 
   const [contacts, setContacts] = useState<{ name: string; phone: string }[]>([]);
   const [pasteText, setPasteText] = useState("");
@@ -41,13 +41,34 @@ export default function OnboardingPage() {
 
   const [interests, setInterests] = useState<string[]>([]);
 
+  // A phone that is really an email or a google_/fb_ placeholder is not a
+  // WhatsApp number — the user must type their real number on this screen.
+  const looksLikePhone = (value?: string) => {
+    if (!value) return false;
+    const digits = value.replace(/\D/g, "");
+    return digits.length >= 10 && digits.length <= 13;
+  };
+
+  const normalizePhone = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("01") && digits.length === 11) return "880" + digits.slice(1);
+    if (digits.startsWith("880") && digits.length === 13) return digits;
+    return digits;
+  };
+
   useEffect(() => {
     const wid = localStorage.getItem("worker_id");
     if (!wid) { window.location.href = "/login"; return; }
     setWorkerId(wid);
     fetch(`/api/workers/profile?workerId=${encodeURIComponent(wid)}`)
       .then(r => r.json() as Promise<{ phone?: string }>)
-      .then(d => { if (d.phone) setPhone(d.phone); })
+      .then(d => {
+        if (looksLikePhone(d.phone)) {
+          setPhone(d.phone!);
+        } else {
+          setPhone("");
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -67,14 +88,23 @@ export default function OnboardingPage() {
   };
 
   const handleSendOtp = async () => {
+    const cleanPhone = normalizePhone(phone);
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setOtpError(t("সঠিক হোয়াটসঅ্যাপ নম্বর দিন", "Enter a valid WhatsApp number"));
+      return;
+    }
     setOtpBusy(true); setOtpError("");
     try {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone: cleanPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      if (data.configured === false) {
+        setOtpError(t("ওটিপি সার্ভিস এখনো চালু হয়নি। পরে আবার চেষ্টা করুন।", "OTP service is not configured yet. Please try again later."));
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Failed");
       if (data.devCode) setOtpDevCode(data.devCode);
       setOtpSent(true);
@@ -84,16 +114,28 @@ export default function OnboardingPage() {
   };
 
   const handleVerifyOtp = async () => {
+    const cleanPhone = normalizePhone(phone);
     setOtpBusy(true); setOtpError("");
     try {
       const res = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code: otpCode }),
+        body: JSON.stringify({ phone: cleanPhone, code: otpCode }),
       });
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error || "Failed");
-      setOtpVerified(true);
+      // Persist the verified phone to the worker profile (only allowed because
+      // the OTP proof was cached by the verify endpoint above).
+      const save = await fetch("/api/workers/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, phone: cleanPhone }),
+      });
+      if (!save.ok) {
+        const sData = await save.json().catch(() => ({ error: "Failed to save phone" })) as { error?: string };
+        throw new Error(sData.error || "Failed to save phone");
+      }
+      setPhoneSaved(true);
       setStep("contacts");
     } catch (e) {
       setOtpError(e instanceof Error ? e.message : "Failed");
@@ -220,7 +262,23 @@ export default function OnboardingPage() {
           {step === "otp" && (
             <div className="space-y-4 text-center">
               {header("💬", t("WhatsApp নম্বর ভেরিফাই করুন", "Verify Your WhatsApp Number"), t("এই নম্বরে একটি ভেরিফিকেশন কোড যাবে", "We will send a verification code here"))}
-              <div className="bg-gray-50 rounded-xl p-3 text-sm font-bold text-primary">{phone}</div>
+              <div className="bg-gray-50 rounded-xl p-4 text-left space-y-2">
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  📞 {t("হোয়াটসঅ্যাপ নম্বর", "WhatsApp Number")} <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => { setPhone(e.target.value); setOtpError(""); setOtpSent(false); setOtpCode(""); }}
+                  placeholder={t("০১XXX-XXXXXX", "01XXX-XXXXXX")}
+                  className="input-field w-full"
+                />
+                {phoneSaved && (
+                  <p className="text-[11px] text-success font-semibold">
+                    ✅ {t("ফোন নম্বর আপডেট হয়েছে", "Phone number updated")}
+                  </p>
+                )}
+              </div>
               {!otpSent ? (
                 <button onClick={handleSendOtp} disabled={otpBusy} className="btn-primary w-full">
                   {otpBusy ? "..." : t("কোড পাঠান", "Send Code")}
@@ -245,6 +303,7 @@ export default function OnboardingPage() {
                   </button>
                 </div>
               )}
+              {otpError && !otpSent && <p className="text-xs text-red-500">{otpError}</p>}
             </div>
           )}
 
