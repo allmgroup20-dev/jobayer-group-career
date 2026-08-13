@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useLanguageStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import ContactSyncBanner from "@/components/onboarding/ContactSyncBanner";
+import ReferralQRCode from "@/components/referral/ReferralQRCode";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -564,6 +565,15 @@ export default function WorkerDashboard() {
             {shareRewardMsg && (
               <p className="mt-2 text-xs text-text-secondary">{shareRewardMsg}</p>
             )}
+            <div className="mt-4 pt-4 border-t border-border flex justify-center">
+              {workerId && (
+                <ReferralQRCode
+                  workerId={worker.workerId}
+                  redirectPath={referralRedirectPath}
+                  lang={lang === "bn" ? "bn" : "en"}
+                />
+              )}
+            </div>
           </Card>
 
           <Card>
