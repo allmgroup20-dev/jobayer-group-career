@@ -7,6 +7,7 @@ import { useLanguageStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import ContactSyncBanner from "@/components/onboarding/ContactSyncBanner";
 import ReferralQRCode from "@/components/referral/ReferralQRCode";
+import InviteContacts from "@/components/referral/InviteContacts";
 import { Card, StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -575,6 +576,10 @@ export default function WorkerDashboard() {
               )}
             </div>
           </Card>
+
+          {workerId && (
+            <InviteContacts workerId={worker.workerId} lang={lang === "bn" ? "bn" : "en"} redirectPath={referralRedirectPath} />
+          )}
 
           <Card>
             <h3 className="font-bold text-primary mb-4">{lang === "bn" ? "টপ রেফারার" : "Top Referrers"}</h3>

@@ -6,7 +6,7 @@
 **🚨 DO NOT LAUNCH until P0/P1 fixes land.** Static audit found **9 Critical + 6 High** blockers, all proven with `file:line`. Final READY requires runtime verification (`40_RUNTIME_VERIFICATION.md`).
 
 ## Scope Reviewed
-149 API routes · 97 pages · 89 components · 65 DB tables · 18 migrations · 3 Cloudflare workers · 1 WhatsApp relay · 3 CI workflows.
+150 API routes · 97 pages · 91 components · 65 DB tables · 18 migrations · 3 Cloudflare workers · 1 WhatsApp relay · 3 CI workflows.
 
 ## The 3 Things That Break Launch
 1. **Payments are forgeable (C1–C5):** IPN signature not verified, `val_id` optional, success URL defaults VALID, price client-controlled, no idempotency → free premium/unlocks + fake commissions + public payout (C7) = real money loss.

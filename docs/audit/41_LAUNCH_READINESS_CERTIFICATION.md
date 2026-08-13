@@ -22,7 +22,7 @@ This certification is only valid when **ALL** hold:
 ## 📊 Final Executive Summary (1 page)
 
 **Project:** Jobayer Group Career Platform — pre-launch (4 users incl. founder, 0 external channels).
-**Audit result (static):** A broad, feature-rich platform (149 API routes / 97 pages / 89 components / 65 tables / 18 migrations / 3 workers + WhatsApp relay). Strong foundation, **but not production-safe yet**.
+**Audit result (static):** A broad, feature-rich platform (150 API routes / 97 pages / 91 components / 65 tables / 18 migrations / 3 workers + WhatsApp relay). Strong foundation, **but not production-safe yet**.
 
 **Top 3 strengths:** (1) comprehensive product surface incl. AI + marketing tooling; (2) parameterized DB layer; (3) well-instrumented tracking/analytics (`track/*`, `company/kpi`).
 

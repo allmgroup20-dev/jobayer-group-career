@@ -892,6 +892,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       worker_id TEXT NOT NULL,
       contact_phone TEXT NOT NULL,
       contact_name TEXT,
+      contact_worker_id TEXT,
       has_whatsapp INTEGER DEFAULT 0,
       device_type TEXT,
       can_be_contacted INTEGER DEFAULT 1,
@@ -899,8 +900,11 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       last_contacted_at TEXT,
       source TEXT DEFAULT 'whatsapp_sync',
       last_checked_at TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT
     )`).run();
+    await addCol("user_phonebooks", "contact_worker_id", "TEXT");
+    await addCol("user_phonebooks", "updated_at", "TEXT");
 
     // Phase 8 migrations
     await addCol("user_sessions", "city", "TEXT");

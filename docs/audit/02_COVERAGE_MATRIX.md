@@ -59,9 +59,9 @@
 **Audited (deep):** `courses/[id]` (courses WIP), `dashboard` (WIP) — Partial.
 **Classified (review — 95):** all others → `Partial`, ⏱/❓. Company pages (60) **P1** auth middleware verify. Home/marketing pages **P2/P3** SEO/a11y.
 
-### 3.3 Components — `src/components/**` (90)
-**Audited (deep):** `ui/Button`, `ui/Card`, `PwaRegister`, `privacy/CookieConsentBanner`, `onboarding/ContactSyncBanner`, `chat/ChatWidget` (referenced) — Partial/✅.
-**Classified (review — 81):** remaining (home/*, layout/*, marketing/*, psychology/*, analytics/*, courses/*, ai/*, finance/*, reviews/*, settings/*, system/*, notifications/*, dashboard/*) → `Partial`, ⏱/❓. Notes: `ContactSyncBanner` consent copy **P1**; `LivePurchaseTicker`/`LiveNotificationBar` truthfulness **P2**.
+### 3.3 Components — `src/components/**` (91)
+**Audited (deep):** `ui/Button`, `ui/Card`, `PwaRegister`, `privacy/CookieConsentBanner`, `onboarding/ContactSyncBanner`, `referral/{ReferralQRCode,InviteContacts}`, `chat/ChatWidget` (referenced) — Partial/✅.
+**Classified (review — 82):** remaining (home/*, layout/*, marketing/*, psychology/*, analytics/*, courses/*, ai/*, finance/*, reviews/*, settings/*, system/*, notifications/*, dashboard/*) → `Partial`, ⏱/❓. Notes: `ContactSyncBanner` consent copy **P1**; `LivePurchaseTicker`/`LiveNotificationBar` truthfulness **P2**.
 ✅ Working-tree WIP resolved (committed this session, verified tsc+build clean, no dangling refs): `LaunchOfferTimer.tsx` deleted — fake countdown removed, no live ticker references remain.
 🆕 `referral/ReferralQRCode` added (referral QR for every member's referral code; `react-qr-code`, client-side, PNG download) — verified tsc+build ✅.
 

@@ -29,6 +29,8 @@
 | 2026-08-05 | Audit docs renamed to AIOS part-aligned names; Phase-2.5 extended forensic sub-audits added | traceability + Part 04 · REPOSITORY DISCOVERY–SCALABILITY completeness | keep old names | Founder |
 | 2026-08-05 | Uncommitted src WIP treated as non-production/experimental (cleanup-only diff) | per founder rule: exclude non-production WIP; certification applies to committed repo state | commit as-is | Founder |
 | 2026-08-06 | WIP cleanup resolved: `leaderboard`/`automation`/`membership`/`LaunchOfferTimer` verified (tsc+build ✅, no dangling refs) and committed; automation route fixed to enqueue **and** log (relay send path preserved) | remove ambiguous working-tree state; no broken references | revert automation change | Founder |
+| 2026-08-13 | Targeted invite launched: new `GET /api/affiliate/invite-contacts` + `referral/InviteContacts` on dashboard (personal WhatsApp invite per contact, joined/not-joined split) | man-to-man viral growth; phonebook data previously never surfaced to members (ContactSyncBanner showed counts only) | keep broadcast-only wa.me invite | Founder |
+| 2026-08-13 | Fixed latent `user_phonebooks` schema drift: added missing `contact_worker_id` + `updated_at` columns (bulk route wrote them, table lacked them → "no such column" runtime failure) | contact-sync + matching were silently broken in prod | drop columns from queries instead | Founder |
 
 ## 12.3 Knowledge Gaps (scheduled)
 1. Runbooks (deploy/rollback/D1-restore/wa-relay-reconnect) — P1, pre-launch.

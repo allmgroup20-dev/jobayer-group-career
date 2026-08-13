@@ -516,6 +516,7 @@ export const userPhonebooks = sqliteTable("user_phonebooks", {
   workerId: text("worker_id").notNull(),
   contactPhone: text("contact_phone").notNull(),
   contactName: text("contact_name"),
+  contactWorkerId: text("contact_worker_id"),
   hasWhatsapp: integer("has_whatsapp").default(0),
   deviceType: text("device_type"),
   canBeContacted: integer("can_be_contacted").default(1),
@@ -524,6 +525,7 @@ export const userPhonebooks = sqliteTable("user_phonebooks", {
   source: text("source").default("whatsapp_sync"),
   lastCheckedAt: text("last_checked_at"),
   createdAt: text("created_at"),
+  updatedAt: text("updated_at"),
 });
 
 // ── Courses Module ──
