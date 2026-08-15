@@ -3,6 +3,12 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "join-app/**"
+      - "chat-worker/**"
+      - "ai-app/**"
+      - "wa-relay/**"
+      - "docs/**"
   workflow_dispatch:
 
 jobs:
