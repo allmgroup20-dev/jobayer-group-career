@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #0F1E36;
+  --color-brand-light: #1A3354;
+  --color-brand-dark: #0A1525;
+  --color-excite: #F97316;
+  --color-excite-light: #FB923C;
+  --color-gold: #FFC107;
+  --color-gold-light: #FFD54F;
+  --color-pink: #EC4899;
+  --color-pink-light: #F472B6;
+  --color-violet: #8B5CF6;
+  --color-violet-light: #A78BFA;
+  --color-red: #EF4444;
+  --color-teal: #10B981;
+  --color-teal-light: #34D399;
+  --color-bg: #FFF8F0;
+  --color-card: #FFFFFF;
+  --color-ink: #1E1B16;
+  --color-ink-soft: #6B6258;
+  --color-line: #F3E6D8;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-bengali: var(--font-bengali, 'SolaimanLipi', system-ui, sans-serif);
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html[lang="bn"] body { font-family: var(--font-bengali); }
+  :focus-visible {
+    outline: 2px solid var(--color-excite);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+  ::selection { background: var(--color-gold); color: var(--color-brand); }
+}
+
+@layer components {
+  .btn-excite {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-black text-base
+           bg-gradient-to-r from-excite via-pink to-violet bg-[length:200%_auto]
+           shadow-xl shadow-pink/25 transition-all duration-300
+           hover:shadow-2xl hover:shadow-pink/40 hover:bg-right active:scale-[0.97] cursor-pointer;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-brand font-black text-base
+           bg-gradient-to-r from-gold-light via-gold to-gold shadow-xl shadow-gold/30
+           transition-all duration-300 hover:shadow-2xl active:scale-[0.97] cursor-pointer;
+  }
+  .btn-white {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white text-brand font-black text-base
+           shadow-lg shadow-brand/10 border border-line transition-all duration-300 hover:shadow-xl active:scale-[0.97] cursor-pointer;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border-2 border-excite/50 text-excite
+           font-bold text-sm transition-all duration-300 hover:bg-excite/10 active:scale-[0.97] cursor-pointer;
+  }
+  .card-pop {
+    @apply bg-card rounded-3xl p-6 shadow-xl shadow-gold/10 border border-line transition-all duration-300 hover:shadow-2xl;
+  }
+  .card-splash {
+    @apply rounded-3xl p-6 text-white shadow-xl
+           bg-gradient-to-br from-brand via-violet to-pink;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 cursor-pointer select-none;
+  }
+  .input-field {
+    @apply w-full px-4 py-3.5 rounded-2xl border border-line bg-white
+           focus:outline-none focus:ring-2 focus:ring-excite/40 focus:border-excite
+           transition-all duration-300 text-base;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-excite via-pink to-violet bg-clip-text text-transparent;
+  }
+  .badge-glow {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wide;
+  }
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmerX {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 24px rgba(236, 72, 153, 0.35); }
+  50% { box-shadow: 0 0 48px rgba(236, 72, 153, 0.65); }
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+.animate-floaty { animation: floaty 3.2s ease-in-out infinite; }
+.animate-wiggle { animation: wiggle 2.4s ease-in-out infinite; }
+.animate-pop-in { animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.animate-slide-in { animation: slideIn 0.4s ease-out both; }
+.animate-pulse-glow { animation: pulseGlow 2.2s ease-in-out infinite; }
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmerX 3.5s linear infinite;
+}
+
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 3px;
+  animation: confettiFall 3.2s linear infinite;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
