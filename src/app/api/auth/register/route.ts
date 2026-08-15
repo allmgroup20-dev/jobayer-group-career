@@ -4,6 +4,7 @@ import { getDB } from "@/lib/db";
 import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
 import { setCached, getCached, invalidateCache } from "@/lib/cache";
+import { isWhatsappVerifyEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,9 +19,12 @@ export async function POST(request: NextRequest) {
     const displayName = name || `User${cleanPhone.slice(-6)}`;
 
     // C9: phone-ownership must be proven via OTP before an account is created
-    const verified = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 600);
-    if (!verified?.verified) {
-      return NextResponse.json({ error: "ফোন নম্বর যাচাই করুন" }, { status: 403 });
+    // (skipped when WhatsApp verification is disabled)
+    if (isWhatsappVerifyEnabled()) {
+      const verified = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 600);
+      if (!verified?.verified) {
+        return NextResponse.json({ error: "ফোন নম্বর যাচাই করুন" }, { status: 403 });
+      }
     }
 
     const env = await getDB();

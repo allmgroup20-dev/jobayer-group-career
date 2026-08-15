@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/auth";
 import { setCached, getCached } from "@/lib/cache";
 import { sendMessage } from "@/lib/whatsapp";
+import { isWhatsappVerifyEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,14 @@ export async function POST(request: NextRequest) {
     const cleanPhone = normalizePhone(phone);
     if (!cleanPhone || cleanPhone.length < 10) {
       return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+    }
+
+    // Verification disabled → no real delivery, but still mint a code so the
+    // UI flow (register/forgot-password/onboarding/checkout) completes and the
+    // verify step auto-passes. No WhatsApp message is sent. `configured: true`
+    // keeps the checkout page from showing the "OTP not configured" error.
+    if (!isWhatsappVerifyEnabled()) {
+      return NextResponse.json({ ok: true, configured: true, devCode: "000000" });
     }
 
     const key = `otp:${cleanPhone}`;
