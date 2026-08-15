@@ -64,7 +64,7 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: cleanPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean; autoFilled?: boolean };
       if (data.configured === false) {
         setOtpNotice(lang === "bn"
           ? "ওটিপি সার্ভিস এখনো চালু হয়নি (Not Configured Yet)। পরে আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।"
@@ -75,7 +75,11 @@ export default function RegisterPage() {
       if (!res.ok) throw new Error(data.error || "Failed to send OTP");
       setOtpSent(true);
       if (data.devCode) setOtpCode(data.devCode);
-      setOtpMsg(lang === "bn" ? "ওটিপি পাঠানো হয়েছে! আপনার হোয়াটসঅ্যাপে কোডটি দেখুন।" : "OTP sent! Check your WhatsApp for the code.");
+      setOtpMsg(data.autoFilled
+        ? (lang === "bn"
+            ? "ভেরিফিকেশন কোড স্বয়ংক্রিয়ভাবে বসানো হয়েছে ✅ নিচের বক্সে কোডটি দেখুন, তারপর \"যাচাই করুন\" বাটনে ক্লিক করুন।"
+            : "Verification code has been entered automatically ✅ See it in the box below, then click \"Verify\".")
+        : (lang === "bn" ? "ওটিপি পাঠানো হয়েছে! আপনার হোয়াটসঅ্যাপে কোডটি দেখুন।" : "OTP sent! Check your WhatsApp for the code."));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally { setOtpBusy(false); }

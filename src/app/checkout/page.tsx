@@ -30,6 +30,7 @@ function CheckoutContent() {
   const [guestOtp, setGuestOtp] = useState("");
   const [guestOtpSent, setGuestOtpSent] = useState(false);
   const [guestDevCode, setGuestDevCode] = useState("");
+  const [guestAutoFilled, setGuestAutoFilled] = useState(false);
   const [guestBusy, setGuestBusy] = useState(false);
   const [guestError, setGuestError] = useState("");
 
@@ -99,14 +100,15 @@ function CheckoutContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: guestPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean; autoFilled?: boolean };
       if (data.configured === false) {
         setGuestError("OTP service: Not Configured Yet — please try again later or contact admin.");
         setGuestBusy(false);
         return;
       }
       if (!res.ok) throw new Error(data.error || "Failed");
-      if (data.devCode) setGuestDevCode(data.devCode);
+      if (data.devCode) { setGuestDevCode(data.devCode); setGuestOtp(data.devCode); }
+      setGuestAutoFilled(data.autoFilled === true);
       setGuestOtpSent(true);
     } catch (e) {
       setGuestError(e instanceof Error ? e.message : "Failed");
@@ -212,7 +214,7 @@ function CheckoutContent() {
             <div className="space-y-3">
               <input
                 type="tel" value={guestPhone}
-                onChange={e => { setGuestPhone(e.target.value); setGuestOtpSent(false); setGuestOtp(""); setGuestDevCode(""); }}
+                onChange={e => { setGuestPhone(e.target.value); setGuestOtpSent(false); setGuestOtp(""); setGuestDevCode(""); setGuestAutoFilled(false); }}
                 placeholder={lang === "bn" ? "০১XXX-XXXXXX" : "01XXX-XXXXXX"}
                 className="input-field w-full" />
               {!guestOtpSent ? (
@@ -222,11 +224,17 @@ function CheckoutContent() {
                 </button>
               ) : (
                 <>
-                  {guestDevCode && (
+                  {guestAutoFilled ? (
+                    <p className="text-xs bg-green-50 border border-green-200 rounded-lg p-2 text-green-700">
+                      ✅ {lang === "bn"
+                        ? "আপনার ভেরিফিকেশন কোডটি নিচের বক্সে স্বয়ংক্রিয়ভাবে বসানো হয়েছে। শুধু \"চেকআউট চালিয়ে যান\" বাটনে ক্লিক করুন।"
+                        : "Your verification code has been entered automatically in the box below. Just click \"Continue Checkout\"."}
+                    </p>
+                  ) : guestDevCode ? (
                     <p className="text-xs bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-700">
                       {lang === "bn" ? "টেস্ট কোড" : "Test code"}: <b>{guestDevCode}</b>
                     </p>
-                  )}
+                  ) : null}
                   <input
                     type="text" inputMode="numeric" maxLength={6} value={guestOtp}
                     onChange={e => setGuestOtp(e.target.value.replace(/\D/g, ""))}

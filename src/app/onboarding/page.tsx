@@ -32,6 +32,7 @@ export default function OnboardingPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpDevCode, setOtpDevCode] = useState("");
+  const [otpAutoFilled, setOtpAutoFilled] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [otpBusy, setOtpBusy] = useState(false);
   const [phoneSaved, setPhoneSaved] = useState(false);
@@ -102,13 +103,14 @@ export default function OnboardingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: cleanPhone }),
       });
-      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean };
+      const data = await res.json() as { error?: string; devCode?: string; configured?: boolean; autoFilled?: boolean };
       if (data.configured === false) {
         setOtpError(t("ওটিপি সার্ভিস এখনো চালু হয়নি। পরে আবার চেষ্টা করুন।", "OTP service is not configured yet. Please try again later."));
         return;
       }
       if (!res.ok) throw new Error(data.error || "Failed");
-      if (data.devCode) setOtpDevCode(data.devCode);
+      if (data.devCode) { setOtpDevCode(data.devCode); setOtpCode(data.devCode); }
+      setOtpAutoFilled(data.autoFilled === true);
       setOtpSent(true);
     } catch (e) {
       setOtpError(e instanceof Error ? e.message : "Failed");
@@ -269,7 +271,7 @@ export default function OnboardingPage() {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={e => { setPhone(e.target.value); setOtpError(""); setOtpSent(false); setOtpCode(""); }}
+                  onChange={e => { setPhone(e.target.value); setOtpError(""); setOtpSent(false); setOtpCode(""); setOtpDevCode(""); setOtpAutoFilled(false); }}
                   placeholder={t("০১XXX-XXXXXX", "01XXX-XXXXXX")}
                   className="input-field w-full"
                 />
@@ -285,11 +287,15 @@ export default function OnboardingPage() {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  {otpDevCode && (
+                  {otpAutoFilled ? (
+                    <p className="text-xs bg-green-50 border border-green-200 rounded-lg p-2 text-green-700">
+                      ✅ {t("আপনার ভেরিফিকেশন কোডটি নিচের বক্সে স্বয়ংক্রিয়ভাবে বসানো হয়েছে। শুধু \"ভেরিফাই করুন\" বাটনে ক্লিক করুন।", "Your verification code has been entered automatically in the box below. Just click \"Verify\".")}
+                    </p>
+                  ) : otpDevCode ? (
                     <p className="text-xs bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-700">
                       {t("টেস্ট কোড", "Test code")}: <b>{otpDevCode}</b>
                     </p>
-                  )}
+                  ) : null}
                   <input
                     type="text" inputMode="numeric" maxLength={6} value={otpCode}
                     onChange={e => setOtpCode(e.target.value.replace(/\D/g, ""))}

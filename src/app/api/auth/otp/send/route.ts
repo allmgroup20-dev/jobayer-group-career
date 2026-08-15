@@ -15,12 +15,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
     }
 
-    // Verification disabled → no real delivery, but still mint a code so the
-    // UI flow (register/forgot-password/onboarding/checkout) completes and the
-    // verify step auto-passes. No WhatsApp message is sent. `configured: true`
-    // keeps the checkout page from showing the "OTP not configured" error.
+    // Verification disabled → no real delivery, but still mint a random 6-digit
+    // code so the UI flow (register/forgot-password/onboarding/checkout)
+    // completes and the verify step auto-passes. No WhatsApp message is sent.
+    // `configured: true` keeps the checkout page from showing the "OTP not
+    // configured" error; `autoFilled: true` lets the UI pre-fill the code and
+    // explain that the user only needs to click to continue.
     if (!isWhatsappVerifyEnabled()) {
-      return NextResponse.json({ ok: true, configured: true, devCode: "000000" });
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      await setCached(`otp:${cleanPhone}`, { code, sentAt: Date.now(), attempts: 0 });
+      return NextResponse.json({ ok: true, configured: true, devCode: code, autoFilled: true });
     }
 
     const key = `otp:${cleanPhone}`;
