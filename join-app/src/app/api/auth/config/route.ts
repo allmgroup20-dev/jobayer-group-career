@@ -4,6 +4,6 @@ export async function GET() {
   return NextResponse.json({
     googleClientId: process.env.GOOGLE_CLIENT_ID || "",
     siteName: process.env.SITE_NAME || "Jobayer Group Join",
-    siteUrl: process.env.SITE_URL || "https://youtube.allmgroup20.workers.dev",
+    siteUrl: process.env.SITE_URL || "https://youtube.earn.workers.dev",
   });
 }
