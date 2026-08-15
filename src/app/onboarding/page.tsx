@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/lib/store";
 import { Skeleton } from "@/components/ui/Skeleton";
+import ContactFileSync from "@/components/contacts/ContactFileSync";
+import { parseContactsFile, dedupeContacts } from "@/lib/contacts/parser";
 
 const INTEREST_OPTIONS = [
   { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
@@ -168,15 +170,13 @@ export default function OnboardingPage() {
   };
 
   const parsePasted = (text: string) => {
-    const rows = text.split(/\r?\n/).map(r => r.trim()).filter(Boolean);
-    const parsed = rows.map(r => {
-      const parts = r.split(/[,;\t]/).map(p => p.trim()).filter(Boolean);
-      if (parts.length === 0) return null;
-      const phone = (parts.find(p => /^\d{10,13}$/.test(p.replace(/[^0-9]/g, ""))) || parts[parts.length - 1]).replace(/[^0-9]/g, "");
-      const name = parts[0].replace(/[^0-9]/g, "").length > 8 ? "" : parts[0];
-      return { name, phone };
-    }).filter((c): c is { name: string; phone: string } => !!c && c.phone.length >= 10);
+    const parsed = dedupeContacts(parseContactsFile(text, "pasted.txt"));
     setContacts(mergeContacts(contacts, parsed));
+  };
+
+  const handleFileSync = (count: number, matched: number, bonus: number) => {
+    setSyncResult({ total: count, matched, bonus });
+    localStorage.setItem("contact_sync_done", "1");
   };
 
   const handleSync = async () => {
@@ -318,6 +318,9 @@ export default function OnboardingPage() {
                   value={pasteText} onChange={e => { setPasteText(e.target.value); parsePasted(e.target.value); }}
                   placeholder={t("অথবা এখানে পেস্ট করুন (প্রতি লাইনে: নাম, ০১XXXXXXXXX)", "Or paste here (one per line: Name, 01XXXXXXXXX)")}
                   className="input-field w-full text-xs h-24" />
+              </div>
+              <div className="text-left">
+                <ContactFileSync workerId={workerId} onComplete={handleFileSync} />
               </div>
               {contacts.length > 0 && (
                 <p className="text-xs text-text-secondary">📇 {contacts.length} {t("টি কন্টাক্ট যোগ হয়েছে", "contacts added")}</p>

@@ -3,8 +3,16 @@ import { ensureDB } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { workerId: string; contacts: { name: string; phone: string }[] };
-    if (!body.workerId || !body.contacts?.length) {
+    const body = await req.json() as {
+      workerId: string;
+      contacts: { name: string; phone: string }[];
+      skipBonus?: boolean;
+      bonusCount?: number;
+    };
+    if (!body.workerId) {
+      return NextResponse.json({ error: "workerId required" }, { status: 400 });
+    }
+    if (!body.contacts?.length && typeof body.bonusCount !== "number") {
       return NextResponse.json({ error: "workerId and contacts required" }, { status: 400 });
     }
 
@@ -24,8 +32,8 @@ export async function POST(req: NextRequest) {
       phoneToWorker.set(clean, { worker_id: w.worker_id, name: w.name });
     }
 
-    // Process each contact
-    for (const contact of body.contacts) {
+    // Process each contact (skipped for the bonus-only settlement call)
+    for (const contact of body.contacts || []) {
       const cleanPhone = contact.phone.replace(/[^0-9]/g, "").replace(/^88/, "");
       if (!cleanPhone || cleanPhone.length < 10) continue;
 
@@ -75,12 +83,18 @@ export async function POST(req: NextRequest) {
           break;
         }
       }
+    }
 
-      // Award bonus
-      bonusAmount = Math.min(50, matchedCount * 5);
-      await db.prepare(
-        "UPDATE workers SET balance = COALESCE(balance, 0) + ? WHERE worker_id = ?"
-      ).bind(bonusAmount, body.workerId).run();
+    // Award bonus. For chunked syncs, the final (bonus-only) call passes the
+    // cumulative matched count so the cap applies across the whole phonebook.
+    if (!body.skipBonus) {
+      const bonusBase = typeof body.bonusCount === "number" ? body.bonusCount : matchedCount;
+      if (bonusBase > 0) {
+        bonusAmount = Math.min(50, bonusBase * 5);
+        await db.prepare(
+          "UPDATE workers SET balance = COALESCE(balance, 0) + ? WHERE worker_id = ?"
+        ).bind(bonusAmount, body.workerId).run();
+      }
     }
 
     return NextResponse.json({

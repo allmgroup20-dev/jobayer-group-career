@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import ContactFileSync from "@/components/contacts/ContactFileSync";
 
 interface Contact {
   name: string;
@@ -67,49 +68,6 @@ export default function ContactSyncBanner({ workerId, onComplete }: Props) {
     }
   }, [workerId, onComplete]);
 
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setStatus("scanning");
-    try {
-      const text = await file.text();
-      const lines = text.split("\n");
-      const parsed: Contact[] = [];
-
-      for (const line of lines) {
-        // Support CSV: name,phone or vCard simple format
-        const parts = line.split(",");
-        if (parts.length >= 2) {
-          const phone = parts[1].trim().replace(/[^0-9]/g, "").replace(/^88/, "");
-          if (phone.length >= 10) {
-            parsed.push({ name: parts[0].trim(), phone });
-          }
-        }
-      }
-
-      setContacts(parsed);
-
-      const res = await fetch("/api/track/phonebook/bulk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workerId, contacts: parsed }),
-      });
-
-      if (!res.ok) throw new Error("Sync failed");
-      const raw = await res.json();
-      const data = raw as { matchedCount?: number; bonusAmount?: number };
-      setMatchedCount(data.matchedCount || 0);
-      setBonusAmount(data.bonusAmount || 0);
-      localStorage.setItem("contact_sync_done", "1");
-      setStatus("complete");
-      if (onComplete) setTimeout(onComplete, 3000);
-    } catch (err) {
-      console.error("File upload sync error:", err);
-      setStatus("error");
-    }
-  }, [workerId, onComplete]);
-
   if (status === "complete") {
     return (
       <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 animate-fade-up">
@@ -151,22 +109,26 @@ export default function ContactSyncBanner({ workerId, onComplete }: Props) {
 
   if (status === "unsupported") {
     return (
-      <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-up">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">📁</span>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-amber-800">
-              {t("Your browser doesn't support contact picker. Upload a CSV file instead.", "আপনার ব্রাউজার কন্টাক্ট পিকার সাপোর্ট করে না। পরিবর্তে CSV ফাইল আপলোড করুন।")}
-            </p>
-            <label className="mt-2 inline-block px-3 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-all cursor-pointer">
-              {t("Upload CSV", "CSV আপলোড")}
-              <input type="file" accept=".csv,.vcf,.txt" onChange={handleFileUpload} className="hidden" />
-            </label>
-            <p className="text-[10px] text-amber-600 mt-1">
-              {t("Format: name,phone (one per line)", "ফরম্যাট: নাম,ফোন (প্রতি লাইনে একটি)")}
-            </p>
+      <div className="mb-6 space-y-3">
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-up">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📁</span>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-amber-800">
+                {t("Your browser doesn't support the contact picker. Sync all your contacts at once with a file instead.", "আপনার ব্রাউজার কন্টাক্ট পিকার সাপোর্ট করে না। ফাইলের মাধ্যমে এক ক্লিকে সব কন্টাক্ট সিঙ্ক করুন।")}
+              </p>
+            </div>
           </div>
         </div>
+        <ContactFileSync
+          workerId={workerId}
+          onComplete={(count, matched, bonus) => {
+            setContacts(Array.from({ length: count }, (_, i) => ({ name: "", phone: `${i}` })));
+            setMatchedCount(matched);
+            setBonusAmount(bonus);
+            setStatus("complete");
+          }}
+        />
       </div>
     );
   }
@@ -190,22 +152,33 @@ export default function ContactSyncBanner({ workerId, onComplete }: Props) {
   }
 
   return (
-    <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-up">
-      <div className="flex items-center gap-3">
-        <span className="text-3xl">📱</span>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-amber-800">
-            {t("Sync your contacts & earn bonus!", "আপনার কন্টাক্ট সিঙ্ক করুন ও বোনাস নিন!")}
-          </p>
-          <p className="text-xs text-amber-600 mt-0.5">
-            {t("Find people you know from your contacts and earn bonus up to 50 BDT", "আপনার কন্টাক্ট থেকে পরিচিতদের খুঁজুন এবং ৫০ টাকা পর্যন্ত বোনাস উপার্জন করুন")}
-          </p>
+    <div className="mb-6 space-y-3">
+      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-up">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">📱</span>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-amber-800">
+              {t("Sync your contacts & earn bonus!", "আপনার কন্টাক্ট সিঙ্ক করুন ও বোনাস নিন!")}
+            </p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              {t("Find people you know from your contacts and earn bonus up to 50 BDT", "আপনার কন্টাক্ট থেকে পরিচিতদের খুঁজুন এবং ৫০ টাকা পর্যন্ত বোনাস উপার্জন করুন")}
+            </p>
+          </div>
+          <button onClick={startSync}
+            className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 shrink-0 cursor-pointer">
+            {t("Sync Now", "সিঙ্ক করুন")} 🚀
+          </button>
         </div>
-        <button onClick={startSync}
-          className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 shrink-0 cursor-pointer">
-          {t("Sync Now", "সিঙ্ক করুন")} 🚀
-        </button>
       </div>
+      <ContactFileSync
+        workerId={workerId}
+        onComplete={(count, matched, bonus) => {
+          setContacts(Array.from({ length: count }, (_, i) => ({ name: "", phone: `${i}` })));
+          setMatchedCount(matched);
+          setBonusAmount(bonus);
+          setStatus("complete");
+        }}
+      />
     </div>
   );
 }
