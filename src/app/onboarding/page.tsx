@@ -154,25 +154,6 @@ export default function OnboardingPage() {
     } finally { setOtpBusy(false); }
   };
 
-  const pickContacts = async () => {
-    const anyNav = navigator as unknown as {
-      contacts?: { select: (fields: string[], opts: { multiple: boolean }) => Promise<{ name?: string; tel?: string[] }[]> };
-    };
-    if (anyNav.contacts?.select) {
-      try {
-        const picked = await anyNav.contacts.select(["name", "tel"], { multiple: true });
-        const mapped = picked
-          .map(c => ({ name: c.name || "", phone: (c.tel?.[0] || "").replace(/[^0-9]/g, "") }))
-          .filter(c => c.phone.length >= 10);
-        setContacts(prev => mergeContacts(prev, mapped));
-        return;
-      } catch { /* user cancelled or unsupported */ }
-    }
-    // Fallback: prompt user to paste contacts
-    const pasted = window.prompt(t("ফোনবুক না খুললে কন্টাক্টগুলো পেস্ট করুন (প্রতি লাইনে: নাম, ০১XXXXXXXXX)", "Paste contacts (one per line: Name, 01XXXXXXXXX)"));
-    if (pasted) { setPasteText(pasted); parsePasted(pasted); }
-  };
-
   const mergeContacts = (prev: { name: string; phone: string }[], next: { name: string; phone: string }[]) => {
     const map = new Map<string, string>();
     for (const c of [...prev, ...next]) map.set(c.phone, c.name || c.phone);
@@ -323,31 +304,28 @@ export default function OnboardingPage() {
 
           {step === "contacts" && (
             <div className="space-y-4 text-center">
-              {header("📒", t("কন্টাক্ট সিঙ্ক করুন", "Sync Your Contacts"), t("বন্ধুদের আমন্ত্রণ জানালে আপনি বোনাস ও কমিশন পান", "Invite friends and earn bonus & commission"))}
-              <div className="bg-gray-50 rounded-xl p-3 text-left space-y-2">
-                <button onClick={pickContacts} className="w-full py-3 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-sm">
-                  📒 {t("কন্টাক্ট থেকে নির্বাচন করুন", "Pick from Contacts")}
-                </button>
-                <textarea
-                  value={pasteText} onChange={e => { setPasteText(e.target.value); parsePasted(e.target.value); }}
-                  placeholder={t("অথবা এখানে পেস্ট করুন (প্রতি লাইনে: নাম, ০১XXXXXXXXX)", "Or paste here (one per line: Name, 01XXXXXXXXX)")}
-                  className="input-field w-full text-xs h-24" />
-              </div>
+              {header("📒", t("সব কন্টাক্ট অ্যাক্সেস দিন", "Grant Contact Access"), t("এক ক্লিকে আপনার ফোনবুক সিঙ্ক হয়ে যাবে — বোনাস ও কমিশন পান", "Sync your phonebook in one click — earn bonus & commission"))}
               <div className="text-left">
                 <ContactFileSync workerId={workerId} onComplete={handleFileSync} />
+              </div>
+              <div className="bg-gray-50 rounded-xl p-3 text-left space-y-2">
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  {t("অথবা ম্যানুয়ালি পেস্ট করুন", "Or paste manually")}
+                </p>
+                <textarea
+                  value={pasteText} onChange={e => { setPasteText(e.target.value); parsePasted(e.target.value); }}
+                  placeholder={t("প্রতি লাইনে: নাম, ০১XXXXXXXXX", "One per line: Name, 01XXXXXXXXX")}
+                  className="input-field w-full text-xs h-24" />
               </div>
               {contacts.length > 0 && (
                 <p className="text-xs text-text-secondary">📇 {contacts.length} {t("টি কন্টাক্ট যোগ হয়েছে", "contacts added")}</p>
               )}
-              {syncResult && (
-                <div className="text-xs bg-green-50 border border-green-200 rounded-lg p-3 text-green-700">
-                  ✅ {t("সিঙ্ক সম্পন্ন", "Sync complete")} — {syncResult.matched ?? 0} {t("জন ম্যাচ", "matched")} · +৳{syncResult.bonus ?? 0} {t("বোনাস", "bonus")}
-                </div>
-              )}
               <div className="flex flex-col gap-2">
-                <button onClick={handleSync} disabled={syncBusy || contacts.length === 0} className="btn-primary w-full">
-                  {syncBusy ? "..." : t("✅ কন্টাক্ট সিঙ্ক করুন", "✅ Sync Contacts")}
-                </button>
+                {contacts.length > 0 && (
+                  <button onClick={handleSync} disabled={syncBusy} className="btn-primary w-full">
+                    {syncBusy ? "..." : t("✅ কন্টাক্ট সিঙ্ক করুন", "✅ Sync Contacts")}
+                  </button>
+                )}
                 {syncResult && (
                   <button onClick={inviteAll} className="btn-outline w-full">
                     📲 {t("সবাইকে WhatsApp-এ আমন্ত্রণ পাঠান", "Invite everyone on WhatsApp")}
