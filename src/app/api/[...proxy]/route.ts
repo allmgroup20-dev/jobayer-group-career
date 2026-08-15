@@ -6,7 +6,7 @@ import { getAIEnv } from "@/lib/env";
 // the AI service binding (fallback: public AI_WORKER_URL).
 const AI_BASE =
   process.env.AI_WORKER_URL?.replace(/\/+$/, "") ||
-  "https://jgcareer-ai.earn.workers.dev";
+  "https://jgcareer-ai.earner.workers.dev";
 
 const HOP_HEADERS = [
   "cf-ray",

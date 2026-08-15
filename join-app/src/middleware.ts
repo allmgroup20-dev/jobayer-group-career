@@ -29,8 +29,8 @@ async function verifyToken(token: string, secret: string): Promise<{ sub: string
 
 const ALLOWED_ORIGINS = [
   "youtube.offer.dev",
-  "youtube.earn.workers.dev",
-  "earn.workers.dev",
+  "youtube.earner.workers.dev",
+  "earner.workers.dev",
   "localhost",
   "127.0.0.1",
 ];
