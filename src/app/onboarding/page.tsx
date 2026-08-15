@@ -25,6 +25,7 @@ export default function OnboardingPage() {
   const { lang } = useLanguageStore();
   const router = useRouter();
   const [workerId, setWorkerId] = useState("");
+  const [verifyEnabled, setVerifyEnabled] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
   const [step, setStep] = useState<Step>("consent");
   const [loading, setLoading] = useState(true);
@@ -60,6 +61,12 @@ export default function OnboardingPage() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/otp/status").then((r) => r.json() as Promise<{ enabled?: boolean }>)
+      .then((d) => setVerifyEnabled(d.enabled === true))
+      .catch(() => setVerifyEnabled(false));
+  }, []);
+
+  useEffect(() => {
     const wid = localStorage.getItem("worker_id");
     if (!wid) { window.location.href = "/login"; return; }
     setWorkerId(wid);
@@ -86,7 +93,8 @@ export default function OnboardingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workerId, consentType: "onboarding", isGranted: 1 }),
       }).catch(() => {});
-      setStep("otp");
+      // Verification disabled → skip the OTP step, go straight to contacts.
+      setStep(verifyEnabled === true ? "otp" : "contacts");
     } catch {} finally { setLoading(false); }
   };
 

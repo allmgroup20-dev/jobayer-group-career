@@ -26,6 +26,7 @@ function CheckoutContent() {
   const [selectedMethod, setSelectedMethod] = useState<string>("sslcommerz");
   const [orderId, setOrderId] = useState<string | null>(null);
 
+  const [verifyEnabled, setVerifyEnabled] = useState<boolean | null>(null);
   const [guestPhone, setGuestPhone] = useState("");
   const [guestOtp, setGuestOtp] = useState("");
   const [guestOtpSent, setGuestOtpSent] = useState(false);
@@ -92,8 +93,39 @@ function CheckoutContent() {
     startCheckout(wid);
   }, []);
 
+  useEffect(() => {
+    fetch("/api/auth/otp/status").then((r) => r.json() as Promise<{ enabled?: boolean }>)
+      .then((d) => setVerifyEnabled(d.enabled === true))
+      .catch(() => setVerifyEnabled(false));
+  }, []);
+
   const handleGuestSendOtp = async () => {
     setGuestBusy(true); setGuestError("");
+
+    // Verification disabled → no code needed, log in / auto-register with the
+    // phone number directly (the backend accepts the code-less flow).
+    if (verifyEnabled === false) {
+      try {
+        const referralCode = localStorage.getItem("referral_code") || undefined;
+        const res = await fetch("/api/auth/otp/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: guestPhone, referralCode }),
+        });
+        const data = await res.json() as { error?: string; token?: string; workerId?: string; name?: string };
+        if (!res.ok) throw new Error(data.error || "Failed");
+        if (data.workerId) {
+          localStorage.setItem("worker_id", data.workerId || "");
+          localStorage.setItem("worker_name", data.name || "");
+        }
+        startCheckout(data.workerId || "");
+        return;
+      } catch (e) {
+        setGuestError(e instanceof Error ? e.message : "Failed");
+      } finally { setGuestBusy(false); }
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
@@ -209,7 +241,9 @@ function CheckoutContent() {
           <Card>
             <div className="text-5xl mb-4">💬</div>
             <h2 className="text-xl font-bold text-primary mb-2">{lang === "bn" ? "ফোন দিয়ে দ্রুত চেকআউট" : "Quick Checkout with Phone"}</h2>
-            <p className="text-text-secondary text-sm mb-6">{lang === "bn" ? "কোনো পাসওয়ার্ড লাগবে না — ওটিপি দিয়ে ১ ধাপে শুরু করুন" : "No password needed — verify with OTP in one step"}</p>
+            <p className="text-text-secondary text-sm mb-6">{verifyEnabled === false
+              ? (lang === "bn" ? "কোনো পাসওয়ার্ড লাগবে না — শুধু ফোন নম্বর দিয়ে শুরু করুন" : "No password needed — just enter your phone number to start")
+              : (lang === "bn" ? "কোনো পাসওয়ার্ড লাগবে না — ওটিপি দিয়ে ১ ধাপে শুরু করুন" : "No password needed — verify with OTP in one step")}</p>
 
             <div className="space-y-3">
               <input
@@ -220,7 +254,9 @@ function CheckoutContent() {
               {!guestOtpSent ? (
                 <button onClick={handleGuestSendOtp} disabled={guestBusy || guestPhone.length < 10}
                   className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold">
-                  {guestBusy ? "..." : (lang === "bn" ? "📲 কোড পাঠান" : "Send Code")}
+                  {guestBusy ? "..." : verifyEnabled === false
+                    ? (lang === "bn" ? "চালিয়ে যান" : "Continue")
+                    : (lang === "bn" ? "📲 কোড পাঠান" : "Send Code")}
                 </button>
               ) : (
                 <>

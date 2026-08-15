@@ -22,9 +22,16 @@ export default function RegisterPage() {
   const [otpMsg, setOtpMsg] = useState("");
   const [otpNotice, setOtpNotice] = useState("");
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [verifyEnabled, setVerifyEnabled] = useState<boolean | null>(null);
 
   const [redirectAfter, setRedirectAfter] = useState("/onboarding");
   const [utmParams, setUtmParams] = useState({ utmSource: "", utmMedium: "", utmCampaign: "" });
+
+  useEffect(() => {
+    fetch("/api/auth/otp/status").then((r) => r.json() as Promise<{ enabled?: boolean }>)
+      .then((d) => setVerifyEnabled(d.enabled === true))
+      .catch(() => setVerifyEnabled(false));
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -108,7 +115,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    if (!phoneVerified) {
+    if (!phoneVerified && verifyEnabled !== false) {
       setError(lang === "bn" ? "আগে ফোন নম্বর যাচাই করুন" : "Verify your phone number first");
       setLoading(false);
       return;
@@ -207,7 +214,7 @@ export default function RegisterPage() {
             <p className="text-[10px] text-text-secondary/40 mt-1">{lang === "bn" ? "উদাহরণ: ০১৭১২৩৪৫৬৭৮" : "Example: 01712345678"}</p>
           </div>
 
-          {!phoneVerified && (
+          {!phoneVerified && verifyEnabled !== false && (
             <div className="p-3 rounded-xl bg-[#25D366]/5 border border-[#25D366]/20">
               <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">
                 🔐 {lang === "bn" ? "ফোন নম্বর যাচাই" : "Verify Phone"}

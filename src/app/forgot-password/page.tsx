@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
 import { LoadingDots } from "@/components/ui/LoadingDots";
@@ -8,6 +8,7 @@ import { LoadingDots } from "@/components/ui/LoadingDots";
 export default function ForgotPasswordPage() {
   const { lang } = useLanguageStore();
   const [step, setStep] = useState<"phone" | "otp" | "password" | "done">("phone");
+  const [verifyEnabled, setVerifyEnabled] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
@@ -26,12 +27,24 @@ export default function ForgotPasswordPage() {
     return digits;
   };
 
+  useEffect(() => {
+    fetch("/api/auth/otp/status").then((r) => r.json() as Promise<{ enabled?: boolean }>)
+      .then((d) => setVerifyEnabled(d.enabled === true))
+      .catch(() => setVerifyEnabled(false));
+  }, []);
+
   const handleSendOtp = async () => {
     setBusy(true); setError(""); setOtpMsg(""); setOtpNotice("");
     const cleanPhone = normalizePhone(phone);
     if (!cleanPhone || cleanPhone.length < 10) {
       setError(t("সঠিক হোয়াটসঅ্যাপ নম্বর দিন", "Enter a valid WhatsApp number"));
       setBusy(false);
+      return;
+    }
+    // Verification disabled → skip the OTP step entirely, go straight to the
+    // new-password form (the reset endpoint accepts the phone as-is).
+    if (verifyEnabled === false) {
+      setStep("password");
       return;
     }
     try {
@@ -140,7 +153,7 @@ export default function ForgotPasswordPage() {
               </div>
               <button onClick={handleSendOtp} disabled={busy}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-base disabled:opacity-60">
-                {busy ? <LoadingDots /> : t("ওটিপি পাঠান", "Send OTP")}
+                {busy ? <LoadingDots /> : verifyEnabled === false ? t("চালিয়ে যান", "Continue") : t("ওটিপি পাঠান", "Send OTP")}
               </button>
             </>
           )}
