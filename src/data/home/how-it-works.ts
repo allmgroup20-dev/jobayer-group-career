@@ -21,12 +21,12 @@ export const howItWorksSteps = [
     num: "৩", numEn: "3", icon: "💰",
     titleBn: "টাকা তুলুন",
     titleEn: "Withdraw Money",
-    descBn: "আপনার লিংকে যতজন যুক্ত হবে, তত আয় সরাসরি বিকাশ/নগদে চলে আসবে!",
-    descEn: "The more people join through your link, the more you earn directly to bKash/Nagad!",
+    descBn: "আপনার লিংকে যতজন রেজিস্টার করে রিসোর্স কিনবেন, তত কমিশন আপনার অ্যাকাউন্টে জমা হবে (প্রতি সফল রেফারেলে ৳২০, ৪ স্তর পর্যন্ত) এবং বিকাশ/নগদে উত্তোলন করতে পারবেন!",
+    descEn: "The more people who register and purchase resources through your link, the more commission you earn (৳20 per successful referral, up to 4 levels) — withdraw directly to bKash/Nagad!",
     highlightBn: "🟢 সরাসরি পেমেন্ট",
     highlightEn: "🟢 Direct Payment",
   },
 ];
 
-export const howItWorksFooterNoteBn = "💡 আমাদের ৮৬৬+ শিক্ষার্থীর ৭২% ই প্রথম মাসেই আয় শুরু করেছেন! 🚀 আপনার পালা এখনই!";
-export const howItWorksFooterNoteEn = "💡 72% of our 866+ students started earning in the first month! 🚀 Your turn now!";
+export const howItWorksFooterNoteBn = "💡 রেফারেল কমিশন ৳২০ — ৪ স্তর পর্যন্ত! যত বেশি রেফারেল, তত বেশি আয়। 🚀 শুরু করুন এখনই!";
+export const howItWorksFooterNoteEn = "💡 Earn ৳20 referral commission — up to 4 levels! The more referrals, the more you earn. 🚀 Start now!";

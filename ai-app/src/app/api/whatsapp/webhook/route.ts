@@ -336,8 +336,8 @@ export async function POST(request: NextRequest) {
       if (isBuyIntent) {
         return {
           text: lang === "en"
-            ? `Great to hear from you! I'd love to help you get started with Jobayer Group Career. We have Standard (free), Premium (1,500 TK), and VIP (5,000 TK) plans. Which one interests you? I can explain the benefits of each.`
-            : `আপনার আগ্রহ দেখে ভালো লাগলো! Jobayer Group Career-এ শুরু করতে আমরা Standard (ফ্রি), Premium (১,৫০০ টাকা), এবং VIP (৫,০০০ টাকা) প্ল্যান অফার করি। কোনটি আপনার আগ্রহের? আমি প্রতিটির সুবিধা বিস্তারিত বলতে পারি।`,
+            ? `Great to hear from you! I'd love to help you get started with Jobayer Group Career. We have 970+ premium resources starting from ৳99, free registration, and a fixed ৳20 referral commission per successful referral. Which would you like to know more about?`
+            : `আপনার আগ্রহ দেখে ভালো লাগলো! Jobayer Group Career-এ শুরু করতে আমাদের ৯৭০+ প্রিমিয়াম রিসোর্স আছে (৳৯৯ থেকে), রেজিস্ট্রেশন ফ্রি, এবং প্রতি সফল রেফারেলে ৳২০ নির্দিষ্ট রেফারেল কমিশন। কোনটি সম্পর্কে আরও জানতে চান?`,
           model: "smart-fallback" as const, tokens: 0, agentsUsed: [], departmentsUsed: [], department: "sales" as any, intent: "general" as any, ms: WEBHOOK_TIMEOUT,
         };
       }

@@ -1,18 +1,18 @@
 export const heroData = {
-  headlineBn: "ঘরে বসে মাসে ৫০,০০০+ টাকা আয় — আপনার জীবন বদলান আজই",
-  headlineEn: "Earn 50,000+ Tk/Month from Home — Transform Your Life Today",
-  subheadBn: "৮৬৬+ শিক্ষার্থী ইতিমধ্যেই আয় শুরু করেছেন। দেশের সেরা ১২ জন প্রশিক্ষকের ২৩০টির বেশি কোর্স — আজীবনের জন্য। এখনই এই সুযোগটি না নিলে আপনি প্রতি মাসে ৫০,০০০+ টাকা হারাচ্ছেন যা আপনি পেতে পারতেন। পছন্দ না হলে ২৪ ঘণ্টায় টাকা ফেরত — কোনো ঝুঁকি নেই।",
-  subheadEn: "866+ students are already earning. 230+ courses from Bangladesh's top 12 trainers — lifetime access. By not joining today, you're losing 50,000+ Tk every month that you could be earning. 24h money-back guarantee — zero risk.",
+  headlineBn: "দক্ষতা শিখুন, রিসোর্স আনলক করুন, রেফারেল কমিশনে আয় করুন",
+  headlineEn: "Learn Skills, Unlock Resources, Earn Referral Commissions",
+  subheadBn: "৯৭০+ প্রিমিয়াম রিসোর্স ও ট্রেনিং এক জায়গায় — মাত্র ৳৯৯ থেকে। প্রতিটি সফল রেফারেলের জন্য ৳২০ কমিশন, ৪ স্তর পর্যন্ত। বাস্তব দক্ষতা ও সরাসরি কাজের সুযোগ।",
+  subheadEn: "970+ premium resources & training in one place — starting from ৳99. Earn ৳20 for every successful referral, up to 4 levels. Real skills and direct work opportunities.",
   badges: [
     { icon: "🎯", textBn: "বাস্তব বাজারভিত্তিক প্রকল্প", textEn: "Real Market Projects" },
-    { icon: "📚", textBn: "২৩০+ কোর্স", textEn: "230+ Courses" },
-    { icon: "👨‍🏫", textBn: "১২ জন বিশেষজ্ঞ", textEn: "12 Expert Trainers" },
-    { icon: "💼", textBn: "জব প্লেসমেন্ট", textEn: "Job Placement" },
+    { icon: "📚", textBn: "৯৭০+ রিসোর্স", textEn: "970+ Resources" },
+    { icon: "👨‍🏫", textBn: "স্টেপ-বাই-স্টেপ ট্রেনিং", textEn: "Step-by-Step Training" },
+    { icon: "🤝", textBn: "৳২০ রেফারেল কমিশন", textEn: "৳20 Referral Commission" },
   ],
-    problemBn: "আপনি কি জানেন — শুধু সঠিক দক্ষতা না থাকার কারণে আপনি প্রতি মাসে ৫০,০০০+ টাকা হারাচ্ছেন? বেশিরভাগ কোর্স শুধু তত্ত্ব দেয় — বাস্তব বাজারের জন্য তৈরি করে না। আপনি যত অপেক্ষা করবেন, আপনার প্রতিযোগীরা তত এগিয়ে যাবে। আর এখনই শুরু না করলে এই সুযোগটি আপনার হাতছাড়া হবে।",
-  problemEn: "Did you know — you are losing 50,000+ Tk every single month just because you don't have the right skills? Most courses only teach theory — they don't prepare you for the real market. Every month you wait, your competitors move further ahead. Don't let this opportunity slip away.",
-    solutionBn: "জোবায়ের গ্রুপ ক্যারিয়ার আপনাকে দেয় — বাস্তব বাজারভিত্তিক প্রকল্প, সরাসরি গ্রাহকের সংস্পর্শ, এবং কাজ শেখার পর ব্যবহারিক প্রশিক্ষণের সুযোগ। এটি শুধু একটি কোর্স নয় — এটি আপনার মাসিক আয় ৫০,০০০+ টাকায় নিয়ে যাওয়ার একটি পদ্ধতি। আপনি যখন এই সুযোগটি নেবেন, আপনার জীবন বদলে যাবে।",
-  solutionEn: "Jobayer Group Career gives you real market projects, direct client exposure, and internship opportunities — all in one system. This is not just a course — it's a complete system to take your monthly income to 50,000+ Tk. When you take this opportunity, your life will transform.",
+    problemBn: "অনলাইনে শেখার অনেক অপশন থাকলেও সঠিক পথনির্দেশনার অভাবে বেশিরভাগ মানুষ শুরু করতে পারেন না বা মাঝপথে ছেড়ে দেন। আমাদের লক্ষ্য — সাজানো রিসোর্স ও ধাপে ধাপে গাইডের মাধ্যমে আপনি বাস্তব দক্ষতা অর্জন করবেন এবং রেফারেল কমিশনের মাধ্যমে আয় শুরু করতে পারবেন।",
+  problemEn: "There are many options to learn online, but without proper guidance most people never start or give up halfway. Our goal is to help you build real skills through organized resources and step-by-step guidance, so you can start earning through referral commissions.",
+    solutionBn: "জোবায়ের গ্রুপ ক্যারিয়ার আপনাকে দেয় — ৯৭০+ সাজানো প্রিমিয়াম রিসোর্স, ধাপে ধাপে ট্রেনিং গাইড, সরাসরি গ্রাহকের সংস্পর্শে কাজের সুযোগ, এবং প্রতিটি সফল রেফারেলে ৳২০ কমিশন (৪ স্তর পর্যন্ত)।",
+  solutionEn: "Jobayer Group Career gives you — 970+ organized premium resources, step-by-step training guidance, direct client exposure, and ৳20 commission for every successful referral (up to 4 levels).",
   ctaBn: "🚀 এখনই আপনার জীবন বদলান →",
   ctaEn: "🚀 Transform Your Life Now →",
   ctaHref: "/register",
@@ -20,12 +20,12 @@ export const heroData = {
   liveCountLabelEn: "Active Students (Growing)",
 };
 
-export const heroSectionBadgeBn = "💰 সরাসরি কাজ শিখে প্রথম মাসেই ১১,০০০ থেকে ৯২,০০০ টাকা পর্যন্ত উপার্জনের বাস্তবমুখী সুযোগ!";
-export const heroSectionBadgeEn = "💰 Earn from ৳11,000 to ৳92,000/month — real opportunity, real results!";
+export const heroSectionBadgeBn = "💰 প্রতিটি সফল রেফারেলে ৳২০ কমিশন — ৪ স্তর পর্যন্ত আয়ের সুযোগ!";
+export const heroSectionBadgeEn = "💰 Earn ৳20 commission per successful referral — up to 4 levels!";
 
 export const heroFeatureGridItems = [
-  { icon: "🎯+", textBn: "২৩০+ প্রিমিয়াম কোর্স (উপহার)", textEn: "230+ Premium Courses (Gift)" },
-  { icon: "📊", textBn: "লাইভ ইনকাম প্রুফ", textEn: "Live Income Proof" },
-  { icon: "💳", textBn: "রিয়েল পেমেন্ট প্রুফ", textEn: "Real Payment Proof" },
-  { icon: "🔄", textBn: "২৪ ঘন্টা মানি ব্যাক গ্যারান্টি", textEn: "24h Money Back Guarantee" },
+  { icon: "📚", textBn: "৯৭০+ প্রিমিয়াম রিসোর্স", textEn: "970+ Premium Resources" },
+  { icon: "📊", textBn: "স্টেপ-বাই-স্টেপ গাইড", textEn: "Step-by-Step Guide" },
+  { icon: "💳", textBn: "SSL সুরক্ষিত পেমেন্ট", textEn: "SSL Secured Payment" },
+  { icon: "🤝", textBn: "৳২০ রেফারেল কমিশন", textEn: "৳20 Referral Commission" },
 ];

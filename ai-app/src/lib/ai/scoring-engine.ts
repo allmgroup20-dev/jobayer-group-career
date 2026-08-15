@@ -49,7 +49,7 @@ export function calculateScores(profile: {
   // Buying: based on orders + membership
   const totalOrders = profile.total_orders || 0;
   const totalSpent = profile.total_spent || 0;
-  const membershipBonus = profile.membership_status === "vip" ? 30 : profile.membership_status === "premium" ? 20 : 0;
+  const membershipBonus = profile.membership_status === "premium" ? 20 : 0;
   const buyingScore = Math.min(100, Math.round(
     (totalOrders * 15) + (Math.min(totalSpent, 10000) / 200) + membershipBonus
   ));

@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
       // Single worker payout (used by Premium Payout tab)
       const worker = await queryFirst<any>(env,
         `SELECT w.worker_id, w.name,
-          COALESCE((SELECT SUM(c.total_amount) FROM commissions c WHERE c.to_worker_id = w.worker_id AND c.status = 'paid'), 0) -
-          COALESCE((SELECT SUM(wd.final_amount) FROM withdrawals wd WHERE wd.worker_id = w.worker_id AND wd.status = 'completed'), 0) as bal
+          COALESCE((SELECT SUM(c.total_amount) FROM commissions c WHERE c.to_worker_id = w.worker_id), 0) -
+          COALESCE((SELECT SUM(wd.amount) FROM withdrawals wd WHERE wd.worker_id = w.worker_id AND wd.status IN ('pending', 'processing', 'completed')), 0) as bal
         FROM workers w WHERE w.worker_id = ? AND w.membership_status = 'premium'`,
         [targetWorkerId]
       );
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
          VALUES (?, ?, ?, 0, ?, 'BDT', ?, ?, 'completed', datetime('now'))`,
         [wid, targetWorkerId, worker.bal, worker.bal, accType, accNum]
       );
+      await markCommissionsPaid(env, targetWorkerId, worker.bal);
       return NextResponse.json({ success: true, workerId: targetWorkerId, amount: worker.bal, withdrawalId: wid });
     }
 
@@ -85,5 +86,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+async function markCommissionsPaid(env: { DB: D1Database }, workerId: string, amount: number) {
+  const pending = await query<{ id: number; total_amount: number }>(
+    env,
+    "SELECT id, total_amount FROM commissions WHERE to_worker_id = ? AND status = 'pending' ORDER BY created_at ASC, id ASC",
+    [workerId]
+  );
+  let remaining = amount;
+  for (const c of pending) {
+    if (remaining <= 0) break;
+    await execute(env, "UPDATE commissions SET status = 'paid' WHERE id = ?", [c.id]);
+    remaining -= c.total_amount;
   }
 }

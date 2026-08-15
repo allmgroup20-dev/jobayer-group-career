@@ -441,7 +441,7 @@ function CheckoutContent() {
                       {lang === "bn" ? "🚀 এখনই শুরু করুন — আজীবন অ্যাক্সেস" : "🚀 Start Now — Lifetime Access"}
                     </Button>
                     <p className="text-[11px] text-text-secondary/80 text-center">
-                      🛡️ {lang === "bn" ? "৭ দিনের মানি-ব্যাক গ্যারান্টি · পেমেন্টের সাথে সাথে ডেলিভারি" : "7-day money-back guarantee · Instant delivery"}
+                      🛡️ {lang === "bn" ? "SSL সুরক্ষিত পেমেন্ট · পেমেন্টের সাথে সাথে ডেলিভারি" : "SSL secured payment · Instant delivery after payment"}
                     </p>
                   </div>
                 )}

@@ -6,28 +6,20 @@ import { getOrCreateProfile, detectLanguage } from "@/lib/ai";
 import { callAI } from "@/lib/ai/router";
 import { getContactIntelligence } from "@/lib/ai/contact-intelligence";
 
-const PROACTIVE_SYSTEM_PROMPT = `You are a proactive business assistant at Jobayer Group Career. Your job is to reach out to potential and existing members with personalized, persuasive messages.
+const PROACTIVE_SYSTEM_PROMPT = `You are a proactive, honest business assistant at Jobayer Group Career. Your job is to reach out to potential and existing members with warm, personalized, and accurate messages.
 
-## PRODUCT CATALOG
-### Membership Plans
-1. Standard (Free): Basic training, community access, 10% commission, weekly resources. Min withdrawal: 500 TK (10% fee).
-2. Premium (1,500 TK one-time): Unlimited premium training, 0% withdrawal tax, 25% commission, priority support, contests, geometric target plan, team bonuses.
-3. VIP (5,000 TK one-time): Personal mentor, VIP sessions, exclusive group, 35% commission, priority withdrawal (12-24h), monthly 1-on-1 strategy.
-
-### Income Programs
-- Direct Affiliate: 10-35% per referral
-- Team Bonus: 3 members=500 TK, 10=2,000 TK, 25=5,000 TK, 50=15,000 TK
-- Geometric Target Plan: Day1=100 TK, doubles daily. Complete 10 days=earn 153,450 TK
-- Contests: Daily 200 TK, Weekly 1,000 TK, Monthly Grand 10,000 TK
-
-### Success Stories
-- Rahim: Joined Standard, upgraded to Premium, built team of 12, earning 8,000-12,000 TK/month
-- Fatima: Homemaker turned earner, built team of 45+, completed 3 GTPs (earned 460,000 TK), now earning 25,000+ TK/month passive
+## PROGRAM FACTS (always accurate)
+- 970+ premium resources; each resource ৳99; bulk packs (3/5/10) and an all-resources pack (৳5,200) available.
+- Registration and the mobile app are free. Premium status comes with the all-resources pack (৳5,200).
+- Referral commission: ৳20 fixed per successful referral (Level 1), ৳10 per referral at Levels 2-4.
+- Withdrawals: minimum ৳500 for general members (5% withdrawal tax) and ৳20 for Premium members (0% tax).
+- Income depends on the member's own referral activity. We make no income guarantees. Never mention VIP membership, geometric target plans, or percentage commissions.
 
 ## GUIDELINES
 - Be warm, friendly, and professional
 - Reference their specific situation if known
 - Never sound like a generic sales pitch
+- Never claim a guaranteed or typical earning amount
 - No emojis
 - Keep messages concise (2-4 sentences)
 - Always include a clear next step or question
@@ -49,11 +41,11 @@ async function generateProactiveMessage(phone: string, contextType: string, name
       : "";
 
     const contextPrompt = contextType === "new_lead"
-      ? `${baseInfo}This is a NEW LEAD who has never been contacted. Name: ${name}. ${contextInfo} Send a warm welcome message introducing Jobayer Group Career's value proposition. Focus on income opportunity and free registration.`
+      ? `${baseInfo}This is a NEW LEAD who has never been contacted. Name: ${name}. ${contextInfo} Send a warm welcome message introducing Jobayer Group Career's value proposition: 970+ premium resources from ৳99 and a free registration. Focus on the free resources and transparent referral commissions.`
       : contextType === "seen_no_reply"
-        ? `${baseInfo}This lead SAW our message but didn't reply. Name: ${name}. ${contextInfo} Send a friendly follow-up that references the previous conversation and offers a different angle/value proposition.`
+        ? `${baseInfo}This lead SAW our message but didn't reply. Name: ${name}. ${contextInfo} Send a friendly follow-up that references the previous conversation and offers a different angle (e.g., a specific resource or the ৳20 referral commission).`
         : contextType === "stale"
-          ? `${baseInfo}This contact has been INACTIVE for over 48 hours. Name: ${name}. ${contextInfo} Send a re-engagement message with a fresh perspective - share a success story or new opportunity angle. Focus on what they're missing out on.`
+          ? `${baseInfo}This contact has been INACTIVE for over 48 hours. Name: ${name}. ${contextInfo} Send a re-engagement message with a fresh, honest angle - remind them registration is free and resources are ৳99 each. Do not pressure or promise income.`
           : `${baseInfo}Send a general proactive message to ${name}. ${contextInfo} Be warm and value-focused.`;
 
     const result = await callAI(
@@ -75,17 +67,17 @@ async function generateProactiveMessage(phone: string, contextType: string, name
 function getFallbackMessage(name: string, type: string, lang: string): string {
   if (type === "new_lead") {
     return lang === "en"
-      ? `Assalamu Alaikum ${name}! I'm reaching out from Jobayer Group Career. We help people build sustainable online income through skill development and team building. Best part? Registration is completely free. Would you like to know more?`
-      : `আসসালামু আলাইকুম ${name}! আমি Jobayer Group Career থেকে বলছি। আমরা মানুষকে স্কিল ডেভেলপমেন্ট এবং টিম বিল্ডিংয়ের মাধ্যমে অনলাইনে স্থায়ী আয় গড়তে সাহায্য করি। সবচেয়ে ভালো দিক? রেজিস্ট্রেশন সম্পূর্ণ ফ্রি। আরও জানতে চান?`;
+      ? `Assalamu Alaikum ${name}! I'm reaching out from Jobayer Group Career. We offer 970+ premium resources (from ৳99) and transparent referral commissions. Registration is completely free. Would you like to know more?`
+      : `আসসালামু আলাইকুম ${name}! আমি Jobayer Group Career থেকে বলছি। আমাদের ৯৭০+ প্রিমিয়াম রিসোর্স আছে (৳৯৯ থেকে) এবং স্বচ্ছ রেফারেল কমিশন। রেজিস্ট্রেশন সম্পূর্ণ ফ্রি। আরও জানতে চান?`;
   }
   if (type === "seen_no_reply") {
     return lang === "en"
-      ? `${name}, I noticed you saw my previous message. I understand you're busy! Just wanted to share that our Premium members earn up to 25% commission and have 0% withdrawal tax. Worth a 5-minute look?`
-      : `${name}, আমি দেখলাম আপনি আগের মেসেজটি দেখেছেন। বুঝতে পারছি আপনি ব্যস্ত! শুধু জানাতে চাই আমাদের প্রিমিয়াম মেম্বাররা ২৫% পর্যন্ত কমিশন পান এবং ০% withdrawal ট্যাক্স দেন। ৫ মিনিট সময় নিয়ে দেখবেন?`;
+      ? `${name}, I noticed you saw my previous message. I understand you're busy! Just wanted to share that our referral commission is a fixed ৳20 per successful referral (৳10 for levels 2-4), and resources start from ৳99. Worth a 5-minute look?`
+      : `${name}, আমি দেখলাম আপনি আগের মেসেজটি দেখেছেন। বুঝতে পারছি আপনি ব্যস্ত! শুধু জানাতে চাই আমাদের রেফারেল কমিশন প্রতি সফল রেফারেলে নির্দিষ্ট ৳২০ (লেভেল ২-৪ এ ৳১০), এবং রিসোর্স শুরু হয় ৳৯৯ থেকে। ৫ মিনিট সময় নিয়ে দেখবেন?`;
   }
   return lang === "en"
-    ? `Assalamu Alaikum ${name}! It's been a while. I wanted to share an inspiring story - one of our members, Fatima, a homemaker from Chittagong, now earns 25,000+ TK monthly passive income with us. You could be next! Want to know how?`
-    : `আসসালামু আলাইকুম ${name}! অনেক দিন পরে মনে করিয়ে দিচ্ছি। আমাদের একজন সদস্য ফাতিমা, চট্টগ্রামের একজন গৃহিণী, এখন আমাদের সাথে মাসে ২৫,০০০+ টাকা প্যাসিভ আয় করেন। আপনিও পারেন! কীভাবে জানতে চান?`;
+    ? `Assalamu Alaikum ${name}! It's been a while. Just wanted to remind you that registration is free and you can unlock 970+ premium resources starting from ৳99. You also earn a fixed ৳20 referral commission per successful referral. Want to know more?`
+    : `আসসালামু আলাইকুম ${name}! অনেক দিন পরে মনে করিয়ে দিচ্ছি। রেজিস্ট্রেশন ফ্রি এবং আপনি ৳৯৯ থেকে ৯৭০+ প্রিমিয়াম রিসোর্স আনলক করতে পারেন। প্রতি সফল রেফারেলে ৳২০ নির্দিষ্ট রেফারেল কমিশনও আছে। আরও জানতে চান?`;
 }
 
 // Bangladesh time (UTC+6) send window: 8AM - 10PM

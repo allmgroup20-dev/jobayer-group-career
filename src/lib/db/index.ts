@@ -207,6 +207,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
     env.DB.prepare(`ALTER TABLE withdrawals ADD COLUMN tax_amount REAL DEFAULT 0`).run().catch(() => {});
     env.DB.prepare(`ALTER TABLE withdrawals ADD COLUMN final_amount REAL`).run().catch(() => {});
+    env.DB.prepare(`ALTER TABLE withdrawals ADD COLUMN transaction_id TEXT`).run().catch(() => {});
     await env.DB.prepare(`CREATE TABLE IF NOT EXISTS currencies (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       code TEXT UNIQUE NOT NULL,

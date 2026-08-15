@@ -16,6 +16,7 @@ interface Withdrawal {
   currency: string;
   payment_method: string;
   account_number: string;
+  transactionId?: string | null;
   status: string;
   created_at: string;
   processed_at: string | null;
@@ -95,6 +96,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
   const [updating, setUpdating] = useState<string | null>(null);
   const [workerNames, setWorkerNames] = useState<Record<string, string>>({});
   const [showAll, setShowAll] = useState(false);
+  const [txnIds, setTxnIds] = useState<Record<string, string>>({});
 
   const fetchWithdrawals = useCallback(async () => {
     try {
@@ -121,7 +123,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
       await fetch("/api/withdrawals", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ withdrawalId, status }),
+        body: JSON.stringify({ withdrawalId, status, transactionId: txnIds[withdrawalId] || undefined }),
       });
       fetchWithdrawals();
     } catch {}
@@ -184,6 +186,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
                 <th className="text-right px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "পরিমাণ" : "Amount"}</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "মাধ্যম" : "Method"}</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "হিসাব" : "Account"}</th>
+                <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "ট্রানজেকশন" : "Transaction"}</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "স্ট্যাটাস" : "Status"}</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "তারিখ" : "Date"}</th>
                 <th className="text-center px-4 py-3 font-semibold text-text-secondary">{lang === "bn" ? "অ্যাকশন" : "Action"}</th>
@@ -202,6 +205,7 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
                   <td className="px-4 py-3 text-right font-semibold text-primary">{w.amount.toLocaleString()} ৳</td>
                   <td className="px-4 py-3 capitalize text-text-secondary">{w.payment_method}</td>
                   <td className="px-4 py-3 font-mono text-xs text-text-secondary">{w.account_number || "-"}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-text-secondary">{w.transactionId || "-"}</td>
                   <td className="px-4 py-3">{getStatusBadge(w.status)}</td>
                   <td className="px-4 py-3 text-xs text-text-secondary">
                     {new Date(w.created_at).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-US", {
@@ -209,7 +213,15 @@ function WithdrawalRequestsTab({ lang }: { lang: string }) {
                     })}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-1.5">
+                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                      {(w.status === "pending" || w.status === "processing") && (
+                        <input
+                          placeholder={lang === "bn" ? "ট্রানজেকশন ID" : "Transaction ID"}
+                          value={txnIds[w.withdrawal_id] || ""}
+                          onChange={(e) => setTxnIds((p) => ({ ...p, [w.withdrawal_id]: e.target.value }))}
+                          className="input-field !py-1.5 !px-2 !text-xs !rounded-lg w-32"
+                        />
+                      )}
                       {w.status === "pending" && (
                         <>
                           <Button

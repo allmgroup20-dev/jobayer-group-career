@@ -21,8 +21,8 @@ export default function ReviewsPage() {
           <div className="badge mx-auto mb-3 bg-info/10 text-info border-info/20">💬 {lang === "bn" ? "শিক্ষার্থীদের মতামত" : "Student Testimonials"}</div>
           <h1 className="text-2xl md:text-3xl font-black text-text">
             {lang === "bn"
-              ? "আগে সন্দেহ ছিল, আজ মাসে ২৫,০০০-৫০,০০০+ টাকা আয় করছেন!"
-              : "They Had Doubts — Now Earn 25,000-50,000+ BDT Monthly!"}
+              ? "শিক্ষার্থীদের মতামত — যারা রিসোর্স ও গাইড থেকে দক্ষতা শিখেছেন"
+              : "Student testimonials — learners who built skills from our resources & guides"}
           </h1>
           <p className="text-text-secondary font-semibold mt-2 max-w-2xl mx-auto">
             {lang === "bn"

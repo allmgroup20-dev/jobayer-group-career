@@ -33,7 +33,7 @@ export interface CampaignAnalytics {
   conversionRate: number;
 }
 
-const SEGMENTS = ["vip", "active_buyer", "engaged_learner", "at_risk", "new", "dormant"] as const;
+const SEGMENTS = ["active_buyer", "engaged_learner", "at_risk", "new", "dormant"] as const;
 
 export async function ensureCampaignEngineTables(): Promise<void> {
   const db = await ensureDB();
@@ -229,25 +229,25 @@ export async function seedDefaultCampaigns(): Promise<void> {
   if (existing && existing.cnt > 0) return;
 
   const defaults: SegmentCampaignConfig[] = [
-    { name: "VIP Loyalty Reward", nameBn: "ভিআইপি লয়ালটি রিওয়ার্ড", segment: "vip", channel: "whatsapp",
-      template: "🎉 Exclusive VIP offer for you! Get {{discount}}% off on our premium upgrade. Reply for details.",
-      templateBn: "🎉 আপনার জন্য এক্সক্লুসিভ ভিআইপি অফার! প্রিমিয়াম আপগ্রেডে {{discount}}% ছাড়। বিস্তারিত জানান।",
+    { name: "Premium Member Offer", nameBn: "প্রিমিয়াম সদস্য অফার", segment: "active_buyer", channel: "whatsapp",
+      template: "Hi {{name}}, as a valued member here's an offer just for you! Get {{discount}}% off on {{product}}. Reply for details.",
+      templateBn: "হাই {{name}}, একজন মূল্যবান সদস্য হিসেবে আপনার জন্য একটি অফার! {{product}}-এ {{discount}}% ছাড়। বিস্তারিত জানান।",
       schedule: "monthly", scheduledHour: 10, isActive: true, maxPerBatch: 20, cooldownDays: 20 },
     { name: "Cross-sell to Buyers", nameBn: "ক্রেতাদের জন্য ক্রস-সেল", segment: "active_buyer", channel: "whatsapp",
-      template: "Hi {{name}}, since you enjoyed our course, check out {{product}} — specially recommended for you!",
-      templateBn: "হাই {{name}}, যেহেতু আপনি আমাদের কোর্স পছন্দ করেছেন, তাই {{product}} দেখুন — বিশেষভাবে আপনার জন্য!",
+      template: "Hi {{name}}, since you enjoyed our resource, check out {{product}} — specially recommended for you!",
+      templateBn: "হাই {{name}}, যেহেতু আপনি আমাদের রিসোর্স পছন্দ করেছেন, তাই {{product}} দেখুন — বিশেষভাবে আপনার জন্য!",
       schedule: "weekly", scheduledHour: 11, isActive: true, maxPerBatch: 30, cooldownDays: 7 },
     { name: "Learner to Buyer", nameBn: "শিক্ষার্থী থেকে ক্রেতা", segment: "engaged_learner", channel: "whatsapp",
-      template: "You've been learning with us! Now turn that knowledge into income. Check our income programs.",
-      templateBn: "আপনি আমাদের সাথে শিখছেন! এখন সেই জ্ঞানকে আয়ে রূপান্তর করুন। আমাদের আয় প্রোগ্রাম দেখুন।",
+      template: "You've been learning with us! Explore the rest of our resource library — resources start from ৳99.",
+      templateBn: "আপনি আমাদের সাথে শিখছেন! আমাদের বাকি রিসোর্স লাইব্রেরি দেখুন — রিসোর্স শুরু হয় ৳৯৯ থেকে।",
       schedule: "weekly", scheduledHour: 12, isActive: true, maxPerBatch: 30, cooldownDays: 7 },
     { name: "Win-back At-Risk", nameBn: "ঝুঁকিপূর্ণ সদস্য ফিরিয়ে আনা", segment: "at_risk", channel: "sms",
       template: "{{name}}, we miss you! Here's a special {{discount}}% coupon for your next purchase: {{coupon}}",
       templateBn: "{{name}}, আপনাকে মিস করছি! আপনার পরবর্তী ক্রয়ের জন্য বিশেষ {{discount}}% কুপন: {{coupon}}",
       schedule: "weekly", scheduledHour: 15, isActive: true, maxPerBatch: 20, cooldownDays: 14 },
     { name: "New Lead Nurture", nameBn: "নতুন লিড নারচার", segment: "new", channel: "whatsapp",
-      template: "Welcome {{name}}! Start with our free resources and see how you can earn from day one.",
-      templateBn: "স্বাগতম {{name}}! আমাদের ফ্রি রিসোর্স দিয়ে শুরু করুন এবং দেখুন কীভাবে প্রথম দিন থেকেই আয় করতে পারেন।",
+      template: "Welcome {{name}}! Start with our free registration and explore 970+ premium resources from ৳99.",
+      templateBn: "স্বাগতম {{name}}! ফ্রি রেজিস্ট্রেশন দিয়ে শুরু করুন এবং ৳৯৯ থেকে ৯৭০+ প্রিমিয়াম রিসোর্স দেখুন।",
       schedule: "daily", scheduledHour: 9, isActive: true, maxPerBatch: 10, cooldownDays: 1 },
     { name: "Dormant Reactivation", nameBn: "নিষ্ক্রিয় পুনরায় সক্রিয়করণ", segment: "dormant", channel: "sms",
       template: "Long time {{name}}! We have new opportunities. Visit career.jobayergroup.com to see what's new.",

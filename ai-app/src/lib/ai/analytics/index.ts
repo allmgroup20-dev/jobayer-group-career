@@ -8,14 +8,14 @@ export interface StageSummary {
   avgTimeInStageHours: number;
 }
 
-const FUNNEL_STAGES = ["stranger", "lead", "free_member", "premium", "vip"];
+const FUNNEL_STAGES = ["stranger", "lead", "free_member", "premium", "member"];
 const STAGE_LABELS: Record<string, string> = {
   stranger: "New Visitor", lead: "Lead", free_member: "Free Member",
-  premium: "Premium Member", vip: "VIP Member",
+  premium: "Premium Member", member: "Active Member",
 };
 const STAGE_LABELS_BN: Record<string, string> = {
   stranger: "নতুন দর্শক", lead: "লিড", free_member: "ফ্রি সদস্য",
-  premium: "প্রিমিয়াম সদস্য", vip: "ভিআইপি সদস্য",
+  premium: "প্রিমিয়াম সদস্য", member: "সক্রিয় সদস্য",
 };
 
 export async function getFunnelAnalytics(days: number = 30): Promise<StageSummary[]> {

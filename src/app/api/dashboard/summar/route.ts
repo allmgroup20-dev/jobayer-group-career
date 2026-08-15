@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       querySafe<{ setting_key: string; setting_value: string }>(db, "SELECT setting_key, setting_value FROM company_settings", [], QUERY_TIMEOUT),
       queryFirstSafe<any>(db, "SELECT level_name as levelName, level_name_bn as levelNameBn FROM commission_levels WHERE level_number = ?", [profile?.level || 1], QUERY_TIMEOUT),
       queryFirstSafe<any>(db, "SELECT COUNT(*) as cnt FROM affiliate_tree WHERE parent_id = ? OR sponsor_id = ?", [workerId, workerId], QUERY_TIMEOUT),
-      queryFirstSafe<any>(db, "SELECT COALESCE(SUM(final_amount), 0) as withdrawn FROM withdrawals WHERE worker_id = ? AND status = 'completed'", [workerId], QUERY_TIMEOUT),
+      queryFirstSafe<any>(db, "SELECT COALESCE(SUM(amount), 0) as withdrawn FROM withdrawals WHERE worker_id = ? AND status IN ('pending', 'processing', 'completed')", [workerId], QUERY_TIMEOUT),
     ]);
 
     const settingsMap: Record<string, string> = {};
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     }
 
     const totalEarned = commissions?.totalEarned || 0;
-    const balance = Math.max(0, (commissions?.paidAmount || 0) - (withdrawalSum?.withdrawn || 0));
+    const balance = Math.max(0, totalEarned - (withdrawalSum?.withdrawn || 0));
     const totalTeamMembers = teamCount?.cnt || 0;
 
     if (profile) {

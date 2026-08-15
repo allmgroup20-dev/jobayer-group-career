@@ -20,8 +20,8 @@ export async function GET() {
     const sales = await query<any>(db, "SELECT COUNT(*) as c, COALESCE(SUM(total_amount),0) as s FROM orders WHERE payment_status = 'completed'");
     const events = await query<any>(db, "SELECT COUNT(*) as c FROM user_events WHERE event_type = 'checkout_started'");
     const commissions = await query<any>(db, "SELECT COALESCE(SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END),0) as paid, COALESCE(SUM(CASE WHEN status = 'pending' THEN total_amount ELSE 0 END),0) as pending FROM commissions");
-    const referrers = await query<any>(db, "SELECT COUNT(DISTINCT referrer_id) as c FROM commissions WHERE referrer_id IS NOT NULL");
-    const referrals = await query<any>(db, "SELECT COUNT(*) as c FROM commissions WHERE referrer_id IS NOT NULL");
+    const referrers = await query<any>(db, "SELECT COUNT(DISTINCT to_worker_id) as c FROM commissions WHERE to_worker_id IS NOT NULL");
+    const referrals = await query<any>(db, "SELECT COUNT(*) as c FROM commissions WHERE to_worker_id IS NOT NULL");
 
     const userCount = firstInt(users);
     const salesCount = firstInt(sales);

@@ -149,7 +149,7 @@ export function extractInsightsFromText(text: string, intent: string): {
   if (/(team|টিম|group|গ্রুপ|refer|রেফারেল|referral)/i.test(lower)) {
     interests.push("team_building"); topics.push("referral");
   }
-  if (/(premium|প্রিমিয়াম|vip)/i.test(lower)) {
+  if (/(premium|প্রিমিয়াম|সব রিসোর্স|all.resources)/i.test(lower)) {
     interests.push("premium"); topics.push("membership");
   }
   if (/(youtube|yt|চ্যানেল|channel|ভিডিও|video)/i.test(lower)) {

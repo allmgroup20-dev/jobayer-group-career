@@ -241,7 +241,7 @@ Treat your team members the way you'd want to be treated if YOU were the new per
 
 ### Examples
 Vague goal: "I want to earn more money"
-SMART goal: "I will earn 10,000 TK in commission by December 31st by referring 15 new Premium members, contacting 5 people daily."
+SMART goal: "I will contact 5 new people daily and give 2 presentations weekly so I can make 10 successful referrals this month (fixed ৳20 commission each at Level 1)."
 
 ### The 3 Goal Types (all needed)
 1. INCOME GOAL: "I will earn X TK per month by [date]"
@@ -265,7 +265,7 @@ Every Sunday: Review progress, celebrate wins, adjust approach, set next week's 
 
 ### উদাহরণ
 অস্পষ্ট লক্ষ্য: "আমি আরও টাকা আয় করতে চাই"
-SMART লক্ষ্য: "আমি ৩১ ডিসেম্বরের মধ্যে ১৫ জন নতুন প্রিমিয়াম মেম্বার রেফার করে ১০,০০০ টাকা কমিশন আয় করব, প্রতিদিন ৫ জনের সাথে যোগাযোগ করব।"
+SMART লক্ষ্য: "আমি প্রতিদিন ৫ জন নতুন ব্যক্তির সাথে যোগাযোগ করব এবং সাপ্তাহিক ২টি প্রেজেন্টেশন দেব, যাতে এই মাসে ১০টি সফল রেফারেল করতে পারি (লেভেল ১-এ প্রতিটিতে নির্দিষ্ট ৳২০ কমিশন)।"
 
 ### ৩ ধরনের লক্ষ্য (সব প্রয়োজন)
 ১. আয়ের লক্ষ্য: "আমি [তারিখ] এর মধ্যে মাসে X টাকা আয় করব"
@@ -357,10 +357,10 @@ SMART লক্ষ্য: "আমি ৩১ ডিসেম্বরের ম�
 5. Never mislead about pricing, terms, or conditions.
 
 ### What NOT to Say
-- "You'll definitely earn X amount" → "Many members earn between X and Y"
-- "This is the best opportunity ever" → "This has worked well for many people"
-- "Everyone is joining" → "We've seen growing interest"
-- "It's impossible to lose" → "Like any business, results depend on effort"
+- "You'll definitely earn X amount" → "Our commission is a fixed ৳20 per successful referral (Level 1) and ৳10 for Levels 2-4. How much you earn depends on your own referral activity."
+- "This is the best opportunity ever" → "We offer 970+ practical resources at transparent prices."
+- "Everyone is joining" → "We've seen growing interest."
+- "It's impossible to lose" → "Like any business, results depend on effort."
 
 ### Compliance Checklist
 - Do I have proof for every claim I'm making?
@@ -381,10 +381,10 @@ Trust takes months to build and seconds to destroy. Prioritize long-term relatio
 ৫. মূল্য, শর্ত বা নিয়ম সম্পর্কে কখনো বিভ্রান্ত করবেন না।
 
 ### কী বলবেন না
-- "আপনি নিশ্চয়ই X টাকা আয় করবেন" → "অনেক সদস্য X থেকে Y এর মধ্যে আয় করেন"
-- "এটি সেরা সুযোগ" → "এটি অনেক মানুষের জন্য ভালো কাজ করেছে"
-- "সবাই জয়েন করছে" → "আমরা ক্রমবর্ধমান আগ্রহ দেখছি"
-- "লস করা অসম্ভব" → "যেকোনো ব্যবসার মতো, ফলাফল প্রচেষ্টার উপর নির্ভর করে"
+- "আপনি নিশ্চয়ই X টাকা আয় করবেন" → "আমাদের কমিশন প্রতি সফল রেফারেলে ৳২০ নির্দিষ্ট (লেভেল ১), আর লেভেল ২-৪ এ ৳১০। আপনি কত আয় করবেন তা আপনার নিজের রেফারেল কার্যকলাপের উপর নির্ভর করে।"
+- "এটি সেরা সুযোগ" → "আমাদের কাছে স্বচ্ছ দামে ৯৭০+ প্র্যাকটিক্যাল রিসোর্স আছে।"
+- "সবাই জয়েন করছে" → "আমরা ক্রমবর্ধমান আগ্রহ দেখছি।"
+- "লস করা অসম্ভব" → "যেকোনো ব্যবসার মতো, ফলাফল প্রচেষ্টার উপর নির্ভর করে।"
 
 ### কমপ্লায়েন্স চেকলিস্ট
 - আমি প্রতিটি দাবির জন্য প্রমাণ রাখি কি?
@@ -414,7 +414,7 @@ Negotiation isn't about "winning" against the other person. It's about finding a
 ### Common Negotiation Scenarios
 PRICE objection: Instead of discounting, offer added value or a payment plan
 TIME objection: Offer a trial period with no long-term commitment
-TRUST objection: Offer a guarantee or a testimonial from a similar customer
+TRUST objection: Point to our published pricing, refund policy, and fixed commission rules, and offer to explain them clearly.
 
 ### The Power of "How" Questions
 Instead of defending your price, ask:
@@ -442,7 +442,7 @@ Not every negotiation should end in agreement. Walk away if:
 ### সাধারণ আলোচনার পরিস্থিতি
 দাম আপত্তি: ডিসকাউন্ট না দিয়ে, অতিরিক্ত মূল্য বা পেমেন্ট প্ল্যান অফার করুন
 সময় আপত্তি: দীর্ঘমেয়াদী কমিটমেন্ট ছাড়া ট্রায়াল পিরিয়ড অফার করুন
-বিশ্বাস আপত্তি: গ্যারান্টি বা অনুরূপ গ্রাহকের টেস্টিমোনিয়াল অফার করুন`,
+বিশ্বাস আপত্তি: আমাদের প্রকাশিত দাম, রিফান্ড নীতি এবং নির্দিষ্ট কমিশন নিয়ম দেখান এবং সেগুলো পরিষ্কারভাবে ব্যাখ্যা করার প্রস্তাব দিন`,
   },
 
   // ── M28: Problem Solving ──
@@ -474,7 +474,7 @@ PROBLEM: Team members quitting
 SOLUTION: Increase 1-on-1 time, understand their specific challenge, celebrate small wins more
 
 PROBLEM: Income plateau
-SOLUTION: Upgrade to higher tier, focus on high-ticket products, build team deeper
+SOLUTION: Focus on higher-value purchases like the all-resources pack (৳5,200), expand your network, and refer consistently to move up the referral levels (Level 1 = ৳20 per referral, Levels 2-4 = ৳10).
 
 ### The Problem-Solving Mindset
 Every problem is a learning opportunity. Instead of "Why is this happening to me?" ask "What is this teaching me?" This shifts you from victim to learner.`,
@@ -508,11 +508,11 @@ Every problem is a learning opportunity. Instead of "Why is this happening to me
 
 ### Upselling (upgrade to higher value)
 When a customer chooses Standard, suggest Premium:
-"That's a great choice! Many of our members start with Standard, then upgrade within the first week once they see the potential. Just so you know, upgrading to Premium gives you 2.5x higher earnings and team bonuses. Would you like to see the difference?"
+"That's a great choice! Many of our members start with Standard, then upgrade once they find it useful. Just so you know, Premium status gives you 0% withdrawal tax, ৳20 minimum withdrawal, and the full resource library unlocked. Would you like to see the difference?"
 
 ### Cross-selling (related products)
 After a course purchase:
-"Since you're interested in [topic], you might also benefit from [related course]. Our members who took both reported 40% faster results. Let me share the details."
+"Since you're interested in [topic], you might also benefit from [related course]. Both are part of our 970+ resource library. Let me share the details."
 
 ### Repeat Sales (keep them coming back)
 - Deliver exceptional value EVEN AFTER the sale
@@ -521,13 +521,11 @@ After a course purchase:
 - Ask for feedback and act on it
 - Surprise them with a small bonus or resource
 
-### High-Ticket Sales Strategy
-High-ticket (VIP 5,000 TK) requires different approach:
-- Needs more trust-building (multiple conversations)
-- Focus on ROI ("This 5,000 TK unlocks 50,000+ TK in earning potential")
-- Offer payment plans if needed
-- Share VIP-specific success stories
-- Offer a personal demo or mentor call
+### The All-Resources Pack Strategy
+The all-resources pack (৳5,200) unlocks everything and grants Premium status:
+- Present it honestly: full library + 0% withdrawal tax + ৳20 minimum withdrawal
+- Let the member decide based on their actual needs — never pressure
+- Never promise that unlocking it will produce a specific income
 
 ### The Golden Rule of Advanced Sales
 Never try to upsell or cross-sell BEFORE delivering value on the current purchase. First help them succeed, then introduce the next offer.`,
@@ -535,11 +533,11 @@ Never try to upsell or cross-sell BEFORE delivering value on the current purchas
 
 ### আপসেলিং (উচ্চ মূল্যে আপগ্রেড)
 যখন একজন গ্রাহক স্ট্যান্ডার্ড বেছে নেন, প্রিমিয়াম suggest করুন:
-"দারুণ পছন্দ! আমাদের অনেক সদস্যই স্ট্যান্ডার্ড দিয়ে শুরু করেন, তারপর সম্ভাবনা দেখে প্রথম সপ্তাহের মধ্যে আপগ্রেড করেন। জেনে রাখুন, প্রিমিয়ামে আপগ্রেড করলে ২.৫ গুণ বেশি আয় এবং টিম বোনাস পান। পার্থক্যটা দেখতে চান?"
+"দারুণ পছন্দ! আমাদের অনেক সদস্যই স্ট্যান্ডার্ড দিয়ে শুরু করেন, তারপর উপযোগী মনে হলে আপগ্রেড করেন। জেনে রাখুন, প্রিমিয়াম স্ট্যাটাসে ০% উইথড্রয়াল ট্যাক্স, ৳২০ ন্যূনতম উত্তোলন এবং সম্পূর্ণ রিসোর্স লাইব্রেরি আনলক থাকে। পার্থক্যটা দেখতে চান?"
 
 ### ক্রস-সেলিং (সম্পর্কিত পণ্য)
 কোর্স কেনার পর:
-"যেহেতু আপনি [বিষয়] এ আগ্রহী, আপনি [সম্পর্কিত কোর্স] থেকেও উপকৃত হতে পারেন। আমাদের সদস্যরা যারা উভয় কোর্স নিয়েছেন তারা ৪০% দ্রুত ফলাফল পেয়েছেন। বিস্তারিত বলি।"
+"যেহেতু আপনি [বিষয়] এ আগ্রহী, আপনি [সম্পর্কিত কোর্স] থেকেও উপকৃত হতে পারেন। দুটোই আমাদের ৯৭০+ রিসোর্স লাইব্রেরির অংশ। বিস্তারিত বলি।"
 
 ### রিপিট সেল (তাদের ফিরিয়ে আনা)
 - সেলের পরেও অসাধারণ মূল্য দিন

@@ -1,20 +1,19 @@
 export interface StatItem {
+  key?: "students" | "courses";
   num?: string;
+  textBn?: string;
+  textEn?: string;
   labelBn?: string;
   labelEn?: string;
-  chipBn?: string;
-  chipEn?: string;
   separator?: boolean;
 }
 
 export const stats: StatItem[] = [
-  { num: "৮৬৬+", labelBn: "সক্রিয় শিক্ষার্থী", labelEn: "Active Students" },
+  { key: "students", num: "—", labelBn: "সক্রিয় শিক্ষার্থী", labelEn: "Active Students" },
   { separator: true },
-  { num: "২৩০+", labelBn: "প্রিমিয়াম কোর্স", labelEn: "Premium Courses" },
+  { key: "courses", num: "—", labelBn: "প্রিমিয়াম রিসোর্স", labelEn: "Premium Resources" },
   { separator: true },
-  { num: "১২", labelBn: "এক্সপার্ট ট্রেইনার", labelEn: "Expert Trainers" },
-  { separator: true },
-  { num: "৳৯৯", labelBn: "শুধু আজ", labelEn: "Only Today" },
+  { textBn: "৳২০", textEn: "৳20", labelBn: "প্রতি রেফারেলে কমিশন", labelEn: "Per Referral Commission" },
 ];
 
 export const statsSectionText = {

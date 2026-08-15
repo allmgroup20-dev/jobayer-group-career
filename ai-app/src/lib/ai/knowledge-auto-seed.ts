@@ -109,7 +109,7 @@ export async function autoSeedKnowledge(): Promise<{ seeded: number; categories:
     // 7. Seed membership pricing from resource_purchases or company_settings
     const memberships = await query<any>(
       db,
-      "SELECT setting_key, setting_value FROM company_settings WHERE setting_key IN ('premium_price', 'vip_price', 'standard_price', 'monthly_membership', 'yearly_membership', 'lifetime_membership') LIMIT 10"
+      "SELECT setting_key, setting_value FROM company_settings WHERE setting_key IN ('premium_price', 'standard_price', 'all_resources_pack', 'monthly_membership', 'yearly_membership', 'lifetime_membership') LIMIT 10"
     );
     for (const m of memberships) {
       await upsertKnowledge(db, "Pricing", `Membership: ${m.setting_key}`, `${m.setting_key}: ৳${m.setting_value}`, ["membership", "pricing", "plan"], 0.95);
@@ -117,10 +117,9 @@ export async function autoSeedKnowledge(): Promise<{ seeded: number; categories:
     }
     // Fallback: if no DB settings, use known pricing
     if (memberships.length === 0) {
-      await upsertKnowledge(db, "Pricing", "Membership: Premium Plan", "Premium: 1,500 TK one-time", ["membership", "pricing", "premium"], 0.9);
-      await upsertKnowledge(db, "Pricing", "Membership: VIP Plan", "VIP: 5,000 TK one-time", ["membership", "pricing", "vip"], 0.9);
-      await upsertKnowledge(db, "Pricing", "Membership: Standard Plan", "Standard: Free (basic access)", ["membership", "pricing", "free"], 0.9);
-      count += 3;
+      await upsertKnowledge(db, "Pricing", "Pricing: Registration", "Registration: Free", ["membership", "pricing", "free"], 0.9);
+      await upsertKnowledge(db, "Pricing", "Pricing: Resources", "Resources: ৳99 each one-time; bulk packs 3=৳220, 5=৳350, 10=৳650; all-resources pack ৳5,200 grants Premium status", ["membership", "pricing", "resource", "premium"], 0.9);
+      count += 2;
     }
 
   } catch (e) {

@@ -17,8 +17,9 @@ export default function Footer() {
   ];
 
   const supportLinks = [
-    { en: "Privacy Policy", bn: "গোপনীয়তা নীতি", href: "/company/privacy" },
+    { en: "Privacy Policy", bn: "গোপনীয়তা নীতি", href: "/privacy" },
     { en: "Terms of Service", bn: "সেবার শর্তাবলী", href: "/terms" },
+    { en: "Refund Policy", bn: "রিফান্ড নীতি", href: "/refund" },
   ];
 
   return (
@@ -102,12 +103,16 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} {lang === "bn" ? "জোবায়ের গ্রুপ ক্যারিয়ার" : "Jobayer Group Career"}. {lang === "bn" ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}
           </p>
           <div className="flex gap-4 text-xs text-white/40">
-            <Link href="/company/privacy" className="hover:text-white/60 transition-colors">
+            <Link href="/privacy" className="hover:text-white/60 transition-colors">
               {lang === "bn" ? "গোপনীয়তা" : "Privacy"}
             </Link>
             <span>·</span>
             <Link href="/terms" className="hover:text-white/60 transition-colors">
               {lang === "bn" ? "শর্তাবলী" : "Terms"}
+            </Link>
+            <span>·</span>
+            <Link href="/refund" className="hover:text-white/60 transition-colors">
+              {lang === "bn" ? "রিফান্ড" : "Refund"}
             </Link>
           </div>
         </div>

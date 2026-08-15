@@ -13,7 +13,7 @@ const tiers = [
 ];
 
 const trust = [
-  { icon: "🛡️", bn: "৭ দিনের মানি-ব্যাক গ্যারান্টি", en: "7-day money-back guarantee" },
+  { icon: "🛡️", bn: "এককালীন পেমেন্ট, আজীবন অ্যাক্সেস", en: "One-time payment, lifetime access" },
   { icon: "⚡", bn: "পেমেন্টের সাথে সাথে ডেলিভারি", en: "Instant delivery after payment" },
   { icon: "🤝", bn: "৳২০ থেকেই কমিশন উইথড্র", en: "Withdraw commissions from ৳20" },
 ];

@@ -30,12 +30,12 @@ export function detectSegment(scores: {
 }): SegmentInfo {
   const { recencyScore, engagementScore, interestScore, buyingScore, leadScore } = scores;
 
-  // VIP: high buying + high engagement + high recency
+  // Premium Buyer: high buying + high engagement + high recency
   if (buyingScore >= 70 && engagementScore >= 60 && recencyScore >= 50) {
     return {
-      segment: "vip",
-      label: "VIP Member",
-      labelBn: "ভিআইপি সদস্য",
+      segment: "active_buyer",
+      label: "Premium Member",
+      labelBn: "প্রিমিয়াম সদস্য",
       priority: 1,
       description: "High-value repeat buyers with strong engagement",
       descriptionBn: "উচ্চমূল্যের পুনঃক্রেতা, শক্তিশালী সম্পৃক্ততা",
@@ -107,19 +107,12 @@ export function suggestCampaign(
   lang: string
 ): CampaignSuggestion {
   const baseSuggestions: Record<string, Omit<CampaignSuggestion, "targetSegment" | "priorityScore">> = {
-    vip: {
-      name: "VIP Loyalty Reward",
-      nameBn: "ভিআইপি লয়্যালটি রিওয়ার্ড",
-      messageTemplate: `Hi {{name}}, as our valued VIP member, here's an exclusive offer just for you! Get {{discount}}% off on {{product}}. Use code {{coupon}}. Limited time offer!`,
-      messageTemplateBn: `হাই {{name}}, আমাদের মূল্যবান ভিআইপি সদস্য হিসেবে, আপনার জন্য একটি এক্সক্লুসিভ অফার! {{product}}-এ {{discount}}% ছাড় পান। কোড {{coupon}} ব্যবহার করুন। সময় সীমিত!`,
-      reason: "Reward high-value members to boost retention and referrals",
-    },
     active_buyer: {
-      name: "Cross-sell Campaign",
-      nameBn: "ক্রস-সেল ক্যাম্পেইন",
-      messageTemplate: `Hi {{name}}, customers who bought {{product}} also love {{recommendation}}. Check it out now!`,
-      messageTemplateBn: `হাই {{name}}, যারা {{product}} কিনেছেন তারা {{recommendation}}-ও পছন্দ করেন। এখনই দেখুন!`,
-      reason: "Cross-sell complementary products to active buyers",
+      name: "Premium Member Offer",
+      nameBn: "প্রিমিয়াম সদস্য অফার",
+      messageTemplate: `Hi {{name}}, as a valued member, here's an offer just for you! Get {{discount}}% off on {{product}}. Use code {{coupon}}.`,
+      messageTemplateBn: `হাই {{name}}, একজন মূল্যবান সদস্য হিসেবে, আপনার জন্য একটি অফার! {{product}}-এ {{discount}}% ছাড় পান। কোড {{coupon}} ব্যবহার করুন।`,
+      reason: "Reward high-value members to boost retention and referrals",
     },
     engaged_learner: {
       name: "Course-to-Product Bridge",

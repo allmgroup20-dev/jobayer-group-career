@@ -142,6 +142,7 @@ export const withdrawals = sqliteTable("withdrawals", {
   currency: text("currency").default("BDT"),
   paymentMethod: text("payment_method"),
   accountNumber: text("account_number"),
+  transactionId: text("transaction_id"),
   status: text("status").default("pending"),
   createdAt: text("created_at"),
   processedAt: text("processed_at"),

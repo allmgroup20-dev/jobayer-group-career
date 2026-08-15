@@ -20,32 +20,32 @@ const ACTION_TEMPLATES: Record<RetentionAction, { en: string; bn: string }> = {
     bn: "হাই {{name}}, আমরা দেখেছি আপনি কিছুদিন ধরে সক্রিয় নেই। আপনার জন্য একটি বিশেষ অফার — {{product}}-এ {{discount}}% ছাড়। কোড {{coupon}} ব্যবহার করুন। আপনাকে আবার পেয়ে আমরা খুশি হব!",
   },
   free_upgrade: {
-    en: "Hi {{name}}, as a valued member, you've been selected for a free 7-day Premium trial! Enjoy all premium features at no cost. Start your trial now!",
-    bn: "হাই {{name}}, একজন মূল্যবান সদস্য হিসেবে আপনি একটি ফ্রি ৭-দিনের প্রিমিয়াম ট্রায়ালের জন্য নির্বাচিত হয়েছেন! বিনামূল্যে সব প্রিমিয়াম ফিচার উপভোগ করুন। এখনই আপনার ট্রায়াল শুরু করুন!",
+    en: "Hi {{name}}, did you know registration is free? You can explore the app and sample resources anytime, and unlock premium resources individually (from ৳99) whenever you're ready. Happy to help you get started!",
+    bn: "হাই {{name}}, আপনি কি জানেন রেজিস্ট্রেশন ফ্রি? আপনি যেকোনো সময় অ্যাপটি দেখতে পারেন এবং রিসোর্স দেখতে পারেন, আর প্রস্তুত হলে ৳৯৯ থেকে প্রিমিয়াম রিসোর্স আলাদাভাবে আনলক করতে পারেন। শুরু করতে সাহায্য করতে পেরে খুশি হব!",
   },
   mentor_call: {
-    en: "Hi {{name}}, would you like a free 1-on-1 mentoring session? Our top performer can help you achieve your goals faster. Just reply 'YES' and we'll schedule it.",
-    bn: "হাই {{name}}, আপনি কি একটি ফ্রি ১-অন-১ মেন্টরিং সেশন চান? আমাদের টপ পারফর্মার আপনাকে আপনার লক্ষ্য দ্রুত অর্জনে সাহায্য করতে পারে। শুধু 'হ্যাঁ' লিখুন, আমরা সময় নির্ধারণ করব।",
+    en: "Hi {{name}}, would you like a free 1-on-1 support session? Our team can help you get started with the right resource and explain the referral program. Just reply 'YES' and we'll schedule it.",
+    bn: "হাই {{name}}, আপনি কি একটি ফ্রি ১-অন-১ সাপোর্ট সেশন চান? আমাদের টিম আপনাকে সঠিক রিসোর্স দিয়ে শুরু করতে এবং রেফারেল প্রোগ্রাম বুঝতে সাহায্য করতে পারে। শুধু 'হ্যাঁ' লিখুন, আমরা সময় নির্ধারণ করব।",
   },
   resource_unlock: {
-    en: "Hi {{name}}, you've earned a free resource unlock! Access our premium {{resource}} course at no cost. Start learning today!",
-    bn: "হাই {{name}}, আপনি একটি ফ্রি রিসোর্স আনলক উপার্জন করেছেন! বিনামূল্যে আমাদের প্রিমিয়াম {{resource}} কোর্স অ্যাক্সেস করুন। আজই শেখা শুরু করুন!",
+    en: "Hi {{name}}, you have free resources available to explore! Start with the sample resources in the app, and unlock more premium resources (from ৳99) whenever you're ready. Happy learning!",
+    bn: "হাই {{name}}, আপনার জন্য ফ্রি রিসোর্স দেখার সুযোগ আছে! অ্যাপের নমুনা রিসোর্স দিয়ে শুরু করুন, আর প্রস্তুত হলে ৳৯৯ থেকে আরও প্রিমিয়াম রিসোর্স আনলক করুন। শুভ শেখা!",
   },
   success_story: {
-    en: "Hi {{name}}, did you know {{story}}? Many of our members started just like you. Check out their journey and see what's possible!",
-    bn: "হাই {{name}}, আপনি কি জানেন {{story}}? আমাদের অনেক সদস্য আপনার মতোই শুরু করেছিলেন। তাদের যাত্রা দেখুন এবং দেখুন কী সম্ভব!",
+    en: "Hi {{name}}, did you know {{story}}? Many of our members started just like you. Check out what's available in the resource library and see what you can learn!",
+    bn: "হাই {{name}}, আপনি কি জানেন {{story}}? আমাদের অনেক সদস্য আপনার মতোই শুরু করেছিলেন। রিসোর্স লাইব্রেরিতে কী আছে দেখুন এবং দেখুন আপনি কী শিখতে পারেন!",
   },
   payment_plan: {
-    en: "Hi {{name}}, we understand financial situations vary. We now offer flexible payment plans — pay in 3 easy installments. Don't let finances hold you back!",
-    bn: "হাই {{name}}, আমরা বুঝি আর্থিক পরিস্থিতি ভিন্ন হয়। আমরা এখন ফ্লেক্সিবল পেমেন্ট প্ল্যান অফার করি — ৩টি সহজ কিস্তিতে পরিশোধ করুন। আর্থিক কারণে পিছিয়ে থাকবেন না!",
+    en: "Hi {{name}}, we understand financial situations vary. Resources are available individually (from ৳99) so you can start small and unlock more later. We're happy to help you choose what fits best!",
+    bn: "হাই {{name}}, আমরা বুঝি আর্থিক পরিস্থিতি ভিন্ন হয়। রিসোর্সগুলো আলাদাভাবে পাওয়া যায় (৳৯৯ থেকে), তাই আপনি ছোট করে শুরু করতে পারেন এবং পরে আরও আনলক করতে পারেন। আপনার জন্য সবচেয়ে উপযুক্ত কী তা বেছে নিতে আমরা সাহায্য করতে পেরে খুশি!",
   },
   support_checkin: {
     en: "Hi {{name}}, just checking in — how are things going? Is there anything we can help you with? We're here for you!",
     bn: "হাই {{name}}, শুধু খোঁজ নিচ্ছি — কেমন যাচ্ছে? আমরা কীভাবে সাহায্য করতে পারি? আমরা আপনার জন্য এখানে আছি!",
   },
   reengagement_quiz: {
-    en: "Hi {{name}}! Quick quiz: What's the #1 skill most people need to double their income? Reply with your answer and get a free personalized report!",
-    bn: "হাই {{name}}! দ্রুত কুইজ: অধিকাংশ মানুষের আয় দ্বিগুণ করতে #১ দক্ষতা কী কী? উত্তর দিন এবং একটি ফ্রি পার্সোনালাইজড রিপোর্ট পান!",
+    en: "Hi {{name}}! Quick quiz: Which digital skill would help you most in today's market? Reply with your answer and we'll recommend a resource from our library!",
+    bn: "হাই {{name}}! দ্রুত কুইজ: আজকের বাজারে কোন ডিজিটাল দক্ষতা আপনার জন্য সবচেয়ে উপকারী হবে? উত্তর দিন, আমরা আমাদের লাইব্রেরি থেকে একটি রিসোর্স সুপারিশ করব!",
   },
 };
 
@@ -132,9 +132,9 @@ export async function analyzeRetentionNeed(
       action = "resource_unlock";
       reason = "Active buyer gone quiet — free resource to re-spark interest";
       priority = 3;
-    } else if (segment === "vip" && daysSinceActive > 5) {
+    } else if (segment === "premium" && daysSinceActive > 5) {
       action = "mentor_call";
-      reason = "VIP member inactive — high-value retention needed";
+      reason = "Premium member inactive — high-value retention needed";
       priority = 1;
     } else {
       action = "support_checkin";

@@ -16,7 +16,7 @@ export const operations: DepartmentDef = {
       primaryModel: "llama-3.3-70b",
       fallbackModels: [],
       agents: [
-        { id: "withdrawal_agent", name: "Withdrawal Agent", nameBn: "উত্তোলন এজেন্ট", department: "operations", team: "finance", description: "Processes withdrawal requests", descriptionBn: "উত্তোলন অনুরোধ প্রক্রিয়াকরণ করে", expertise: "Process withdrawals: Standard (500TK min, 10% fee), Premium (no fee), VIP (12-24h). Methods: bKash, Nagad, Rocket, Bank.", promptTemplate: "Process withdrawal for {{name}}. Check tier, fee, method. Guide step by step. Language: {{language}}.", primaryModel: "llama-3.3-70b", fallbackModels: [], tier: 2, priority: 80, when: "intent === 'withdrawal'" },
+        { id: "withdrawal_agent", name: "Withdrawal Agent", nameBn: "উত্তোলন এজেন্ট", department: "operations", team: "finance", description: "Processes withdrawal requests", descriptionBn: "উত্তোলন অনুরোধ প্রক্রিয়াকরণ করে", expertise: "Process withdrawals: General members (min ৳500, 5% withdrawal tax), Premium members (min ৳20, 0% tax). Methods: bKash, Nagad, Rocket, Bank.", promptTemplate: "Process withdrawal for {{name}}. Check tier, fee, method. Guide step by step. Language: {{language}}.", primaryModel: "llama-3.3-70b", fallbackModels: [], tier: 2, priority: 80, when: "intent === 'withdrawal'" },
       ],
     },
   ],
