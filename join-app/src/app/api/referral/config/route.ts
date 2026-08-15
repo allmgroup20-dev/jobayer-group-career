@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const workerId = payload.sub;
-    const siteUrl = process.env.SITE_URL || "https://youtube.offer.dev";
+    const siteUrl = process.env.SITE_URL || "https://youtube.allmgroup20.workers.dev";
 
     return NextResponse.json({
       workerId,

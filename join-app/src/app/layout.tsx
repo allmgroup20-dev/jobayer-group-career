@@ -13,7 +13,7 @@ const solaimanLipi = localFont({
   variable: "--font-bengali",
 });
 
-const SITE_URL = process.env.SITE_URL || "https://youtube.offer.dev";
+const SITE_URL = process.env.SITE_URL || "https://youtube.allmgroup20.workers.dev";
 const SITE_NAME = process.env.SITE_NAME || "Jobayer Group Join";
 
 export const metadata: Metadata = {

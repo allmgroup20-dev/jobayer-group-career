@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "jobayer-group-join",
+  "name": "youtube",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-12",
   "compatibility_flags": ["nodejs_compat"],
@@ -11,7 +11,7 @@
   },
   "vars": {
     "SITE_NAME": "Jobayer Group Join",
-    "SITE_URL": "https://youtube.offer.dev",
+    "SITE_URL": "https://youtube.allmgroup20.workers.dev",
     "GOOGLE_CLIENT_ID": "403109702719-febj7lgvrlb8am6vh39e31k2lk5cfato.apps.googleusercontent.com",
     "WHATSAPP_VERIFY_ENABLED": "false"
   },
