@@ -1,4 +1,4 @@
-const CHAT_WORKER = "https://jgcareer-chat.earn.workers.dev";
+const CHAT_WORKER = "https://jgcareer-chat.allmgroup20.workers.dev";
 
 export interface ChatMsg {
   role: "user" | "assistant" | "agent";

@@ -8,7 +8,7 @@ const BRAIN_TIMEOUT_MS = 30_000;
 // share ONE AI thread (history, memory, intent). Falls back to the local
 // OpenRouter call when the brain is unreachable.
 async function callBrain(env: Env, sessionId: string, message: string): Promise<string | null> {
-  const base = (env.BRAIN_API_URL || "https://jgcareer-ai.earn.workers.dev").replace(/\/+$/, "");
+  const base = (env.BRAIN_API_URL || "https://jgcareer-ai.allmgroup20.workers.dev").replace(/\/+$/, "");
   try {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), BRAIN_TIMEOUT_MS);
