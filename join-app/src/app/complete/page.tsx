@@ -63,7 +63,7 @@ export default function CompletePage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden relative">
+    <main className="min-h-screen overflow-x-hidden relative pt-20">
       {confetti.map((c, i) => (
         <span key={i} className="confetti-piece" style={c} />
       ))}

@@ -378,7 +378,7 @@ export default function OnboardingPage() {
   );
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen px-4 pt-20 pb-8">
       <div className="max-w-lg mx-auto">
         {/* Progress */}
         <div className="mb-6">

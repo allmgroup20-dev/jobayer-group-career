@@ -25,6 +25,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <LanguageProvider>
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center bg-white shadow-sm shadow-black/5 border-b border-black/5">
+        <a href="/" aria-label="YouTube" className="ml-2 md:ml-4">
+          <img src="/logo.png" alt="YouTube" className="h-5 w-auto" />
+        </a>
+      </header>
       <LangToggle />
       {children}
     </LanguageProvider>
