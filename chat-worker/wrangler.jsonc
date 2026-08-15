@@ -13,6 +13,6 @@
   ],
   "vars": {
     "SITE_NAME": "Jobayer Group Career",
-    "BRAIN_API_URL": "https://jgcareer-ai.allmgroup20.workers.dev"
+    "BRAIN_API_URL": "https://jgcareer-ai.earn.workers.dev"
   }
 }

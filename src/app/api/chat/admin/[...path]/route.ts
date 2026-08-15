@@ -3,7 +3,7 @@ import { verifyCompanyToken, getJwtSecret } from "@/lib/auth";
 
 const CHAT_BASE =
   process.env.CHAT_WORKER_URL?.replace(/\/+$/, "") ||
-  "https://jgcareer-chat.allmgroup20.workers.dev";
+  "https://jgcareer-chat.earn.workers.dev";
 
 const CHAT_API_SECRET = process.env.CHAT_API_SECRET || "";
 
