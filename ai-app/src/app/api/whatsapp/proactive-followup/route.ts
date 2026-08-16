@@ -5,6 +5,7 @@ import { sendMessage } from "@/lib/whatsapp";
 import { getOrCreateProfile, detectLanguage } from "@/lib/ai";
 import { callAI } from "@/lib/ai/router";
 import { getContactIntelligence } from "@/lib/ai/contact-intelligence";
+import { isFeatureEnabled } from "@/lib/features";
 
 const PROACTIVE_SYSTEM_PROMPT = `You are a proactive, honest business assistant at Jobayer Group Career. Your job is to reach out to potential and existing members with warm, personalized, and accurate messages.
 
@@ -109,6 +110,11 @@ export async function GET(request: NextRequest) {
     const auth = request.nextUrl.searchParams.get("token");
     if (auth !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Proactive outreach kill switch (turned off from /company/features).
+    if (!(await isFeatureEnabled("proactive_followup"))) {
+      return NextResponse.json({ skipped: "flag_disabled", enabled: false });
     }
 
     // Only send during reasonable hours (8AM-10PM BD time)

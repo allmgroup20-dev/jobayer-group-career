@@ -4,10 +4,13 @@ import { getDB } from "@/lib/db";
 import { hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
 import { setCached, getCached, invalidateCache } from "@/lib/cache";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled, isFeatureEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("registrations"))) {
+      return NextResponse.json({ error: "নতুন রেজিস্ট্রেশন সাময়িকভাবে বন্ধ আছে", disabled: true }, { status: 403 });
+    }
     const { name, phone, email, password, referralCode, referralSource, utmSource, utmMedium, utmCampaign } = await request.json() as {
       name?: string; phone: string; email?: string; password: string; referralCode?: string;
       referralSource?: string; utmSource?: string; utmMedium?: string; utmCampaign?: string;
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // C9: phone-ownership must be proven via OTP before an account is created
     // (skipped when WhatsApp verification is disabled)
-    if (isWhatsappVerifyEnabled()) {
+    if (await isWhatsappVerificationEnabled()) {
       const verified = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 600);
       if (!verified?.verified) {
         return NextResponse.json({ error: "ফোন নম্বর যাচাই করুন" }, { status: 403 });

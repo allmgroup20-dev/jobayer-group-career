@@ -3,10 +3,14 @@ import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { getCached, setCached } from "@/lib/cache";
 import { requireWorker } from "@/lib/auth/guard";
+import { isFeatureEnabled } from "@/lib/features";
 
 // Share-to-unlock: granting +1 unlock quota per share, rate-limited to once per 24h
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("referral"))) {
+      return NextResponse.json({ error: "Referral rewards are currently disabled", disabled: true }, { status: 403 });
+    }
     const { workerId } = await request.json() as { workerId?: string };
     if (!workerId) {
       return NextResponse.json({ error: "workerId required" }, { status: 400 });

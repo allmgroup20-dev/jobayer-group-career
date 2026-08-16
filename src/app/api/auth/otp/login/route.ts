@@ -6,7 +6,7 @@ import {
   hashWorkerPassword, generateToken, generateWorkerId, getJwtSecret, normalizePhone,
 } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled, isFeatureEnabled } from "@/lib/features";
 
 // OTP-based frictionless auth: verify code then login (existing) or auto-register (new)
 export async function POST(request: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Verification disabled → skip the code check entirely; any phone number
     // logs in / auto-registers without a real OTP.
-    if (!isWhatsappVerifyEnabled()) {
+    if (!(await isWhatsappVerificationEnabled())) {
       const env = await getDB();
       const existing = await queryFirst<{ worker_id: string; name: string }>(
         env, "SELECT worker_id, name FROM workers WHERE phone = ?", [cleanPhone]
@@ -86,6 +86,11 @@ async function createWorker(
   referralSource?: string,
   utmSource?: string,
 ): Promise<NextResponse> {
+  // New registrations can be paused from /company/features (existing users can
+  // still log in — only account creation is blocked here).
+  if (!(await isFeatureEnabled("registrations"))) {
+    return NextResponse.json({ error: "নতুন রেজিস্ট্রেশন সাময়িকভাবে বন্ধ আছে", disabled: true }, { status: 403 });
+  }
   const displayName = `User${cleanPhone.slice(-6)}`;
   const workerId = generateWorkerId(displayName, cleanPhone);
   const tempPassword = await hashWorkerPassword(Math.random().toString(36).slice(2, 12));

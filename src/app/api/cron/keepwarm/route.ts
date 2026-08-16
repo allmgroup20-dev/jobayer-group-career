@@ -4,6 +4,7 @@ import { querySafe, query, execute } from "@/lib/db/queries";
 import { setCached } from "@/lib/cache";
 import { scoreAllWorkers } from "@/lib/tracking/scoring";
 import { sendMessage } from "@/lib/whatsapp";
+import { isFeatureEnabled } from "@/lib/features";
 
 const PROACTIVE_MESSAGES = [
   (name: string) => `আসসালামু আলাইকুম ${name}! 🙌 আমি Jobayer Group Career থেকে কথা বলছি। আমাদের কাছে ৯৭০+ প্রিমিয়াম রিসোর্স আছে যেখানে দক্ষতা শেখা যায় এবং রেফারেল কমিশনে আয়ের সুযোগ আছে। আগ্রহী হলে একটু সময় দিন — আমি বিস্তারিত বলব।`,
@@ -122,9 +123,14 @@ export async function GET() {
   try {
     const d1 = await ensureDB();
     await d1.prepare("SELECT 1").run();
+    // Proactive WhatsApp outreach is the biggest recurring cost (cron every 5min).
+    // When the keepwarm_cron flag is OFF we skip all outbound sending entirely.
+    const keepwarmEnabled = await isFeatureEnabled("keepwarm_cron");
     const [warm, proactive] = await Promise.all([
       warmCourses({ DB: d1 }),
-      runProactiveFollowups().catch(() => ({ newLeads: 0, seenNoReply: 0, stale: 0, sent: 0 })),
+      keepwarmEnabled
+        ? runProactiveFollowups().catch(() => ({ newLeads: 0, seenNoReply: 0, stale: 0, sent: 0 }))
+        : Promise.resolve({ newLeads: 0, seenNoReply: 0, stale: 0, sent: 0 }),
     ]);
     let scoring = { scored: 0, errors: 0 };
     try {

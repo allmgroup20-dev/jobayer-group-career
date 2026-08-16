@@ -27,6 +27,7 @@ import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-l
 import { scoreQuality, QUALITY_THRESHOLD } from "@/lib/ai/quality-gate";
 import { enforceWordLimit } from "@/lib/ai/conversation-rules";
 import type { MessageCtx } from "@/lib/ai/brain/types";
+import { isFeatureEnabled } from "@/lib/features";
 
 function mapSenderId(senderId: string): string {
   return `fb_${senderId}`;
@@ -51,6 +52,11 @@ export async function POST(request: NextRequest) {
     }
     const { senderId, text, name } = parsed;
     const phone = mapSenderId(senderId);
+
+    // Messenger bot kill switch (turned off from /company/features).
+    if (!(await isFeatureEnabled("messenger"))) {
+      return NextResponse.json({ ok: true, disabled: true });
+    }
 
     const isWorker = await isWorkerPhone(phone);
     const role = isWorker ? "worker" : "customer";

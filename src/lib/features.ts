@@ -21,6 +21,15 @@ export function isWhatsappVerifyEnabled(): boolean {
   return process.env.WHATSAPP_VERIFY_ENABLED === "true";
 }
 
+/**
+ * Combined OTP verification switch: enabled when the env var says so, OR when
+ * the admin has turned on the `whatsapp_otp_verify` feature flag in the DB.
+ */
+export async function isWhatsappVerificationEnabled(): Promise<boolean> {
+  if (process.env.WHATSAPP_VERIFY_ENABLED === "true") return true;
+  return isFeatureEnabled("whatsapp_otp_verify");
+}
+
 const FLAGS_CACHE = "feature_flags";
 
 async function getAllFeatureFlags(): Promise<Record<string, boolean>> {

@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendMessage, enqueueMessage } from "@/lib/whatsapp";
 import { query } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("whatsapp"))) {
+      return NextResponse.json({ error: "WhatsApp messaging is disabled", disabled: true }, { status: 403 });
+    }
     const { to, text, workerIds, message, immediate } = await request.json() as {
       to?: string; text?: string; workerIds?: string[]; message?: string; immediate?: boolean;
     };

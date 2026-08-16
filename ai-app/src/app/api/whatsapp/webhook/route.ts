@@ -31,6 +31,7 @@ import type { MessageCtx } from "@/lib/ai/brain/types";
 import type { MediaResult } from "@/lib/whatsapp/media";
 import { storeContactInsight, extractInsightsFromText } from "@/lib/ai/contact-intelligence";
 import { scoreQuality, QUALITY_THRESHOLD } from "@/lib/ai/quality-gate";
+import { isFeatureEnabled } from "@/lib/features";
 
 // ── In-memory follow-up tracker (persisted via DB) ──
 const SEEN_FOLLOWUP_DELAY_MS = 120_000; // 2 min after "read" without reply
@@ -311,6 +312,20 @@ export async function POST(request: NextRequest) {
     };
 
     const fromBrowser = body.fromBrowser === true;
+
+    // ── AI chat kill switch: replies with a static message, no token cost ──
+    if (!(await isFeatureEnabled("ai_chat"))) {
+      const offlineReply = lang === "bn"
+        ? "আমাদের AI সহায়কটি বর্তমানে সাময়িকভাবে বন্ধ আছে। দয়া করে পরে আবার চেষ্টা করুন।"
+        : "Our AI assistant is currently disabled. Please try again later.";
+      await saveMessage(phone, "user", text, { language: lang, painPoints, interests, source: "whatsapp" }).catch(() => {});
+      await saveMessage(phone, "assistant", offlineReply, { language: lang, source: "whatsapp" }).catch(() => {});
+      if (!fromBrowser) {
+        const { sendMessage } = await import("@/lib/whatsapp");
+        await sendMessage(phone, offlineReply).catch(() => {});
+      }
+      return NextResponse.json({ ok: true, disabled: true, reply: offlineReply });
+    }
 
     // ── Fast Lane: 0-token instant replies (skip brain entirely) ──
     const fastHit = fastLane(text, lang as "en" | "bn");

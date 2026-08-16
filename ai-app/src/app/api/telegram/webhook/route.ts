@@ -27,6 +27,7 @@ import type { MessageCtx } from "@/lib/ai/brain/types";
 import { linkWorkerToAgent, saveAgentKnowledge } from "@/lib/ai/brain/employee-link";
 import { scoreQuality, QUALITY_THRESHOLD } from "@/lib/ai/quality-gate";
 import { enforceWordLimit } from "@/lib/ai/conversation-rules";
+import { isFeatureEnabled } from "@/lib/features";
 
 function mapChatId(chatId: number | string): string {
   return `tg_${chatId}`;
@@ -53,6 +54,11 @@ export async function POST(request: NextRequest) {
     }
     const { chatId, text, name } = parsed;
     const phone = mapChatId(chatId);
+
+    // Telegram bot kill switch (turned off from /company/features).
+    if (!(await isFeatureEnabled("telegram"))) {
+      return NextResponse.json({ ok: true, disabled: true });
+    }
 
     const isWorker = await isWorkerPhone(phone);
     const role = isWorker ? "worker" : "customer";

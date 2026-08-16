@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureCampaignEngineTables, getSegmentCampaigns, registerSegmentCampaign, executeSegmentCampaign, runDueSegmentCampaigns, getCampaignAnalytics, seedDefaultCampaigns } from "@/lib/ai/campaign-engine";
 import { ensureSMSTables, seedSMSTemplates } from "@/lib/ai/sms";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function GET(req: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("campaign_engine"))) {
+      return NextResponse.json({ error: "Campaign engine is currently disabled", disabled: true }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action") || "list";
     const segment = searchParams.get("segment") || undefined;
@@ -28,6 +32,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("campaign_engine"))) {
+      return NextResponse.json({ error: "Campaign engine is currently disabled", disabled: true }, { status: 403 });
+    }
     const body: any = await req.json();
     const { action } = body;
 

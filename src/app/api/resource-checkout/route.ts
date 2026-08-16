@@ -3,6 +3,7 @@ import { execute, queryFirst } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { SslcommerzService } from "@/lib/payment/sslcommerz";
 import { requireWorker } from "@/lib/auth/guard";
+import { isFeatureEnabled } from "@/lib/features";
 
 const SITE_URL = process.env.SITE_URL || "https://career.jobayergroup.com";
 
@@ -26,6 +27,9 @@ async function getUnlockPrice(env: { DB: D1Database }): Promise<number> {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("payments"))) {
+      return NextResponse.json({ error: "Checkout is currently disabled", disabled: true }, { status: 403 });
+    }
     const body = await request.json() as {
       workerId: string;
       courseId?: number;

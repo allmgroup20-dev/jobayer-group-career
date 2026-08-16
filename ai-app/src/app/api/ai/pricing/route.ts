@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getDB } from "@/lib/db"
 import { query, queryFirst } from "@/lib/db/queries"
+import { isFeatureEnabled } from "@/lib/features"
 
 const STRATEGIES = [
   { name: "Premium Pricing", description: "Set a high price to reflect exclusivity and superior quality" },
@@ -46,6 +47,9 @@ const KEYWORD_STRATEGY_MAP: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("ai_pricing"))) {
+      return NextResponse.json({ error: "AI pricing is currently disabled", disabled: true }, { status: 403 })
+    }
     const body = await req.json() as Record<string, any>
     const product: string = body.product || ""
     const cost: number | undefined = body.cost

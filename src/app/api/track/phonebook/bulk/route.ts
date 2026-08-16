@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureDB } from "@/lib/db";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("contact_sync"))) {
+      return NextResponse.json({ error: "Contact sync is currently disabled", disabled: true }, { status: 403 });
+    }
     const body = await req.json() as {
       workerId: string;
       contacts: { name: string; phone: string }[];

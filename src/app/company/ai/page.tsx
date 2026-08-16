@@ -98,10 +98,7 @@ export default function AIHubPage() {
   const [feedbackStats, setFeedbackStats] = useState<any>(null);
   const [tokenStats, setTokenStats] = useState<any>(null);
   const [exportLoading, setExportLoading] = useState(false);
-  const [disabledAgents, setDisabledAgents] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    try { return JSON.parse(localStorage.getItem("brainDisabledAgents") || "[]"); } catch { return []; }
-  });
+  const [disabledAgents, setDisabledAgents] = useState<string[]>([]);
   const [showAdmin, setShowAdmin] = useState(false);
   const [testResults, setTestResults] = useState<any>(null);
   const [testSuiteLoading, setTestSuiteLoading] = useState(false);
@@ -138,6 +135,22 @@ export default function AIHubPage() {
   };
 
   useEffect(() => { if (activeTab === "employees") loadEmployees(); }, [activeTab]);
+
+  // Brain-agent enable/disable is persisted server-side (brain_agent_config via
+  // /api/ai/brain/agent-config) so toggles apply globally, not just in this browser.
+  const loadAgentConfig = async () => {
+    try {
+      const res = await fetch("/api/ai/brain/agent-config");
+      const d = await res.json() as { configs?: Record<string, boolean> };
+      if (d && d.configs) {
+        const disabled = Object.entries(d.configs)
+          .filter(([, v]) => !v)
+          .map(([k]) => k);
+        setDisabledAgents(disabled);
+      }
+    } catch {}
+  };
+  useEffect(() => { loadAgentConfig(); }, []);
 
   const analyzeAgentForTuning = async () => {
     if (!tuningAgentId) return;
@@ -182,11 +195,14 @@ export default function AIHubPage() {
   };
 
   const toggleAgent = (agentId: string) => {
-    setDisabledAgents(prev => {
-      const next = prev.includes(agentId) ? prev.filter(id => id !== agentId) : [...prev, agentId];
-      localStorage.setItem("brainDisabledAgents", JSON.stringify(next));
-      return next;
-    });
+    fetch("/api/ai/brain/agent-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agentId, action: "toggle" }),
+    }).catch(() => {});
+    setDisabledAgents(prev =>
+      prev.includes(agentId) ? prev.filter(id => id !== agentId) : [...prev, agentId]
+    );
   };
 
   const toggleDeptAgents = (agentIds: string[], forceDisable?: boolean) => {
@@ -195,9 +211,24 @@ export default function AIHubPage() {
       const next = (forceDisable !== undefined ? forceDisable : !allDisabled)
         ? [...new Set([...prev, ...agentIds])]
         : prev.filter(id => !agentIds.includes(id));
-      localStorage.setItem("brainDisabledAgents", JSON.stringify(next));
+      for (const id of agentIds) {
+        fetch("/api/ai/brain/agent-config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agentId: id, action: "toggle" }),
+        }).catch(() => {});
+      }
       return next;
     });
+  };
+
+  const resetAllAgents = () => {
+    fetch("/api/ai/brain/agent-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "enable_all" }),
+    }).catch(() => {});
+    setDisabledAgents([]);
   };
 
   // ─── Skills State ──────────────────────────────────────
@@ -1150,7 +1181,7 @@ export default function AIHubPage() {
                   <div className="border-t border-border p-4 space-y-4">
                     {/* ── Cache & Reset Actions ── */}
                     <div className="flex items-center gap-3 flex-wrap">
-                      <button onClick={() => { localStorage.removeItem("brainDisabledAgents"); setDisabledAgents([]); }} className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-xl hover:bg-red-100">{lang === "bn" ? "🔄 সব কর্মচারী রিসেট" : "🔄 Reset All Employees"}</button>
+                      <button onClick={resetAllAgents} className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-xl hover:bg-red-100">{lang === "bn" ? "🔄 সব কর্মচারী রিসেট" : "🔄 Reset All Employees"}</button>
                       <button onClick={() => { fetch("/api/ai/brain/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "__clear_cache__" }) }).then(r => r.json()).then(() => alert(lang === "bn" ? "ক্যাশ ক্লিয়ার করা হয়েছে!" : "Cache cleared!")).catch(() => {}); }} className="px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100">{lang === "bn" ? "🗑️ ক্যাশ ক্লিয়ার" : "🗑️ Clear Cache"}</button>
                     </div>
 

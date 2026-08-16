@@ -4,7 +4,7 @@ import { getDB } from "@/lib/db";
 import { hashWorkerPassword, verifyWorkerPassword, normalizePhone } from "@/lib/auth";
 import { requireWorker } from "@/lib/auth/guard";
 import { getCached } from "@/lib/cache";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled } from "@/lib/features";
 
 export async function GET(request: NextRequest) {
   try {
@@ -108,7 +108,7 @@ export async function PUT(request: NextRequest) {
       if (!cleanPhone || cleanPhone.length < 10) {
         return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
       }
-      if (isWhatsappVerifyEnabled()) {
+      if (await isWhatsappVerificationEnabled()) {
         const proof = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 300);
         if (!proof?.verified) {
           return NextResponse.json({ error: "Verify this phone number with an OTP first" }, { status: 400 });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/auth";
 import { getCached, invalidateCache, setCached } from "@/lib/cache";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Verification disabled → auto-verify any number so registration, forgot
     // password and onboarding proceed without a real OTP.
-    if (!isWhatsappVerifyEnabled()) {
+    if (!(await isWhatsappVerificationEnabled())) {
       await setCached(`otp_verified:${cleanPhone}`, { verified: true, at: Date.now() });
       return NextResponse.json({ ok: true, phone: cleanPhone });
     }

@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { execute, query } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { sendWhatsAppMessage, generateWhatsAppTemplate } from "@/lib/whatsapp";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("withdrawals"))) {
+      return NextResponse.json({ error: "Withdrawals are currently disabled", disabled: true }, { status: 403 });
+    }
     const { workerId, amount, paymentMethod, accountNumber } = await request.json() as {
       workerId: string; amount: number; paymentMethod?: string; accountNumber?: string;
     };

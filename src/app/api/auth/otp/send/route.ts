@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/auth";
 import { setCached, getCached } from "@/lib/cache";
 import { sendMessage } from "@/lib/whatsapp";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // `configured: true` keeps the checkout page from showing the "OTP not
     // configured" error; `autoFilled: true` lets the UI pre-fill the code and
     // explain that the user only needs to click to continue.
-    if (!isWhatsappVerifyEnabled()) {
+    if (!(await isWhatsappVerificationEnabled())) {
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       await setCached(`otp:${cleanPhone}`, { code, sentAt: Date.now(), attempts: 0 });
       return NextResponse.json({ ok: true, configured: true, devCode: code, autoFilled: true });

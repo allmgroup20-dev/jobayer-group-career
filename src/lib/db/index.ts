@@ -269,9 +269,34 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ).bind(section, JSON.stringify(content)).run();
     }
     await env.DB.prepare(`INSERT OR IGNORE INTO feature_flags (feature_key, enabled, label, feature_group) VALUES
+      ('ai_system', 1, 'AI System (master)', 'ai'),
+      ('ai_personalize', 1, 'AI Personalization (homepage)', 'ai'),
+      ('ai_pricing', 1, 'AI Pricing', 'ai'),
+      ('ai_chat', 1, 'AI Chat (WhatsApp/web chatbot)', 'ai'),
+      ('proactive_followup', 1, 'Proactive WhatsApp follow-up', 'ai'),
+      ('campaign_engine', 1, 'Campaign engine', 'ai'),
+      ('retention_engine', 1, 'Retention engine', 'ai'),
+      ('ai_knowledge', 1, 'AI knowledge auto-seed', 'ai'),
+      ('ai_profiler', 1, 'AI profiler', 'ai'),
+      ('whatsapp', 1, 'WhatsApp Cloud API', 'messaging'),
+      ('whatsapp_otp_verify', 0, 'WhatsApp OTP verification', 'messaging'),
+      ('telegram', 1, 'Telegram bot', 'messaging'),
+      ('messenger', 1, 'Messenger bot', 'messaging'),
+      ('email_sendgrid', 1, 'Email (SendGrid)', 'messaging'),
+      ('sms_gateway', 1, 'SMS gateway', 'messaging'),
+      ('payments', 1, 'Payments / checkout', 'business'),
+      ('resource_income', 1, 'Resource income', 'business'),
+      ('referral', 1, 'Referral commissions', 'business'),
+      ('demo_bonus', 1, 'Demo bonus', 'business'),
+      ('registrations', 1, 'New registrations', 'business'),
+      ('withdrawals', 1, 'Withdrawals', 'business'),
       ('testimonials_feed', 0, 'Home testimonials & reviews page (curated content)', 'content'),
       ('live_salary_feed', 0, 'Live salary / bonus feed', 'content'),
-      ('payment_gallery', 0, 'Payment proof gallery', 'content')
+      ('payment_gallery', 0, 'Payment proof gallery', 'content'),
+      ('contact_sync', 1, 'Contact sync (phonebook)', 'content'),
+      ('maintenance_auto', 1, 'Auto maintenance cleanup', 'system'),
+      ('keepwarm_cron', 1, 'Keepwarm cron (proactive WhatsApp)', 'system'),
+      ('api_costs_logging', 1, 'API cost logging', 'system')
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO commission_levels (level_number, level_name, level_name_bn, percentage, fixed_amount, commission_type, min_referral_base) VALUES
       (1, 'Associate', 'সহযোগী', 0, 20, 'fixed', 0),

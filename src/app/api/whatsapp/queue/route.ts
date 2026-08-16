@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { processQueue, getQueueStats, getPendingWebMessages, markWebSent } from "@/lib/whatsapp";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,6 +39,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as { action?: string; id?: number; messageId?: string; accountId?: string };
     const { action } = body;
     const env = await getDB();
+
+    // Cost-bearing actions are gated by the whatsapp flag (flush = send).
+    if ((action === "flush" || action === "retry_failed") && !(await isFeatureEnabled("whatsapp"))) {
+      return NextResponse.json({ error: "WhatsApp messaging is disabled", disabled: true }, { status: 403 });
+    }
 
     if (action === "flush") {
       const sent = await processQueue(5);

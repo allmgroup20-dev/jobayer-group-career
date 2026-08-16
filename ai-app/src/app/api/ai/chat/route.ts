@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI, buildSystemPrompt, getPersona, analyzePainPoints, analyzeInterests, detectLanguage, detectMood, detectTrustLevel, detectControlResistance, detectManipulationVulnerability, detectFearProfile, detectMaskStatus, detectDecisionMode, getOrCreateProfile, updateProfileFromChat, updateProfileTrust, saveMessage } from "@/lib/ai";
+import { isFeatureEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isFeatureEnabled("ai_chat"))) {
+      return NextResponse.json({ error: "AI chat is currently disabled", disabled: true }, { status: 403 });
+    }
     const { prompt, phone, role = "customer", workerId } = await request.json() as {
       prompt: string;
       phone?: string;

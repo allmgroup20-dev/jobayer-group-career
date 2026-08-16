@@ -3,7 +3,7 @@ import { execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { hashWorkerPassword, normalizePhone } from "@/lib/auth";
 import { getCached, invalidateCache } from "@/lib/cache";
-import { isWhatsappVerifyEnabled } from "@/lib/features";
+import { isWhatsappVerificationEnabled } from "@/lib/features";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // C9: phone-ownership must be proven via OTP before the password is reset
     // (skipped when WhatsApp verification is disabled)
-    if (isWhatsappVerifyEnabled()) {
+    if (await isWhatsappVerificationEnabled()) {
       const verified = await getCached<{ verified: boolean }>(`otp_verified:${cleanPhone}`, 600);
       if (!verified?.verified) {
         return NextResponse.json({ error: "ফোন নম্বর যাচাই করুন" }, { status: 403 });
