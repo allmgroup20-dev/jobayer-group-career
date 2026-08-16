@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/lang";
+import { trackEvent } from "@/lib/tracking";
 
 type Me = {
   workerId?: string;
@@ -25,9 +26,9 @@ type Me = {
   profileCompleted?: boolean;
 };
 
-type StepKey = "consent" | "whatsapp" | "basic" | "location" | "goals" | "source" | "contacts" | "done";
+type StepKey = "consent" | "whatsapp" | "basic" | "location" | "goals" | "source" | "done";
 
-const STEP_ORDER: StepKey[] = ["consent", "whatsapp", "basic", "location", "goals", "source", "contacts", "done"];
+const STEP_ORDER: StepKey[] = ["consent", "whatsapp", "basic", "location", "goals", "source", "done"];
 
 const AGE_GROUPS = [
   { en: "Under 18", bn: "১৮ এর নিচে", v: "under_18" },
@@ -155,7 +156,6 @@ const STEP_META: Record<StepKey, { en: string; bn: string; emoji: string }> = {
   location: { en: "Location", bn: "অবস্থান ও ভাষা", emoji: "📍" },
   goals: { en: "Goals & Interests", bn: "লক্ষ্য ও আগ্রহ", emoji: "🎯" },
   source: { en: "How You Found Us", bn: "উৎস ও যোগাযোগ", emoji: "📢" },
-  contacts: { en: "Phonebook (Optional)", bn: "ফোনবুক (ঐচ্ছিক)", emoji: "📒" },
   done: { en: "Almost Done", bn: "প্রায় শেষ!", emoji: "🎉" },
 };
 
@@ -190,7 +190,6 @@ export default function OnboardingPage() {
     budgetRange: "",
     referralSource: "",
     communicationPreference: "whatsapp",
-    contactsText: "",
   });
 
   const step = STEP_ORDER[stepIdx];
@@ -307,18 +306,11 @@ export default function OnboardingPage() {
         case "source":
           await api("/api/profile", { referralSource: form.referralSource, communicationPreference: form.communicationPreference });
           break;
-        case "contacts":
-          if (form.contactsText.trim()) {
-            const contacts = parseContacts(form.contactsText);
-            if (contacts.length > 0) {
-              await fetch("/api/contacts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contacts }) }).catch(() => {});
-            }
-          }
-          break;
         case "done":
           router.push("/complete");
           return;
       }
+      trackEvent("onboarding_step_complete", { pageCategory: "onboarding", metadata: { step } });
       setStepIdx((i) => Math.min(i + 1, total - 1));
     } catch (e) {
       setError(e instanceof Error ? e.message : t("কিছু একটা সমস্যা হয়েছে", "Something went wrong"));
@@ -331,30 +323,6 @@ export default function OnboardingPage() {
     setError(""); setSaved("");
     setStepIdx((i) => Math.max(i - 1, 0));
   };
-
-  const parseContacts = (text: string) => {
-    const out: { name: string; phone: string }[] = [];
-    for (const raw of text.split(/\r?\n/)) {
-      const line = raw.trim();
-      if (!line) continue;
-      const parts = line.split(/[,;]+/).map((p) => p.trim()).filter(Boolean);
-      let name = "";
-      let phone = "";
-      for (const part of parts) {
-        const digits = part.replace(/\D/g, "");
-        if (digits.length >= 10 && digits.length <= 13) {
-          phone = digits;
-        } else if (!name) {
-          name = part;
-        }
-      }
-      if (phone) out.push({ name: name || phone, phone });
-    }
-    return out;
-  };
-
-  const parsedCount = useMemo(() => parseContacts(form.contactsText).length, [form.contactsText]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   if (loadingInit) {
     return (
@@ -444,7 +412,10 @@ export default function OnboardingPage() {
                       <button
                         key={s.v}
                         type="button"
-                        onClick={() => update("incomeSectors", active ? form.incomeSectors.filter((i) => i !== s.v) : [...form.incomeSectors, s.v])}
+                        onClick={() => {
+                          update("incomeSectors", active ? form.incomeSectors.filter((i) => i !== s.v) : [...form.incomeSectors, s.v]);
+                          trackEvent("interest_select", { pageCategory: "onboarding", searchKeyword: s.en, metadata: { action: active ? "deselect" : "select", group: "income_sector", value: s.v } });
+                        }}
                         className={`chip justify-center ${active ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25" : "bg-white border border-line text-ink hover:border-pink/50"}`}
                       >
                         <span>{s.icon}</span> {t(s.bn, s.en)}
@@ -548,7 +519,10 @@ export default function OnboardingPage() {
                       <button
                         key={opt.en}
                         type="button"
-                        onClick={() => update("interests", active ? form.interests.filter((i) => i !== opt.en) : [...form.interests, opt.en])}
+                        onClick={() => {
+                          update("interests", active ? form.interests.filter((i) => i !== opt.en) : [...form.interests, opt.en]);
+                          trackEvent("interest_select", { pageCategory: "onboarding", searchKeyword: opt.en, metadata: { action: active ? "deselect" : "select", group: "skill", value: opt.en } });
+                        }}
                         className={`chip justify-center ${active ? "bg-gradient-to-r from-violet to-pink text-white shadow-lg shadow-pink/20" : "bg-white border border-line text-ink hover:border-pink/50"}`}
                       >
                         <span>{opt.icon}</span> {t(opt.bn, opt.en)}
@@ -583,26 +557,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* contacts */}
-          {step === "contacts" && (
-            <div className="space-y-4">
-              <Header emoji="📒" title={t("ফোনবুক সিঙ্ক (ঐচ্ছিক)", "Phonebook Sync (Optional)")} sub={t("কন্টাক্ট দিলে বোনাস রিসোর্স ও সার্টিফিকেটের সুযোগ বেশি", "Share contacts for more bonus resources & certificates")} />
-              <div>
-                {label("প্রতি লাইনে: নাম, ০১XXXXXXXXX", "One per line: Name, 01XXXXXXXXX")}
-                <textarea
-                  value={form.contactsText}
-                  onChange={(e) => update("contactsText", e.target.value)}
-                  rows={5}
-                  placeholder={"Rahim, 01712345678\nKarim 01987654321"}
-                  className="input-field text-sm"
-                />
-                {form.contactsText.trim() && (
-                  <p className="mt-1 text-[11px] font-bold text-violet">📇 {parsedCount} {t("টি কন্টাক্ট পাওয়া গেছে", "contacts found")}</p>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* done */}
           {step === "done" && (
             <div className="space-y-4 text-center">
@@ -622,8 +576,6 @@ export default function OnboardingPage() {
                 </span>
               ) : step === "done" ? (
                 t("🚀 রেফারেল সেন্টারে যান", "🚀 Go to Referral Center")
-              ) : step === "contacts" ? (
-                t("পরবর্তী →", "Next →")
               ) : step === "consent" ? (
                 t("✅ সবকিছুতে সম্মতি ও পরবর্তী", "✅ Grant All & Continue")
               ) : (
@@ -633,11 +585,6 @@ export default function OnboardingPage() {
             {stepIdx > 0 && step !== "done" && (
               <button onClick={back} disabled={busy} className="btn-outline w-full">
                 ← {t("পেছনে", "Back")}
-              </button>
-            )}
-            {step === "contacts" && (
-              <button onClick={() => setStepIdx((i) => i + 1)} disabled={busy} className="w-full text-center text-sm font-bold text-ink-soft hover:text-pink transition-colors py-2">
-                {t("এড়িয়ে যান →", "Skip →")}
               </button>
             )}
           </div>

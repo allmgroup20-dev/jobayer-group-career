@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
+import { trackEvent } from "@/lib/tracking";
 
 type Me = { workerId?: string; name?: string; totalTeamMembers?: number; resourceIncome?: number };
 
@@ -46,11 +47,13 @@ export default function CompletePage() {
   const copy = async () => {
     try { await navigator.clipboard.writeText(link); } catch { /* ignore */ }
     setCopied(true);
+    trackEvent("share_click", { pageCategory: "complete", metadata: { method: "copy" } });
     setTimeout(() => setCopied(false), 1800);
   };
 
   const shareWhatsApp = () => {
     if (!shareText) return;
+    trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp" } });
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
   };
 

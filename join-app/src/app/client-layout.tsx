@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LanguageProvider, useLang } from "@/lib/lang";
+import { useTracker } from "@/lib/tracking";
 
 function LangToggle() {
   const { lang, setLang } = useLang();
@@ -24,6 +25,8 @@ interface Me {
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
+
+  useTracker();
 
   useEffect(() => {
     const lang = document.cookie.match(/lang=([^;]+)/)?.[1];
