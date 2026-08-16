@@ -13,16 +13,16 @@ type Me = {
 
 const BENEFITS = [
   { emoji: "🎁", en: "Instant bonus resources", bn: "বোনাস রিসোর্স" },
-  { emoji: "💰", en: "Creator ranks & certificate", bn: "ক্রিয়েটর র্যাংক ও সার্টিফিকেট" },
+  { emoji: "💰", en: "Certificates & recognition", bn: "সার্টিফিকেট ও স্বীকৃতি" },
   { emoji: "📚", en: "970+ premium resources", bn: "৯৭০+ প্রিমিয়াম রিসোর্স" },
-  { emoji: "🤝", en: "Refer & earn ranks", bn: "রেফার করুন, র্যাংক অর্জন করুন" },
+  { emoji: "🤝", en: "Invite friends & earn certificates", bn: "বন্ধু বাড়লে সার্টিফিকেট অর্জন করুন" },
 ];
 
 const STEPS = [
   { n: "১", en: "Login with Google", bn: "Google দিয়ে লগইন" },
   { n: "২", en: "Complete your profile", bn: "প্রোফাইল কমপ্লিট করুন" },
   { n: "৩", en: "Learn & unlock resources", bn: "শিখুন ও রিসোর্স আনলক করুন" },
-  { n: "৪", en: "Share & earn ranks", bn: "শেয়ার করুন, র্যাংক অর্জন করুন" },
+  { n: "৪", en: "Share & earn certificates", bn: "শেয়ার করুন, সার্টিফিকেট অর্জন করুন" },
 ];
 
 export default function HomePage() {
@@ -73,8 +73,8 @@ export default function HomePage() {
 
         <p className="mt-3 text-base md:text-lg text-ink-soft max-w-md mx-auto">
           {t(
-            "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও ক্রিয়েটর র্যাংক পেতে এখনই শুরু করুন।",
-            "Join with Google in one click — start with a free demo class, premium resources and creator ranks today."
+            "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও সার্টিফিকেট পেতে এখনই শুরু করুন।",
+            "Join with Google in one click — start with a free demo class, premium resources and certificates today."
           )}
         </p>
 

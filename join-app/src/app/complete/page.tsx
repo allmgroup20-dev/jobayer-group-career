@@ -99,10 +99,10 @@ export default function CompletePage() {
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">🔗 {t("আপনার রেফারেল লিংক", "Your Referral Link")}</h2>
-            <span className="badge-glow bg-gold/20 text-gold border border-gold/40">{t("শেয়ার করুন • র্যাংক অর্জন করুন", "Share • Earn Ranks")}</span>
+            <span className="badge-glow bg-gold/20 text-gold border border-gold/40">{t("শেয়ার করুন • সার্টিফিকেট অর্জন করুন", "Share • Earn Certificates")}</span>
           </div>
           <p className="mt-2 text-xs text-white/70">
-            {t("এই লিংক দিয়ে যতজন জয়েন করবে, আপনার ক্রিয়েটর র্যাংক বাড়বে।", "Everyone who joins through this link grows your creator rank.")}
+            {t("এই লিংক দিয়ে যত বেশি বন্ধু জয়েন করবে, ততই সার্টিফিকেটের কাছাকাছি যাবেন।", "The more friends join through this link, the closer you get to your certificate.")}
           </p>
           <div className="mt-3 flex gap-2">
             <input
@@ -138,8 +138,8 @@ export default function CompletePage() {
           <h3 className="font-black text-brand mb-3">💡 {t("কীভাবে এগিয়ে যাবেন", "How to Grow")}</h3>
           <ul className="space-y-2 text-sm text-ink-soft">
             <li>1️⃣ {t("লিংকটি ফেসবুক, ইউটিউব ও হোয়াটসঅ্যাপে শেয়ার করুন", "Share your link on Facebook, YouTube & WhatsApp")}</li>
-            <li>2️⃣ {t("প্রতি রেফারেলে র্যাংক ও বোনাস রিসোর্স পাবেন", "Earn ranks & bonus resources on every referral")}</li>
-            <li>3️⃣ {t("টিম বড় হলে র্যাংক ও স্বীকৃতি বাড়বে", "Bigger team = more ranks & recognition")}</li>
+            <li>2️⃣ {t("প্রতি রেফারেলে সার্টিফিকেটের অগ্রগতি ও বোনাস রিসোর্স পাবেন", "Earn certificate progress & bonus resources on every referral")}</li>
+            <li>3️⃣ {t("বন্ধু বাড়লে সার্টিফিকেট ও স্বীকৃতি বাড়বে", "More friends = more certificates & recognition")}</li>
           </ul>
         </div>
 

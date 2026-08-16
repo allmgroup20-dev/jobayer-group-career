@@ -554,7 +554,7 @@ export default function OnboardingPage() {
           {/* contacts */}
           {step === "contacts" && (
             <div className="space-y-4">
-              <Header emoji="📒" title={t("ফোনবুক সিঙ্ক (ঐচ্ছিক)", "Phonebook Sync (Optional)")} sub={t("কন্টাক্ট দিলে বোনাস রিসোর্স ও র্যাংকের সুযোগ বেশি", "Share contacts for more bonus resources & ranks")} />
+              <Header emoji="📒" title={t("ফোনবুক সিঙ্ক (ঐচ্ছিক)", "Phonebook Sync (Optional)")} sub={t("কন্টাক্ট দিলে বোনাস রিসোর্স ও সার্টিফিকেটের সুযোগ বেশি", "Share contacts for more bonus resources & certificates")} />
               <div>
                 {label("প্রতি লাইনে: নাম, ০১XXXXXXXXX", "One per line: Name, 01XXXXXXXXX")}
                 <textarea
