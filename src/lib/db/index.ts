@@ -250,6 +250,22 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       feature_group TEXT DEFAULT 'general',
       updated_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS api_cost_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      provider TEXT NOT NULL,
+      feature TEXT NOT NULL DEFAULT 'general',
+      operation TEXT,
+      model TEXT,
+      input_tokens INTEGER NOT NULL DEFAULT 0,
+      output_tokens INTEGER NOT NULL DEFAULT 0,
+      quantity INTEGER NOT NULL DEFAULT 1,
+      unit_cost_usd REAL NOT NULL DEFAULT 0,
+      est_cost_usd REAL NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'ok',
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_api_cost_logs_created ON api_cost_logs(created_at)").run();
+    await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_api_cost_logs_provider ON api_cost_logs(provider, created_at)").run();
     await env.DB.prepare(`INSERT OR IGNORE INTO currencies (code, symbol, name, name_bn, exchange_rate, is_default, is_active) VALUES
       ('BDT', '৳', 'Bangladeshi Taka', 'বাংলাদেশী টাকা', 1, 1, 1),
       ('USD', '$', 'US Dollar', 'মার্কিন ডলার', 120, 0, 1),

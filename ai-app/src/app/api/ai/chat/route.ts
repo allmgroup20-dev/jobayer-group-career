@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         { role: "user", content: prompt }
       ],
       maxTokens: 600,
-    });
+    }, 600, undefined, undefined, { feature: "ai_chat", operation: "web_chat" });
 
     if (phone) {
       await saveMessage(phone, "assistant", result.text, {

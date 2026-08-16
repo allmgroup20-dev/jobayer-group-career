@@ -57,7 +57,7 @@ async function generateProactiveMessage(phone: string, contextType: string, name
         ],
         temperature: 0.7,
       },
-      150, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
+      150, "meta-llama/llama-3.3-70b-instruct:free", "openrouter", { feature: "proactive_followup", operation: "generate_message" }
     );
     return result.text || getFallbackMessage(name, contextType, lang);
   } catch {

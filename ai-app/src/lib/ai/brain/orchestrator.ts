@@ -207,7 +207,7 @@ async function detectIntent(text: string, isWorker: boolean): Promise<{ intent: 
         ],
         temperature: 0.1,
       },
-      50, "google/gemma-4-26b-a4b-it:free", "openrouter"
+      50, "google/gemma-4-26b-a4b-it:free", "openrouter", { feature: "ai_chat", operation: "intent_classify" }
     );
     const intent = result.text.trim().toLowerCase() as Intent;
     const route = INTENT_ROUTES.find((r) => r.intent === intent);
@@ -549,7 +549,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
         { role: "system", content: systemPrompt + "\n\n" + getConversationRules(ctx.language) },
         { role: "user", content: ctx.text },
       ], temperature: 0.7 },
-      800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
+      800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter", { feature: "ai_chat", operation: "reply" }
     );
     finalText = result.text;
     finalModel = result.model;
@@ -561,7 +561,7 @@ export async function processMessage(ctx: MessageCtx): Promise<BrainResult> {
           { role: "system", content: `You are a helpful assistant at Jobayer Group Career. Reply in ${ctx.language === "bn" ? "Bengali" : "English"}. Be warm, helpful, and accurate. Guide the customer step by step. Use real program facts: 970+ premium resources from ৳99, all-resources pack ৳5,200 grants Premium status, referral commission ৳20 per successful referral (Level 1) and ৳10 for Levels 2-4, withdrawals from ৳500 (general, 5% tax) or ৳20 (Premium, 0% tax). Never guarantee income — earnings depend on the member's own referral activity. Output ONLY your response.` },
           { role: "user", content: ctx.text },
         ], temperature: 0.7 },
-        800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter"
+        800, "meta-llama/llama-3.3-70b-instruct:free", "openrouter", { feature: "ai_chat", operation: "reply_fallback" }
       );
       finalText = fb.text;
       finalModel = fb.model;

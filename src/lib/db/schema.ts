@@ -194,6 +194,21 @@ export const featureFlags = sqliteTable("feature_flags", {
   updatedAt: text("updated_at"),
 });
 
+export const apiCostLogs = sqliteTable("api_cost_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  provider: text("provider").notNull(),
+  feature: text("feature").notNull().default("general"),
+  operation: text("operation"),
+  model: text("model"),
+  inputTokens: integer("input_tokens").default(0),
+  outputTokens: integer("output_tokens").default(0),
+  quantity: integer("quantity").default(1),
+  unitCostUsd: real("unit_cost_usd").default(0),
+  estCostUsd: real("est_cost_usd").default(0),
+  status: text("status").default("ok"),
+  createdAt: text("created_at"),
+});
+
 export const testSessions = sqliteTable("test_sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   sessionId: text("session_id").unique().notNull(),

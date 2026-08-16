@@ -114,7 +114,10 @@ export async function saveMessage(
           ],
           temperature: 0.3,
         },
-        50
+        50,
+        undefined,
+        undefined,
+        { feature: "ai_system", operation: "conversation_summary" }
       );
       summary = summaryResult.text.slice(0, 300);
     } catch {}

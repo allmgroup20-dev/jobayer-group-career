@@ -61,7 +61,7 @@ export async function executeAgent(
   ];
 
   try {
-    const result = await callAI({ messages, temperature: 0.3 }, 300, preferred.model, preferred.provider);
+    const result = await callAI({ messages, temperature: 0.3 }, 300, preferred.model, preferred.provider, { feature: "ai_chat", operation: "agent_reply" });
     // 4) Store in cache for future reuse
     try {
       await storeResponseCache(db, userMessage, result.text, agent.id);

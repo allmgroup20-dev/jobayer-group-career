@@ -1,4 +1,6 @@
 import { ensureDB } from "@/lib/db";
+import { logApiCost } from "@/lib/cost-log";
+import { SMS_MSG_USD } from "@/lib/cost-prices";
 
 export interface SMSPayload {
   to: string;
@@ -56,6 +58,10 @@ export async function sendSMS(payload: SMSPayload): Promise<boolean> {
     }
     await db.prepare("INSERT INTO sms_logs (recipient, text, status) VALUES (?, ?, 'sent')")
       .bind(payload.to, payload.text.slice(0, 200)).run();
+    logApiCost({
+      provider: "sms_gateway", feature: "sms_gateway", operation: "send",
+      quantity: 1, unitCostUsd: SMS_MSG_USD, estCostUsd: SMS_MSG_USD,
+    }).catch(() => {});
     return true;
   } catch (e) {
     const errMsg = (e as Error)?.message || "Unknown error";

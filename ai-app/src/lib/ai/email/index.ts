@@ -1,4 +1,6 @@
 import { ensureDB } from "@/lib/db";
+import { logApiCost } from "@/lib/cost-log";
+import { EMAIL_USD } from "@/lib/cost-prices";
 
 export interface EmailPayload {
   to: string;
@@ -49,6 +51,10 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
     console.log(`[Email] TO: ${payload.to} | SUBJECT: ${payload.subject}`);
     await db.prepare("INSERT INTO email_logs (recipient, subject, html_body, status) VALUES (?, ?, ?, 'sent')")
       .bind(payload.to, payload.subject, payload.html.slice(0, 500)).run();
+    logApiCost({
+      provider: "sendgrid", feature: "email_sendgrid", operation: "send",
+      quantity: 1, unitCostUsd: EMAIL_USD, estCostUsd: EMAIL_USD,
+    }).catch(() => {});
     return true;
   } catch (e) {
     const errMsg = (e as Error)?.message || "Unknown error";

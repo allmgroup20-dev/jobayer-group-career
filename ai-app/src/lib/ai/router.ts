@@ -1,10 +1,17 @@
 import { query, queryFirst, execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
+import { logApiCost } from "@/lib/cost-log";
+import { estimateTokenCost } from "@/lib/cost-prices";
 
 interface AIRequest {
   messages: { role: string; content: string }[];
   maxTokens?: number;
   temperature?: number;
+}
+
+interface AIMeta {
+  feature?: string;
+  operation?: string;
 }
 
 interface AIResponse {
@@ -167,7 +174,7 @@ async function tryModel(
   messages: { role: string; content: string }[],
   maxTokens: number,
   temperature?: number
-): Promise<{ text: string; tokens: number } | null> {
+): Promise<{ text: string; tokens: number; promptTokens: number; completionTokens: number } | null> {
   const endpoint = PROVIDER_ENDPOINTS[provider];
   if (!endpoint) return null;
 
@@ -205,12 +212,17 @@ async function tryModel(
 
       const data = await res.json() as {
         choices?: { message: { content: string | null } }[];
-        usage?: { total_tokens: number };
+        usage?: { total_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
       };
       const text = data?.choices?.[0]?.message?.content || "";
       if (!text && attempt < maxRetries) continue;
       if (!text) return null;
-      return { text, tokens: data?.usage?.total_tokens || 0 };
+      return {
+        text,
+        tokens: data?.usage?.total_tokens || 0,
+        promptTokens: data?.usage?.prompt_tokens || 0,
+        completionTokens: data?.usage?.completion_tokens || 0,
+      };
     } catch (e) {
       const msg = (e as Error)?.message || "";
       const isTransient = msg.includes("abort") || msg.includes("timed out") || msg.includes("network") || msg.includes("econnrefused") || msg.includes("enotfound");
@@ -251,16 +263,41 @@ async function resolveModelList(db: D1Database, provider: string): Promise<strin
   return FREE_MODEL_ORDER[provider] || [];
 }
 
+// ─── Cost Accounting ────────────────────────────────────
+
+function recordCost(
+  provider: string,
+  model: string,
+  result: { promptTokens: number; completionTokens: number },
+  feature: string,
+  operation?: string
+): void {
+  const modelLabel = `${provider}:${model}`;
+  const est = estimateTokenCost(modelLabel, result.promptTokens, result.completionTokens);
+  logApiCost({
+    provider,
+    feature,
+    operation,
+    model: modelLabel,
+    inputTokens: result.promptTokens,
+    outputTokens: result.completionTokens,
+    estCostUsd: est,
+  }).catch(() => {});
+}
+
 // ─── Core Failover Logic ────────────────────────────────
 
 export async function callAI(
   request: AIRequest,
   maxTokens = 500,
   preferredModel?: string,
-  preferredProvider?: string
+  preferredProvider?: string,
+  meta?: AIMeta
 ): Promise<AIResponse> {
   const db = await ensureDB();
   const env = { DB: db };
+  const feature = meta?.feature || "ai_general";
+  const operation = meta?.operation;
 
   const state = await getState(db);
   const resetState = await dailyReset(db, state);
@@ -299,6 +336,7 @@ export async function callAI(
       if (!isOnCooldown(cooldowns, modelKey)) {
         const result = await tryModel(apiKey, provider, preferredModel, messages, maxTokens, request.temperature);
         if (result) {
+          recordCost(provider, preferredModel, result, feature, operation);
           await recordSuccess(db);
           return { text: result.text, model: `${provider}:${preferredModel}`, tokens: result.tokens };
         }
@@ -313,6 +351,7 @@ export async function callAI(
         if (i === 1) await new Promise(r => setTimeout(r, 1_000));
         const result = await tryModel(apiKey, provider, "openrouter/free", messages, maxTokens, request.temperature);
         if (result) {
+          recordCost(provider, "openrouter/free", result, feature, operation);
           await recordSuccess(db);
           return { text: result.text, model: `${provider}:openrouter/free`, tokens: result.tokens };
         }
@@ -330,6 +369,7 @@ export async function callAI(
 
       const result = await tryModel(apiKey, provider, modelId, messages, maxTokens, request.temperature);
       if (result) {
+        recordCost(provider, modelId, result, feature, operation);
         await recordSuccess(db);
         return { text: result.text, model: `${provider}:${modelId}`, tokens: result.tokens };
       }
@@ -343,6 +383,7 @@ export async function callAI(
       await new Promise(r => setTimeout(r, 1_500));
       const result = await tryModel(apiKey, provider, "openrouter/free", messages, maxTokens, request.temperature);
       if (result) {
+        recordCost(provider, "openrouter/free", result, feature, operation);
         await recordSuccess(db);
         return { text: result.text, model: `${provider}:openrouter/free`, tokens: result.tokens };
       }

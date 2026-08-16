@@ -201,6 +201,7 @@ Format as JSON: { "issues": ["..."], "promptSuggestion": "..." }`;
         500,
         "meta-llama/llama-3.3-70b-instruct:free",
         "openrouter",
+        { feature: "ai_system", operation: "prompt_tuning" },
       );
 
       try {

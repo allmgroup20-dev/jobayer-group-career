@@ -45,7 +45,7 @@ async function generateOutreachMessage(phone: string, name: string | null, campa
     ? `Write a friendly WhatsApp message (max 3 sentences, 40 words) to ${name || "a new contact"} welcoming them to Jobayer Group Career. Tone: warm, professional. Invite them to explore free resources and courses. No links.`
     : `জবায়ের গ্রুপ ক্যারিয়ারে নতুন একজন গ্রাহককে স্বাগতম জানিয়ে একটি বন্ধুত্বপূর্ণ WhatsApp মেসেজ লিখুন (সর্বোচ্চ ৩ বাক্য, ৪০ শব্দ)। সুর: উষ্ণ, পেশাদার। তাদের বিনামূল্যের রিসোর্স ও কোর্স দেখার জন্য আমন্ত্রণ জানান। কোনো লিংক দেবেন না।`;
   try {
-    const result = await callAI({ messages: [{ role: "user", content: prompt }] }, 100, OUTREACH_MODEL.model, OUTREACH_MODEL.provider);
+    const result = await callAI({ messages: [{ role: "user", content: prompt }] }, 100, OUTREACH_MODEL.model, OUTREACH_MODEL.provider, { feature: "campaign_engine", operation: "outreach_message" });
     return result.text || (lang === "en" ? "Welcome to Jobayer Group Career! Explore our free resources to start your journey." : "জবায়ের গ্রুপ ক্যারিয়ারে আপনাকে স্বাগতম! বিনামূল্যের রিসোর্স দেখে আপনার যাত্রা শুরু করুন।");
   } catch {
     return lang === "en"

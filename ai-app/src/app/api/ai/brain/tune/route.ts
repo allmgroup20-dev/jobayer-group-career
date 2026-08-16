@@ -74,6 +74,7 @@ Return ONLY the improved prompt template. Keep the same {{variable}} placeholder
             500,
             "meta-llama/llama-3.3-70b-instruct:free",
             "openrouter",
+            { feature: "ai_system", operation: "prompt_tuning" },
           );
           suggestedPrompt = result.text;
         } catch {

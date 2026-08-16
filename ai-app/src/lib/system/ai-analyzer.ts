@@ -93,7 +93,8 @@ Respond in this exact JSON format (no markdown, no code fences, pure JSON):
           { messages: [{ role: "user", content: prompt }], temperature: 0.3 },
           1000,
           undefined,
-          "opencode"
+          "opencode",
+          { feature: "ai_system", operation: "error_analysis" }
         );
         analysisText = result.text;
         modelUsed = result.model;

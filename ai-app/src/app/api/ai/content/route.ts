@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         { role: "user", content: prompt },
       ],
       temperature: 0.7,
-    }, 30000);
+    }, 30000, undefined, undefined, { feature: "ai_chat", operation: "content_generation" });
 
     const content = parseContentResponse(result.text || "", language);
 

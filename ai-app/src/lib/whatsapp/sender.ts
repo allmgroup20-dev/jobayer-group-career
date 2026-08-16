@@ -1,5 +1,7 @@
 import { execute } from "@/lib/db/queries";
 import { ensureDB } from "@/lib/db";
+import { logApiCost } from "@/lib/cost-log";
+import { WHATSAPP_MSG_USD } from "@/lib/cost-prices";
 import type { SendResult } from "./types";
 
 export async function sendMessage(
@@ -15,7 +17,13 @@ export async function sendMessage(
     try {
       const { enqueueMessage } = await import("./queue");
       const id = await enqueueMessage(to, text, 1, { messageType: "text", viaRelay: true });
-      if (id) return { success: true, messageId: `relay:${id}` };
+      if (id) {
+        logApiCost({
+          provider: "whatsapp", feature: "whatsapp", operation: "send", quantity: 1,
+          unitCostUsd: WHATSAPP_MSG_USD, estCostUsd: WHATSAPP_MSG_USD, status: "queued",
+        }).catch(() => {});
+        return { success: true, messageId: `relay:${id}` };
+      }
       return { success: false, error: "Relay queue unavailable" };
     } catch (e) {
       console.error("[WhatsApp Send] Relay fallback failed:", (e as Error).message);
@@ -57,6 +65,10 @@ export async function sendMessage(
       "INSERT INTO wa_logs (phone, message, direction, status, message_type, created_at) VALUES (?, ?, 'outbound', 'sent', 'text', datetime('now'))",
       [to, text]
     );
+    logApiCost({
+      provider: "whatsapp", feature: "whatsapp", operation: "send", quantity: 1,
+      unitCostUsd: WHATSAPP_MSG_USD, estCostUsd: WHATSAPP_MSG_USD,
+    }).catch(() => {});
 
     return { success: true, messageId: data.messages?.[0]?.id };
   } catch (e) {
