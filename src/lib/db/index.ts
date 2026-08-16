@@ -25,24 +25,96 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     g[MIGRATE_FLAG] = true;
   }
 
-  // ── One-time content-feature restore ──
-  // Re-enables the curated-content flags (testimonials / live salary / payment
-  // gallery) for DBs seeded while those were default-OFF. Persisted marker in
-  // company_settings guarantees it runs exactly once, so later admin toggles
-  // are respected. Runs even when the schema fast check below short-circuits.
-  if (!g["__contentFlagsRestoreChecked"]) {
-    g["__contentFlagsRestoreChecked"] = true;
+  // ── Critical seed phase: feature_flags / site_content / api_cost_logs ──
+  // Runs on every isolate start but is marker-gated, so DBs where the legacy
+  // full-schema run was interrupted (tables exist but are empty/unseeded) get
+  // fully re-seeded without ever re-running on healthy DBs. Each statement is
+  // isolated (try/catch) and INSERT OR IGNORE is idempotent, so a single
+  // failure can never abort the remaining seeds. Runs BEFORE the big schema
+  // block and the fast check so the critical tables always exist and are
+  // populated on the very first request of a new deploy.
+  if (!g["__schemaSeedChecked"]) {
+    g["__schemaSeedChecked"] = true;
     try {
-      const mark = await env.DB.prepare(
-        "SELECT setting_value FROM company_settings WHERE setting_key = 'content_flags_restored'"
-      ).first<{ setting_value: string }>();
-      if (!mark) {
+      await env.DB.prepare(`CREATE TABLE IF NOT EXISTS company_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        setting_key TEXT UNIQUE NOT NULL,
+        setting_value TEXT,
+        setting_type TEXT DEFAULT 'text',
+        updated_at TEXT DEFAULT (datetime('now'))
+      )`).run().catch(() => {});
+      await env.DB.prepare(`CREATE TABLE IF NOT EXISTS site_content (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        section TEXT UNIQUE NOT NULL,
+        content TEXT NOT NULL DEFAULT '{}',
+        enabled INTEGER NOT NULL DEFAULT 1,
+        updated_at TEXT DEFAULT (datetime('now'))
+      )`).run().catch(() => {});
+      await env.DB.prepare(`CREATE TABLE IF NOT EXISTS feature_flags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        feature_key TEXT UNIQUE NOT NULL,
+        enabled INTEGER NOT NULL DEFAULT 0,
+        label TEXT,
+        feature_group TEXT DEFAULT 'general',
+        updated_at TEXT DEFAULT (datetime('now'))
+      )`).run().catch(() => {});
+      await env.DB.prepare(`CREATE TABLE IF NOT EXISTS api_cost_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        provider TEXT NOT NULL,
+        feature TEXT NOT NULL DEFAULT 'general',
+        operation TEXT,
+        model TEXT,
+        input_tokens INTEGER NOT NULL DEFAULT 0,
+        output_tokens INTEGER NOT NULL DEFAULT 0,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        unit_cost_usd REAL NOT NULL DEFAULT 0,
+        est_cost_usd REAL NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'ok',
+        created_at TEXT DEFAULT (datetime('now'))
+      )`).run().catch(() => {});
+
+      const seeded = await env.DB.prepare(
+        "SELECT setting_value FROM company_settings WHERE setting_key = 'schema_seeded'"
+      ).first<{ setting_value: string }>().catch(() => null);
+      if (!seeded) {
+        await env.DB.prepare(`INSERT OR IGNORE INTO feature_flags (feature_key, enabled, label, feature_group) VALUES
+          ('ai_system', 1, 'AI System (master)', 'ai'),
+          ('ai_personalize', 1, 'AI Personalization (homepage)', 'ai'),
+          ('ai_pricing', 1, 'AI Pricing', 'ai'),
+          ('ai_chat', 1, 'AI Chat (WhatsApp/web chatbot)', 'ai'),
+          ('proactive_followup', 1, 'Proactive WhatsApp follow-up', 'ai'),
+          ('campaign_engine', 1, 'Campaign engine', 'ai'),
+          ('retention_engine', 1, 'Retention engine', 'ai'),
+          ('ai_knowledge', 1, 'AI knowledge auto-seed', 'ai'),
+          ('ai_profiler', 1, 'AI profiler', 'ai'),
+          ('whatsapp', 1, 'WhatsApp Cloud API', 'messaging'),
+          ('whatsapp_otp_verify', 0, 'WhatsApp OTP verification', 'messaging'),
+          ('telegram', 1, 'Telegram bot', 'messaging'),
+          ('messenger', 1, 'Messenger bot', 'messaging'),
+          ('email_sendgrid', 1, 'Email (SendGrid)', 'messaging'),
+          ('sms_gateway', 1, 'SMS gateway', 'messaging'),
+          ('payments', 1, 'Payments / checkout', 'business'),
+          ('resource_income', 1, 'Resource income', 'business'),
+          ('referral', 1, 'Referral commissions', 'business'),
+          ('demo_bonus', 1, 'Demo bonus', 'business'),
+          ('registrations', 1, 'New registrations', 'business'),
+          ('withdrawals', 1, 'Withdrawals', 'business'),
+          ('testimonials_feed', 1, 'Home testimonials & reviews page (curated content)', 'content'),
+          ('live_salary_feed', 1, 'Live salary / bonus feed', 'content'),
+          ('payment_gallery', 1, 'Payment proof gallery', 'content'),
+          ('contact_sync', 1, 'Contact sync (phonebook)', 'content'),
+          ('maintenance_auto', 1, 'Auto maintenance cleanup', 'system'),
+          ('keepwarm_cron', 1, 'Keepwarm cron (proactive WhatsApp)', 'system'),
+          ('api_costs_logging', 1, 'API cost logging', 'system')
+        `).run().catch(() => {});
+        for (const [section, content] of Object.entries(SITE_CONTENT_DEFAULTS)) {
+          await env.DB.prepare(
+            "INSERT OR IGNORE INTO site_content (section, content, enabled, updated_at) VALUES (?, ?, 1, datetime('now'))"
+          ).bind(section, JSON.stringify(content)).run().catch(() => {});
+        }
         await env.DB.prepare(
-          "UPDATE feature_flags SET enabled = 1 WHERE feature_key IN ('testimonials_feed','live_salary_feed','payment_gallery')"
-        ).run();
-        await env.DB.prepare(
-          "INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type) VALUES ('content_flags_restored','1','text')"
-        ).run();
+          "INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type) VALUES ('schema_seeded','1','text')"
+        ).run().catch(() => {});
       }
     } catch {}
   }
@@ -50,8 +122,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   if (g[DONE_FLAG]) return;
 
   // Fast check: single PRAGMA to see if schema is already up to date.
-  // Also require the CMS/flags/cost tables so they get created + seeded even on
-  // DBs where `workers` was fully migrated before these tables existed.
+  // Also require the CMS/flags/cost tables AND the seed marker, so DBs where the
+  // legacy schema run was interrupted (tables exist but unseeded) keep getting
+  // the big block re-run instead of short-circuiting forever.
   try {
     const cols = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
     const names = cols.results?.map(r => r.name) || [];
@@ -59,11 +132,15 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs')"
     ).all<{ name: string }>();
     const tables = tbls.results?.map(r => r.name) || [];
+    const seeded = await env.DB.prepare(
+      "SELECT setting_value FROM company_settings WHERE setting_key = 'schema_seeded'"
+    ).first<{ setting_value: string }>().catch(() => null);
     if (
       SCHEMA_COLS.every(c => names.includes(c)) &&
       tables.includes("feature_flags") &&
       tables.includes("site_content") &&
-      tables.includes("api_cost_logs")
+      tables.includes("api_cost_logs") &&
+      !!seeded
     ) {
       g[DONE_FLAG] = true;
       return;
@@ -311,41 +388,6 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('min_withdrawal', '20', 'number'),
       ('min_withdrawal_premium', '20', 'number'),
       ('general_member_withdrawal_tax_percent', '5', 'number')
-    `).run();
-    for (const [section, content] of Object.entries(SITE_CONTENT_DEFAULTS)) {
-      await env.DB.prepare(
-        "INSERT OR IGNORE INTO site_content (section, content, enabled, updated_at) VALUES (?, ?, 1, datetime('now'))"
-      ).bind(section, JSON.stringify(content)).run();
-    }
-    await env.DB.prepare(`INSERT OR IGNORE INTO feature_flags (feature_key, enabled, label, feature_group) VALUES
-      ('ai_system', 1, 'AI System (master)', 'ai'),
-      ('ai_personalize', 1, 'AI Personalization (homepage)', 'ai'),
-      ('ai_pricing', 1, 'AI Pricing', 'ai'),
-      ('ai_chat', 1, 'AI Chat (WhatsApp/web chatbot)', 'ai'),
-      ('proactive_followup', 1, 'Proactive WhatsApp follow-up', 'ai'),
-      ('campaign_engine', 1, 'Campaign engine', 'ai'),
-      ('retention_engine', 1, 'Retention engine', 'ai'),
-      ('ai_knowledge', 1, 'AI knowledge auto-seed', 'ai'),
-      ('ai_profiler', 1, 'AI profiler', 'ai'),
-      ('whatsapp', 1, 'WhatsApp Cloud API', 'messaging'),
-      ('whatsapp_otp_verify', 0, 'WhatsApp OTP verification', 'messaging'),
-      ('telegram', 1, 'Telegram bot', 'messaging'),
-      ('messenger', 1, 'Messenger bot', 'messaging'),
-      ('email_sendgrid', 1, 'Email (SendGrid)', 'messaging'),
-      ('sms_gateway', 1, 'SMS gateway', 'messaging'),
-      ('payments', 1, 'Payments / checkout', 'business'),
-      ('resource_income', 1, 'Resource income', 'business'),
-      ('referral', 1, 'Referral commissions', 'business'),
-      ('demo_bonus', 1, 'Demo bonus', 'business'),
-      ('registrations', 1, 'New registrations', 'business'),
-      ('withdrawals', 1, 'Withdrawals', 'business'),
-      ('testimonials_feed', 1, 'Home testimonials & reviews page (curated content)', 'content'),
-      ('live_salary_feed', 1, 'Live salary / bonus feed', 'content'),
-      ('payment_gallery', 1, 'Payment proof gallery', 'content'),
-      ('contact_sync', 1, 'Contact sync (phonebook)', 'content'),
-      ('maintenance_auto', 1, 'Auto maintenance cleanup', 'system'),
-      ('keepwarm_cron', 1, 'Keepwarm cron (proactive WhatsApp)', 'system'),
-      ('api_costs_logging', 1, 'API cost logging', 'system')
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO commission_levels (level_number, level_name, level_name_bn, percentage, fixed_amount, commission_type, min_referral_base) VALUES
       (1, 'Associate', 'সহযোগী', 0, 20, 'fixed', 0),
@@ -1672,7 +1714,7 @@ export async function getDB(): Promise<{ DB: D1Database }> {
       try {
         await Promise.race([
           ensureSchema({ DB: db }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("Schema init timeout")), 15000)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Schema init timeout")), 60000)),
         ]);
         g[DONE_FLAG] = true;
       } catch (e) {
