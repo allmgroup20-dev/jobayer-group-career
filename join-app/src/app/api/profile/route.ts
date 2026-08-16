@@ -14,6 +14,16 @@ export async function PUT(request: NextRequest) {
     const body = await request.json() as Record<string, any>;
 
     const env = await getDB();
+
+    const hasLocation =
+      body.country !== undefined || body.city !== undefined ||
+      body.division !== undefined || body.district !== undefined || body.upazila !== undefined;
+    if (hasLocation) {
+      for (const col of ["division", "district", "upazila"]) {
+        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch { /* already exists */ }
+      }
+    }
+
     const updates: string[] = [];
     const params: unknown[] = [];
 
@@ -43,6 +53,9 @@ export async function PUT(request: NextRequest) {
     if (body.gender !== undefined) { updates.push("gender = ?"); params.push(body.gender || null); }
     if (body.country !== undefined) { updates.push("country = ?"); params.push(body.country || null); }
     if (body.city !== undefined) { updates.push("city = ?"); params.push(body.city || null); }
+    if (body.division !== undefined) { updates.push("division = ?"); params.push(body.division || null); }
+    if (body.district !== undefined) { updates.push("district = ?"); params.push(body.district || null); }
+    if (body.upazila !== undefined) { updates.push("upazila = ?"); params.push(body.upazila || null); }
     if (body.goal !== undefined) { updates.push("goal = ?"); params.push(body.goal || null); }
     if (body.preferredLearningTime !== undefined) { updates.push("preferred_learning_time = ?"); params.push(body.preferredLearningTime || null); }
     if (body.referralSource !== undefined) { updates.push("referral_source = ?"); params.push(body.referralSource || null); }

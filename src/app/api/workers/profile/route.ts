@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
               w.level, w.join_date, w.balance, w.total_earned, w.total_spent,
               w.total_team_members, w.membership_status, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.avatar_url,
-              w.gender, w.country, w.city, w.goal, w.preferred_learning_time,
+              w.gender, w.country, w.city, w.division, w.district, w.upazila, w.goal, w.preferred_learning_time,
                w.referral_source, w.communication_preference, w.budget_range,
                 w.religion,
                w.resource_income, w.resource_income_original,
@@ -61,6 +61,9 @@ export async function GET(request: NextRequest) {
       gender: worker.gender || null,
       country: worker.country || null,
       city: worker.city || null,
+      division: worker.division || null,
+      district: worker.district || null,
+      upazila: worker.upazila || null,
       goal: worker.goal || null,
       preferredLearningTime: worker.preferred_learning_time || null,
       referralSource: worker.referral_source || null,
@@ -147,6 +150,9 @@ export async function PUT(request: NextRequest) {
     if (body.gender) { updates.push("gender = ?"); params.push(body.gender); }
     if (body.country) { updates.push("country = ?"); params.push(body.country); }
     if (body.city) { updates.push("city = ?"); params.push(body.city); }
+    if (body.division) { updates.push("division = ?"); params.push(body.division); }
+    if (body.district) { updates.push("district = ?"); params.push(body.district); }
+    if (body.upazila) { updates.push("upazila = ?"); params.push(body.upazila); }
     if (body.goal) { updates.push("goal = ?"); params.push(body.goal); }
     if (body.preferredLearningTime) { updates.push("preferred_learning_time = ?"); params.push(body.preferredLearningTime); }
     if (body.referralSource) { updates.push("referral_source = ?"); params.push(body.referralSource); }

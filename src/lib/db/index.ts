@@ -222,6 +222,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     await addCol("workers", "gender", "TEXT");
     await addCol("workers", "country", "TEXT");
     await addCol("workers", "city", "TEXT");
+    await addCol("workers", "division", "TEXT");
+    await addCol("workers", "district", "TEXT");
+    await addCol("workers", "upazila", "TEXT");
     await addCol("workers", "goal", "TEXT");
     await addCol("workers", "preferred_learning_time", "TEXT");
     await addCol("workers", "referral_source", "TEXT");

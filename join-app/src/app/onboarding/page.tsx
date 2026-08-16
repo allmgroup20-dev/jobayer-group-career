@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
+import { BD_GEO } from "@/lib/bd-geo";
+import { RELIGIONS, findChildren, religionPath } from "@/lib/religions";
 
 type Me = {
   workerId?: string;
@@ -17,6 +19,9 @@ type Me = {
   gender?: string;
   country?: string;
   city?: string;
+  division?: string;
+  district?: string;
+  upazila?: string;
   goal?: string;
   preferredLearningTime?: string;
   referralSource?: string;
@@ -146,35 +151,6 @@ const BUDGETS = [
   { en: "Above 10,000 ৳", bn: "১০,০০০ এর উপরে", v: "over_10000" },
 ];
 
-const RELIGIONS = [
-  { en: "▸ Islam", bn: "▸ ইসলাম", v: "islam" },
-  { en: "  Sunni", bn: "  সুন্নি", v: "islam_sunni" },
-  { en: "  Shia", bn: "  শিয়া", v: "islam_shia" },
-  { en: "  Ahle Sunnat", bn: "  আহলে সুন্নাত", v: "islam_ahle_sunnat" },
-  { en: "  Ahle Hadith", bn: "  আহলে হাদীস", v: "islam_ahle_hadith" },
-  { en: "  Ahle Quran", bn: "  আহলে কোরআন", v: "islam_ahle_quran" },
-  { en: "  Sufi", bn: "  সুফি", v: "islam_sufi" },
-  { en: "  Deobandi", bn: "  দেওবন্দি", v: "islam_deobandi" },
-  { en: "  Ismaili", bn: "  ইসমাইলি", v: "islam_ismaili" },
-  { en: "▸ Hindu", bn: "▸ হিন্দু", v: "hindu" },
-  { en: "  Vaishnav", bn: "  বৈষ্ণব", v: "hindu_vaishnav" },
-  { en: "  Shaiva", bn: "  শৈব", v: "hindu_shaiva" },
-  { en: "  Shakta", bn: "  শাক্ত", v: "hindu_shakta" },
-  { en: "▸ Buddhist", bn: "▸ বৌদ্ধ", v: "buddhist" },
-  { en: "  Theravada", bn: "  থেরবাদ", v: "buddhist_theravada" },
-  { en: "  Mahayana", bn: "  মহাযান", v: "buddhist_mahayana" },
-  { en: "▸ Christian", bn: "▸ খ্রিস্টান", v: "christian" },
-  { en: "  Catholic", bn: "  ক্যাথলিক", v: "christian_catholic" },
-  { en: "  Orthodox", bn: "  অর্থোডক্স", v: "christian_orthodox" },
-  { en: "  Protestant", bn: "  প্রোটেস্ট্যান্ট", v: "christian_protestant" },
-  { en: "Atheist", bn: "নাস্তিক", v: "atheist" },
-  { en: "Agnostic", bn: "সঞ্চয়বাদী", v: "agnostic" },
-  { en: "Sanatan", bn: "সনাতন", v: "sanatan" },
-  { en: "Sarbabadi", bn: "সর্ববাদী", v: "sarbabadi" },
-  { en: "LGBTQ+", bn: "এলজিবিটি", v: "lgbtq" },
-  { en: "Other", bn: "অন্যান্য", v: "other" },
-];
-
 const INTERESTS = [
   { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
   { en: "Programming", bn: "প্রোগ্রামিং", icon: "💻" },
@@ -226,9 +202,15 @@ export default function OnboardingPage() {
     ageGroup: "",
     occupation: "",
     educationLevel: "",
-    country: "",
+    country: "বাংলাদেশ",
     city: "",
+    division: "",
+    district: "",
+    upazila: "",
     religion: "",
+    religionL1: "",
+    religionL2: "",
+    religionL3: "",
     preferredLanguage: "bn",
     goal: "",
     interests: [] as string[],
@@ -258,9 +240,15 @@ export default function OnboardingPage() {
           ageGroup: data.ageGroup || "",
           occupation: data.occupation || "",
           educationLevel: data.educationLevel || "",
-          country: data.country || "",
-          city: data.city || "",
+          country: "বাংলাদেশ",
+          city: data.upazila || data.city || "",
+          division: data.division || "",
+          district: data.district || "",
+          upazila: data.upazila || "",
           religion: data.religion || "",
+          religionL1: (data.religion || "").split(">")[0] || "",
+          religionL2: (data.religion || "").split(">")[1] || "",
+          religionL3: (data.religion || "").split(">")[2] || "",
           preferredLanguage: data.preferredLanguage || "bn",
           goal: data.goal || "",
           preferredLearningTime: data.preferredLearningTime || "",
@@ -305,9 +293,10 @@ export default function OnboardingPage() {
         if (!form.educationLevel) return t("শিক্ষাগত যোগ্যতা নির্বাচন করুন", "Select your education level");
         return "";
       case "location":
-        if (!form.country.trim()) return t("দেশ লিখুন", "Enter your country");
-        if (!form.city.trim()) return t("শহর লিখুন", "Enter your city");
-        if (!form.religion) return t("ধর্ম নির্বাচন করুন", "Select your religion");
+        if (!form.division) return t("বিভাগ নির্বাচন করুন", "Select your division");
+        if (!form.district) return t("জেলা নির্বাচন করুন", "Select your district");
+        if (!form.upazila) return t("উপজেলা / থানা নির্বাচন করুন", "Select your upazila / thana");
+        if (!form.religionL1) return t("ধর্ম নির্বাচন করুন", "Select your religion");
         return "";
       case "goals":
         if (!form.goal) return t("আপনার লক্ষ্য নির্বাচন করুন", "Select your goal");
@@ -342,7 +331,15 @@ export default function OnboardingPage() {
           await api("/api/profile", { name: form.name.trim(), gender: form.gender, ageGroup: form.ageGroup, occupation: form.occupation, educationLevel: form.educationLevel });
           break;
         case "location":
-          await api("/api/profile", { country: form.country.trim(), city: form.city.trim(), religion: form.religion, preferredLanguage: form.preferredLanguage });
+          await api("/api/profile", {
+            country: "বাংলাদেশ",
+            city: form.upazila,
+            division: form.division,
+            district: form.district,
+            upazila: form.upazila,
+            religion: form.religion || form.religionL1,
+            preferredLanguage: form.preferredLanguage,
+          });
           break;
         case "goals":
           await api("/api/profile", { goal: form.goal, preferredLearningTime: form.preferredLearningTime, budgetRange: form.budgetRange });
@@ -537,24 +534,109 @@ export default function OnboardingPage() {
           {step === "location" && (
             <div className="space-y-4">
               <Header emoji="📍" title={t("অবস্থান ও ভাষা", "Location & Language")} sub={t("কোথায় আছেন জানান", "Let us know where you are")} />
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  {label("দেশ *", "Country *")}
-                  <input type="text" value={form.country} onChange={(e) => update("country", e.target.value)} placeholder="বাংলাদেশ" className="input-field" />
-                </div>
-                <div>
-                  {label("শহর *", "City *")}
-                  <input type="text" value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="ঢাকা" className="input-field" />
+              <div>
+                {label("দেশ *", "Country *")}
+                <div className="input-field flex items-center justify-between">
+                  <span>🇧🇩 {t("বাংলাদেশ", "Bangladesh")}</span>
+                  <span className="text-[11px] font-bold text-teal">{t("অটো সিলেক্টেড", "Auto-selected")}</span>
                 </div>
               </div>
               <div>
-                {label("ধর্ম *", "Religion *")}
-                <select value={form.religion} onChange={(e) => update("religion", e.target.value)} className="input-field">
-                  <option value="">{t("নির্বাচন করুন", "Select...")}</option>
-                  {RELIGIONS.map((r) => (
-                    <option key={r.v} value={r.v}>{t(r.bn, r.en)}</option>
+                {label("বিভাগ *", "Division *")}
+                <select
+                  value={form.division}
+                  onChange={(e) => { update("division", e.target.value); update("district", ""); update("upazila", ""); update("city", ""); }}
+                  className="input-field"
+                >
+                  <option value="">{t("বিভাগ নির্বাচন করুন", "Select division...")}</option>
+                  {BD_GEO.map((d) => (
+                    <option key={d.en} value={d.en}>{t(d.bn, d.en)}</option>
                   ))}
                 </select>
+              </div>
+              {form.division && (
+                <div>
+                  {label("জেলা *", "District *")}
+                  <select
+                    value={form.district}
+                    onChange={(e) => { update("district", e.target.value); update("upazila", ""); update("city", ""); }}
+                    className="input-field"
+                  >
+                    <option value="">{t("জেলা নির্বাচন করুন", "Select district...")}</option>
+                    {BD_GEO.find((d) => d.en === form.division)?.districts.map((di) => (
+                      <option key={di.en} value={di.en}>{t(di.bn, di.en)}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {form.division && form.district && (
+                <div>
+                  {label("উপজেলা / থানা *", "Upazila / Thana *")}
+                  <select
+                    value={form.upazila}
+                    onChange={(e) => { update("upazila", e.target.value); update("city", e.target.value); }}
+                    className="input-field"
+                  >
+                    <option value="">{t("উপজেলা / থানা নির্বাচন করুন", "Select upazila / thana...")}</option>
+                    {BD_GEO.find((d) => d.en === form.division)?.districts.find((di) => di.en === form.district)?.upazilas.map((u) => (
+                      <option key={u.en} value={u.en}>{t(u.bn, u.en)}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div>
+                {label("ধর্ম *", "Religion *")}
+                <div className="space-y-2">
+                  <select
+                    value={form.religionL1}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      update("religionL1", v);
+                      update("religionL2", "");
+                      update("religionL3", "");
+                      update("religion", religionPath({ l1: v }));
+                    }}
+                    className="input-field"
+                  >
+                    <option value="">{t("ধর্ম নির্বাচন করুন", "Select religion...")}</option>
+                    {RELIGIONS.map((r) => (
+                      <option key={r.v} value={r.v}>{t(r.bn, r.en)}</option>
+                    ))}
+                  </select>
+                  {findChildren(RELIGIONS, form.religionL1) && (
+                    <select
+                      value={form.religionL2}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        update("religionL2", v);
+                        update("religionL3", "");
+                        update("religion", religionPath({ l1: form.religionL1, l2: v }));
+                      }}
+                      className="input-field"
+                    >
+                      <option value="">{t("ভিতরের অংশ নির্বাচন করুন", "Select branch...")}</option>
+                      {findChildren(RELIGIONS, form.religionL1)?.map((c) => (
+                        <option key={c.v} value={c.v}>{t(c.bn, c.en)}</option>
+                      ))}
+                    </select>
+                  )}
+                  {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2) && (
+                    <select
+                      value={form.religionL3}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        update("religionL3", v);
+                        update("religion", religionPath({ l1: form.religionL1, l2: form.religionL2, l3: v }));
+                      }}
+                      className="input-field"
+                    >
+                      <option value="">{t("আরও ভিতরের অংশ নির্বাচন করুন", "Select sub-branch...")}</option>
+                      {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2)?.map((c) => (
+                        <option key={c.v} value={c.v}>{t(c.bn, c.en)}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
               <div>
                 {label("পছন্দের ভাষা", "Preferred Language")}

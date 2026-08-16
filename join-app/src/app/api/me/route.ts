@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       `SELECT w.worker_id, w.name, w.phone, w.email, w.google_id, w.sponsor_id, w.sponsor_name,
               w.level, w.join_date, w.membership_status, w.avatar_url, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.gender, w.country, w.city,
+              w.division, w.district, w.upazila,
               w.goal, w.preferred_learning_time, w.referral_source, w.communication_preference,
               w.budget_range, w.religion, w.total_team_members, w.resource_income,
               w.interests_updated_at, w.created_at
@@ -53,6 +54,9 @@ export async function GET(request: NextRequest) {
       gender: worker.gender || "",
       country: worker.country || "",
       city: worker.city || "",
+      division: worker.division || "",
+      district: worker.district || "",
+      upazila: worker.upazila || "",
       goal: worker.goal || "",
       preferredLearningTime: worker.preferred_learning_time || "",
       referralSource: worker.referral_source || "",
