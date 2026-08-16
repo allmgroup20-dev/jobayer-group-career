@@ -8,7 +8,7 @@ function LangToggle() {
   return (
     <button
       onClick={() => setLang(lang === "bn" ? "en" : "bn")}
-      className="fixed top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/10 backdrop-blur border border-white/15 text-sm font-black text-white active:scale-95 transition-transform"
+      className="fixed top-2.5 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 text-sm font-black text-white active:scale-95 transition-transform"
       aria-label="Toggle language"
     >
       <span className="text-base">🌐</span>

@@ -10,7 +10,7 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "SITE_NAME": "Jobayer Group Join",
+    "SITE_NAME": "YouTube Earner Worker",
     "SITE_URL": "https://youtube.earner.workers.dev",
     "GOOGLE_CLIENT_ID": "403109702719-febj7lgvrlb8am6vh39e31k2lk5cfato.apps.googleusercontent.com",
     "WHATSAPP_VERIFY_ENABLED": "false"
