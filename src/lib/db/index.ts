@@ -27,11 +27,22 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
 
   if (g[DONE_FLAG]) return;
 
-  // Fast check: single PRAGMA to see if schema is already up to date
+  // Fast check: single PRAGMA to see if schema is already up to date.
+  // Also require the CMS/flags/cost tables so they get created + seeded even on
+  // DBs where `workers` was fully migrated before these tables existed.
   try {
     const cols = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
     const names = cols.results?.map(r => r.name) || [];
-    if (SCHEMA_COLS.every(c => names.includes(c))) {
+    const tbls = await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs')"
+    ).all<{ name: string }>();
+    const tables = tbls.results?.map(r => r.name) || [];
+    if (
+      SCHEMA_COLS.every(c => names.includes(c)) &&
+      tables.includes("feature_flags") &&
+      tables.includes("site_content") &&
+      tables.includes("api_cost_logs")
+    ) {
       g[DONE_FLAG] = true;
       return;
     }
