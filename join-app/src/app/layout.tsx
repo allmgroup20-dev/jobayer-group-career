@@ -18,11 +18,11 @@ const SITE_NAME = process.env.SITE_NAME || "YouTube Earner Worker";
 
 export const metadata: Metadata = {
   title: {
-    default: "ইউটিউব আর্নার — আপনার আয়ের জন্য সেরা মাধ্যম",
+    default: "ইউটিউব আর্নার — দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন",
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "ইউটিউব আর্নার — এখনই Google দিয়ে জয়েন করুন, সাইনআপ বোনাস, প্রিমিয়াম রিসোর্স ও রেফারেল কমিশন পেয়ে প্রতি রেফারেলে আয়ের সুযোগ। ১০০% মোবাইল ফ্রেন্ডলি।",
+    "ইউটিউব আর্নার — এখনই Google দিয়ে জয়েন করুন। ফ্রি ডেমো ক্লাস, ৯৭০+ প্রিমিয়াম রিসোর্স, ক্রিয়েটর র্যাংক ও বোনাস রিসোর্স। আমরা YouTube-এর অফিসিয়াল নিয়ম শেখাই — গ্যারান্টেড ইনকাম নয়, বাস্তব দক্ষতা। ১০০% মোবাইল ফ্রেন্ডলি।",
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "ইউটিউব আর্নার — আপনার আয়ের জন্য সেরা মাধ্যম",
-    description: "সাইনআপ বোনাস, প্রিমিয়াম রিসোর্স ও রেফারেল আয়। Google দিয়ে এক ক্লিকে জয়েন করুন।",
+    title: "ইউটিউব আর্নার — দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন",
+    description: "ফ্রি ডেমো ক্লাস, ৯৭০+ প্রিমিয়াম রিসোর্স, ক্রিয়েটর র্যাংক ও বোনাস রিসোর্স। Google দিয়ে এক ক্লিকে জয়েন করুন।",
     url: SITE_URL,
     siteName: SITE_NAME,
     type: "website",
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "ইউটিউব আর্নার — আপনার আয়ের জন্য সেরা মাধ্যম",
-    description: "সাইনআপ বোনাস, প্রিমিয়াম রিসোর্স ও রেফারেল আয়।",
+    title: "ইউটিউব আর্নার — দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন",
+    description: "ফ্রি ডেমো ক্লাস, ৯৭০+ প্রিমিয়াম রিসোর্স, ক্রিয়েটর র্যাংক ও বোনাস রিসোর্স।",
   },
 };
 

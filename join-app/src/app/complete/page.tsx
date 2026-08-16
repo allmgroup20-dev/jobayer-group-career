@@ -91,7 +91,7 @@ export default function CompletePage() {
           <div className="card-pop !p-4">
             <div className="text-2xl">💰</div>
             <p className="mt-1 text-xl font-black text-teal">{me?.resourceIncome ?? 0}</p>
-            <p className="text-[11px] font-bold text-ink-soft">{t("রিসোর্স ইনকাম", "Resource Income")}</p>
+            <p className="text-[11px] font-bold text-ink-soft">{t("বোনাস রিসোর্স", "Bonus Resources")}</p>
           </div>
         </div>
 
@@ -99,10 +99,10 @@ export default function CompletePage() {
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">🔗 {t("আপনার রেফারেল লিংক", "Your Referral Link")}</h2>
-            <span className="badge-glow bg-gold/20 text-gold border border-gold/40">{t("শেয়ার করুন • আয় করুন", "Share • Earn")}</span>
+            <span className="badge-glow bg-gold/20 text-gold border border-gold/40">{t("শেয়ার করুন • র্যাংক অর্জন করুন", "Share • Earn Ranks")}</span>
           </div>
           <p className="mt-2 text-xs text-white/70">
-            {t("এই লিংক দিয়ে যতজন জয়েন করবে, প্রত্যেকে আপনার টিমে যোগ হবে।", "Everyone who joins through this link becomes part of your team.")}
+            {t("এই লিংক দিয়ে যতজন জয়েন করবে, আপনার ক্রিয়েটর র্যাংক বাড়বে।", "Everyone who joins through this link grows your creator rank.")}
           </p>
           <div className="mt-3 flex gap-2">
             <input
@@ -135,11 +135,11 @@ export default function CompletePage() {
 
         {/* Tips */}
         <div className="mt-6 card-pop text-left !p-5">
-          <h3 className="font-black text-brand mb-3">💡 {t("কীভাবে বেশি আয় করবেন", "How to Earn More")}</h3>
+          <h3 className="font-black text-brand mb-3">💡 {t("কীভাবে এগিয়ে যাবেন", "How to Grow")}</h3>
           <ul className="space-y-2 text-sm text-ink-soft">
             <li>1️⃣ {t("লিংকটি ফেসবুক, ইউটিউব ও হোয়াটসঅ্যাপে শেয়ার করুন", "Share your link on Facebook, YouTube & WhatsApp")}</li>
-            <li>2️⃣ {t("প্রতি রেফারেলে বোনাস ও কমিশন পাবেন", "Earn bonus & commission on every referral")}</li>
-            <li>3️⃣ {t("টিম বড় হলে ইনকাম বাড়বে", "Bigger team = bigger income")}</li>
+            <li>2️⃣ {t("প্রতি রেফারেলে র্যাংক ও বোনাস রিসোর্স পাবেন", "Earn ranks & bonus resources on every referral")}</li>
+            <li>3️⃣ {t("টিম বড় হলে র্যাংক ও স্বীকৃতি বাড়বে", "Bigger team = more ranks & recognition")}</li>
           </ul>
         </div>
 

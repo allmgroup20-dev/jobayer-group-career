@@ -12,17 +12,17 @@ type Me = {
 };
 
 const BENEFITS = [
-  { emoji: "🎁", en: "Instant signup bonus", bn: "সাইনআপ বোনাস" },
-  { emoji: "💰", en: "Cashback & rewards", bn: "ক্যাশব্যাক ও রেওয়ার্ড" },
+  { emoji: "🎁", en: "Instant bonus resources", bn: "বোনাস রিসোর্স" },
+  { emoji: "💰", en: "Creator ranks & certificate", bn: "ক্রিয়েটর র্যাংক ও সার্টিফিকেট" },
   { emoji: "📚", en: "970+ premium resources", bn: "৯৭০+ প্রিমিয়াম রিসোর্স" },
-  { emoji: "🤝", en: "Refer & earn commission", bn: "রেফার করুন, কমিশন পান" },
+  { emoji: "🤝", en: "Refer & earn ranks", bn: "রেফার করুন, র্যাংক অর্জন করুন" },
 ];
 
 const STEPS = [
   { n: "১", en: "Login with Google", bn: "Google দিয়ে লগইন" },
   { n: "২", en: "Complete your profile", bn: "প্রোফাইল কমপ্লিট করুন" },
-  { n: "৩", en: "Get bonus & rewards", bn: "বোনাস ও রেওয়ার্ড পান" },
-  { n: "৪", en: "Share & earn more", bn: "শেয়ার করুন, আরও আয় করুন" },
+  { n: "৩", en: "Learn & unlock resources", bn: "শিখুন ও রিসোর্স আনলক করুন" },
+  { n: "৪", en: "Share & earn ranks", bn: "শেয়ার করুন, র্যাংক অর্জন করুন" },
 ];
 
 export default function HomePage() {
@@ -65,24 +65,24 @@ export default function HomePage() {
 
         <h1 className="mt-4 text-4xl md:text-5xl font-black leading-tight">
           <span className="gradient-text animate-shimmer">
-            {t("টাকা ও রেওয়ার্ড", "Money & Rewards")}
+            {t("দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন", "Learn Skills, Unlock Rewards")}
           </span>
           <br />
-          {t("আপনার জন্য অপেক্ষায়!", "Are Waiting For You!")}
+          {t("কোনো ভুয়া প্রমিজ নেই!", "No Fake Promises!")}
         </h1>
 
         <p className="mt-3 text-base md:text-lg text-ink-soft max-w-md mx-auto">
           {t(
-            "Google দিয়ে এক ক্লিকে জয়েন করুন — সাইনআপ বোনাস, প্রিমিয়াম রিসোর্স ও রেফারেল কমিশন পেতে এখনই শুরু করুন।",
-            "Join with Google in one click — start earning signup bonus, premium resources and referral commission today."
+            "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও ক্রিয়েটর র্যাংক পেতে এখনই শুরু করুন।",
+            "Join with Google in one click — start with a free demo class, premium resources and creator ranks today."
           )}
         </p>
 
-        {/* Prize ticker */}
+        {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm font-black">
-          <span className="badge-glow bg-pink/15 text-pink border border-pink/30 animate-wiggle">৳৫০০+ {t("বোনাস", "Bonus")}</span>
-          <span className="badge-glow bg-violet/15 text-violet border border-violet/30">⚡ {t("অফার চলছে", "Offer Live")}</span>
-          <span className="badge-glow bg-teal/15 text-teal border border-teal/30">✅ {t("১০০% ফ্রি জয়েন", "100% Free")}</span>
+          <span className="badge-glow bg-gold/15 text-gold border border-gold/30">৳৯৯ {t("থেকে শুরু", "Starting From")}</span>
+          <span className="badge-glow bg-teal/15 text-teal border border-teal/30">⚡ {t("ফ্রি রেজিস্ট্রেশন", "Free Registration")}</span>
+          <span className="badge-glow bg-violet/15 text-violet border border-violet/30">✅ {t("ফ্রি ডেমো ক্লাস", "Free Demo Class")}</span>
         </div>
       </section>
 
@@ -98,7 +98,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-1 text-sm text-white/70">
               {me
-                ? t("আপনার প্রোফাইল সম্পূর্ণ করুন ও বোনাস ক্লেইম করুন", "Complete your profile & claim your bonus")
+                ? t("আপনার প্রোফাইল সম্পূর্ণ করুন ও বোনাস রিসোর্স পেতে শুরু করুন", "Complete your profile & start earning bonus resources")
                 : t("লগইন/রেজিস্ট্রেশন সম্পূর্ণ Google দিয়ে", "Login/Register is 100% Google")}
             </p>
           </div>
@@ -174,10 +174,28 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trust strip */}
+      <section className="px-4 pb-10">
+        <div className="max-w-md mx-auto card-pop !p-5 text-center">
+          <p className="text-sm font-bold text-brand leading-relaxed">
+            🛡️ {t(
+              "আমরা YouTube-এর অফিসিয়াল নিয়ম শেখাই — গ্যারান্টেড ইনকাম নয়, বাস্তব দক্ষতা। আয়ের নিশ্চয়তা নেই; রিফান্ড পলিসি প্রযোজ্য।",
+              "We teach YouTube's official rules — real skills, not guaranteed income. No income guarantee; refund policy applies."
+            )}
+          </p>
+          <p className="mt-2 text-[11px] text-ink-soft">
+            {t("বিশ্বাস করার আগে আমাদের যাচাই করুন — রিফান্ড, টার্মস ও প্রাইভেসি পলিসি পাবলিক।", "Verify before you trust — our refund, terms and privacy policies are public.")}
+          </p>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="px-4 pb-12 text-center text-xs text-ink-soft safe-bottom">
+      <footer className="px-4 pb-12 text-center text-xs text-ink-soft safe-bottom space-y-2">
         <p className="font-bold">
           {t("একটি Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
+        </p>
+        <p>
+          {t("© ২০২৬ Jobayer Group Career। এই প্রোগ্রামটি YouTube/Google-এর সাথে সম্পর্কিত নয়; কোনো আয়/চাকরির নিশ্চয়তা দেওয়া হয় না।", "© 2026 Jobayer Group Career. This program is not affiliated with YouTube/Google; no income/job guarantee is provided.")}
         </p>
       </footer>
     </main>

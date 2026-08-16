@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       workerId,
       referralLink: `${siteUrl}/?ref=${workerId}`,
-      shareText: `🎯 এখনই জয়েন করুন! Jobayer Group-এ প্রিমিয়াম রিসোর্স, বোনাস ও রেফারেল আয়ের সুযোগ।\nআমার রেফারেল: ${siteUrl}/?ref=${workerId}`,
+      shareText: `🎯 এখনই জয়েন করুন! Jobayer Group-এ প্রিমিয়াম রিসোর্স, বোনাস রিসোর্স ও ক্রিয়েটর র্যাংকের সুযোগ।\nআমার রেফারেল: ${siteUrl}/?ref=${workerId}`,
       siteUrl,
     });
   } catch (error) {

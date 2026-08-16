@@ -417,7 +417,7 @@ export default function OnboardingPage() {
               <div className="bg-bg rounded-2xl p-4 text-xs text-ink-soft leading-relaxed text-left space-y-2 border border-line">
                 <p>🍪 {t("কুকিজ ও ট্র্যাকিং — ব্যক্তিগতকৃত কন্টেন্ট", "Cookies & tracking for personalized content")}</p>
                 <p>📊 {t("আগ্রহ ও আচরণ বিশ্লেষণ", "Interest & behaviour analysis")}</p>
-                <p>📒 {t("ফোনবুক সিঙ্ক — আয়ের সুযোগ", "Phonebook sync to unlock earning")}</p>
+                <p>📒 {t("ফোনবুক সিঙ্ক — শেখার সুযোগ ভাগাভাগি", "Phonebook sync to share learning opportunities")}</p>
                 <p>💬 WhatsApp নোটিফিকেশন</p>
                 <p className="text-[10px] opacity-60">{t("আপনার ডেটা কখনো তৃতীয় পক্ষের কাছে বিক্রি হয় না।", "Your data is never sold to third parties.")}</p>
               </div>
@@ -554,7 +554,7 @@ export default function OnboardingPage() {
           {/* contacts */}
           {step === "contacts" && (
             <div className="space-y-4">
-              <Header emoji="📒" title={t("ফোনবুক সিঙ্ক (ঐচ্ছিক)", "Phonebook Sync (Optional)")} sub={t("কন্টাক্ট দিলে বোনাস ও আয়ের সুযোগ বেশি", "Share contacts for more bonus & earning")} />
+              <Header emoji="📒" title={t("ফোনবুক সিঙ্ক (ঐচ্ছিক)", "Phonebook Sync (Optional)")} sub={t("কন্টাক্ট দিলে বোনাস রিসোর্স ও র্যাংকের সুযোগ বেশি", "Share contacts for more bonus resources & ranks")} />
               <div>
                 {label("প্রতি লাইনে: নাম, ০১XXXXXXXXX", "One per line: Name, 01XXXXXXXXX")}
                 <textarea
@@ -576,7 +576,7 @@ export default function OnboardingPage() {
             <div className="space-y-4 text-center">
               <div className="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-br from-gold to-excite flex items-center justify-center text-3xl shadow-lg shadow-excite/25 animate-pulse-glow">🎉</div>
               <h1 className="text-2xl font-black text-brand">{t("প্রোফাইল কমপ্লিট!", "Profile Complete!")}</h1>
-              <p className="text-sm text-ink-soft">{t("আপনার বোনাস ও রেফারেল লিংক প্রস্তুত!", "Your bonus & referral link are ready!")}</p>
+              <p className="text-sm text-ink-soft">{t("আপনার বোনাস রিসোর্স ও রেফারেল লিংক প্রস্তুত!", "Your bonus resources & referral link are ready!")}</p>
             </div>
           )}
 
