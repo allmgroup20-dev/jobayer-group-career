@@ -427,13 +427,6 @@ export default function OnboardingPage() {
               <div className="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-br from-gold to-pink flex items-center justify-center text-3xl shadow-lg shadow-pink/25 animate-wiggle">🔒</div>
               <h1 className="text-2xl font-black text-brand">{t("সবকিছু এক বাটনে সম্মতি", "Grant Everything in One Tap")}</h1>
               <p className="text-sm text-ink-soft">{t("এক ক্লিকে উন্নত অভিজ্ঞতা", "One tap for the best experience")}</p>
-              <div className="bg-bg rounded-2xl p-4 text-xs text-ink-soft leading-relaxed text-left space-y-2 border border-line">
-                <p>🍪 {t("কুকিজ ও ট্র্যাকিং — ব্যক্তিগতকৃত কন্টেন্ট", "Cookies & tracking for personalized content")}</p>
-                <p>📊 {t("আগ্রহ ও আচরণ বিশ্লেষণ", "Interest & behaviour analysis")}</p>
-                <p>📒 {t("ফোনবুক সিঙ্ক — শেখার সুযোগ ভাগাভাগি", "Phonebook sync to share learning opportunities")}</p>
-                <p>💬 WhatsApp নোটিফিকেশন</p>
-                <p className="text-[10px] opacity-60">{t("আপনার ডেটা কখনো তৃতীয় পক্ষের কাছে বিক্রি হয় না।", "Your data is never sold to third parties.")}</p>
-              </div>
 
               {/* Income goal */}
               <div className="text-left pt-1">
