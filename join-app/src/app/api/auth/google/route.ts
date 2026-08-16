@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the Google ID Token server-side via Google's tokeninfo endpoint.
-    let profile: { sub?: string; email?: string; email_verified?: string; name?: string; aud?: string };
+    let profile: { sub?: string; email?: string; email_verified?: string; name?: string; picture?: string; aud?: string };
     try {
       const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`, {
         headers: { "accept": "application/json" },
@@ -48,6 +48,9 @@ export async function POST(request: NextRequest) {
     );
 
     if (worker) {
+      if (profile.picture) {
+        await execute(env, "UPDATE workers SET avatar_url = ? WHERE worker_id = ?", [profile.picture, worker.worker_id]).catch(() => {});
+      }
       const token = await generateToken(worker.worker_id, getJwtSecret());
       const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name, isNew: false });
       setSessionCookie(response, token);
@@ -61,6 +64,9 @@ export async function POST(request: NextRequest) {
       );
       if (worker) {
         await execute(env, "UPDATE workers SET google_id = ? WHERE worker_id = ?", [googleId, worker.worker_id]);
+        if (profile.picture) {
+          await execute(env, "UPDATE workers SET avatar_url = ? WHERE worker_id = ?", [profile.picture, worker.worker_id]).catch(() => {});
+        }
         const token = await generateToken(worker.worker_id, getJwtSecret());
         const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name, isNew: false });
         setSessionCookie(response, token);
@@ -84,9 +90,9 @@ export async function POST(request: NextRequest) {
     const hashedPw = await hashPassword("google_oauth_" + googleId.slice(0, 8));
 
     await execute(env,
-      `INSERT INTO workers (worker_id, name, phone, email, password, google_id, sponsor_id, sponsor_name, join_date, membership_status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
-      [workerId, name, phone, email || null, hashedPw, googleId, sponsorId, sponsorName]
+      `INSERT INTO workers (worker_id, name, phone, email, password, google_id, sponsor_id, sponsor_name, join_date, membership_status, avatar_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), 'general', ?)`,
+      [workerId, name, phone, email || null, hashedPw, googleId, sponsorId, sponsorName, profile.picture || null]
     );
 
     // Affiliate tree + sponsor team count (same structure as the platform register).
