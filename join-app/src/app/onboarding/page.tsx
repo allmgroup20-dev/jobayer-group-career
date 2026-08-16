@@ -30,29 +30,76 @@ type StepKey = "consent" | "whatsapp" | "basic" | "location" | "goals" | "source
 
 const STEP_ORDER: StepKey[] = ["consent", "whatsapp", "basic", "location", "goals", "source", "done"];
 
-const AGE_GROUPS = [
-  { en: "Under 18", bn: "১৮ এর নিচে", v: "under_18" },
-  { en: "18 - 24", bn: "১৮ - ২৪", v: "18_24" },
-  { en: "25 - 34", bn: "২৫ - ৩৪", v: "25_34" },
-  { en: "35 - 44", bn: "৩৫ - ৪৪", v: "35_44" },
-  { en: "45+", bn: "৪৫+", v: "45_plus" },
-];
-
 const OCCUPATIONS = [
   { en: "Student", bn: "ছাত্র/ছাত্রী", v: "student" },
-  { en: "Employed", bn: "চাকরিজীবী", v: "employed" },
+  { en: "Job Seeker", bn: "চাকরি প্রার্থী", v: "job_seeker" },
+  { en: "Employed (Private)", bn: "চাকরিজীবী (বেসরকারি)", v: "employed" },
+  { en: "Government Job", bn: "সরকারি চাকরিজীবী", v: "govt_job" },
   { en: "Freelancer", bn: "ফ্রিল্যান্সার", v: "freelancer" },
+  { en: "Content Creator / YouTuber", bn: "কনটেন্ট ক্রিয়েটর / ইউটিউবার", v: "content_creator" },
+  { en: "Teacher", bn: "শিক্ষক/শিক্ষিকা", v: "teacher" },
+  { en: "Doctor / Health Worker", bn: "ডাক্তার / স্বাস্থ্যকর্মী", v: "doctor" },
+  { en: "Engineer / Technician", bn: "ইঞ্জিনিয়ার / টেকনিশিয়ান", v: "engineer" },
   { en: "Business", bn: "ব্যবসায়ী", v: "business" },
+  { en: "Shopkeeper", bn: "দোকানদার", v: "shopkeeper" },
+  { en: "Driver", bn: "চালক", v: "driver" },
+  { en: "Farmer", bn: "কৃষক", v: "farmer" },
+  { en: "Day Laborer", bn: "দিনমজুর / শ্রমিক", v: "day_laborer" },
   { en: "Homemaker", bn: "গৃহিণী", v: "homemaker" },
+  { en: "Retired", bn: "অবসরপ্রাপ্ত", v: "retired" },
   { en: "Unemployed", bn: "বেকার", v: "unemployed" },
 ];
 
-const EDUCATION = [
-  { en: "SSC / O-Level", bn: "এসএসসি / ও-লেভেল", v: "ssc" },
-  { en: "HSC / A-Level", bn: "এইচএসসি / এ-লেভেল", v: "hsc" },
-  { en: "Bachelor's", bn: "স্নাতক", v: "bachelor" },
-  { en: "Master's", bn: "স্নাতকোত্তর", v: "master" },
-  { en: "PhD", bn: "পিএইচডি", v: "phd" },
+const EDUCATION_GROUPS: { label: { en: string; bn: string }; options: { en: string; bn: string; v: string }[] }[] = [
+  {
+    label: { en: "National Curriculum (Bangla Medium)", bn: "জাতীয় কারিকুলাম (বাংলা মাধ্যম)" },
+    options: [
+      { en: "PSC (Primary School Certificate)", bn: "পিএসসি (প্রাথমিক শিক্ষা সমাপনী)", v: "psc" },
+      { en: "JSC (Junior School Certificate)", bn: "জেএসসি (জুনিয়র স্কুল সার্টিফিকেট)", v: "jsc" },
+      { en: "SSC (Secondary School Certificate)", bn: "এসএসসি (মাধ্যমিক)", v: "ssc" },
+      { en: "HSC (Higher Secondary Certificate)", bn: "এইচএসসি (উচ্চ মাধ্যমিক)", v: "hsc" },
+    ],
+  },
+  {
+    label: { en: "English Medium / English Version", bn: "ইংরেজি মাধ্যম / ইংরেজি ভার্সন" },
+    options: [
+      { en: "O-Level / IGCSE (SSC equivalent)", bn: "ও-লেভেল / আইজিসিএসই (এসএসসি সমতুল্য)", v: "olevel" },
+      { en: "A-Level (HSC equivalent)", bn: "এ-লেভেল (এইচএসসি সমতুল্য)", v: "alevel" },
+    ],
+  },
+  {
+    label: { en: "Madrasa (Islamic) Education", bn: "মাদ্রাসা শিক্ষা" },
+    options: [
+      { en: "Ebtedayee (Primary equivalent)", bn: "এবতেদায়ী (প্রাথমিক সমতুল্য)", v: "ebtedayee" },
+      { en: "Dakhil (SSC equivalent)", bn: "দাখিল (এসএসসি সমতুল্য)", v: "dakhil" },
+      { en: "Alim (HSC equivalent)", bn: "আলিম (এইচএসসি সমতুল্য)", v: "alim" },
+      { en: "Fazil (Bachelor's equivalent)", bn: "ফাযিল (স্নাতক সমতুল্য)", v: "fazil" },
+      { en: "Kamil (Master's equivalent)", bn: "কামিল (স্নাতকোত্তর সমতুল্য)", v: "kamil" },
+    ],
+  },
+  {
+    label: { en: "Technical / Vocational (BTEB)", bn: "কারিগরি / ভোকেশনাল" },
+    options: [
+      { en: "SSC (Vocational)", bn: "এসএসসি (ভোকেশনাল)", v: "ssc_voc" },
+      { en: "HSC (Vocational)", bn: "এইচএসসি (ভোকেশনাল)", v: "hsc_voc" },
+      { en: "Diploma in Engineering", bn: "ডিপ্লোমা-ইন-ইঞ্জিনিয়ারিং", v: "diploma" },
+    ],
+  },
+  {
+    label: { en: "Higher Education", bn: "উচ্চশিক্ষা" },
+    options: [
+      { en: "Bachelor's (Honours/Pass)", bn: "স্নাতক (অনার্স/পাস)", v: "bachelor" },
+      { en: "Master's", bn: "স্নাতকোত্তর", v: "master" },
+      { en: "PhD", bn: "পিএইচডি", v: "phd" },
+    ],
+  },
+  {
+    label: { en: "Other", bn: "অন্যান্য" },
+    options: [
+      { en: "Only literate", bn: "শুধু স্বাক্ষর", v: "literate" },
+      { en: "No formal education", bn: "কোনো আনুষ্ঠানিক শিক্ষা নেই", v: "none" },
+    ],
+  },
 ];
 
 const GENDERS = [
@@ -458,8 +505,13 @@ export default function OnboardingPage() {
                 <Pick options={GENDERS} value={form.gender} onPick={(v) => update("gender", v)} cols={3} />
               </div>
               <div>
-                {label("বয়স গ্রুপ *", "Age Group *")}
-                <Pick options={AGE_GROUPS} value={form.ageGroup} onPick={(v) => update("ageGroup", v)} />
+                {label("বয়স *", "Age *")}
+                <select value={form.ageGroup} onChange={(e) => update("ageGroup", e.target.value)} className="input-field">
+                  <option value="">{t("বয়স নির্বাচন করুন", "Select age...")}</option>
+                  {Array.from({ length: 94 }, (_, i) => i + 7).map((age) => (
+                    <option key={age} value={String(age)}>{age}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 {label("পেশা *", "Occupation *")}
@@ -467,7 +519,16 @@ export default function OnboardingPage() {
               </div>
               <div>
                 {label("শিক্ষাগত যোগ্যতা *", "Education Level *")}
-                <Pick options={EDUCATION} value={form.educationLevel} onPick={(v) => update("educationLevel", v)} />
+                <select value={form.educationLevel} onChange={(e) => update("educationLevel", e.target.value)} className="input-field">
+                  <option value="">{t("নির্বাচন করুন", "Select...")}</option>
+                  {EDUCATION_GROUPS.map((group) => (
+                    <optgroup key={group.label.en} label={t(group.label.bn, group.label.en)}>
+                      {group.options.map((opt) => (
+                        <option key={opt.v} value={opt.v}>{t(opt.bn, opt.en)}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </div>
             </div>
           )}

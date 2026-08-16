@@ -224,14 +224,12 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বয়স গ্রুপ" : "Age Group"}</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বয়স" : "Age"}</label>
                 <select value={form.ageGroup} onChange={(e) => setForm({ ...form, ageGroup: e.target.value })} className="input-field">
-                  <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="under_18">Under 18</option>
-                  <option value="18_24">18-24</option>
-                  <option value="25_34">25-34</option>
-                  <option value="35_44">35-44</option>
-                  <option value="45_plus">45+</option>
+                  <option value="">{lang === "bn" ? "বয়স নির্বাচন করুন" : "Select age..."}</option>
+                  {Array.from({ length: 94 }, (_, i) => i + 7).map((age) => (
+                    <option key={age} value={String(age)}>{age}</option>
+                  ))}
                 </select>
               </div>
 
@@ -240,10 +238,21 @@ export default function ProfilePage() {
                 <select value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
                   <option value="student">{lang === "bn" ? "ছাত্র/ছাত্রী" : "Student"}</option>
-                  <option value="employed">{lang === "bn" ? "চাকরিজীবী" : "Employed"}</option>
+                  <option value="job_seeker">{lang === "bn" ? "চাকরি প্রার্থী" : "Job Seeker"}</option>
+                  <option value="employed">{lang === "bn" ? "চাকরিজীবী (বেসরকারি)" : "Employed (Private)"}</option>
+                  <option value="govt_job">{lang === "bn" ? "সরকারি চাকরিজীবী" : "Government Job"}</option>
                   <option value="freelancer">{lang === "bn" ? "ফ্রিল্যান্সার" : "Freelancer"}</option>
+                  <option value="content_creator">{lang === "bn" ? "কনটেন্ট ক্রিয়েটর / ইউটিউবার" : "Content Creator / YouTuber"}</option>
+                  <option value="teacher">{lang === "bn" ? "শিক্ষক/শিক্ষিকা" : "Teacher"}</option>
+                  <option value="doctor">{lang === "bn" ? "ডাক্তার / স্বাস্থ্যকর্মী" : "Doctor / Health Worker"}</option>
+                  <option value="engineer">{lang === "bn" ? "ইঞ্জিনিয়ার / টেকনিশিয়ান" : "Engineer / Technician"}</option>
                   <option value="business">{lang === "bn" ? "ব্যবসায়ী" : "Business Owner"}</option>
+                  <option value="shopkeeper">{lang === "bn" ? "দোকানদার" : "Shopkeeper"}</option>
+                  <option value="driver">{lang === "bn" ? "চালক" : "Driver"}</option>
+                  <option value="farmer">{lang === "bn" ? "কৃষক" : "Farmer"}</option>
+                  <option value="day_laborer">{lang === "bn" ? "দিনমজুর / শ্রমিক" : "Day Laborer"}</option>
                   <option value="homemaker">{lang === "bn" ? "গৃহিণী" : "Homemaker"}</option>
+                  <option value="retired">{lang === "bn" ? "অবসরপ্রাপ্ত" : "Retired"}</option>
                   <option value="unemployed">{lang === "bn" ? "বেকার" : "Unemployed"}</option>
                 </select>
               </div>
@@ -252,11 +261,37 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "শিক্ষাগত যোগ্যতা" : "Education Level"}</label>
                 <select value={form.educationLevel} onChange={(e) => setForm({ ...form, educationLevel: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="ssc">SSC / O-Level</option>
-                  <option value="hsc">HSC / A-Level</option>
-                  <option value="bachelor">{lang === "bn" ? "স্নাতক" : "Bachelor's"}</option>
-                  <option value="master">{lang === "bn" ? "স্নাতকোত্তর" : "Master's"}</option>
-                  <option value="phd">PhD</option>
+                  <optgroup label={lang === "bn" ? "জাতীয় কারিকুলাম (বাংলা মাধ্যম)" : "National Curriculum (Bangla Medium)"}>
+                    <option value="psc">PSC (প্রাথমিক শিক্ষা সমাপনী)</option>
+                    <option value="jsc">JSC (জুনিয়র স্কুল সার্টিফিকেট)</option>
+                    <option value="ssc">SSC (মাধ্যমিক)</option>
+                    <option value="hsc">HSC (উচ্চ মাধ্যমিক)</option>
+                  </optgroup>
+                  <optgroup label={lang === "bn" ? "ইংরেজি মাধ্যম / ইংরেজি ভার্সন" : "English Medium / English Version"}>
+                    <option value="olevel">O-Level / IGCSE (SSC সমতুল্য)</option>
+                    <option value="alevel">A-Level (HSC সমতুল্য)</option>
+                  </optgroup>
+                  <optgroup label={lang === "bn" ? "মাদ্রাসা শিক্ষা" : "Madrasa (Islamic) Education"}>
+                    <option value="ebtedayee">এবতেদায়ী (প্রাথমিক সমতুল্য)</option>
+                    <option value="dakhil">দাখিল (SSC সমতুল্য)</option>
+                    <option value="alim">আলিম (HSC সমতুল্য)</option>
+                    <option value="fazil">ফাযিল (স্নাতক সমতুল্য)</option>
+                    <option value="kamil">কামিল (স্নাতকোত্তর সমতুল্য)</option>
+                  </optgroup>
+                  <optgroup label={lang === "bn" ? "কারিগরি / ভোকেশনাল" : "Technical / Vocational (BTEB)"}>
+                    <option value="ssc_voc">SSC (ভোকেশনাল)</option>
+                    <option value="hsc_voc">HSC (ভোকেশনাল)</option>
+                    <option value="diploma">ডিপ্লোমা-ইন-ইঞ্জিনিয়ারিং</option>
+                  </optgroup>
+                  <optgroup label={lang === "bn" ? "উচ্চশিক্ষা" : "Higher Education"}>
+                    <option value="bachelor">{lang === "bn" ? "স্নাতক (অনার্স/পাস)" : "Bachelor's (Honours/Pass)"}</option>
+                    <option value="master">{lang === "bn" ? "স্নাতকোত্তর" : "Master's"}</option>
+                    <option value="phd">PhD</option>
+                  </optgroup>
+                  <optgroup label={lang === "bn" ? "অন্যান্য" : "Other"}>
+                    <option value="literate">{lang === "bn" ? "শুধু স্বাক্ষর" : "Only literate"}</option>
+                    <option value="none">{lang === "bn" ? "কোনো আনুষ্ঠানিক শিক্ষা নেই" : "No formal education"}</option>
+                  </optgroup>
                 </select>
               </div>
 
