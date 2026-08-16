@@ -25,6 +25,28 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     g[MIGRATE_FLAG] = true;
   }
 
+  // ── One-time content-feature restore ──
+  // Re-enables the curated-content flags (testimonials / live salary / payment
+  // gallery) for DBs seeded while those were default-OFF. Persisted marker in
+  // company_settings guarantees it runs exactly once, so later admin toggles
+  // are respected. Runs even when the schema fast check below short-circuits.
+  if (!g["__contentFlagsRestoreChecked"]) {
+    g["__contentFlagsRestoreChecked"] = true;
+    try {
+      const mark = await env.DB.prepare(
+        "SELECT setting_value FROM company_settings WHERE setting_key = 'content_flags_restored'"
+      ).first<{ setting_value: string }>();
+      if (!mark) {
+        await env.DB.prepare(
+          "UPDATE feature_flags SET enabled = 1 WHERE feature_key IN ('testimonials_feed','live_salary_feed','payment_gallery')"
+        ).run();
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type) VALUES ('content_flags_restored','1','text')"
+        ).run();
+      }
+    } catch {}
+  }
+
   if (g[DONE_FLAG]) return;
 
   // Fast check: single PRAGMA to see if schema is already up to date.
@@ -317,9 +339,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('demo_bonus', 1, 'Demo bonus', 'business'),
       ('registrations', 1, 'New registrations', 'business'),
       ('withdrawals', 1, 'Withdrawals', 'business'),
-      ('testimonials_feed', 0, 'Home testimonials & reviews page (curated content)', 'content'),
-      ('live_salary_feed', 0, 'Live salary / bonus feed', 'content'),
-      ('payment_gallery', 0, 'Payment proof gallery', 'content'),
+      ('testimonials_feed', 1, 'Home testimonials & reviews page (curated content)', 'content'),
+      ('live_salary_feed', 1, 'Live salary / bonus feed', 'content'),
+      ('payment_gallery', 1, 'Payment proof gallery', 'content'),
       ('contact_sync', 1, 'Contact sync (phonebook)', 'content'),
       ('maintenance_auto', 1, 'Auto maintenance cleanup', 'system'),
       ('keepwarm_cron', 1, 'Keepwarm cron (proactive WhatsApp)', 'system'),
