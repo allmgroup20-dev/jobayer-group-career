@@ -1,32 +1,32 @@
 export const howItWorksSteps = [
   {
     num: "১", numEn: "1", icon: "📝",
-    titleBn: "ফ্রি রেজিস্টার করুন",
+    titleBn: "বিনামূল্যে রেজিস্টার করুন",
     titleEn: "Register for Free",
-    descBn: "৩০ সেকেন্ডে অ্যাকাউন্ট খুলুন। ফ্রি ডেমো ক্লাস ও রিসোর্স ক্যাটালগ দেখুন — শুরু করার আগেই যাচাই করুন!",
-    descEn: "Create your account in 30 seconds. Watch the free demo class and browse the resource catalog — verify before you start!",
+    descBn: "আপনার অ্যাকাউন্ট খুলুন। সাথে সাথেই সব কোর্স ও টুলস খুলে যাবে!",
+    descEn: "Create your account. All courses and tools unlock immediately!",
     highlightBn: "⏱ ৩০ সেকেন্ড",
     highlightEn: "⏱ 30 Seconds",
   },
   {
-    num: "২", numEn: "2", icon: "🎬",
-    titleBn: "শিখুন",
-    titleEn: "Learn",
-    descBn: "৭ দিনের ভিডিও কোর্স, রোডম্যাপ ও গাইড অনুসরণ করুন — প্রতিদিন ১৫ মিনিট, নিজের গতিতে। ৯৭০+ রিসোর্স থেকে স্কিল গড়ুন।",
-    descEn: "Follow the 7-day video course, roadmaps and guides — just 15 minutes a day, at your own pace. Build skills from 970+ resources.",
-    highlightBn: "🎯 দক্ষতা বাড়ান",
-    highlightEn: "🎯 Build Skills",
+    num: "২", numEn: "2", icon: "📢",
+    titleBn: "লিংক শেয়ার করুন",
+    titleEn: "Share Your Link",
+    descBn: "আপনার লিংক ফেসবুক ও হোয়াটসঅ্যাপে শেয়ার করুন। কোনো অভিজ্ঞতা লাগে না — সবকিছু রেডিমেড দেওয়া আছে!",
+    descEn: "Share your link on Facebook & WhatsApp. No experience needed — everything is ready-made!",
+    highlightBn: "🎯 শুরু করুন আজই",
+    highlightEn: "🎯 Start Today",
   },
   {
-    num: "৩", numEn: "3", icon: "🚀",
-    titleBn: "প্রয়োগ করুন",
-    titleEn: "Apply",
-    descBn: "প্রথম ভিডিও/পোর্টফোলিও বানান, ইউটিউবের অফিসিয়াল নিয়ম অনুযায়ী এগোন। বন্ধুকে শেখার সুযোগ জানালে ক্রিয়েটর র্যাংক ও বোনাস রিসোর্স পাবেন।",
-    descEn: "Create your first video/portfolio and grow following YouTube's official rules. Share the learning opportunity with a friend to earn creator ranks and bonus resources.",
-    highlightBn: "🟢 সৎ পথে এগোন",
-    highlightEn: "🟢 Grow the Honest Way",
+    num: "৩", numEn: "3", icon: "💰",
+    titleBn: "টাকা তুলুন",
+    titleEn: "Withdraw Money",
+    descBn: "আপনার লিংকে যতজন রেজিস্টার করে রিসোর্স কিনবেন, তত কমিশন আপনার অ্যাকাউন্টে জমা হবে (প্রতি সফল রেফারেলে ৳২০, ৪ স্তর পর্যন্ত) এবং বিকাশ/নগদে উত্তোলন করতে পারবেন!",
+    descEn: "The more people who register and purchase resources through your link, the more commission you earn (৳20 per successful referral, up to 4 levels) — withdraw directly to bKash/Nagad!",
+    highlightBn: "🟢 সরাসরি পেমেন্ট",
+    highlightEn: "🟢 Direct Payment",
   },
 ];
 
-export const howItWorksFooterNoteBn = "💡 সৎ পথে দক্ষতা গড়ুন — ভুয়া প্রমিজ নয়, বাস্তব স্কিল। রেফারেল কোনো আর্থিক কমিশন নয়, র্যাংক ও বোনাস রিসোর্স। 🛡️ রিফান্ড পলিসি আছে।";
-export const howItWorksFooterNoteEn = "💡 Build real skills on an honest path — no fake promises. Referral is not a cash commission; it's ranks & bonus resources. 🛡️ Refund policy applies.";
+export const howItWorksFooterNoteBn = "💡 রেফারেল কমিশন ৳২০ — ৪ স্তর পর্যন্ত! যত বেশি রেফারেল, তত বেশি আয়। 🚀 শুরু করুন এখনই!";
+export const howItWorksFooterNoteEn = "💡 Earn ৳20 referral commission — up to 4 levels! The more referrals, the more you earn. 🚀 Start now!";

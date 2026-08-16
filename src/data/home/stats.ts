@@ -13,7 +13,7 @@ export const stats: StatItem[] = [
   { separator: true },
   { key: "courses", num: "—", labelBn: "প্রিমিয়াম রিসোর্স", labelEn: "Premium Resources" },
   { separator: true },
-  { textBn: "৳৯৯", textEn: "৳99", labelBn: "থেকে শুরু", labelEn: "Starting From" },
+  { textBn: "৳২০", textEn: "৳20", labelBn: "প্রতি রেফারেলে কমিশন", labelEn: "Per Referral Commission" },
 ];
 
 export const statsSectionText = {
