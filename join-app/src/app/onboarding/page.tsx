@@ -139,6 +139,15 @@ const INTERESTS = [
   { en: "Business", bn: "ব্যবসা", icon: "📊" },
 ];
 
+const INCOME_SECTORS = [
+  { en: "YouTube Content", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬", v: "youtube_content" },
+  { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼", v: "freelancing" },
+  { en: "E-commerce & Online Business", bn: "ই-কমার্স ও অনলাইন ব্যবসা", icon: "🛒", v: "ecommerce" },
+  { en: "Affiliate Marketing", bn: "অ্যাফিলিয়েট মার্কেটিং", icon: "📢", v: "affiliate" },
+  { en: "Digital Skills", bn: "ডিজিটাল স্কিল (গ্রাফিক্স, ভিডিও, কোডিং)", icon: "🎨", v: "digital_skills" },
+  { en: "Online Courses & Products", bn: "অনলাইন কোর্স ও ডিজিটাল প্রোডাক্ট", icon: "📚", v: "online_courses" },
+];
+
 const STEP_META: Record<StepKey, { en: string; bn: string; emoji: string }> = {
   consent: { en: "Permission", bn: "অনুমতি", emoji: "🔒" },
   whatsapp: { en: "WhatsApp Number", bn: "হোয়াটসঅ্যাপ নম্বর", emoji: "💬" },
@@ -176,6 +185,7 @@ export default function OnboardingPage() {
     preferredLanguage: "bn",
     goal: "",
     interests: [] as string[],
+    incomeSectors: [] as string[],
     preferredLearningTime: "",
     budgetRange: "",
     referralSource: "",
@@ -275,6 +285,9 @@ export default function OnboardingPage() {
       switch (step) {
         case "consent":
           await fetch("/api/consent", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ consentType: "onboarding", isGranted: 1 }) }).catch(() => {});
+          if (form.incomeSectors.length > 0) {
+            await fetch("/api/interests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ interests: form.incomeSectors }) }).catch(() => {});
+          }
           break;
         case "whatsapp":
           await api("/api/profile", { phone: form.phone });
@@ -420,6 +433,32 @@ export default function OnboardingPage() {
                 <p>📒 {t("ফোনবুক সিঙ্ক — শেখার সুযোগ ভাগাভাগি", "Phonebook sync to share learning opportunities")}</p>
                 <p>💬 WhatsApp নোটিফিকেশন</p>
                 <p className="text-[10px] opacity-60">{t("আপনার ডেটা কখনো তৃতীয় পক্ষের কাছে বিক্রি হয় না।", "Your data is never sold to third parties.")}</p>
+              </div>
+
+              {/* Income goal */}
+              <div className="text-left pt-1">
+                <p className="text-sm font-black text-brand">💰 {t("আপনার আয়ের লক্ষ্য", "Your Earning Goal")}</p>
+                <p className="mt-1 text-xs text-ink-soft leading-relaxed">
+                  {t(
+                    "আপনি ইউটিউব, ফ্রিল্যান্সিং বা অনলাইন ব্যবসা — এই ধরনের সেক্টরে আয়ের সুযোগ খুঁজছেন বলেই আমাদের সাথে যুক্ত হয়েছেন। কোনগুলোতে আগ্রহ, একাধিক বাছাই করতে পারেন।",
+                    "You joined us because you're looking for earning opportunities in sectors like YouTube, freelancing or online business. Select all that apply."
+                  )}
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {INCOME_SECTORS.map((s) => {
+                    const active = form.incomeSectors.includes(s.v);
+                    return (
+                      <button
+                        key={s.v}
+                        type="button"
+                        onClick={() => update("incomeSectors", active ? form.incomeSectors.filter((i) => i !== s.v) : [...form.incomeSectors, s.v])}
+                        className={`chip justify-center ${active ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25" : "bg-white border border-line text-ink hover:border-pink/50"}`}
+                      >
+                        <span>{s.icon}</span> {t(s.bn, s.en)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -592,6 +631,8 @@ export default function OnboardingPage() {
                 t("🚀 রেফারেল সেন্টারে যান", "🚀 Go to Referral Center")
               ) : step === "contacts" ? (
                 t("পরবর্তী →", "Next →")
+              ) : step === "consent" ? (
+                t("✅ সবকিছুতে সম্মতি ও পরবর্তী", "✅ Grant All & Continue")
               ) : (
                 t("সংরক্ষণ ও পরবর্তী →", "Save & Next →")
               )}
