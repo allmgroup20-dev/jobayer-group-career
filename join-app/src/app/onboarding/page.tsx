@@ -151,7 +151,7 @@ const INCOME_SECTORS = [
 
 const STEP_META: Record<StepKey, { en: string; bn: string; emoji: string }> = {
   consent: { en: "Permission", bn: "অনুমতি", emoji: "🔒" },
-  whatsapp: { en: "WhatsApp Number", bn: "হোয়াটসঅ্যাপ নম্বর", emoji: "💬" },
+  whatsapp: { en: "WhatsApp Number", bn: "হোয়াটসঅ্যাপ নাম্বার", emoji: "💬" },
   basic: { en: "Basic Info", bn: "ব্যক্তিগত তথ্য", emoji: "👤" },
   location: { en: "Location", bn: "অবস্থান ও ভাষা", emoji: "📍" },
   goals: { en: "Goals & Interests", bn: "লক্ষ্য ও আগ্রহ", emoji: "🎯" },
@@ -247,7 +247,7 @@ export default function OnboardingPage() {
     switch (step) {
       case "whatsapp": {
         const digits = form.phone.replace(/\D/g, "");
-        if (digits.length < 10) return t("সঠিক হোয়াটসঅ্যাপ নম্বর দিন", "Enter a valid WhatsApp number");
+        if (digits.length < 10) return t("সঠিক হোয়াটসঅ্যাপ নাম্বার দিন", "Enter a valid WhatsApp number");
         return "";
       }
       case "basic":
@@ -430,9 +430,9 @@ export default function OnboardingPage() {
           {/* whatsapp */}
           {step === "whatsapp" && (
             <div className="space-y-4">
-              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নম্বর দিন", "Enter WhatsApp Number")} sub={t("আমরা এই নম্বরে মার্কেটিং ও নোটিফিকেশন পাঠাবো", "We will send marketing & notifications here")} />
+              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নাম্বার দিন", "Enter WhatsApp Number")} sub={t("ভবিষ্যতে প্রয়োজন হলে, আমরা এই হোয়াটসঅ্যাপ নাম্বারে আপনার সাথে যোগাযোগ করব", "If we ever need to reach you, we'll contact you on this WhatsApp number.")} />
               <div>
-                {label("হোয়াটসঅ্যাপ নম্বর *", "WhatsApp Number *")}
+                {label("হোয়াটসঅ্যাপ নাম্বার *", "WhatsApp Number *")}
                 <input
                   type="tel"
                   value={form.phone}
