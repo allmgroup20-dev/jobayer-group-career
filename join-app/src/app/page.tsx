@@ -80,7 +80,6 @@ export default function HomePage() {
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm font-black">
-          <span className="badge-glow bg-gold/15 text-gold border border-gold/30">৳৯৯ {t("থেকে শুরু", "Starting From")}</span>
           <span className="badge-glow bg-teal/15 text-teal border border-teal/30">⚡ {t("ফ্রি রেজিস্ট্রেশন", "Free Registration")}</span>
           <span className="badge-glow bg-violet/15 text-violet border border-violet/30">✅ {t("ফ্রি ডেমো ক্লাস", "Free Demo Class")}</span>
         </div>
@@ -174,28 +173,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="px-4 pb-10">
-        <div className="max-w-md mx-auto card-pop !p-5 text-center">
-          <p className="text-sm font-bold text-brand leading-relaxed">
-            🛡️ {t(
-              "আমরা YouTube-এর অফিসিয়াল নিয়ম শেখাই — গ্যারান্টেড ইনকাম নয়, বাস্তব দক্ষতা। আয়ের নিশ্চয়তা নেই; রিফান্ড পলিসি প্রযোজ্য।",
-              "We teach YouTube's official rules — real skills, not guaranteed income. No income guarantee; refund policy applies."
-            )}
-          </p>
-          <p className="mt-2 text-[11px] text-ink-soft">
-            {t("বিশ্বাস করার আগে আমাদের যাচাই করুন — রিফান্ড, টার্মস ও প্রাইভেসি পলিসি পাবলিক।", "Verify before you trust — our refund, terms and privacy policies are public.")}
-          </p>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="px-4 pb-12 text-center text-xs text-ink-soft safe-bottom space-y-2">
+      <footer className="px-4 pb-12 text-center text-xs text-ink-soft safe-bottom">
         <p className="font-bold">
           {t("একটি Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
-        </p>
-        <p>
-          {t("© ২০২৬ Jobayer Group Career। এই প্রোগ্রামটি YouTube/Google-এর সাথে সম্পর্কিত নয়; কোনো আয়/চাকরির নিশ্চয়তা দেওয়া হয় না।", "© 2026 Jobayer Group Career. This program is not affiliated with YouTube/Google; no income/job guarantee is provided.")}
         </p>
       </footer>
     </main>
