@@ -430,7 +430,7 @@ export default function OnboardingPage() {
           {/* whatsapp */}
           {step === "whatsapp" && (
             <div className="space-y-4">
-              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নাম্বার দিন", "Enter WhatsApp Number")} sub={t("ভবিষ্যতে প্রয়োজন হলে, আমরা এই হোয়াটসঅ্যাপ নাম্বারে আপনার সাথে যোগাযোগ করব", "If we ever need to reach you, we'll contact you on this WhatsApp number.")} />
+              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নাম্বার দিন", "Enter WhatsApp Number")} sub={t("যেকোনো প্রয়োজনে আমরা এই হোয়াটসঅ্যাপ নাম্বারেই আপনার সাথে যোগাযোগ করব", "We'll reach out to you on this WhatsApp number whenever needed.")} />
               <div>
                 {label("হোয়াটসঅ্যাপ নাম্বার *", "WhatsApp Number *")}
                 <input
