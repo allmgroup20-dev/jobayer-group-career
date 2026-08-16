@@ -1,12 +1,19 @@
 "use client";
 
+import { useSiteContent } from "@/lib/use-site-content";
 import { trustBadges, trustSectionData } from "@/data/home/trust";
 import { useLanguageStore } from "@/lib/store";
 import Link from "next/link";
 
+const trustDefaults = { trustBadges, trustSectionData };
+type TrustContent = typeof trustDefaults;
+
 export default function TrustSection() {
   const { lang } = useLanguageStore();
-  const t = trustSectionData;
+  const { content, enabled } = useSiteContent<TrustContent>("trust", trustDefaults);
+
+  if (!enabled) return null;
+  const { trustBadges: badges, trustSectionData: t } = content;
 
   return (
     <div className="relative overflow-hidden rounded-3xl p-8 md:p-12 text-center bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 border border-accent/20 shadow-lg">
@@ -26,7 +33,7 @@ export default function TrustSection() {
         </p>
 
         <div className="flex flex-wrap gap-3 justify-center mb-8">
-          {trustBadges.map((badge) => (
+          {badges.map((badge) => (
             <span key={badge.textBn} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-border/80 font-bold text-sm shadow-sm text-text hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <span className="text-lg">{badge.icon}</span>
               <span>{lang === "bn" ? badge.textBn : badge.textEn}</span>

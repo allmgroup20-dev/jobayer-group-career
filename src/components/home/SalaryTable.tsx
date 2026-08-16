@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { salaryNames, liveSalaryText } from "@/data/home/salary";
+
+const salaryDefaults = { salaryNames, liveSalaryText };
+type SalaryContent = typeof salaryDefaults;
 
 type RowData = { name: string; amount: number; status: string; success: boolean; time: string };
 
@@ -19,16 +23,17 @@ function seededRandom(seed: number) {
   return x - Math.floor(x);
 }
 
-function generateRow(index: number, lang: "bn" | "en"): RowData {
+function generateRow(index: number, lang: "bn" | "en", content: SalaryContent): RowData {
   const seed = index * 999;
-  const name = salaryNames[Math.floor(seededRandom(seed) * salaryNames.length)];
+  const names = content.salaryNames;
+  const name = names[Math.floor(seededRandom(seed) * names.length)];
   const success = SUCCESS_POSITIONS.includes(index % 100);
   const amount = success
     ? Math.floor(seededRandom(seed + 2) * 1501) + 1000
     : Math.floor(seededRandom(seed + 3) * 136) + 15;
   const status = success
-    ? (lang === "bn" ? liveSalaryText.successStatusBn : liveSalaryText.successStatusEn)
-    : (lang === "bn" ? liveSalaryText.bonusStatusBn : liveSalaryText.bonusStatusEn);
+    ? (lang === "bn" ? content.liveSalaryText.successStatusBn : content.liveSalaryText.successStatusEn)
+    : (lang === "bn" ? content.liveSalaryText.bonusStatusBn : content.liveSalaryText.bonusStatusEn);
   return { name, amount, status, success, time: "" };
 }
 
@@ -46,6 +51,7 @@ function toTime(secondsAgo: number, lang: "bn" | "en") {
 
 export default function SalaryTable({ onNewSuccess }: Props) {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<SalaryContent>("live_feed", salaryDefaults, { enabledByDefault: false });
   const [rows, setRows] = useState<RowData[]>([]);
   const seenSuccessRef = useRef<Set<number>>(new Set());
   const initialBatchRef = useRef(false);
@@ -57,7 +63,7 @@ export default function SalaryTable({ onNewSuccess }: Props) {
     const newSuccessNames: string[] = [];
 
     for (let i = totalUpdates - 1; i >= start; i--) {
-      const data = generateRow(i, lang);
+      const data = generateRow(i, lang, content);
       data.time = toTime((totalUpdates - i) * AVG_DELAY, lang);
       newRows.push(data);
       if (data.success && !seenSuccessRef.current.has(i)) {
@@ -76,7 +82,7 @@ export default function SalaryTable({ onNewSuccess }: Props) {
         newSuccessNames.forEach((n) => onNewSuccess(n));
       }
     }
-  }, [lang, onNewSuccess]);
+  }, [lang, onNewSuccess, content]);
 
   useEffect(() => {
     tick();
@@ -84,13 +90,16 @@ export default function SalaryTable({ onNewSuccess }: Props) {
     return () => clearInterval(id);
   }, [tick]);
 
+  if (!enabled) return null;
+  const salaryText = content.liveSalaryText;
+
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
       <div className="section-header">
         <div className="flex items-center justify-center gap-2">
           <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50" />
           <h3 className="text-base md:text-lg font-black text-text">
-            {lang === "bn" ? liveSalaryText.titleBn : liveSalaryText.titleEn}
+            {lang === "bn" ? salaryText.titleBn : salaryText.titleEn}
           </h3>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { initEnv } from "@/lib/env";
+import { SITE_CONTENT_DEFAULTS } from "@/lib/site-content-defaults";
 
 const DONE_FLAG = "__dbSchemaSetupDone";
 const MIGRATE_FLAG = "__dbSchemaMigrationsDone";
@@ -234,6 +235,21 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       setting_type TEXT DEFAULT 'text',
       updated_at TEXT DEFAULT (datetime('now'))
     )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS site_content (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      section TEXT UNIQUE NOT NULL,
+      content TEXT NOT NULL DEFAULT '{}',
+      enabled INTEGER NOT NULL DEFAULT 1,
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS feature_flags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      feature_key TEXT UNIQUE NOT NULL,
+      enabled INTEGER NOT NULL DEFAULT 0,
+      label TEXT,
+      feature_group TEXT DEFAULT 'general',
+      updated_at TEXT DEFAULT (datetime('now'))
+    )`).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO currencies (code, symbol, name, name_bn, exchange_rate, is_default, is_active) VALUES
       ('BDT', '৳', 'Bangladeshi Taka', 'বাংলাদেশী টাকা', 1, 1, 1),
       ('USD', '$', 'US Dollar', 'মার্কিন ডলার', 120, 0, 1),
@@ -246,6 +262,16 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       ('min_withdrawal', '20', 'number'),
       ('min_withdrawal_premium', '20', 'number'),
       ('general_member_withdrawal_tax_percent', '5', 'number')
+    `).run();
+    for (const [section, content] of Object.entries(SITE_CONTENT_DEFAULTS)) {
+      await env.DB.prepare(
+        "INSERT OR IGNORE INTO site_content (section, content, enabled, updated_at) VALUES (?, ?, 1, datetime('now'))"
+      ).bind(section, JSON.stringify(content)).run();
+    }
+    await env.DB.prepare(`INSERT OR IGNORE INTO feature_flags (feature_key, enabled, label, feature_group) VALUES
+      ('testimonials_feed', 0, 'Home testimonials & reviews page (curated content)', 'content'),
+      ('live_salary_feed', 0, 'Live salary / bonus feed', 'content'),
+      ('payment_gallery', 0, 'Payment proof gallery', 'content')
     `).run();
     await env.DB.prepare(`INSERT OR IGNORE INTO commission_levels (level_number, level_name, level_name_bn, percentage, fixed_amount, commission_type, min_referral_base) VALUES
       (1, 'Associate', 'সহযোগী', 0, 20, 'fixed', 0),

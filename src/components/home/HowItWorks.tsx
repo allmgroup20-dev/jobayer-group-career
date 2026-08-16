@@ -2,10 +2,21 @@
 
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { howItWorksSteps, howItWorksFooterNoteBn, howItWorksFooterNoteEn } from "@/data/home/how-it-works";
+
+const howItWorksDefaults = {
+  steps: howItWorksSteps,
+  footerNote: { bn: howItWorksFooterNoteBn, en: howItWorksFooterNoteEn },
+};
+type HowItWorksContent = typeof howItWorksDefaults;
 
 export default function HowItWorks() {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<HowItWorksContent>("how_it_works", howItWorksDefaults);
+
+  if (!enabled) return null;
+  const steps = content.steps;
 
   return (
     <div className="rounded-3xl p-6 md:p-8 bg-white border border-border/80 shadow-sm">
@@ -17,7 +28,7 @@ export default function HowItWorks() {
       </div>
 
       <div className="grid gap-5 mt-6 sm:grid-cols-3">
-        {howItWorksSteps.map((s, i) => (
+        {steps.map((s, i) => (
           <div key={i} className="group flex flex-col items-center text-center gap-4 p-6 rounded-2xl bg-gradient-to-b from-accent/[0.03] to-bg border border-border/60 hover:border-accent/20 hover:shadow-lg transition-all duration-300">
             <div className="relative">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl shadow-md shadow-primary/20">
@@ -40,7 +51,7 @@ export default function HowItWorks() {
 
       <div className="text-center mt-6 p-4 rounded-xl bg-gradient-to-r from-accent/5 to-secondary/5 border border-accent/10">
         <p className="text-xs md:text-sm font-bold text-text-secondary mb-4">
-          {lang === "bn" ? howItWorksFooterNoteBn : howItWorksFooterNoteEn}
+          {lang === "bn" ? content.footerNote.bn : content.footerNote.en}
         </p>
         <Link
           href="/login"

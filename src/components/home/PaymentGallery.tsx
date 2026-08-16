@@ -3,16 +3,24 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { galleryImages, paymentGalleryText } from "@/data/home/gallery";
+
+const galleryDefaults = { titleBn: paymentGalleryText.titleBn, titleEn: paymentGalleryText.titleEn, images: galleryImages };
+type GalleryContent = typeof galleryDefaults;
 
 export default function PaymentGallery() {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<GalleryContent>("gallery", galleryDefaults, { enabledByDefault: false });
   const [lightbox, setLightbox] = useState<number | null>(null);
-  const t = paymentGalleryText;
+
+  if (!enabled) return null;
+  const images = content.images;
+  const t = content;
 
   const go = useCallback((dir: 1 | -1) => {
-    setLightbox(prev => (prev === null ? prev : (prev + dir + galleryImages.length) % galleryImages.length));
-  }, []);
+    setLightbox(prev => (prev === null ? prev : (prev + dir + images.length) % images.length));
+  }, [images.length]);
 
   useEffect(() => {
     if (lightbox === null) return;
@@ -32,7 +40,7 @@ export default function PaymentGallery() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        {galleryImages.map((img, i) => (
+        {images.map((img, i) => (
           <button
             key={i}
             onClick={() => setLightbox(i)}
@@ -52,11 +60,11 @@ export default function PaymentGallery() {
           <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 text-white text-2xl border-none bg-transparent cursor-pointer z-10 w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full">✕</button>
           <button onClick={(e) => { e.stopPropagation(); go(-1); }} className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 text-white text-3xl border-none bg-transparent cursor-pointer w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-white/10 rounded-full">←</button>
           <div className="relative max-w-3xl max-h-[90vh] w-full h-full" onClick={(e) => e.stopPropagation()}>
-            <Image src={galleryImages[lightbox].src} alt={galleryImages[lightbox].alt} fill className="object-contain" sizes="(max-width: 768px) 100vw, 800px" />
+            <Image src={images[lightbox].src} alt={images[lightbox].alt} fill className="object-contain" sizes="(max-width: 768px) 100vw, 800px" />
           </div>
           <button onClick={(e) => { e.stopPropagation(); go(1); }} className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 text-white text-3xl border-none bg-transparent cursor-pointer w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-white/10 rounded-full">→</button>
           <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2">
-            {galleryImages.map((_, i) => (
+            {images.map((_, i) => (
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); setLightbox(i); }}

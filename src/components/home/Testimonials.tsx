@@ -3,18 +3,24 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { testimonials, chatTestimonials, gridTestimonials, phpSliderTestimonials } from "@/data/home/testimonials";
 
 type TabType = "carousel" | "chat" | "grid";
 
+const testimonialsDefaults = { testimonials, chatTestimonials, gridTestimonials, phpSliderTestimonials };
+type TestimonialsContent = typeof testimonialsDefaults;
+
 export default function Testimonials({ compact }: { compact?: boolean }) {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<TestimonialsContent>("testimonials", testimonialsDefaults, { enabledByDefault: false });
   const [slideIdx, setSlideIdx] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [showAllGrid, setShowAllGrid] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("carousel");
 
-  const allCarouselTestimonials = [...testimonials, ...phpSliderTestimonials];
+  if (!enabled) return null;
+  const allCarouselTestimonials = [...content.testimonials, ...content.phpSliderTestimonials];
   const displayCarousel = compact ? allCarouselTestimonials.slice(0, 4) : allCarouselTestimonials;
 
   useEffect(() => {
@@ -117,7 +123,7 @@ export default function Testimonials({ compact }: { compact?: boolean }) {
       {/* Chat Tab */}
       {activeTab === "chat" && (
         <div className="space-y-4">
-          {chatTestimonials.slice(0, compact ? 3 : 6).map((c, i) => (
+          {content.chatTestimonials.slice(0, compact ? 3 : 6).map((c, i) => (
             <div key={i} className="p-4 rounded-2xl bg-gradient-to-r from-primary/[0.02] to-accent/[0.02] border border-border/60 hover:border-accent/20 transition-all">
               <div className="flex items-start gap-3">
                 <span className="text-2xl">{c.avatar}</span>
@@ -142,7 +148,7 @@ export default function Testimonials({ compact }: { compact?: boolean }) {
       {activeTab === "grid" && (
         <div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {(showAllGrid ? gridTestimonials : gridTestimonials.slice(0, compact ? 4 : 6)).map((t, i) => (
+            {(showAllGrid ? content.gridTestimonials : content.gridTestimonials.slice(0, compact ? 4 : 6)).map((t, i) => (
               <div key={i} className="p-4 rounded-2xl bg-white border border-border/60 hover:border-accent/20 hover:shadow-md transition-all">
                 <div className="flex items-center gap-1.5 mb-2 text-xs text-secondary">{t.stars} <span className="text-text-secondary">({t.rating})</span></div>
                 <p className="text-sm text-text-secondary leading-relaxed">
@@ -152,7 +158,7 @@ export default function Testimonials({ compact }: { compact?: boolean }) {
               </div>
             ))}
           </div>
-          {gridTestimonials.length > 6 && (
+          {content.gridTestimonials.length > 6 && (
             <div className="text-center mt-4">
               <button onClick={() => setShowAllGrid(!showAllGrid)}
                 className="inline-flex items-center gap-1 px-5 py-2.5 rounded-xl text-xs font-bold text-accent bg-accent/10 hover:bg-accent/20 transition-all">

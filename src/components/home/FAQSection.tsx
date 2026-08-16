@@ -3,13 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { faqs } from "@/data/home/faq";
 
-const previewFaqs = faqs.slice(0, 4);
+const faqDefaults = { faqs };
+type FaqContent = typeof faqDefaults;
 
 export default function FAQSection() {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<FaqContent>("faq", faqDefaults);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  if (!enabled) return null;
+  const list = content.faqs;
+  const previewFaqs = list.slice(0, 4);
 
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">
@@ -41,7 +48,7 @@ export default function FAQSection() {
 
       <div className="text-center mt-4">
         <Link href="/reviews" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-bg border border-border text-info font-bold text-sm hover:bg-info/5 transition-all">
-          📖 {lang === "bn" ? `সব প্রশ্ন ও উত্তর দেখুন (${faqs.length}টি)` : `View All ${faqs.length} FAQs`}
+          📖 {lang === "bn" ? `সব প্রশ্ন ও উত্তর দেখুন (${list.length}টি)` : `View All ${list.length} FAQs`}
         </Link>
       </div>
     </div>

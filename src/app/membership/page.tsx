@@ -1,16 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
 import LivePurchaseTicker from "@/components/LivePurchaseTicker";
 
-const tiers = [
-  { qty: "১টি", qtyEn: "1", price: 99, noteBn: "একটি রিসোর্স আনলক", noteEn: "Unlock 1 resource" },
-  { qty: "৩টি", qtyEn: "3", price: 220, noteBn: "৩-প্যাক অফার", noteEn: "3-pack offer", popular: true },
-  { qty: "৫টি", qtyEn: "5", price: 350, noteBn: "৫-প্যাক অফার", noteEn: "5-pack offer" },
-  { qty: "১০টি", qtyEn: "10", price: 650, noteBn: "১০-প্যাক অফার", noteEn: "10-pack offer" },
-  { qty: "সব", qtyEn: "All", price: 5200, noteBn: "৯৭০+ সব রিসোর্স", noteEn: "970+ all resources" },
+interface Tier {
+  id: string;
+  credits: number;
+  offerPrice: number;
+  popular: boolean;
+}
+
+const fallbackTiers: Tier[] = [
+  { id: "one", credits: 1, offerPrice: 99, popular: false },
+  { id: "trio", credits: 3, offerPrice: 220, popular: true },
+  { id: "five", credits: 5, offerPrice: 350, popular: false },
+  { id: "ten", credits: 10, offerPrice: 650, popular: false },
+  { id: "hundred", credits: 100, offerPrice: 5200, popular: false },
 ];
+
+function toBn(v: number) {
+  return String(v).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[parseInt(d, 10)]);
+}
+
+function tierQty(t: Tier) {
+  if (t.credits === 100) return { bn: "সব", en: "All" };
+  return { bn: toBn(t.credits), en: String(t.credits) };
+}
+
+function tierNote(t: Tier, lang: "bn" | "en") {
+  if (t.credits === 100) return lang === "bn" ? "৯৭০+ সব রিসোর্স" : "970+ all resources";
+  if (t.credits === 1) return lang === "bn" ? "একটি রিসোর্স আনলক" : "Unlock 1 resource";
+  return lang === "bn" ? `${toBn(t.credits)}-প্যাক অফার` : `${t.credits}-pack offer`;
+}
 
 const trust = [
   { icon: "🛡️", bn: "এককালীন পেমেন্ট, আজীবন অ্যাক্সেস", en: "One-time payment, lifetime access" },
@@ -20,6 +43,19 @@ const trust = [
 
 export default function ResourcePackPage() {
   const { lang } = useLanguageStore();
+  const [tiers, setTiers] = useState<Tier[]>(fallbackTiers);
+
+  useEffect(() => {
+    fetch("/api/pricing/tiers")
+      .then(r => r.json().catch(() => null))
+      .then(d => {
+        const data = d as { tiers?: Tier[] } | null;
+        if (data && Array.isArray(data.tiers) && data.tiers.length > 0) {
+          setTiers(data.tiers.filter((t: Tier) => [1, 3, 5, 10, 100].includes(t.credits)));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -41,23 +77,26 @@ export default function ResourcePackPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {tiers.map((t) => (
-            <div
-              key={t.qty}
-              className={`relative bg-white rounded-2xl border shadow-sm p-5 flex flex-col items-center text-center ${
-                t.popular ? "border-action ring-2 ring-action/20" : "border-border"
-              }`}
-            >
-              {t.popular && (
-                <span className="absolute -top-2.5 px-3 py-0.5 rounded-full bg-action text-white text-[10px] font-bold">
-                  {lang === "bn" ? "সবচেয়ে জনপ্রিয়" : "Most Popular"}
-                </span>
-              )}
-              <span className="text-sm font-bold text-text-secondary">{lang === "bn" ? t.qty : t.qtyEn}</span>
-              <span className="text-3xl font-black text-primary mt-2">৳{t.price}</span>
-              <span className="text-xs text-text-secondary mt-1">{lang === "bn" ? t.noteBn : t.noteEn}</span>
-            </div>
-          ))}
+          {tiers.map((t) => {
+            const qty = tierQty(t);
+            return (
+              <div
+                key={t.id}
+                className={`relative bg-white rounded-2xl border shadow-sm p-5 flex flex-col items-center text-center ${
+                  t.popular ? "border-action ring-2 ring-action/20" : "border-border"
+                }`}
+              >
+                {t.popular && (
+                  <span className="absolute -top-2.5 px-3 py-0.5 rounded-full bg-action text-white text-[10px] font-bold">
+                    {lang === "bn" ? "সবচেয়ে জনপ্রিয়" : "Most Popular"}
+                  </span>
+                )}
+                <span className="text-sm font-bold text-text-secondary">{lang === "bn" ? qty.bn : qty.en}</span>
+                <span className="text-3xl font-black text-primary mt-2">৳{t.offerPrice}</span>
+                <span className="text-xs text-text-secondary mt-1">{tierNote(t, lang)}</span>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-8 bg-white rounded-2xl border border-border shadow p-6 md:p-8">

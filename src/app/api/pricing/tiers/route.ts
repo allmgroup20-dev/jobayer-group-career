@@ -1,17 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import { queryFirst } from "@/lib/db/queries";
+import { getDB } from "@/lib/db";
+import { getCached, setCached } from "@/lib/cache";
+import { DEFAULT_PRICING_TIERS, type PricingTier } from "@/lib/site-content-defaults";
 
-const TIERS = [
-  { id: "one", credits: 1, retailPrice: 99, offerPrice: 99, floor: 89, savings: 0, popular: false },
-  { id: "duo", credits: 2, retailPrice: 198, offerPrice: 198, floor: 179, savings: 0, popular: false },
-  { id: "trio", credits: 3, retailPrice: 297, offerPrice: 220, floor: 200, savings: 26, popular: true },
-  { id: "five", credits: 5, retailPrice: 495, offerPrice: 350, floor: 315, savings: 29, popular: false },
-  { id: "ten", credits: 10, retailPrice: 990, offerPrice: 650, floor: 585, savings: 34, popular: false },
-  { id: "twenty", credits: 20, retailPrice: 1980, offerPrice: 1200, floor: 1080, savings: 39, popular: false },
-  { id: "fifty", credits: 50, retailPrice: 4950, offerPrice: 2800, floor: 2520, savings: 43, popular: false },
-  { id: "hundred", credits: 100, retailPrice: 9900, offerPrice: 5200, floor: 4680, savings: 47, popular: false },
-];
+async function getTiers(): Promise<PricingTier[]> {
+  const cached = await getCached<PricingTier[]>("pricing_tiers", 120);
+  if (cached) return cached;
+  try {
+    const db = await getDB();
+    const row = await queryFirst<{ content: string; enabled: number }>(
+      db,
+      "SELECT content, enabled FROM site_content WHERE section = 'pricing'"
+    );
+    if (row && row.enabled !== 0) {
+      const parsed = JSON.parse(row.content) as { tiers?: PricingTier[] };
+      if (Array.isArray(parsed.tiers) && parsed.tiers.length > 0) {
+        const valid = parsed.tiers.filter(t => t && typeof t.id === "string" && typeof t.credits === "number");
+        if (valid.length > 0) {
+          const tiers = valid as PricingTier[];
+          await setCached("pricing_tiers", tiers);
+          return tiers;
+        }
+      }
+    }
+  } catch {}
+  await setCached("pricing_tiers", DEFAULT_PRICING_TIERS);
+  return DEFAULT_PRICING_TIERS;
+}
 
 export async function GET() {
+  const TIERS = await getTiers();
   const publicTiers = TIERS.map(t => ({
     id: t.id, credits: t.credits, retailPrice: t.retailPrice,
     offerPrice: t.offerPrice, savings: t.savings, popular: t.popular,
@@ -26,6 +45,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as {
       tierId: string; desiredPrice: number; round?: number;
     };
+    const TIERS = await getTiers();
     const tier = TIERS.find(t => t.id === body.tierId);
     if (!tier) return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
 

@@ -3,7 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { heroData, heroSectionBadgeBn, heroSectionBadgeEn, heroFeatureGridItems } from "@/data/home/hero";
+
+const heroDefaults = {
+  ...heroData,
+  heroSectionBadge: { bn: heroSectionBadgeBn, en: heroSectionBadgeEn },
+  heroFeatureGridItems,
+};
+type HeroContent = typeof heroDefaults;
 
 function toBn(v: number) {
   return String(v).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[parseInt(d, 10)]);
@@ -47,7 +55,9 @@ export default function HeroSection() {
     return () => clearInterval(id);
   }, []);
 
-  const h = heroData;
+  const { content: h, enabled } = useSiteContent<HeroContent>("hero", heroDefaults);
+
+  if (!enabled) return null;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0F1F3D] to-[#0D1B30]">
@@ -73,7 +83,7 @@ export default function HeroSection() {
 
           {/* Premium badge */}
           <div className="inline-flex gap-2 px-5 py-2.5 mx-auto mb-5 rounded-full bg-gradient-to-r from-accent/20 to-secondary/20 border border-accent/30 font-extrabold text-sm text-gradient animate-gradient">
-            {lang === "bn" ? heroSectionBadgeBn : heroSectionBadgeEn}
+            {lang === "bn" ? h.heroSectionBadge.bn : h.heroSectionBadge.en}
           </div>
 
           {/* Main headline */}
@@ -123,7 +133,7 @@ export default function HeroSection() {
 
           {/* Feature grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-w-3xl mx-auto mb-8">
-            {heroFeatureGridItems.map((item, i) => (
+            {h.heroFeatureGridItems.map((item, i) => (
               <div key={i} className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] transition-all duration-200">
                 <span className="text-lg">{item.icon}</span>
                 <span className="text-xs font-bold text-white/70">{lang === "bn" ? item.textBn : item.textEn}</span>

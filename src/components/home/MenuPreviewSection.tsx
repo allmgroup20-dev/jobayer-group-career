@@ -4,12 +4,25 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { courseCategories } from "@/data/home/courses";
-import { platformShowcaseText, platforms } from "@/data/home/platforms";
+import { platforms } from "@/data/home/platforms";
 import { trainers } from "@/data/home/trainers";
+
+const coursePreviewDefaults = {
+  courseCategories,
+  trainers,
+  platforms,
+  platformTitleBn: "যেসব প্ল্যাটফর্মের কোর্স আপনি পাচ্ছেন",
+  platformTitleEn: "Platforms Whose Courses You Get",
+  platformSubtitleBn: "মোট {n}টি প্রতিষ্ঠানের কোর্স — সব একসাথে",
+  platformSubtitleEn: "Courses from {n} platforms — all in one place",
+};
+type CoursePreviewContent = typeof coursePreviewDefaults;
 
 export default function MenuPreviewSection() {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<CoursePreviewContent>("course_preview", coursePreviewDefaults);
   const [activeTab, setActiveTab] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -23,6 +36,11 @@ export default function MenuPreviewSection() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  if (!enabled) return null;
+  const categories = content.courseCategories;
+  const trainersList = content.trainers;
+  const platformsList = content.platforms;
 
   const tabs = [
     { id: "categories", bn: "কোর্স ক্যাটাগরি", en: "Categories", icon: "📚" },
@@ -53,7 +71,7 @@ export default function MenuPreviewSection() {
       {/* Categories */}
       {activeTab === 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {courseCategories.slice(1).map((cat) => (
+          {categories.slice(1).map((cat) => (
             <Link
               key={cat.id}
               href="/courses"
@@ -75,7 +93,7 @@ export default function MenuPreviewSection() {
       {activeTab === 1 && (
         <div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {trainers.slice(0, showAll ? trainers.length : 8).map((t, i) => (
+            {trainersList.slice(0, showAll ? trainersList.length : 8).map((t, i) => (
               <div key={i} className="group flex flex-col items-center text-center gap-3 p-4 rounded-2xl bg-white border border-border/60 hover:border-accent/30 hover:shadow-lg transition-all duration-300">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent p-0.5">
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl overflow-hidden">
@@ -94,13 +112,13 @@ export default function MenuPreviewSection() {
               </div>
             ))}
           </div>
-          {trainers.length > 8 && (
+          {trainersList.length > 8 && (
             <div className="text-center mt-4">
               <button onClick={() => setShowAll(!showAll)}
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold text-accent bg-accent/10 hover:bg-accent/20 transition-all">
                 {showAll
                   ? (lang === "bn" ? "সংক্ষিপ্ত দেখুন" : "Show Less")
-                  : (lang === "bn" ? `সবগুলো দেখুন (${trainers.length})` : `Show All (${trainers.length})`)}
+                  : (lang === "bn" ? `সবগুলো দেখুন (${trainersList.length})` : `Show All (${trainersList.length})`)}
               </button>
             </div>
           )}
@@ -111,11 +129,11 @@ export default function MenuPreviewSection() {
       {activeTab === 2 && (
         <div>
           <div className="text-center mb-6">
-            <h3 className="text-lg font-bold text-primary">{lang === "bn" ? platformShowcaseText.titleBn : platformShowcaseText.titleEn}</h3>
-            <p className="text-sm text-text-secondary">{platformShowcaseText.subtitleBn(platforms.length)}</p>
+            <h3 className="text-lg font-bold text-primary">{lang === "bn" ? content.platformTitleBn : content.platformTitleEn}</h3>
+            <p className="text-sm text-text-secondary">{(lang === "bn" ? content.platformSubtitleBn : content.platformSubtitleEn).replace("{n}", String(platformsList.length))}</p>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-            {platforms.slice(0, showAll ? platforms.length : 9).map((p, i) => (
+            {platformsList.slice(0, showAll ? platformsList.length : 9).map((p, i) => (
               <div key={i} className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-white border border-border/60 hover:border-accent/30 hover:shadow-lg transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center overflow-hidden">
                   {p.logo ? (
@@ -130,13 +148,13 @@ export default function MenuPreviewSection() {
               </div>
             ))}
           </div>
-          {platforms.length > 9 && (
+          {platformsList.length > 9 && (
             <div className="text-center mt-4">
               <button onClick={() => setShowAll(!showAll)}
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold text-accent bg-accent/10 hover:bg-accent/20 transition-all">
                 {showAll
                   ? (lang === "bn" ? "সংক্ষিপ্ত দেখুন" : "Show Less")
-                  : (lang === "bn" ? `সবগুলো দেখুন (${platforms.length})` : `Show All (${platforms.length})`)}
+                  : (lang === "bn" ? `সবগুলো দেখুন (${platformsList.length})` : `Show All (${platformsList.length})`)}
               </button>
             </div>
           )}

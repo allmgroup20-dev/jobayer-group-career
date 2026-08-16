@@ -2,10 +2,14 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { liveSalaryText } from "@/data/home/salary";
 import SalaryTable from "@/components/home/SalaryTable";
 import PaymentGallery from "@/components/home/PaymentGallery";
 import LiveNotificationBar from "@/components/home/LiveNotificationBar";
+
+const liveUpdatesDefaults = { liveSalaryText };
+type LiveUpdatesContent = typeof liveUpdatesDefaults;
 
 const bdDistricts = [
   "ঢাকা","চট্টগ্রাম","রাজশাহী","খুলনা","সিলেট","বরিশাল","রংপুর",
@@ -20,15 +24,16 @@ const tabs = [
 
 export default function LiveUpdatesPage() {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<LiveUpdatesContent>("live_feed", liveUpdatesDefaults, { enabledByDefault: false });
   const [activeTab, setActiveTab] = useState("salary");
   const [notifMessage, setNotifMessage] = useState<string | null>(null);
   const latestNameRef = useRef<string | null>(null);
 
   const buildNotif = useCallback((name: string) => {
     const district = bdDistricts[Math.floor(Math.random() * bdDistricts.length)];
-    const suffix = lang === "bn" ? liveSalaryText.liveNotifJoined : liveSalaryText.liveNotifJoinedEn;
+    const suffix = lang === "bn" ? content.liveSalaryText.liveNotifJoined : content.liveSalaryText.liveNotifJoinedEn;
     return `${name}, ${district} ${suffix}`;
-  }, [lang]);
+  }, [lang, content]);
 
   const handleNewSuccess = useCallback((name: string) => {
     latestNameRef.current = name;
@@ -43,6 +48,8 @@ export default function LiveUpdatesPage() {
     }, 30000);
     return () => clearInterval(id);
   }, [buildNotif]);
+
+  if (!enabled) return null;
 
   return (
     <div className="min-h-screen bg-bg">

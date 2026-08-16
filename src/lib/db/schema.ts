@@ -177,6 +177,23 @@ export const companySettings = sqliteTable("company_settings", {
   updatedAt: text("updated_at"),
 });
 
+export const siteContent = sqliteTable("site_content", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  section: text("section").unique().notNull(),
+  content: text("content").notNull().default("{}"),
+  enabled: integer("enabled").default(1),
+  updatedAt: text("updated_at"),
+});
+
+export const featureFlags = sqliteTable("feature_flags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  featureKey: text("feature_key").unique().notNull(),
+  enabled: integer("enabled").default(0),
+  label: text("label"),
+  featureGroup: text("feature_group").default("general"),
+  updatedAt: text("updated_at"),
+});
+
 export const testSessions = sqliteTable("test_sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   sessionId: text("session_id").unique().notNull(),

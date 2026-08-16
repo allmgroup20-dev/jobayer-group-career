@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguageStore } from "@/lib/store";
+import { useSiteContent } from "@/lib/use-site-content";
 import { liveNotifText } from "@/data/home/salary";
+
+const notifDefaults = { liveNotifText };
+type NotifContent = typeof notifDefaults;
 
 const bdDistricts = [
   "\u09A2\u09BE\u0995\u09BE", "\u099A\u099F\u09CD\u099F\u0997\u09CD\u09B0\u09BE\u09AE", "\u09B0\u09BE\u099C\u09B6\u09BE\u09B9\u09C0", "\u0996\u09C1\u09B2\u09A8\u09BE", "\u09B8\u09BF\u09B2\u09C7\u099F", "\u09AC\u09B0\u09BF\u09B6\u09BE\u09B2", "\u09B0\u0982\u09AA\u09C1\u09B0",
@@ -23,6 +27,7 @@ interface Props {
 
 export default function LiveNotificationBar({ message }: Props) {
   const { lang } = useLanguageStore();
+  const { content, enabled } = useSiteContent<NotifContent>("live_feed", notifDefaults, { enabledByDefault: false });
   const [notification, setNotification] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const queueRef = useRef<string[]>([]);
@@ -57,7 +62,7 @@ export default function LiveNotificationBar({ message }: Props) {
     const addNotif = () => {
       const name = names[Math.floor(Math.random() * names.length)];
       const district = bdDistricts[Math.floor(Math.random() * bdDistricts.length)];
-      const msg = name + ", " + district + " " + (lang === "bn" ? liveNotifText.joinedRecent : liveNotifText.joinedRecentEn);
+      const msg = name + ", " + district + " " + (lang === "bn" ? content.liveNotifText.joinedRecent : content.liveNotifText.joinedRecentEn);
       queueRef.current.push(msg);
       if (!timerRef.current) showNext();
     };
@@ -69,7 +74,7 @@ export default function LiveNotificationBar({ message }: Props) {
     };
   }, [lang, message]);
 
-  if (!visible || !notification) return null;
+  if (!enabled || !visible || !notification) return null;
 
   return (
     <div className="fixed left-1/2 -translate-x-1/2 z-[9999] max-w-[94vw] md:max-w-[560px] px-4 py-3 rounded-xl bg-white border border-border shadow-xl flex items-center gap-2.5 animate-fade-up transition-all duration-[400ms] float-slot-toast">
