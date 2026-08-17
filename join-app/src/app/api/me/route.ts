@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/env";
-import { queryFirst } from "@/lib/queries";
+import { ensureWorkerProfileColumns, queryFirst } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
@@ -11,8 +11,11 @@ export async function GET(request: NextRequest) {
     }
     const workerId = payload.sub;
 
+    const env = await getDB();
+    await ensureWorkerProfileColumns(env);
+
     const worker = await queryFirst<Record<string, any>>(
-      await getDB(),
+      env,
       `SELECT w.worker_id, w.name, w.phone, w.email, w.google_id, w.sponsor_id, w.sponsor_name,
               w.level, w.join_date, w.membership_status, w.avatar_url, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.gender, w.country, w.city,

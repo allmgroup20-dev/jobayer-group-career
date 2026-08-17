@@ -8,7 +8,7 @@ const PENDING_FLAG = "__dbSchemaSetupPending";
 
 let dbCache: { DB: D1Database } | null = null;
 
-const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original"];
+const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila"];
 
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
@@ -22,6 +22,9 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     try { await env.DB.prepare("ALTER TABLE courses ADD COLUMN institution_id INTEGER").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE course_categories ADD COLUMN sort_order INTEGER DEFAULT 0").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE course_categories ADD COLUMN parent_id INTEGER DEFAULT NULL").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN division TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN district TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN upazila TEXT").run(); } catch {}
     g[MIGRATE_FLAG] = true;
   }
 

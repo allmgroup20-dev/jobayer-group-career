@@ -20,3 +20,23 @@ export async function batch(env: { DB: D1Database }, queries: { sql: string; par
   );
   return env.DB.batch(stmts);
 }
+
+let _workerColsEnsured = false;
+
+// Ensures the workers table has the location columns before any query that
+// references them. Old databases created before the location feature won't have
+// division/district/upazila; without this, /api/me SELECT fails with
+// "no such column" and the onboarding page redirects back to login.
+export async function ensureWorkerProfileColumns(env: { DB: D1Database }): Promise<void> {
+  if (_workerColsEnsured) return;
+  try {
+    const info = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
+    const names = info.results?.map((r) => r.name) || [];
+    for (const col of ["division", "district", "upazila"]) {
+      if (!names.includes(col)) {
+        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
+      }
+    }
+    _workerColsEnsured = true;
+  } catch { /* ignore */ }
+}

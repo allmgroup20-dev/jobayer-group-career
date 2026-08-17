@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/env";
-import { execute, queryFirst } from "@/lib/queries";
+import { ensureWorkerProfileColumns, execute, queryFirst } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
 import { normalizePhone } from "@/lib/auth";
 
@@ -19,9 +19,7 @@ export async function PUT(request: NextRequest) {
       body.country !== undefined || body.city !== undefined ||
       body.division !== undefined || body.district !== undefined || body.upazila !== undefined;
     if (hasLocation) {
-      for (const col of ["division", "district", "upazila"]) {
-        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch { /* already exists */ }
-      }
+      await ensureWorkerProfileColumns(env);
     }
 
     const updates: string[] = [];
