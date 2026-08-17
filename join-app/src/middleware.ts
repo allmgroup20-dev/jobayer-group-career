@@ -37,10 +37,21 @@ const ALLOWED_ORIGINS = [
 
 const HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 
+async function getJwtSecret(): Promise<string> {
+  try {
+    const mod = await import("@opennextjs/cloudflare");
+    const ctx = await mod.getCloudflareContext({ async: true });
+    const value = (ctx.env as Record<string, unknown>).JWT_SECRET;
+    if (typeof value === "string" && value) return value;
+  } catch {
+    // Not in a worker runtime; fall back to process.env below.
+  }
+  return process.env.JWT_SECRET || "";
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
-  const jwtSecret = process.env.JWT_SECRET;
 
   // CSRF: reject cross-origin state-changing requests to /api/*
   if (pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
@@ -64,7 +75,8 @@ export async function middleware(request: NextRequest) {
     // Skip guard in local dev so the client-side redirect can take over cleanly.
     if (!HOSTS.has(host)) {
       const token = request.cookies.get("session_token")?.value;
-      if (!token || !(await verifyToken(token, jwtSecret || ""))) {
+      const jwtSecret = await getJwtSecret();
+      if (!token || !(await verifyToken(token, jwtSecret))) {
         const home = new URL("/", request.url);
         return NextResponse.redirect(home);
       }
