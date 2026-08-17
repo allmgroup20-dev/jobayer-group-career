@@ -17,6 +17,7 @@ interface CloudflareEnv {
   SSLCOMMERZ_STORE_PASSWORD: string;
   SSLCOMMERZ_IS_LIVE: string;
   GOOGLE_CLIENT_ID: string;
+  GOOGLE_PEOPLE_SCOPES: string;
   FACEBOOK_APP_ID: string;
   FACEBOOK_APP_SECRET: string;
 }

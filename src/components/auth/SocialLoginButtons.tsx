@@ -41,22 +41,23 @@ function FacebookF({ className }: { className?: string }) {
 }
 
 export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", onError, onSuccess }: Props) {
-  const [config, setConfig] = useState<{ googleClientId: string; facebookAppId: string }>({ googleClientId: "", facebookAppId: "" });
+  const [config, setConfig] = useState<{ googleClientId: string; googlePeopleScopes: string; facebookAppId: string }>({ googleClientId: "", googlePeopleScopes: "", facebookAppId: "" });
   const [googleReady, setGoogleReady] = useState(false);
   const [fbReady, setFbReady] = useState(false);
   const [busy, setBusy] = useState<"google" | "facebook" | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const googleBtnRef = useRef<HTMLDivElement>(null);
+  const tokenClientRef = useRef<any>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/auth/oauth-config")
-      .then((r) => r.json() as Promise<{ googleClientId?: string; facebookAppId?: string }>)
+      .then((r) => r.json() as Promise<{ googleClientId?: string; googlePeopleScopes?: string; facebookAppId?: string }>)
       .then((cfg) => {
         if (cancelled) return;
         const gid = cfg.googleClientId || "";
         const faid = cfg.facebookAppId || "";
-        setConfig({ googleClientId: gid, facebookAppId: faid });
+        setConfig({ googleClientId: gid, googlePeopleScopes: cfg.googlePeopleScopes || "", facebookAppId: faid });
         if (gid) {
           loadScript("https://accounts.google.com/gsi/client")
             .then(() => setGoogleReady(true))
@@ -75,20 +76,29 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
   }, []);
 
   useEffect(() => {
-    if (!googleReady || !config.googleClientId || !googleBtnRef.current) return;
-    const g = (window as any).google?.accounts?.id;
+    if (!googleReady || !config.googleClientId) return;
+    const g = (window as any).google?.accounts;
     if (!g) return;
-    g.initialize({
-      client_id: config.googleClientId,
-      callback: handleGoogleCredential,
-      auto_select: false,
-      itp_support: true,
-    });
-    g.renderButton(googleBtnRef.current, {
-      theme: "outline", size: "large", shape: "pill", width: "100%", text: "continue_with",
-    });
+    if (config.googlePeopleScopes) {
+      // Token flow: one consent prompt grants profile + People scopes together.
+      tokenClientRef.current = g.oauth2.initTokenClient({
+        client_id: config.googleClientId,
+        scope: ["openid", "email", "profile", config.googlePeopleScopes].join(" "),
+        callback: handleGoogleToken,
+      });
+    } else if (googleBtnRef.current) {
+      g.id.initialize({
+        client_id: config.googleClientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        itp_support: true,
+      });
+      g.id.renderButton(googleBtnRef.current, {
+        theme: "outline", size: "large", shape: "pill", width: "100%", text: "continue_with",
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [googleReady, config.googleClientId]);
+  }, [googleReady, config.googleClientId, config.googlePeopleScopes]);
 
   const finishAuth = (workerId: string, name: string) => {
     localStorage.setItem("worker_id", workerId);
@@ -114,6 +124,33 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
     } finally {
       setBusy(null);
     }
+  };
+
+  const handleGoogleToken = async (resp: { id_token?: string; access_token?: string; error?: string; error_description?: string }) => {
+    if (resp?.error) {
+      onError?.(lang === "bn" ? "গুগল লগইন বাতিল হয়েছে" : "Google login cancelled");
+      return;
+    }
+    if (!resp?.id_token || !resp?.access_token) return;
+    setBusy("google");
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: resp.id_token, accessToken: resp.access_token }),
+      });
+      const data = await res.json() as { error?: string; workerId?: string; name?: string };
+      if (!res.ok) throw new Error(data.error || "Google login failed");
+      if (data.workerId) finishAuth(data.workerId, data.name || "");
+    } catch (err) {
+      onError?.(err instanceof Error ? err.message : "Google login failed");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleGoogleTokenClick = () => {
+    tokenClientRef.current?.requestAccessToken();
   };
 
   const handleFbLogin = () => {
@@ -148,7 +185,17 @@ export default function SocialLoginButtons({ lang, redirectTo = "/dashboard", on
 
   return (
     <div className="space-y-3">
-      {config.googleClientId ? (
+      {config.googleClientId && config.googlePeopleScopes ? (
+        <button
+          type="button"
+          onClick={handleGoogleTokenClick}
+          disabled={!googleReady || busy !== null}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border/80 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:border-primary/30 transition-all disabled:opacity-50"
+        >
+          <GoogleG className="w-5 h-5" />
+          {lang === "bn" ? "গুগল দিয়ে লগইন" : "Continue with Google"}
+        </button>
+      ) : config.googleClientId ? (
         <div ref={googleBtnRef} className="w-full [&>div]:w-full" />
       ) : (
         <div>

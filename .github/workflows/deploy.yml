@@ -42,6 +42,7 @@ jobs:
       - name: Set OAuth vars
         run: |
           if [ -n "$GOOGLE_CLIENT_ID" ]; then npx wrangler vars put GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"; fi
+          if [ -n "$GOOGLE_PEOPLE_SCOPES" ]; then npx wrangler vars put GOOGLE_PEOPLE_SCOPES "$GOOGLE_PEOPLE_SCOPES"; fi
           if [ -n "$FACEBOOK_APP_ID" ]; then npx wrangler vars put FACEBOOK_APP_ID "$FACEBOOK_APP_ID"; fi
           if [ -n "$WHATSAPP_OTP_TEMPLATE" ]; then npx wrangler vars put WHATSAPP_OTP_TEMPLATE "$WHATSAPP_OTP_TEMPLATE"; fi
           if [ -n "$WHATSAPP_TEMPLATE_LANG" ]; then npx wrangler vars put WHATSAPP_TEMPLATE_LANG "$WHATSAPP_TEMPLATE_LANG"; fi
@@ -49,6 +50,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_PEOPLE_SCOPES: ${{ secrets.GOOGLE_PEOPLE_SCOPES }}
           FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
           WHATSAPP_OTP_TEMPLATE: ${{ secrets.WHATSAPP_OTP_TEMPLATE }}
           WHATSAPP_TEMPLATE_LANG: ${{ secrets.WHATSAPP_TEMPLATE_LANG }}

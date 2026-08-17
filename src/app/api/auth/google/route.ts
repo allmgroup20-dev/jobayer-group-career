@@ -3,6 +3,7 @@ import { queryFirst, execute } from "@/lib/db/queries";
 import { getDB } from "@/lib/db";
 import { generateToken, generateWorkerId, hashWorkerPassword, getJwtSecret } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
+import { enrichWorkerProfile } from "./people/route";
 
 type WorkerRow = { worker_id: string; name: string; phone: string; email: string | null };
 type GoogleProfile = { sub?: string; email?: string; email_verified?: string; name?: string; picture?: string; aud?: string };
@@ -40,7 +41,7 @@ async function linkAndRefresh(
 
 export async function POST(request: NextRequest) {
   try {
-    const { idToken } = await request.json() as { idToken?: string };
+    const { idToken, accessToken } = await request.json() as { idToken?: string; accessToken?: string };
     if (!idToken) {
       return NextResponse.json({ error: "idToken required" }, { status: 400 });
     }
@@ -77,6 +78,10 @@ export async function POST(request: NextRequest) {
 
     const env = await getDB();
 
+    let workerId: string | null = null;
+    let name = "";
+    let status = 200;
+
     // 1. Existing worker linked to this Google account.
     let worker = await queryFirst<WorkerRow>(
       env, "SELECT worker_id, name, phone, email FROM workers WHERE google_id = ?", [googleId]
@@ -84,25 +89,21 @@ export async function POST(request: NextRequest) {
 
     if (worker) {
       const linked = await linkAndRefresh(env, worker, profile, googleId);
-      const token = await generateToken(linked.worker_id, getJwtSecret());
-      const response = NextResponse.json({ workerId: linked.worker_id, name: linked.name });
-      setSessionCookie(response, token);
-      return response;
+      workerId = linked.worker_id;
+      name = linked.name;
     }
 
     // 2. Account linking: worker already registered with this email
     //    (either email-as-phone, or a real phone with email stored in the email column).
-    if (email) {
+    if (!workerId && email) {
       worker = await queryFirst<WorkerRow>(
         env, "SELECT worker_id, name, phone, email FROM workers WHERE phone = ? OR email = ?", [email, email]
       );
       // Never merge two distinct Google accounts that share an email.
       if (worker && !worker.phone.startsWith("google_")) {
         const linked = await linkAndRefresh(env, worker, profile, googleId);
-        const token = await generateToken(linked.worker_id, getJwtSecret());
-        const response = NextResponse.json({ workerId: linked.worker_id, name: linked.name });
-        setSessionCookie(response, token);
-        return response;
+        workerId = linked.worker_id;
+        name = linked.name;
       }
     }
 
@@ -110,18 +111,27 @@ export async function POST(request: NextRequest) {
     // The phone column is UNIQUE NOT NULL, but an email is NOT a WhatsApp
     // number — storing the email as phone breaks phone verification later.
     // Use a stable unique placeholder and keep the real email in its own column.
-    const phone = `google_${googleId.slice(0, 12)}`;
-    const name = profile.name || `User${googleId.slice(0, 6)}`;
-    const workerId = generateWorkerId(name, phone);
-    const hashedPw = await hashWorkerPassword("google_oauth_" + googleId.slice(0, 8));
-    await execute(env,
-       `INSERT INTO workers (worker_id, name, phone, password, google_id, email, avatar_url, join_date, membership_status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
-      [workerId, name, phone, hashedPw, googleId, email || null, profile.picture || null]
-    );
+    if (!workerId) {
+      const phone = `google_${googleId.slice(0, 12)}`;
+      name = profile.name || `User${googleId.slice(0, 6)}`;
+      workerId = generateWorkerId(name, phone);
+      const hashedPw = await hashWorkerPassword("google_oauth_" + googleId.slice(0, 8));
+      await execute(env,
+         `INSERT INTO workers (worker_id, name, phone, password, google_id, email, avatar_url, join_date, membership_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
+        [workerId, name, phone, hashedPw, googleId, email || null, profile.picture || null]
+      );
+      status = 201;
+    }
+
+    // Optional People API enrichment (phone/birthday/gender/occupation/address).
+    // Best-effort and awaited so it completes before the response; never blocks login.
+    if (accessToken && process.env.GOOGLE_PEOPLE_SCOPES) {
+      await enrichWorkerProfile(env, workerId, accessToken).catch(() => {});
+    }
 
     const token = await generateToken(workerId, getJwtSecret());
-    const response = NextResponse.json({ workerId, name }, { status: 201 });
+    const response = NextResponse.json({ workerId, name }, { status });
     setSessionCookie(response, token);
     return response;
   } catch (error) {

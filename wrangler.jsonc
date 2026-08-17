@@ -21,6 +21,9 @@
     // proceeds without verification. To re-enable, set to "true":
     "WHATSAPP_VERIFY_ENABLED": "false",
     "GOOGLE_CLIENT_ID": "403109702719-febj7lgvrlb8am6vh39e31k2lk5cfato.apps.googleusercontent.com",
+    // Leave empty to keep the basic Google button. Set to the People API OAuth scopes
+    // (comma/space separated) once the app passes Google's sensitive-scope verification.
+    "GOOGLE_PEOPLE_SCOPES": "",
     "FACEBOOK_APP_ID": ""
   },
   "d1_databases": [
