@@ -17,7 +17,7 @@ export default function ProfilePage() {
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
     { ttlMs: 180_000 }
   );
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", avatarUrl: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
   const [geoDivisions, setGeoDivisions] = useState<GeoDivision[]>([]);
   const [districtData, setDistrictData] = useState<GeoDistrictData | null>(null);
   const [ccData, setCcData] = useState<GeoCC | null>(null);
@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profileData?.workerId) return;
-    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.cityCorporation || profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", cityCorporation: profileData.cityCorporation || "", ward: profileData.ward || "", area: profileData.area || "", union: profileData.union || "", pourashava: profileData.pourashava || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
+    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, avatarUrl: profileData.avatarUrl || "", ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.cityCorporation || profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", cityCorporation: profileData.cityCorporation || "", ward: profileData.ward || "", area: profileData.area || "", union: profileData.union || "", pourashava: profileData.pourashava || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
     if (profileData.membershipStatus) setMembershipStatus(profileData.membershipStatus);
   }, [profileData]);
 
@@ -224,9 +224,18 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold text-primary mb-8">{lang === "bn" ? "প্রোফাইল" : "Profile"}</h1>
 
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-            {form.name ? form.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
-          </div>
+          {form.avatarUrl ? (
+            <img
+              src={form.avatarUrl}
+              alt={form.name || "avatar"}
+              referrerPolicy="no-referrer"
+              className="w-20 h-20 rounded-full object-cover mx-auto mb-3 ring-2 ring-white/20 shadow-md"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+              {form.name ? form.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
+            </div>
+          )}
           <h2 className="font-bold text-xl text-primary">{form.name}</h2>
           <p className="text-sm text-text-secondary">{form.workerId}</p>
           {membershipStatus === "premium" ? (

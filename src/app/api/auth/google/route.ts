@@ -4,6 +4,40 @@ import { getDB } from "@/lib/db";
 import { generateToken, generateWorkerId, hashWorkerPassword, getJwtSecret } from "@/lib/auth";
 import { setSessionCookie } from "@/lib/auth/session";
 
+type WorkerRow = { worker_id: string; name: string; phone: string; email: string | null };
+type GoogleProfile = { sub?: string; email?: string; email_verified?: string; name?: string; picture?: string; aud?: string };
+
+// Links the Google ID to an existing worker and refreshes profile fields:
+// - avatar_url: always refreshed from Google (people change their picture)
+// - email: filled only when empty (respects user edits)
+// - name: filled only when empty or a "User..." placeholder (respects user edits)
+async function linkAndRefresh(
+  env: any,
+  worker: WorkerRow,
+  profile: GoogleProfile,
+  googleId: string
+): Promise<{ worker_id: string; name: string }> {
+  const sets: string[] = ["google_id = ?"];
+  const params: unknown[] = [googleId];
+  if (profile.picture) {
+    sets.push("avatar_url = ?");
+    params.push(profile.picture);
+  }
+  let updatedName = worker.name;
+  if ((!worker.name || worker.name.startsWith("User")) && profile.name) {
+    sets.push("name = ?");
+    params.push(profile.name);
+    updatedName = profile.name;
+  }
+  if (!worker.email && profile.email) {
+    sets.push("email = ?");
+    params.push(profile.email);
+  }
+  params.push(worker.worker_id);
+  await execute(env, `UPDATE workers SET ${sets.join(", ")} WHERE worker_id = ?`, params);
+  return { worker_id: worker.worker_id, name: updatedName };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { idToken } = await request.json() as { idToken?: string };
@@ -18,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Verify the Google ID Token server-side via Google's tokeninfo endpoint.
     // Signature, issuer, audience and email_verified are all validated by Google here.
-    let profile: { sub?: string; email?: string; email_verified?: string; name?: string; aud?: string };
+    let profile: GoogleProfile;
     try {
       const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`, {
         headers: { "accept": "application/json" },
@@ -43,33 +77,36 @@ export async function POST(request: NextRequest) {
 
     const env = await getDB();
 
-    // Check if google_id already linked
-    let worker = await queryFirst<{ worker_id: string; name: string; phone: string }>(
-      env, "SELECT worker_id, name, phone FROM workers WHERE google_id = ?", [googleId]
+    // 1. Existing worker linked to this Google account.
+    let worker = await queryFirst<WorkerRow>(
+      env, "SELECT worker_id, name, phone, email FROM workers WHERE google_id = ?", [googleId]
     );
 
     if (worker) {
-      const token = await generateToken(worker.worker_id, getJwtSecret());
-      const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name });
+      const linked = await linkAndRefresh(env, worker, profile, googleId);
+      const token = await generateToken(linked.worker_id, getJwtSecret());
+      const response = NextResponse.json({ workerId: linked.worker_id, name: linked.name });
       setSessionCookie(response, token);
       return response;
     }
 
-    // Account linking: if a worker already registered with this email as phone, link the Google ID
+    // 2. Account linking: worker already registered with this email
+    //    (either email-as-phone, or a real phone with email stored in the email column).
     if (email) {
-      worker = await queryFirst<{ worker_id: string; name: string; phone: string }>(
-        env, "SELECT worker_id, name, phone FROM workers WHERE phone = ?", [email]
+      worker = await queryFirst<WorkerRow>(
+        env, "SELECT worker_id, name, phone, email FROM workers WHERE phone = ? OR email = ?", [email, email]
       );
-      if (worker) {
-        await execute(env, "UPDATE workers SET google_id = ? WHERE worker_id = ?", [googleId, worker.worker_id]);
-        const token = await generateToken(worker.worker_id, getJwtSecret());
-        const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name });
+      // Never merge two distinct Google accounts that share an email.
+      if (worker && !worker.phone.startsWith("google_")) {
+        const linked = await linkAndRefresh(env, worker, profile, googleId);
+        const token = await generateToken(linked.worker_id, getJwtSecret());
+        const response = NextResponse.json({ workerId: linked.worker_id, name: linked.name });
         setSessionCookie(response, token);
         return response;
       }
     }
 
-    // Auto-register with google_id.
+    // 3. Auto-register with google_id.
     // The phone column is UNIQUE NOT NULL, but an email is NOT a WhatsApp
     // number — storing the email as phone breaks phone verification later.
     // Use a stable unique placeholder and keep the real email in its own column.
@@ -78,9 +115,9 @@ export async function POST(request: NextRequest) {
     const workerId = generateWorkerId(name, phone);
     const hashedPw = await hashWorkerPassword("google_oauth_" + googleId.slice(0, 8));
     await execute(env,
-       `INSERT INTO workers (worker_id, name, phone, password, google_id, email, join_date, membership_status)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
-      [workerId, name, phone, hashedPw, googleId, email || null]
+       `INSERT INTO workers (worker_id, name, phone, password, google_id, email, avatar_url, join_date, membership_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 'general')`,
+      [workerId, name, phone, hashedPw, googleId, email || null, profile.picture || null]
     );
 
     const token = await generateToken(workerId, getJwtSecret());

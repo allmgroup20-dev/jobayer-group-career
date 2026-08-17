@@ -43,32 +43,45 @@ export async function POST(request: NextRequest) {
     const env = await getDB();
 
     // 1. Existing worker linked to this Google account.
-    let worker = await queryFirst<{ worker_id: string; name: string; phone: string }>(
-      env, "SELECT worker_id, name, phone FROM workers WHERE google_id = ?", [googleId]
+    let worker = await queryFirst<{ worker_id: string; name: string; phone: string; email: string | null }>(
+      env, "SELECT worker_id, name, phone, email FROM workers WHERE google_id = ?", [googleId]
     );
 
     if (worker) {
-      if (profile.picture) {
-        await execute(env, "UPDATE workers SET avatar_url = ? WHERE worker_id = ?", [profile.picture, worker.worker_id]).catch(() => {});
+      const sets: string[] = [];
+      const ps: unknown[] = [];
+      if (profile.picture) { sets.push("avatar_url = ?"); ps.push(profile.picture); }
+      let displayName = worker.name;
+      if ((!worker.name || worker.name.startsWith("User")) && profile.name) { sets.push("name = ?"); ps.push(profile.name); displayName = profile.name; }
+      if (!worker.email && profile.email) { sets.push("email = ?"); ps.push(profile.email); }
+      if (sets.length) {
+        ps.push(worker.worker_id);
+        await execute(env, `UPDATE workers SET ${sets.join(", ")} WHERE worker_id = ?`, ps).catch(() => {});
       }
       const token = await generateToken(worker.worker_id, getJwtSecret());
-      const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name, isNew: false });
+      const response = NextResponse.json({ workerId: worker.worker_id, name: displayName, isNew: false });
       setSessionCookie(response, token);
       return response;
     }
 
-    // 2. Account linking: worker already registered on the platform with this email.
+    // 2. Account linking: worker already registered with this email
+    //    (either email-as-phone, or a real phone with email stored in the email column).
     if (email) {
-      worker = await queryFirst<{ worker_id: string; name: string; phone: string }>(
-        env, "SELECT worker_id, name, phone FROM workers WHERE phone = ?", [email]
+      worker = await queryFirst<{ worker_id: string; name: string; phone: string; email: string | null }>(
+        env, "SELECT worker_id, name, phone, email FROM workers WHERE phone = ? OR email = ?", [email, email]
       );
-      if (worker) {
-        await execute(env, "UPDATE workers SET google_id = ? WHERE worker_id = ?", [googleId, worker.worker_id]);
-        if (profile.picture) {
-          await execute(env, "UPDATE workers SET avatar_url = ? WHERE worker_id = ?", [profile.picture, worker.worker_id]).catch(() => {});
-        }
+      // Never merge two distinct Google accounts that share an email.
+      if (worker && !worker.phone.startsWith("google_")) {
+        const sets: string[] = ["google_id = ?"];
+        const ps: unknown[] = [googleId];
+        if (profile.picture) { sets.push("avatar_url = ?"); ps.push(profile.picture); }
+        let displayName = worker.name;
+        if ((!worker.name || worker.name.startsWith("User")) && profile.name) { sets.push("name = ?"); ps.push(profile.name); displayName = profile.name; }
+        if (!worker.email && profile.email) { sets.push("email = ?"); ps.push(profile.email); }
+        ps.push(worker.worker_id);
+        await execute(env, `UPDATE workers SET ${sets.join(", ")} WHERE worker_id = ?`, ps).catch(() => {});
         const token = await generateToken(worker.worker_id, getJwtSecret());
-        const response = NextResponse.json({ workerId: worker.worker_id, name: worker.name, isNew: false });
+        const response = NextResponse.json({ workerId: worker.worker_id, name: displayName, isNew: false });
         setSessionCookie(response, token);
         return response;
       }
