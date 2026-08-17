@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/env";
-import { ensurePhonebookColumns, ensureWorkerProfileColumns, execute, normalizePhone, queryFirst } from "@/lib/queries";
+import { ensurePhonebookColumns, ensureWorkerProfileColumns, execute, normalizePhone, query, queryFirst } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
 import { SHARE_TARGET, generateCertificateId, getShareSummary } from "@/lib/share";
 
@@ -11,33 +11,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const workerId = payload.sub;
-    const { phone } = await request.json() as { phone?: string };
-    const normalized = normalizePhone(phone);
-    if (!normalized) {
-      return NextResponse.json({ error: "Invalid phone" }, { status: 400 });
-    }
-
+    const body = await request.json() as { phone?: string; roundToken?: string };
     const env = await getDB();
     await ensureWorkerProfileColumns(env);
     await ensurePhonebookColumns(env);
 
-    const row = await queryFirst<{ id: number }>(
-      env,
-      "SELECT id FROM user_phonebooks WHERE worker_id = ? AND contact_phone = ? AND status != 'sent' LIMIT 1",
-      [workerId, normalized]
-    );
-
-    if (row) {
+    // Two modes: a single phone, or an entire round (roundToken) — the single
+    // WhatsApp action marks the whole batch. Only numbers that exist on
+    // WhatsApp (wa_exists != '0') can be marked sent.
+    if (body.roundToken) {
       await execute(env,
-        "UPDATE user_phonebooks SET status = 'sent', sent_at = datetime('now') WHERE id = ?",
-        [row.id]
+        `UPDATE user_phonebooks SET status = 'sent', sent_at = datetime('now')
+         WHERE worker_id = ? AND source = 'share_task' AND status = 'selected' AND share_token = ? AND (wa_exists IS NULL OR wa_exists != '0')`,
+        [workerId, body.roundToken]
       ).catch(() => {});
+    } else if (body.phone) {
+      const normalized = normalizePhone(body.phone);
+      if (!normalized) {
+        return NextResponse.json({ error: "Invalid phone" }, { status: 400 });
+      }
       await execute(env,
-        `INSERT INTO user_events (worker_id, event_type, page_url, page_category, metadata, created_at)
-         VALUES (?, 'share_sent', '/complete', 'complete', ?, datetime('now'))`,
-        [workerId, JSON.stringify({ phone: normalized })]
+        `UPDATE user_phonebooks SET status = 'sent', sent_at = datetime('now')
+         WHERE worker_id = ? AND contact_phone = ? AND status != 'sent' AND (wa_exists IS NULL OR wa_exists != '0')`,
+        [workerId, normalized]
       ).catch(() => {});
+    } else {
+      return NextResponse.json({ error: "phone or roundToken required" }, { status: 400 });
     }
+
+    await execute(env,
+      `INSERT INTO user_events (worker_id, event_type, page_url, page_category, metadata, created_at)
+       VALUES (?, 'share_sent', '/complete', 'complete', ?, datetime('now'))`,
+      [workerId, JSON.stringify(body.roundToken ? { round: body.roundToken } : { phone: normalizePhone(body.phone) })]
+    ).catch(() => {});
 
     const summary = await getShareSummary(env, workerId);
 

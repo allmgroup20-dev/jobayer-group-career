@@ -300,6 +300,15 @@ function requireAuth(req) {
   return provided === AUTH_TOKEN;
 }
 
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = "";
+    req.on("data", (c) => { data += c; if (data.length > 1e6) req.destroy(); });
+    req.on("end", () => resolve(data));
+    req.on("error", () => resolve(""));
+  });
+}
+
 function serveDashboard(req, res) {
   const elapsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
   const uptimeStr = elapsed > 86400
@@ -407,6 +416,29 @@ function startServer() {
         if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         startConnection();
         jsonResponse(res, { ok: true });
+      } else if (path === "/check" && req.method === "POST") {
+        if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
+        (async () => {
+          if (connStatus !== "connected" || !sock) {
+            jsonResponse(res, { error: "Relay not connected", results: [] }, 503);
+            return;
+          }
+          let body = {};
+          try { body = JSON.parse(await readBody(req)); } catch {}
+          const raw = Array.isArray(body.phones) ? body.phones.slice(0, 20) : [];
+          const results = [];
+          for (const phone of raw) {
+            const digits = String(phone || "").replace(/\D/g, "");
+            const intl = digits.startsWith("880") ? digits : digits.startsWith("0") ? "880" + digits.slice(1) : digits;
+            try {
+              const found = await sock.onWhatsApp(intl);
+              results.push({ phone: intl, exists: Array.isArray(found) && found.length > 0 && found[0].exists === true });
+            } catch (e) {
+              results.push({ phone: intl, exists: false, error: e?.message || "check failed" });
+            }
+          }
+          jsonResponse(res, { results });
+        })();
       } else if (path === "/stop" && req.method === "POST") {
         if (!requireAuth(req)) { jsonResponse(res, { error: "Unauthorized" }, 401); return; }
         stopConnection();

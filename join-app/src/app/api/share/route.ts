@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/env";
 import { ensurePhonebookColumns, ensureWorkerProfileColumns, execute, normalizePhone, query } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
-import { MAX_PER_ROUND, getShareSummary } from "@/lib/share";
+import { MAX_PER_ROUND, checkWhatsAppNumbers, generateRoundToken, getShareSummary } from "@/lib/share";
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,10 +55,20 @@ export async function POST(request: NextRequest) {
       }
       known.add(phone);
       added.push(phone);
+    }
+
+    // Each added contact gets its own unique single-use share token, so every
+    // person receives a different link and a used token is never reused.
+    // Also pre-check WhatsApp existence when the relay is reachable.
+    const waMap = added.length > 0 ? await checkWhatsAppNumbers(added) : {};
+
+    for (const phone of added) {
+      const wa = waMap[phone] === false ? "0" : "1";
+      const token = generateRoundToken();
       await execute(env,
-        `INSERT INTO user_phonebooks (worker_id, contact_phone, contact_name, source, status, created_at)
-         VALUES (?, ?, ?, 'share_task', 'selected', datetime('now'))`,
-        [workerId, phone, c?.name || ""]
+        `INSERT INTO user_phonebooks (worker_id, contact_phone, contact_name, source, status, share_token, wa_exists, created_at)
+         VALUES (?, ?, ?, 'share_task', 'selected', ?, ?, datetime('now'))`,
+        [workerId, phone, (list.find((c) => normalizePhone(c?.tel) === phone)?.name) || "", token, wa]
       ).catch(() => {});
     }
 
@@ -71,7 +81,12 @@ export async function POST(request: NextRequest) {
     }
 
     const summary = await getShareSummary(env, workerId);
-    return NextResponse.json({ ...summary, added: added.length, skipped: skipped.length });
+    return NextResponse.json({
+      ...summary,
+      added: added.length,
+      skipped: skipped.length,
+      noWhatsApp: added.filter((p) => waMap[p] === false),
+    });
   } catch (error) {
     console.error("Share POST error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

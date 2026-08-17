@@ -23,9 +23,10 @@ type ShareSummary = {
   percent: number;
   completed: boolean;
   certificateId?: string | null;
-  contacts?: { phone: string; name: string; status: string }[];
+  contacts?: { phone: string; name: string; status: string; link?: string; shareText?: string; waExists?: boolean }[];
   added?: number;
   skipped?: number;
+  noWhatsApp?: string[];
 };
 
 type Msg = { kind: "ok" | "warn" | "error"; text: string } | null;
@@ -50,6 +51,8 @@ export default function CompletePage() {
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
   const pendingPhoneRef = useRef<string | null>(null);
   const hiddenAtRef = useRef<number | null>(null);
+  const openedAtRef = useRef<number | null>(null);
+  const [confirmReady, setConfirmReady] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -117,13 +120,19 @@ export default function CompletePage() {
     } catch { /* ignore */ }
   }, [t]);
 
-  const sendTo = (phone: string) => {
-    if (!shareText) return;
+  const sendTo = (phone: string, text?: string) => {
+    const msg = text || shareText;
+    if (!msg) return;
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp_send" } });
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(shareText)}`, "_blank");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
     pendingPhoneRef.current = phone;
     setPendingPhone(phone);
+    setConfirmReady(false);
+    openedAtRef.current = Date.now();
     hiddenAtRef.current = Date.now();
+    // The "পাঠিয়েছি" fallback only unlocks after 15s so users can't tap it
+    // without actually opening/sending in WhatsApp (anti-cheat).
+    setTimeout(() => setConfirmReady(true), 15000);
   };
 
   const pickContacts = async () => {
@@ -159,10 +168,13 @@ export default function CompletePage() {
         return;
       }
       setShare(data);
-      if ((data.skipped ?? 0) > 0) {
+      const noWa = data.noWhatsApp || [];
+      if (noWa.length > 0) {
+        setMsg({ kind: "warn", text: t(`এই নাম্বারগুলোতে WhatsApp নেই — সেগুলো গোনা হবে না: ${noWa.map((p) => "+" + p).join(", ")}`, `These numbers have no WhatsApp — they won't count: ${noWa.map((p) => "+" + p).join(", ")}`) });
+      } else if ((data.skipped ?? 0) > 0) {
         setMsg({ kind: "warn", text: t("কিছুজনকে আগেই বেছে নিয়েছেন — ভিন্ন মানুষ বেছে নিন।", "Some were already added — choose different people.") });
       } else if ((data.added ?? 0) > 0) {
-        setMsg({ kind: "ok", text: t("✅ যুক্ত হয়েছে! এখন নিচ থেকে প্রত্যেককে WhatsApp-এ পাঠান।", "Added! Now send each one on WhatsApp below.") });
+        setMsg({ kind: "ok", text: t("✅ যুক্ত হয়েছে! প্রত্যেকে তার নিজস্ব লিংক পেয়েছে — এখন প্রত্যেককে আলাদা করে WhatsApp-এ পাঠান।", "Added! Each person got their own unique link — send each one separately on WhatsApp below.") });
       }
     } catch {
       setMsg({ kind: "error", text: t("কন্টাক্ট বেছে নেওয়া সম্ভব হয়নি।", "Could not open the contact picker.") });
@@ -320,19 +332,24 @@ export default function CompletePage() {
                         <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
                         <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
                       </div>
-                      {pendingPhone === c.phone ? (
+                      {c.waExists === false ? (
+                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 text-red border border-red/30 text-[10px] font-black">
+                          {t("WhatsApp নেই", "No WhatsApp")}
+                        </span>
+                      ) : pendingPhone === c.phone ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gold font-bold">{t("পাঠিয়ে নিশ্চিত করুন…", "Confirm send…")}</span>
+                          <span className="text-[10px] text-gold font-bold">{t("পাঠিয়ে ফিরে আসুন…", "Send & come back…")}</span>
                           <button
                             onClick={() => confirmSent(c.phone)}
-                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-teal text-white text-xs font-black active:scale-95 transition-all"
+                            disabled={!confirmReady}
+                            className={`flex-shrink-0 px-3 py-2 rounded-xl text-white text-xs font-black active:scale-95 transition-all ${confirmReady ? "bg-teal" : "bg-white/20 opacity-60"}`}
                           >
-                            ✅ {t("পাঠিয়েছি", "Sent")}
+                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t("⏳ ১৫ সেকেন্ড পরে…", "⏳ wait 15s…")}
                           </button>
                         </div>
                       ) : (
                         <button
-                          onClick={() => sendTo(c.phone)}
+                          onClick={() => sendTo(c.phone, c.shareText)}
                           className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
                         >
                           📤 {t("WhatsApp-এ পাঠান", "Send")}
@@ -377,7 +394,7 @@ export default function CompletePage() {
               </div>
 
               <p className="mt-3 text-[11px] text-white/40 leading-relaxed">
-                {t("টিপ: প্রতিটি \"পাঠান\" চাপলে WhatsApp খুলবে — সেন্ড করে ফিরে আসলেই গোনা হবে। একই মানুষ দুইবার গোনা হয় না, তাই প্রতিবার নতুন মানুষ বেছে নিন।", "Tip: tapping Send opens WhatsApp — it counts when you send and come back. The same person is never counted twice, so pick new people each round.")}
+                {t("টিপ: প্রতিটি \"পাঠান\" চাপলে সেই ব্যক্তির জন্য আলাদা ইউনিক লিংকসহ WhatsApp খুলবে — সেন্ড করে ফিরে আসলেই গোনা হবে। প্রতিটি লিংক একবারই ব্যবহৃত হয়, তাই একই মানুষ দুইবার গোনা হয় না; প্রতিবার নতুন মানুষ বেছে নিন।", "Tip: each Send opens WhatsApp with a unique link for that person — it counts when you send and come back. Every link is single-use, so the same person is never counted twice; pick new people each round.")}
               </p>
             </>
           ) : (
