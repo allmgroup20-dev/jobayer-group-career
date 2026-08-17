@@ -37,6 +37,43 @@ export async function ensureWorkerProfileColumns(env: { DB: D1Database }): Promi
         try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
       }
     }
+    // Share-task / certificate progress columns (share-to-25 feature).
+    for (const col of ["share_task_completed_at", "certificate_progress", "certificate_id"]) {
+      if (!names.includes(col)) {
+        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
+      }
+    }
     _workerColsEnsured = true;
   } catch { /* ignore */ }
+}
+
+let _phonebookColsEnsured = false;
+
+// Ensures the user_phonebooks table has the share-task tracking columns.
+export async function ensurePhonebookColumns(env: { DB: D1Database }): Promise<void> {
+  if (_phonebookColsEnsured) return;
+  try {
+    const info = await env.DB.prepare("PRAGMA table_info(user_phonebooks)").all<{ name: string }>();
+    const names = info.results?.map((r) => r.name) || [];
+    for (const col of ["status", "sent_at"]) {
+      if (!names.includes(col)) {
+        try { await env.DB.prepare(`ALTER TABLE user_phonebooks ADD COLUMN ${col} TEXT`).run(); } catch {}
+      }
+    }
+    _phonebookColsEnsured = true;
+  } catch { /* ignore */ }
+}
+
+// Normalizes a phone number to a canonical digit string for dedup matching.
+// Strips everything except digits; maps leading 01… to 8801…; keeps last 10-13 digits.
+export function normalizePhone(input: string | undefined | null): string {
+  const digits = (input || "").replace(/\D/g, "");
+  if (digits.length === 0) return "";
+  let d = digits.startsWith("00") ? digits.slice(2) : digits;
+  if (d.startsWith("880")) d = d.slice(3);
+  if (d.startsWith("1") && d.length === 10) d = "880" + d;
+  if (d.length >= 10 && d.length <= 13 && d.startsWith("880")) return d;
+  if (d.length === 10) return "880" + d;
+  if (d.length === 11 && d.startsWith("1")) return "880" + d.slice(1);
+  return d.length >= 10 ? "880" + d.slice(d.length - 10) : "";
 }
