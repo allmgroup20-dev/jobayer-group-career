@@ -67,6 +67,7 @@ export default function OnboardingPage() {
   const [syncBusy, setSyncBusy] = useState(false);
 
   const [interests, setInterests] = useState<string[]>([]);
+  const [showAllInterests, setShowAllInterests] = useState(false);
 
   // A phone that is really an email or a google_/fb_ placeholder is not a
   // WhatsApp number — the user must type their real number on this screen.
@@ -365,7 +366,7 @@ export default function OnboardingPage() {
             <div className="space-y-4 text-center">
               {header("🎯", t("আপনার আগ্রহ কী?", "What are you interested in?"), t("আপনার জন্য সেরা রিসোর্স দেখাব", "We will show the best resources for you"))}
               <div className="grid grid-cols-2 gap-3">
-                {INTEREST_OPTIONS.map((opt) => {
+                {(showAllInterests ? INTEREST_OPTIONS : INTEREST_OPTIONS.slice(0, 12)).map((opt) => {
                   const selected = interests.includes(opt.en);
                   return (
                     <button key={opt.en}
@@ -376,6 +377,17 @@ export default function OnboardingPage() {
                     </button>
                   );
                 })}
+              </div>
+              <div className="text-center">
+                {showAllInterests ? (
+                  <button onClick={() => setShowAllInterests(false)} className="text-xs text-action hover:underline">
+                    {t("− কম দেখান", "− Show less")}
+                  </button>
+                ) : (
+                  <button onClick={() => setShowAllInterests(true)} className="text-xs text-action hover:underline">
+                    {t(`+ আরও ${INTEREST_OPTIONS.length - 12}টি আগ্রহ দেখুন`, `+ Show ${INTEREST_OPTIONS.length - 12} more interests`)}
+                  </button>
+                )}
               </div>
               <button onClick={handleFinish} className="btn-primary w-full">
                 {t("🚀 শুরু করুন", "🚀 Get Started")}

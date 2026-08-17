@@ -128,11 +128,11 @@ const GOALS = [
   { en: "Earn Extra Income (Side Income)", bn: "অতিরিক্ত আয় / সাইড ইনকাম", v: "extra_income", e: "💰" },
 ];
 
-const TIMES = [
-  { en: "Morning", bn: "সকাল", v: "morning", e: "🌅" },
-  { en: "Afternoon", bn: "দুপুর", v: "afternoon", e: "☀️" },
-  { en: "Evening", bn: "বিকেল", v: "evening", e: "🌆" },
-  { en: "Night", bn: "রাত", v: "night", e: "🌙" },
+const DAILY_HOURS = [
+  { en: "Less than 1 hour", bn: "১ ঘণ্টার কম", v: "lt_1h", e: "⏱️" },
+  { en: "1 - 2 hours", bn: "১ - ২ ঘণ্টা", v: "1_2h", e: "📖" },
+  { en: "2 - 3 hours", bn: "২ - ৩ ঘণ্টা", v: "2_3h", e: "📚" },
+  { en: "More than 3 hours", bn: "৩ ঘণ্টার বেশি", v: "gt_3h", e: "🚀" },
 ];
 
 const SOURCES = [
@@ -161,38 +161,53 @@ const BUDGETS = [
 ];
 
 const INTERESTS = [
-  { en: "YouTube Content Creation", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬" },
-  { en: "Facebook Content Creation & Page Monetization", bn: "ফেসবুক কনটেন্ট ও পেজ মনিটাইজেশন", icon: "📱" },
-  { en: "Instagram & Reels", bn: "ইনস্টাগ্রাম ও রিলস", icon: "🎥" },
-  { en: "Video Editing", bn: "ভিডিও এডিটিং", icon: "🎬" },
-  { en: "Photo Editing & Photography", bn: "ফটো এডিটিং ও ফটোগ্রাফি", icon: "📷" },
-  { en: "Social Media Management", bn: "সোশ্যাল মিডিয়া ম্যানেজমেন্ট", icon: "📲" },
-  { en: "Podcasting", bn: "পডকাস্টিং", icon: "🎙️" },
-  { en: "Graphics Design", bn: "গ্রাফিক্স ডিজাইন", icon: "🎨" },
-  { en: "UI/UX Design", bn: "ইউআই/ইউএক্স ডিজাইন", icon: "🧩" },
-  { en: "Logo & Branding Design", bn: "লোগো ও ব্র্যান্ডিং ডিজাইন", icon: "✏️" },
-  { en: "Motion Graphics & Animation", bn: "মোশন গ্রাফিক্স ও অ্যানিমেশন", icon: "🧊" },
-  { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
-  { en: "Programming / Coding", bn: "প্রোগ্রামিং / কোডিং", icon: "💻" },
-  { en: "App Development", bn: "অ্যাপ ডেভেলপমেন্ট", icon: "📱" },
-  { en: "WordPress & Website", bn: "ওয়ার্ডপ্রেস ও ওয়েবসাইট", icon: "🖥️" },
-  { en: "Game Development", bn: "গেম ডেভেলপমেন্ট", icon: "🎮" },
-  { en: "AI & ChatGPT", bn: "এআই ও চ্যাটজিপিটি", icon: "🤖" },
-  { en: "Ethical Hacking / Cyber Security", bn: "এথিক্যাল হ্যাকিং / সাইবার সিকিউরিটি", icon: "🔐" },
-  { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼" },
-  { en: "Digital Marketing", bn: "ডিজিটাল মার্কেটিং", icon: "📢" },
-  { en: "Facebook / Instagram Ads", bn: "ফেসবুক / ইনস্টাগ্রাম অ্যাডস", icon: "📈" },
-  { en: "SEO", bn: "এসইও", icon: "🔍" },
-  { en: "Affiliate Marketing", bn: "অ্যাফিলিয়েট মার্কেটিং", icon: "🔗" },
-  { en: "E-commerce & Dropshipping", bn: "ই-কমার্স ও ড্রপশিপিং", icon: "🛒" },
-  { en: "Amazon & Online Business", bn: "অ্যামাজন ও অনলাইন ব্যবসা", icon: "🛍️" },
-  { en: "Content Writing & Blogging", bn: "কনটেন্ট রাইটিং ও ব্লগিং", icon: "✍️" },
-  { en: "Online Course & Digital Product Selling", bn: "অনলাইন কোর্স ও ডিজিটাল প্রোডাক্ট সেলিং", icon: "📚" },
-  { en: "English Learning / Spoken English", bn: "ইংলিশ লার্নিং / স্পোকেন ইংলিশ", icon: "🗣️" },
-  { en: "IELTS & Study Abroad", bn: "আইইএলটিএস ও বিদেশে পড়াশোনা", icon: "🎓" },
-  { en: "Job Preparation (BCS / Bank)", bn: "চাকরির প্রস্তুতি (বিসিএস / ব্যাংক)", icon: "🏛️" },
-  { en: "MS Office & Computer Basics", bn: "এমএস অফিস ও কম্পিউটার বেসিক", icon: "🖥️" },
-  { en: "Personal Development & Leadership", bn: "পার্সোনাল ডেভেলপমেন্ট ও লিডারশিপ", icon: "🌟" },
+  { en: "YouTube Content Creation", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬", goals: ["content_creator", "extra_income", "business"] },
+  { en: "Facebook Content Creation & Page Monetization", bn: "ফেসবুক কনটেন্ট ও পেজ মনিটাইজেশন", icon: "📱", goals: ["content_creator", "extra_income", "business"] },
+  { en: "Instagram & Reels", bn: "ইনস্টাগ্রাম ও রিলস", icon: "🎥", goals: ["content_creator", "extra_income"] },
+  { en: "Video Editing", bn: "ভিডিও এডিটিং", icon: "🎬", goals: ["content_creator", "freelancing", "career", "skill"] },
+  { en: "Photo Editing & Photography", bn: "ফটো এডিটিং ও ফটোগ্রাফি", icon: "📷", goals: ["content_creator", "freelancing"] },
+  { en: "Social Media Management", bn: "সোশ্যাল মিডিয়া ম্যানেজমেন্ট", icon: "📲", goals: ["business", "content_creator", "extra_income"] },
+  { en: "Podcasting", bn: "পডকাস্টিং", icon: "🎙️", goals: ["content_creator"] },
+  { en: "Graphics Design", bn: "গ্রাফিক্স ডিজাইন", icon: "🎨", goals: ["freelancing", "career", "skill"] },
+  { en: "UI/UX Design", bn: "ইউআই/ইউএক্স ডিজাইন", icon: "🧩", goals: ["career", "skill", "freelancing"] },
+  { en: "Logo & Branding Design", bn: "লোগো ও ব্র্যান্ডিং ডিজাইন", icon: "✏️", goals: ["freelancing", "business"] },
+  { en: "Motion Graphics & Animation", bn: "মোশন গ্রাফিক্স ও অ্যানিমেশন", icon: "🧊", goals: ["content_creator", "skill", "freelancing"] },
+  { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐", goals: ["career", "freelancing", "skill"] },
+  { en: "Programming / Coding", bn: "প্রোগ্রামিং / কোডিং", icon: "💻", goals: ["career", "skill"] },
+  { en: "App Development", bn: "অ্যাপ ডেভেলপমেন্ট", icon: "📱", goals: ["career", "freelancing", "skill"] },
+  { en: "WordPress & Website", bn: "ওয়ার্ডপ্রেস ও ওয়েবসাইট", icon: "🖥️", goals: ["freelancing", "business", "career"] },
+  { en: "Game Development", bn: "গেম ডেভেলপমেন্ট", icon: "🎮", goals: ["skill", "career"] },
+  { en: "AI & ChatGPT", bn: "এআই ও চ্যাটজিপিটি", icon: "🤖", goals: ["career", "skill", "business"] },
+  { en: "Ethical Hacking / Cyber Security", bn: "এথিক্যাল হ্যাকিং / সাইবার সিকিউরিটি", icon: "🔐", goals: ["career", "skill"] },
+  { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼", goals: ["freelancing", "extra_income"] },
+  { en: "Digital Marketing", bn: "ডিজিটাল মার্কেটিং", icon: "📢", goals: ["business", "freelancing", "career", "extra_income"] },
+  { en: "Facebook / Instagram Ads", bn: "ফেসবুক / ইনস্টাগ্রাম অ্যাডস", icon: "📈", goals: ["business", "freelancing", "extra_income"] },
+  { en: "SEO", bn: "এসইও", icon: "🔍", goals: ["business", "freelancing", "career"] },
+  { en: "Affiliate Marketing", bn: "অ্যাফিলিয়েট মার্কেটিং", icon: "🔗", goals: ["extra_income", "business", "freelancing"] },
+  { en: "E-commerce & Dropshipping", bn: "ই-কমার্স ও ড্রপশিপিং", icon: "🛒", goals: ["business", "extra_income", "freelancing"] },
+  { en: "Amazon & Online Business", bn: "অ্যামাজন ও অনলাইন ব্যবসা", icon: "🛍️", goals: ["business", "extra_income"] },
+  { en: "Content Writing & Blogging", bn: "কনটেন্ট রাইটিং ও ব্লগিং", icon: "✍️", goals: ["content_creator", "extra_income", "business"] },
+  { en: "Online Course & Digital Product Selling", bn: "অনলাইন কোর্স ও ডিজিটাল প্রোডাক্ট সেলিং", icon: "📚", goals: ["business", "extra_income", "content_creator"] },
+  { en: "English Learning / Spoken English", bn: "ইংলিশ লার্নিং / স্পোকেন ইংলিশ", icon: "🗣️", goals: ["job", "career", "freelancing"] },
+  { en: "IELTS & Study Abroad", bn: "আইইএলটিএস ও বিদেশে পড়াশোনা", icon: "🎓", goals: ["job"] },
+  { en: "Job Preparation (BCS / Bank)", bn: "চাকরির প্রস্তুতি (বিসিএস / ব্যাংক)", icon: "🏛️", goals: ["job"] },
+  { en: "MS Office & Computer Basics", bn: "এমএস অফিস ও কম্পিউটার বেসিক", icon: "🖥️", goals: ["job", "career"] },
+  { en: "Personal Development & Leadership", bn: "পার্সোনাল ডেভেলপমেন্ট ও লিডারশিপ", icon: "🌟", goals: ["career", "job", "extra_income"] },
+];
+
+const POPULAR_INTERESTS = [
+  "YouTube Content Creation",
+  "Facebook Content Creation & Page Monetization",
+  "Instagram & Reels",
+  "Video Editing",
+  "Freelancing",
+  "Digital Marketing",
+  "Graphics Design",
+  "Web Development",
+  "AI & ChatGPT",
+  "Social Media Management",
+  "English Learning / Spoken English",
+  "E-commerce & Dropshipping",
 ];
 
 const INCOME_SECTORS = [
@@ -226,6 +241,7 @@ export default function OnboardingPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState("");
+  const [showAllInterests, setShowAllInterests] = useState(false);
 
   const [geoDivisions, setGeoDivisions] = useState<GeoDivision[]>([]);
   const [districtData, setDistrictData] = useState<GeoDistrictData | null>(null);
@@ -851,12 +867,21 @@ export default function OnboardingPage() {
               <Header emoji="🎯" title={t("লক্ষ্য ও আগ্রহ", "Goals & Interests")} sub={t("আপনার জন্য সেরা অফার দেখাবো", "We'll show the best offers for you")} />
               <div>
                 {label("আপনার লক্ষ্য কী? *", "What's your goal? *")}
-                <Pick options={GOALS} value={form.goal} onPick={(v) => update("goal", v)} />
+                <Pick options={GOALS} value={form.goal} onPick={(v) => { update("goal", v); setShowAllInterests(false); }} />
               </div>
               <div>
                 {label("আগ্রহ নির্বাচন করুন", "Select your interests")}
+                {form.goal ? (
+                  <p className="text-xs text-ink-soft mb-2">
+                    {t("আপনার লক্ষ্যের সাথে মানানসই আগ্রহ দেখানো হয়েছে", "Showing interests that match your goal")}
+                  </p>
+                ) : (
+                  <p className="text-xs text-ink-soft mb-2">
+                    {t("প্রথমে আপনার লক্ষ্য বেছে নিন — তাহলে মানানসই আগ্রহ দেখাবো", "Pick your goal first — we'll show matching interests")}
+                  </p>
+                )}
                 <div className="grid grid-cols-2 gap-2">
-                  {INTERESTS.map((opt) => {
+                  {(form.goal ? (showAllInterests ? INTERESTS : INTERESTS.filter((o) => o.goals.includes(form.goal))) : (showAllInterests ? INTERESTS : INTERESTS.filter((o) => POPULAR_INTERESTS.includes(o.en)))).map((opt) => {
                     const active = form.interests.includes(opt.en);
                     return (
                       <button
@@ -873,10 +898,21 @@ export default function OnboardingPage() {
                     );
                   })}
                 </div>
+                {!showAllInterests && (form.goal ? INTERESTS.filter((o) => o.goals.includes(form.goal)).length : INTERESTS.filter((o) => POPULAR_INTERESTS.includes(o.en)).length) < INTERESTS.length && (
+                  <button type="button" onClick={() => setShowAllInterests(true)} className="mt-2 w-full text-sm font-semibold text-pink underline">
+                    {t("+ সব আগ্রহ দেখুন", "+ Show all interests")}
+                  </button>
+                )}
+                {showAllInterests && (
+                  <button type="button" onClick={() => setShowAllInterests(false)} className="mt-2 w-full text-sm font-semibold text-ink-soft underline">
+                    {t("− কম দেখান", "− Show less")}
+                  </button>
+                )}
               </div>
               <div>
-                {label("পড়ার সময় *", "Preferred Time *")}
-                <Pick options={TIMES} value={form.preferredLearningTime} onPick={(v) => update("preferredLearningTime", v)} />
+                {label("প্রতিদিন শেখার সময় *", "Daily Study Time *")}
+                <Pick options={DAILY_HOURS} value={form.preferredLearningTime} onPick={(v) => update("preferredLearningTime", v)} />
+                <p className="text-xs text-ink-soft mt-1">{t("রেকর্ডেড কোর্স যেকোনো সময় দেখা যায় — আপনার সুবিধা অনুযায়ী পরামর্শ দেব", "Recorded courses can be watched anytime — we'll guide you by your schedule")}</p>
               </div>
               <div>
                 {label("বাজেট (প্রতি কোর্সে) *", "Budget Range *")}

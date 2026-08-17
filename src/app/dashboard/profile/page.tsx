@@ -510,13 +510,13 @@ export default function ProfilePage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "পছন্দের পড়ার সময়" : "Preferred Learning Time"}</label>
+                <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "প্রতিদিন শেখার সময়" : "Daily Study Time"}</label>
                 <select value={form.preferredLearningTime} onChange={(e) => setForm({ ...form, preferredLearningTime: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="morning">{lang === "bn" ? "সকাল" : "Morning"}</option>
-                  <option value="afternoon">{lang === "bn" ? "দুপুর" : "Afternoon"}</option>
-                  <option value="evening">{lang === "bn" ? "বিকেল" : "Evening"}</option>
-                  <option value="night">{lang === "bn" ? "রাত" : "Night"}</option>
+                  <option value="lt_1h">{lang === "bn" ? "১ ঘণ্টার কম" : "Less than 1 hour"}</option>
+                  <option value="1_2h">{lang === "bn" ? "১ - ২ ঘণ্টা" : "1 - 2 hours"}</option>
+                  <option value="2_3h">{lang === "bn" ? "২ - ৩ ঘণ্টা" : "2 - 3 hours"}</option>
+                  <option value="gt_3h">{lang === "bn" ? "৩ ঘণ্টার বেশি" : "More than 3 hours"}</option>
                 </select>
               </div>
 
