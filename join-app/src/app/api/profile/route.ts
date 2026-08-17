@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest) {
     if (body.cityCorporation !== undefined) { updates.push("city_corporation = ?"); params.push(body.cityCorporation || null); }
     if (body.ward !== undefined) { updates.push("ward = ?"); params.push(body.ward || null); }
     if (body.area !== undefined) { updates.push("area = ?"); params.push(body.area || null); }
-    if (body.union !== undefined) { updates.push("union = ?"); params.push(body.union || null); }
+    if (body.union !== undefined) { updates.push("union_name = ?"); params.push(body.union || null); }
     if (body.pourashava !== undefined) { updates.push("pourashava = ?"); params.push(body.pourashava || null); }
     if (body.goal !== undefined) { updates.push("goal = ?"); params.push(body.goal || null); }
     if (body.preferredLearningTime !== undefined) { updates.push("preferred_learning_time = ?"); params.push(body.preferredLearningTime || null); }

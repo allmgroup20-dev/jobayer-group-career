@@ -8,7 +8,7 @@ const PENDING_FLAG = "__dbSchemaSetupPending";
 
 let dbCache: { DB: D1Database } | null = null;
 
-const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila","city_corporation","ward","area","union","pourashava"];
+const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila","city_corporation","ward","area","union_name","pourashava"];
 
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
@@ -28,7 +28,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN city_corporation TEXT").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN ward TEXT").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN area TEXT").run(); } catch {}
-    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN union TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN union_name TEXT").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN pourashava TEXT").run(); } catch {}
     g[MIGRATE_FLAG] = true;
   }
@@ -236,7 +236,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     await addCol("workers", "city_corporation", "TEXT");
     await addCol("workers", "ward", "TEXT");
     await addCol("workers", "area", "TEXT");
-    await addCol("workers", "union", "TEXT");
+    await addCol("workers", "union_name", "TEXT");
     await addCol("workers", "pourashava", "TEXT");
     await addCol("workers", "goal", "TEXT");
     await addCol("workers", "preferred_learning_time", "TEXT");

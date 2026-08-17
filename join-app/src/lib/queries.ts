@@ -32,7 +32,7 @@ export async function ensureWorkerProfileColumns(env: { DB: D1Database }): Promi
   try {
     const info = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
     const names = info.results?.map((r) => r.name) || [];
-    for (const col of ["division", "district", "upazila", "city_corporation", "ward", "area", "union", "pourashava"]) {
+    for (const col of ["division", "district", "upazila", "city_corporation", "ward", "area", "union_name", "pourashava"]) {
       if (!names.includes(col)) {
         try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
       }

@@ -32,7 +32,7 @@ export const workers = sqliteTable("workers", {
   cityCorporation: text("city_corporation"),
   ward: text("ward"),
   area: text("area"),
-  union: text("union"),
+  union: text("union_name"),
   pourashava: text("pourashava"),
   goal: text("goal"),
   preferredLearningTime: text("preferred_learning_time"),
