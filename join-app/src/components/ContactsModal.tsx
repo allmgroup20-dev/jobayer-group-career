@@ -207,11 +207,11 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
                 <span className="text-[11px] font-bold text-white/60">দেখানো: {filtered.length} • বেছে নেওয়া: {selected.size}</span>
               </button>
 
-              {/* Counter vs 30 */}
+              {/* Counter */}
               <div className="mt-3 px-3 py-2 rounded-xl bg-teal/10 border border-teal/20 text-[11px] font-bold text-teal">
-                {selected.size >= 30
-                  ? `✅ ${selected.size} জন বেছে নিয়েছেন — সার্টিফিকেট টার্গেট (৩০) পূর্ণ!`
-                  : `🎯 সার্টিফিকেট পেতে সর্বনিম্ন ৩০ জন — আর ${30 - selected.size} জন বেছে নিন`}
+                {selected.size > 0
+                  ? `✅ ${selected.size} জন বেছে নিয়েছেন — যতজন চান, সবই পারবেন!`
+                  : `অল্প কয়েকজন বেছে নিন — শেয়ার করলে আপনার পার্সেন্টেজ বাড়বে!`}
               </div>
 
               {/* List */}
@@ -255,8 +255,8 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
             >
               {busy ? "যোগ হচ্ছে…" : `✅ ${selected.size} জন যুক্ত করুন`}
             </button>
-            {selected.size < 30 && selected.size > 0 && (
-              <p className="mt-2 text-center text-[11px] text-white/40">কম বাছাই করলেও হবে — পরে আরও যোগ করতে পারবেন</p>
+            {selected.size > 0 && (
+              <p className="mt-2 text-center text-[11px] text-white/40">এখন যা বেছে নিলেন তা-ই যোগ হবে — পরে আরও যোগ করতে পারবেন</p>
             )}
           </div>
         )}

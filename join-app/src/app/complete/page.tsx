@@ -55,6 +55,7 @@ export default function CompletePage() {
   const openedAtRef = useRef<number | null>(null);
   const [confirmReady, setConfirmReady] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
+  const [listSearch, setListSearch] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -93,7 +94,7 @@ export default function CompletePage() {
       const hid = hiddenAtRef.current;
       hiddenAtRef.current = null;
       const phone = pendingPhoneRef.current;
-      if (hid && phone && Date.now() - hid >= 12000) {
+      if (hid && phone && Date.now() - hid >= 3000) {
         pendingPhoneRef.current = null;
         setPendingPhone(null);
         confirmSent(phone);
@@ -132,9 +133,10 @@ export default function CompletePage() {
     setConfirmReady(false);
     openedAtRef.current = Date.now();
     hiddenAtRef.current = Date.now();
-    // The "পাঠিয়েছি" fallback only unlocks after 15s so users can't tap it
-    // without actually opening/sending in WhatsApp (anti-cheat).
-    setTimeout(() => setConfirmReady(true), 15000);
+    // The "পাঠিয়েছি" fallback only unlocks after 8s so users can't tap it
+    // without actually opening/sending in WhatsApp (anti-cheat). Return after a
+    // real WhatsApp visit (≥3s away) is auto-counted instantly.
+    setTimeout(() => setConfirmReady(true), 8000);
   };
 
   const submitContacts = async (valid: { name: string; tel: string }[]) => {
@@ -214,7 +216,7 @@ export default function CompletePage() {
     if (percent >= 60) return t("দারুণ! ৬০%+ — অর্ধেকের বেশি পার করেছেন!", "Great! Past 60% — over halfway there!");
     if (percent >= 40) return t("ভালো করছেন! ৪০%+ — এগিয়ে যান!", "Good going! 40%+ — keep it up!");
     if (percent >= 20) return t("চমৎকার শুরু! ২০%+ — চালিয়ে যান!", "Great start! 20%+ — keep going!");
-    return t("চাইলে সব কন্টাক্ট একসাথে বেছে নিন — সার্টিফিকেট পেতে সর্বনিম্ন ৩০ জন, আবার যতজন খুশি যোগ করতে পারবেন!", "Pick as many contacts as you like — you need at least 30 people for the certificate, and there's no upper limit!");
+    return t("অল্প কয়েকজনের কাছে শেয়ার করুন — প্রতিটি শেয়ারে আপনার পার্সেন্টেজ বাড়ছে! ১০০%-এ পৌঁছালেই সার্টিফিকেট।", "Share with a few people — every share grows your percentage! Reach 100% and earn your certificate.");
   };
 
   const confetti = useMemo(() => {
@@ -252,6 +254,10 @@ export default function CompletePage() {
   const allContacts = (share?.contacts || []);
   const sentContacts = allContacts.filter((c) => c.status === "sent");
   const selectedContacts = allContacts.filter((c) => c.status === "selected");
+  const q = listSearch.trim().toLowerCase();
+  const searchFilter = (c: { phone: string; name: string }) => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q);
+  const shownSelected = selectedContacts.filter(searchFilter);
+  const shownSent = sentContacts.filter(searchFilter);
   const sentCount = share?.sent ?? 0;
   const completed = share?.completed ?? false;
   const target = share?.target ?? 30;
@@ -294,7 +300,7 @@ export default function CompletePage() {
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">🎓 {t("সার্টিফিকেটের পথে", "Certificate Path")}</h2>
-            <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("সর্বনিম্ন ৩০ জন", "Minimum 30")}</span>
+            <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("শেয়ার • সার্টিফিকেট", "Share • Certify")}</span>
           </div>
           <p className="mt-2 text-xs text-white/70">{motivation(percent, sentCount, target)}</p>
 
@@ -310,8 +316,8 @@ export default function CompletePage() {
 
           <div className="mt-3 px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-[11px] font-bold text-white/70 leading-relaxed">
             {t(
-              `💡 চাইলে আপনার সব কন্টাক্ট একসাথে বেছে নিতে পারেন — সর্বোচ্চ সীমা নেই। সার্টিফিকেট পেতে সর্বনিম্ন ${target} জনকে WhatsApp-এ ইউনিক লিংক পাঠান।`,
-              `💡 You can pick ALL your contacts at once — no upper limit. Send at least ${target} people their unique WhatsApp link for the certificate.`
+              `💡 আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সব কন্টাক্ট একসাথে বেছে নিতে পারেন, সীমা নেই।`,
+              `💡 When you share with someone, watch your percentage grow — hit 100% and earn your certificate. You can pick ALL your contacts at once — no limit.`
             )}
           </div>
 
@@ -332,7 +338,16 @@ export default function CompletePage() {
                   <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">
                     {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
                   </p>
-                  {selectedContacts.map((c, i) => (
+                  <input
+                    value={listSearch}
+                    onChange={(e) => setListSearch(e.target.value)}
+                    placeholder={t("🔍 নাম বা নম্বর দিয়ে খুঁজুন…", "🔍 Search by name or number…")}
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold placeholder-white/40 focus:outline-none focus:border-pink/60"
+                  />
+                  {shownSelected.length === 0 && shownSent.length === 0 && (
+                    <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
+                  )}
+                  {shownSelected.map((c, i) => (
                     <div key={`${c.phone}-${i}`} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
@@ -350,7 +365,7 @@ export default function CompletePage() {
                             disabled={!confirmReady}
                             className={`flex-shrink-0 px-3 py-2 rounded-xl text-white text-xs font-black active:scale-95 transition-all ${confirmReady ? "bg-teal" : "bg-white/20 opacity-60"}`}
                           >
-                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t("⏳ ১৫ সেকেন্ড পরে…", "⏳ wait 15s…")}
+                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t("⏳ ৮ সেকেন্ড পরে…", "⏳ wait 8s…")}
                           </button>
                         </div>
                       ) : (
@@ -363,7 +378,7 @@ export default function CompletePage() {
                       )}
                     </div>
                   ))}
-                  {sentContacts.map((c, i) => (
+                  {shownSent.map((c, i) => (
                     <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 opacity-75">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
@@ -397,12 +412,12 @@ export default function CompletePage() {
                   disabled={busy}
                   className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60"
                 >
-                  {t("📇 Google কন্টাক্ট থেকে সব বেছে নিন (Select All)", "📇 Pick ALL from Google Contacts")}
+                  {t("📇 আপনার কন্টাক্ট বেছে নিন", "📇 Pick your contacts")}
                 </button>
 
                 {contactsSupported ? (
                   <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
-                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("📲 ফোনবুক/সিম/ডিভাইস থেকে বেছে নিন", "📲 Pick from phonebook/SIM/device")}
+                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("📲 ফোন/সিম/ডিভাইস থেকে বেছে নিন", "📲 Pick from phone/SIM/device")}
                   </button>
                 ) : (
                   <button onClick={() => setShowManual(true)} className="btn-white w-full text-sm !py-3.5">
@@ -433,7 +448,7 @@ export default function CompletePage() {
               </div>
 
               <p className="mt-3 text-[11px] text-white/40 leading-relaxed">
-                {t(`টিপ: Google-এ আপনার সব কন্টাক্ট নাও থাকতে পারে — সিম/ডিভাইসের জন্য "ফোনবুক থেকে বেছে নিন" ব্যবহার করুন। প্রতিটি "পাঠান"-এ সেই ব্যক্তির জন্য আলাদা ইউনিক লিংক খোলে। পাঠানো কন্টাক্ট নিচে চলে যায় (মুছে যায় না) — চাইলে আবার পাঠাতে পারবেন, তবে গোনা হয় ভিন্ন ভিন্ন মানুষই।`, "Tip: not all your contacts may be on Google — use 'pick from phonebook' for SIM/device contacts. Each Send opens a unique link for that person. Sent contacts move to the bottom (never deleted) and can be sent again, but only distinct people count.")}
+                {t(`💡 কিছু কন্টাক্ট Google-এ নাও থাকতে পারে — ফোন/সিম/ডিভাইসে থাকলে নিচের বাটন দিয়ে খুঁজে নিন। প্রতিটি "পাঠান"-এ সেই ব্যক্তির জন্য আলাদা ইউনিক লিংক খোলে; পাঠানো কন্টাক্ট নিচে চলে যায় (মুছে যায় না) — চাইলে আবার পাঠাতে পারবেন।`, "💡 Some contacts may not be on Google — find them on your phone/SIM/device with the button below. Each Send opens a unique link for that person; sent contacts move to the bottom (never deleted) and can be sent again.")}
               </p>
             </>
           ) : (
