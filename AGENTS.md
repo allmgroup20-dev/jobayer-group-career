@@ -16,6 +16,7 @@
 ## Critical rules (learned the hard way)
 
 - **Any new DB column MUST be added to the fast-check `SCHEMA_COLS` list (root `src/lib/db/index.ts`) or the worker's `ensureWorkerProfileColumns()` (join-app `src/lib/queries.ts`)** — otherwise the schema block is skipped and columns never get created (caused the login redirect loop, fixed in `aab7b06`/`0b7e7a4`/`ac4df08`).
+- DB column for union is `union_name` (`UNION` is a reserved SQLite keyword — plain `union` fails at ALTER).
 - New location columns live in 4 places: join-app `ensureWorkerProfileColumns()`, join-app API routes, root `src/lib/db/index.ts` (SCHEMA_COLS + forced migration), root API routes + dashboard.
 - Keep `city` column populated (aliased to upazila / city corporation / pourashava) so `profileCompleted` logic keeps working.
 - Geo data is served as **static assets** (free + unlimited on Cloudflare, served from CDN edge) — NOT via API endpoints, to support very large user counts on the free plan.
