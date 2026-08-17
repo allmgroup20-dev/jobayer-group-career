@@ -46,6 +46,13 @@ const SCORE_TO_COURSE_CAT: Record<string, string[]> = {
   data_science: ["Programming"],
   cloud: ["Web Development", "Programming"],
   platform: ["Platform"],
+  content_creation: ["YouTube Marketing", "Facebook Marketing"],
+  instagram: ["Facebook Marketing", "Digital Marketing"],
+  tiktok: ["YouTube Marketing"],
+  podcast: ["YouTube Marketing"],
+  social_media: ["Facebook Marketing", "Digital Marketing"],
+  ecommerce: ["Business", "Digital Marketing"],
+  study_abroad: ["Spoken English", "English"],
 };
 
 const SCORE_TO_PRODUCT_CAT: Record<string, string[]> = {
@@ -68,6 +75,10 @@ const SCORE_TO_PRODUCT_CAT: Record<string, string[]> = {
   fiverr: ["career"],
   outsourcing: ["career"],
   linkedin: ["career"],
+  content_creation: ["education", "business"],
+  instagram: ["business"],
+  ecommerce: ["business"],
+  social_media: ["business"],
 };
 
 export interface CourseRecommendation {

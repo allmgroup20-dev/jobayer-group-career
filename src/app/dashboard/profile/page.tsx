@@ -362,6 +362,8 @@ export default function ProfilePage() {
                   <option value="business">{lang === "bn" ? "ব্যবসা করতে" : "Start a Business"}</option>
                   <option value="skill">{lang === "bn" ? "স্কিল ডেভেলপ করতে" : "Develop Skills"}</option>
                   <option value="job">{lang === "bn" ? "চাকরি পেতে" : "Get a Job"}</option>
+                  <option value="content_creator">{lang === "bn" ? "ইউটিউব/ফেসবুক কনটেন্ট ক্রিয়েটর" : "YouTube/Facebook Content Creator"}</option>
+                  <option value="extra_income">{lang === "bn" ? "অতিরিক্ত আয় / সাইড ইনকাম" : "Extra Income / Side Income"}</option>
                 </select>
               </div>
 
@@ -544,11 +546,13 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বাজেট (প্রতি কোর্সে)" : "Budget Range (per course)"}</label>
                 <select value={form.budgetRange} onChange={(e) => setForm({ ...form, budgetRange: e.target.value })} className="input-field">
                   <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
-                  <option value="under_1000">{lang === "bn" ? "১,০০০ এর নিচে" : "Under 1,000 ৳"}</option>
-                  <option value="1000_3000">{lang === "bn" ? "১,০০০ - ৩,০০০" : "1,000 - 3,000 ৳"}</option>
-                  <option value="3000_5000">{lang === "bn" ? "৩,০০০ - ৫,০০০" : "3,000 - 5,000 ৳"}</option>
-                  <option value="5000_10000">{lang === "bn" ? "৫,০০০ - ১০,০০০" : "5,000 - 10,000 ৳"}</option>
-                  <option value="over_10000">{lang === "bn" ? "১০,০০০ এর উপরে" : "Above 10,000 ৳"}</option>
+                  <option value="1_100">{lang === "bn" ? "১ - ১০০ টাকা" : "1 - 100 ৳"}</option>
+                  <option value="100_300">{lang === "bn" ? "১০০ - ৩০০ টাকা" : "100 - 300 ৳"}</option>
+                  <option value="300_500">{lang === "bn" ? "৩০০ - ৫০০ টাকা" : "300 - 500 ৳"}</option>
+                  <option value="500_1000">{lang === "bn" ? "৫০০ - ১,০০০ টাকা" : "500 - 1,000 ৳"}</option>
+                  <option value="1000_2000">{lang === "bn" ? "১,০০০ - ২,০০০ টাকা" : "1,000 - 2,000 ৳"}</option>
+                  <option value="2000_5000">{lang === "bn" ? "২,০০০ - ৫,০০০ টাকা" : "2,000 - 5,000 ৳"}</option>
+                  <option value="5000_10000">{lang === "bn" ? "৫,০০০ - ১০,০০০ টাকা" : "5,000 - 10,000 ৳"}</option>
                 </select>
               </div>
 

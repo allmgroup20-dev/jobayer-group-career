@@ -157,6 +157,40 @@ const INTEREST_PATTERNS: Record<string, RegExp[]> = {
     /(?:language|ভাষা|ল্যাঙ্গুয়েজ)/i,
     /(?:communication|কমিউনিকেশন)/i,
   ],
+  graphic_design: [
+    /(?:design|ডিজাইন)/i,
+    /(?:photoshop|illustrator|canva)/i,
+    /(?:logo|লোগো|banner|ব্যানার|thumbnail|থাম্বনেইল)/i,
+  ],
+  content_creation: [
+    /(?:youtube|ইউটিউব)/i,
+    /(?:facebook page|ফেসবুক পেজ)/i,
+    /(?:content|কনটেন্ট|কন্টেন্ট)/i,
+    /(?:monetization|মনিটাইজেশন|subscribe|সাবস্ক্রাইবার)/i,
+  ],
+  ai_tools: [
+    /(?:chatgpt|gpt|ai|এআই)/i,
+    /(?:artificial intelligence|কৃত্রিম বুদ্ধিমত্তা)/i,
+  ],
+  ecommerce: [
+    /(?:shopify|amazon|dropshipping|ড্রপশিপিং)/i,
+    /(?:e-?commerce|ই-কমার্স)/i,
+    /(?:online business|অনলাইন ব্যবসা)/i,
+  ],
+  job_preparation: [
+    /(?:bcs|বিসিএস)/i,
+    /(?:bank job|ব্যাংক জব|chakri|চাকরি)/i,
+    /(?:govt.? job|সরকারি চাকরি)/i,
+  ],
+  photography: [
+    /(?:photography|ফটোগ্রাফি|camera|ক্যামেরা)/i,
+    /(?:photo editing|ফটো এডিটিং)/i,
+  ],
+  social_media_management: [
+    /(?:social media management|smm)/i,
+    /(?:instagram|reels|tiktok|reel|টিকটক)/i,
+    /(?:page management|পেজ ম্যানেজমেন্ট)/i,
+  ],
 };
 
 const TRUST_PATTERNS: Record<TrustLevel, RegExp[]> = {

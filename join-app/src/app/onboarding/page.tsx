@@ -124,6 +124,8 @@ const GOALS = [
   { en: "Start a Business", bn: "ব্যবসা শুরু", v: "business", e: "📊" },
   { en: "Develop Skills", bn: "স্কিল ডেভেলপ", v: "skill", e: "🎯" },
   { en: "Get a Job", bn: "চাকরি পেতে", v: "job", e: "🕴️" },
+  { en: "Become a Content Creator (YouTube/Facebook)", bn: "ইউটিউব/ফেসবুক কনটেন্ট ক্রিয়েটর", v: "content_creator", e: "🎬" },
+  { en: "Earn Extra Income (Side Income)", bn: "অতিরিক্ত আয় / সাইড ইনকাম", v: "extra_income", e: "💰" },
 ];
 
 const TIMES = [
@@ -149,30 +151,57 @@ const CONTACT_PREFS = [
 ];
 
 const BUDGETS = [
-  { en: "Under 1,000 ৳", bn: "১,০০০ এর নিচে", v: "under_1000" },
-  { en: "1,000 - 3,000 ৳", bn: "১,০০০ - ৩,০০০", v: "1000_3000" },
-  { en: "3,000 - 5,000 ৳", bn: "৩,০০০ - ৫,০০০", v: "3000_5000" },
-  { en: "5,000 - 10,000 ৳", bn: "৫,০০০ - ১০,০০০", v: "5000_10000" },
-  { en: "Above 10,000 ৳", bn: "১০,০০০ এর উপরে", v: "over_10000" },
+  { en: "1 - 100 ৳", bn: "১ - ১০০ টাকা", v: "1_100" },
+  { en: "100 - 300 ৳", bn: "১০০ - ৩০০ টাকা", v: "100_300" },
+  { en: "300 - 500 ৳", bn: "৩০০ - ৫০০ টাকা", v: "300_500" },
+  { en: "500 - 1,000 ৳", bn: "৫০০ - ১,০০০ টাকা", v: "500_1000" },
+  { en: "1,000 - 2,000 ৳", bn: "১,০০০ - ২,০০০ টাকা", v: "1000_2000" },
+  { en: "2,000 - 5,000 ৳", bn: "২,০০০ - ৫,০০০ টাকা", v: "2000_5000" },
+  { en: "5,000 - 10,000 ৳", bn: "৫,০০০ - ১০,০০০ টাকা", v: "5000_10000" },
 ];
 
 const INTERESTS = [
-  { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
-  { en: "Programming", bn: "প্রোগ্রামিং", icon: "💻" },
-  { en: "Graphics Design", bn: "গ্রাফিক্স ডিজাইন", icon: "🎨" },
-  { en: "Digital Marketing", bn: "ডিজিটাল মার্কেটিং", icon: "📱" },
+  { en: "YouTube Content Creation", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬" },
+  { en: "Facebook Content Creation & Page Monetization", bn: "ফেসবুক কনটেন্ট ও পেজ মনিটাইজেশন", icon: "📱" },
+  { en: "Instagram & Reels", bn: "ইনস্টাগ্রাম ও রিলস", icon: "🎥" },
   { en: "Video Editing", bn: "ভিডিও এডিটিং", icon: "🎬" },
-  { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼" },
-  { en: "English Learning", bn: "ইংলিশ লার্নিং", icon: "📖" },
+  { en: "Photo Editing & Photography", bn: "ফটো এডিটিং ও ফটোগ্রাফি", icon: "📷" },
+  { en: "Social Media Management", bn: "সোশ্যাল মিডিয়া ম্যানেজমেন্ট", icon: "📲" },
+  { en: "Podcasting", bn: "পডকাস্টিং", icon: "🎙️" },
+  { en: "Graphics Design", bn: "গ্রাফিক্স ডিজাইন", icon: "🎨" },
+  { en: "UI/UX Design", bn: "ইউআই/ইউএক্স ডিজাইন", icon: "🧩" },
+  { en: "Logo & Branding Design", bn: "লোগো ও ব্র্যান্ডিং ডিজাইন", icon: "✏️" },
+  { en: "Motion Graphics & Animation", bn: "মোশন গ্রাফিক্স ও অ্যানিমেশন", icon: "🧊" },
+  { en: "Web Development", bn: "ওয়েব ডেভেলপমেন্ট", icon: "🌐" },
+  { en: "Programming / Coding", bn: "প্রোগ্রামিং / কোডিং", icon: "💻" },
+  { en: "App Development", bn: "অ্যাপ ডেভেলপমেন্ট", icon: "📱" },
+  { en: "WordPress & Website", bn: "ওয়ার্ডপ্রেস ও ওয়েবসাইট", icon: "🖥️" },
+  { en: "Game Development", bn: "গেম ডেভেলপমেন্ট", icon: "🎮" },
   { en: "AI & ChatGPT", bn: "এআই ও চ্যাটজিপিটি", icon: "🤖" },
-  { en: "Business", bn: "ব্যবসা", icon: "📊" },
+  { en: "Ethical Hacking / Cyber Security", bn: "এথিক্যাল হ্যাকিং / সাইবার সিকিউরিটি", icon: "🔐" },
+  { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼" },
+  { en: "Digital Marketing", bn: "ডিজিটাল মার্কেটিং", icon: "📢" },
+  { en: "Facebook / Instagram Ads", bn: "ফেসবুক / ইনস্টাগ্রাম অ্যাডস", icon: "📈" },
+  { en: "SEO", bn: "এসইও", icon: "🔍" },
+  { en: "Affiliate Marketing", bn: "অ্যাফিলিয়েট মার্কেটিং", icon: "🔗" },
+  { en: "E-commerce & Dropshipping", bn: "ই-কমার্স ও ড্রপশিপিং", icon: "🛒" },
+  { en: "Amazon & Online Business", bn: "অ্যামাজন ও অনলাইন ব্যবসা", icon: "🛍️" },
+  { en: "Content Writing & Blogging", bn: "কনটেন্ট রাইটিং ও ব্লগিং", icon: "✍️" },
+  { en: "Online Course & Digital Product Selling", bn: "অনলাইন কোর্স ও ডিজিটাল প্রোডাক্ট সেলিং", icon: "📚" },
+  { en: "English Learning / Spoken English", bn: "ইংলিশ লার্নিং / স্পোকেন ইংলিশ", icon: "🗣️" },
+  { en: "IELTS & Study Abroad", bn: "আইইএলটিএস ও বিদেশে পড়াশোনা", icon: "🎓" },
+  { en: "Job Preparation (BCS / Bank)", bn: "চাকরির প্রস্তুতি (বিসিএস / ব্যাংক)", icon: "🏛️" },
+  { en: "MS Office & Computer Basics", bn: "এমএস অফিস ও কম্পিউটার বেসিক", icon: "🖥️" },
+  { en: "Personal Development & Leadership", bn: "পার্সোনাল ডেভেলপমেন্ট ও লিডারশিপ", icon: "🌟" },
 ];
 
 const INCOME_SECTORS = [
   { en: "YouTube Content", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬", v: "youtube_content" },
+  { en: "Facebook Content & Page Monetization", bn: "ফেসবুক কনটেন্ট ও পেজ মনিটাইজেশন", icon: "📱", v: "facebook_content" },
   { en: "Freelancing", bn: "ফ্রিল্যান্সিং", icon: "💼", v: "freelancing" },
   { en: "E-commerce & Online Business", bn: "ই-কমার্স ও অনলাইন ব্যবসা", icon: "🛒", v: "ecommerce" },
   { en: "Affiliate Marketing", bn: "অ্যাফিলিয়েট মার্কেটিং", icon: "📢", v: "affiliate" },
+  { en: "Social Media Management", bn: "সোশ্যাল মিডিয়া ম্যানেজমেন্ট", icon: "📲", v: "social_media" },
   { en: "Digital Skills", bn: "ডিজিটাল স্কিল (গ্রাফিক্স, ভিডিও, কোডিং)", icon: "🎨", v: "digital_skills" },
   { en: "Online Courses & Products", bn: "অনলাইন কোর্স ও ডিজিটাল প্রোডাক্ট", icon: "📚", v: "online_courses" },
 ];

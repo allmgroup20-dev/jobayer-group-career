@@ -412,13 +412,13 @@ export default function WorkerDashboard() {
           <div className="mb-8 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
             <div className="flex items-start gap-3">
               <span className="text-2xl shrink-0">
-                {worker.goal === "career" ? "🚀" : worker.goal === "freelancing" ? "💻" : worker.goal === "business" ? "📊" : worker.goal === "skill" ? "🧠" : worker.goal === "job" ? "💼" : "🎯"}
+                {worker.goal === "career" ? "🚀" : worker.goal === "freelancing" ? "💻" : worker.goal === "business" ? "📊" : worker.goal === "skill" ? "🧠" : worker.goal === "job" ? "💼" : worker.goal === "content_creator" ? "🎬" : worker.goal === "extra_income" ? "💰" : "🎯"}
               </span>
               <div className="flex-1">
                 <p className="text-sm font-bold text-primary">
                   {lang === "bn"
-                    ? (worker.goal === "career" ? "ক্যারিয়ার গড়তে চান!" : worker.goal === "freelancing" ? "ফ্রিল্যান্সিং শুরু করতে চান!" : worker.goal === "business" ? "ব্যবসা করতে চান!" : worker.goal === "skill" ? "স্কিল ডেভেলপ করতে চান!" : worker.goal === "job" ? "চাকরি পেতে চান!" : "শিখতে চান!")
-                    : (worker.goal === "career" ? "Want to build a career!" : worker.goal === "freelancing" ? "Want to start freelancing!" : worker.goal === "business" ? "Want to start a business!" : worker.goal === "skill" ? "Want to develop skills!" : worker.goal === "job" ? "Want to get a job!" : "Want to learn!")}
+                    ? (worker.goal === "career" ? "ক্যারিয়ার গড়তে চান!" : worker.goal === "freelancing" ? "ফ্রিল্যান্সিং শুরু করতে চান!" : worker.goal === "business" ? "ব্যবসা করতে চান!" : worker.goal === "skill" ? "স্কিল ডেভেলপ করতে চান!" : worker.goal === "job" ? "চাকরি পেতে চান!" : worker.goal === "content_creator" ? "ইউটিউব/ফেসবুক কনটেন্ট ক্রিয়েটর হতে চান!" : worker.goal === "extra_income" ? "অতিরিক্ত আয় করতে চান!" : "শিখতে চান!")
+                    : (worker.goal === "career" ? "Want to build a career!" : worker.goal === "freelancing" ? "Want to start freelancing!" : worker.goal === "business" ? "Want to start a business!" : worker.goal === "skill" ? "Want to develop skills!" : worker.goal === "job" ? "Want to get a job!" : worker.goal === "content_creator" ? "Want to be a YouTube/Facebook content creator!" : worker.goal === "extra_income" ? "Want to earn extra income!" : "Want to learn!")}
                 </p>
                 <p className="text-xs text-text-secondary mt-0.5">
                   {lang === "bn" ? "আমরা আপনার লক্ষ্য অনুযায়ী রিসোর্স ও কন্টেন্ট সাজিয়ে দিচ্ছি" : "We're tailoring resources & content based on your goal"}
