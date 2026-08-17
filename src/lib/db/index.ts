@@ -8,7 +8,7 @@ const PENDING_FLAG = "__dbSchemaSetupPending";
 
 let dbCache: { DB: D1Database } | null = null;
 
-const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila"];
+const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila","city_corporation","ward","area","union","pourashava"];
 
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;
@@ -25,6 +25,11 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN division TEXT").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN district TEXT").run(); } catch {}
     try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN upazila TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN city_corporation TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN ward TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN area TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN union TEXT").run(); } catch {}
+    try { await env.DB.prepare("ALTER TABLE workers ADD COLUMN pourashava TEXT").run(); } catch {}
     g[MIGRATE_FLAG] = true;
   }
 
@@ -228,6 +233,11 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     await addCol("workers", "division", "TEXT");
     await addCol("workers", "district", "TEXT");
     await addCol("workers", "upazila", "TEXT");
+    await addCol("workers", "city_corporation", "TEXT");
+    await addCol("workers", "ward", "TEXT");
+    await addCol("workers", "area", "TEXT");
+    await addCol("workers", "union", "TEXT");
+    await addCol("workers", "pourashava", "TEXT");
     await addCol("workers", "goal", "TEXT");
     await addCol("workers", "preferred_learning_time", "TEXT");
     await addCol("workers", "referral_source", "TEXT");

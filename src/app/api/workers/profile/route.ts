@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
               w.level, w.join_date, w.balance, w.total_earned, w.total_spent,
               w.total_team_members, w.membership_status, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.avatar_url,
-              w.gender, w.country, w.city, w.division, w.district, w.upazila, w.goal, w.preferred_learning_time,
+              w.gender, w.country, w.city, w.division, w.district, w.upazila, w.city_corporation, w.ward, w.area, w.union, w.pourashava, w.goal, w.preferred_learning_time,
                w.referral_source, w.communication_preference, w.budget_range,
                 w.religion,
                w.resource_income, w.resource_income_original,
@@ -64,6 +64,11 @@ export async function GET(request: NextRequest) {
       division: worker.division || null,
       district: worker.district || null,
       upazila: worker.upazila || null,
+      cityCorporation: worker.city_corporation || null,
+      ward: worker.ward || null,
+      area: worker.area || null,
+      union: worker.union || null,
+      pourashava: worker.pourashava || null,
       goal: worker.goal || null,
       preferredLearningTime: worker.preferred_learning_time || null,
       referralSource: worker.referral_source || null,
@@ -153,6 +158,11 @@ export async function PUT(request: NextRequest) {
     if (body.division) { updates.push("division = ?"); params.push(body.division); }
     if (body.district) { updates.push("district = ?"); params.push(body.district); }
     if (body.upazila) { updates.push("upazila = ?"); params.push(body.upazila); }
+    if (body.cityCorporation !== undefined) { updates.push("city_corporation = ?"); params.push(body.cityCorporation || null); }
+    if (body.ward !== undefined) { updates.push("ward = ?"); params.push(body.ward || null); }
+    if (body.area !== undefined) { updates.push("area = ?"); params.push(body.area || null); }
+    if (body.union !== undefined) { updates.push("union = ?"); params.push(body.union || null); }
+    if (body.pourashava !== undefined) { updates.push("pourashava = ?"); params.push(body.pourashava || null); }
     if (body.goal) { updates.push("goal = ?"); params.push(body.goal); }
     if (body.preferredLearningTime) { updates.push("preferred_learning_time = ?"); params.push(body.preferredLearningTime); }
     if (body.referralSource) { updates.push("referral_source = ?"); params.push(body.referralSource); }

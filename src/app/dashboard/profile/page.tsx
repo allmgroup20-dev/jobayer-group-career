@@ -7,7 +7,7 @@ import LinkedPlatformsSection from "@/components/LinkedPlatformsSection";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
-import { BD_GEO } from "@/lib/bd-geo";
+import { geoIndex, loadDistrict, loadCC, geoSlug, type GeoDivision, type GeoDistrictData, type GeoCC } from "@/lib/geo";
 import { RELIGIONS, findChildren, religionPath } from "@/lib/religions";
 
 export default function ProfilePage() {
@@ -17,7 +17,11 @@ export default function ProfilePage() {
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
     { ttlMs: 180_000 }
   );
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "", religionL1: "", religionL2: "", religionL3: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "", religionL1: "", religionL2: "", religionL3: "" });
+  const [geoDivisions, setGeoDivisions] = useState<GeoDivision[]>([]);
+  const [districtData, setDistrictData] = useState<GeoDistrictData | null>(null);
+  const [ccData, setCcData] = useState<GeoCC | null>(null);
+  const [geoBusy, setGeoBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +32,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profileData?.workerId) return;
-    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "", religionL1: (profileData.religion || "").split(">")[0] || "", religionL2: (profileData.religion || "").split(">")[1] || "", religionL3: (profileData.religion || "").split(">")[2] || "" });
+    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.cityCorporation || profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", cityCorporation: profileData.cityCorporation || "", ward: profileData.ward || "", area: profileData.area || "", union: profileData.union || "", pourashava: profileData.pourashava || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "", religionL1: (profileData.religion || "").split(">")[0] || "", religionL2: (profileData.religion || "").split(">")[1] || "", religionL3: (profileData.religion || "").split(">")[2] || "" });
     if (profileData.membershipStatus) setMembershipStatus(profileData.membershipStatus);
   }, [profileData]);
 
@@ -42,6 +46,39 @@ export default function ProfilePage() {
       if (r.ok) setBioRegistered(true);
     }).catch(() => {});
   }, [workerId]);
+
+  useEffect(() => {
+    let active = true;
+    geoIndex()
+      .then((data) => { if (active) setGeoDivisions(data.divisions); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!form.district || !form.division) { setDistrictData(null); setCcData(null); return; }
+    let active = true;
+    setGeoBusy(true);
+    const division = geoDivisions.find((d) => d.en === form.division || d.id === form.division);
+    const dist = division?.districts.find((di) => di.en === form.district || di.id === form.district);
+    if (!dist) { setGeoBusy(false); return; }
+    loadDistrict(dist.id)
+      .then((data) => { if (active) { setDistrictData(data); setCcData(null); } })
+      .catch(() => {})
+      .finally(() => { if (active) setGeoBusy(false); });
+    return () => { active = false; };
+  }, [form.division, form.district, geoDivisions]);
+
+  useEffect(() => {
+    if (!form.cityCorporation) { setCcData(null); return; }
+    let active = true;
+    setGeoBusy(true);
+    loadCC(geoSlug(form.cityCorporation))
+      .then((data) => { if (active) setCcData(data); })
+      .catch(() => {})
+      .finally(() => { if (active) setGeoBusy(false); });
+    return () => { active = false; };
+  }, [form.cityCorporation]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -61,6 +98,11 @@ export default function ProfilePage() {
     if (form.division) body.division = form.division;
     if (form.district) body.district = form.district;
     if (form.upazila) body.upazila = form.upazila;
+    if (form.cityCorporation) body.cityCorporation = form.cityCorporation;
+    if (form.ward) body.ward = form.ward;
+    if (form.area) body.area = form.area;
+    if (form.union) body.union = form.union;
+    if (form.pourashava) body.pourashava = form.pourashava;
     if (form.goal) body.goal = form.goal;
     if (form.preferredLearningTime) body.preferredLearningTime = form.preferredLearningTime;
     if (form.referralSource) body.referralSource = form.referralSource;
@@ -332,33 +374,136 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "বিভাগ" : "Division"}</label>
-                <select value={form.division} onChange={(e) => setForm({ ...form, division: e.target.value, district: "", upazila: "", city: "" })} className="input-field">
+                <select value={form.division} onChange={(e) => setForm({ ...form, division: e.target.value, district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", city: "" })} className="input-field">
                   <option value="">{lang === "bn" ? "বিভাগ নির্বাচন করুন" : "Select division..."}</option>
-                  {BD_GEO.map((d) => (
-                    <option key={d.en} value={d.en}>{lang === "bn" ? d.bn : d.en}</option>
+                  {geoDivisions.map((d) => (
+                    <option key={d.id} value={d.en}>{lang === "bn" ? d.bn : d.en}</option>
                   ))}
                 </select>
               </div>
               {form.division && (
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "জেলা" : "District"}</label>
-                  <select value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value, upazila: "", city: "" })} className="input-field">
+                  <select value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value, upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", city: "" })} className="input-field">
                     <option value="">{lang === "bn" ? "জেলা নির্বাচন করুন" : "Select district..."}</option>
-                    {BD_GEO.find((d) => d.en === form.division)?.districts.map((di) => (
-                      <option key={di.en} value={di.en}>{lang === "bn" ? di.bn : di.en}</option>
+                    {geoDivisions.find((d) => d.en === form.division || d.id === form.division)?.districts.map((di) => (
+                      <option key={di.id} value={di.en}>{lang === "bn" ? di.bn : di.en}</option>
                     ))}
                   </select>
                 </div>
               )}
-              {form.division && form.district && (
+              {form.division && form.district && geoBusy && (
+                <div className="text-sm text-text-secondary flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-border border-t-teal rounded-full animate-spin" />
+                  {lang === "bn" ? "লোড হচ্ছে..." : "Loading..."}
+                </div>
+              )}
+              {form.division && form.district && !geoBusy && districtData && districtData.cityCorporations.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "উপজেলা / থানা" : "Upazila / Thana"}</label>
-                  <select value={form.upazila} onChange={(e) => setForm({ ...form, upazila: e.target.value, city: e.target.value })} className="input-field">
-                    <option value="">{lang === "bn" ? "উপজেলা / থানা নির্বাচন করুন" : "Select upazila / thana..."}</option>
-                    {BD_GEO.find((d) => d.en === form.division)?.districts.find((di) => di.en === form.district)?.upazilas.map((u) => (
-                      <option key={u.en} value={u.en}>{lang === "bn" ? u.bn : u.en}</option>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "সিটি কর্পোরেশন" : "City Corporation"}</label>
+                  <select value={form.cityCorporation} onChange={(e) => setForm({ ...form, cityCorporation: e.target.value, upazila: "", ward: "", area: "", union: "", pourashava: "", city: e.target.value })} className="input-field">
+                    <option value="">{lang === "bn" ? "নির্বাচন করুন" : "Select..."}</option>
+                    {districtData.cityCorporations.map((c) => (
+                      <option key={c.id} value={c.en}>{lang === "bn" ? c.bn : c.en}</option>
                     ))}
                   </select>
+                  <p className="mt-1 text-[11px] text-text-secondary">{lang === "bn" ? "শহরের ভেতরে থাকলে সিটি কর্পোরেশন নির্বাচন করুন" : "Pick a city corporation if you live inside the city"}</p>
+                </div>
+              )}
+              {form.division && form.district && form.cityCorporation && !geoBusy && ccData && (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ওয়ার্ড" : "Ward"}</label>
+                  <select value={form.ward} onChange={(e) => setForm({ ...form, ward: e.target.value, area: "" })} className="input-field">
+                    <option value="">{lang === "bn" ? "ওয়ার্ড নির্বাচন করুন" : "Select ward..."}</option>
+                    {ccData.wards.map((w) => (
+                      <option key={w.n} value={String(w.n)}>{lang === "bn" ? `ওয়ার্ড ${w.n}` : `Ward ${w.n}`}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {form.cityCorporation && form.ward && !geoBusy && ccData && (
+                (() => {
+                  const areas = ccData.wards.find((w) => String(w.n) === form.ward)?.areas || [];
+                  if (areas.length > 0) {
+                    return (
+                      <div>
+                        <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "এলাকা" : "Area"}</label>
+                        <select value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} className="input-field">
+                          <option value="">{lang === "bn" ? "এলাকা নির্বাচন করুন" : "Select area..."}</option>
+                          {areas.map((a) => (
+                            <option key={a.en} value={a.en}>{lang === "bn" ? (a.bn || a.en) : a.en}</option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "এলাকা / মহল্লা" : "Area / Neighborhood"}</label>
+                      <input type="text" value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} className="input-field" placeholder={lang === "bn" ? "আপনার এলাকার নাম লিখুন" : "Type your area name"} />
+                    </div>
+                  );
+                })()
+              )}
+              {form.division && form.district && form.cityCorporation && (
+                <div className="text-[11px] text-text-secondary">{lang === "bn" ? "অথবা নিচে উপজেলা নির্বাচন করে গ্রাম/মফস্বল এলাকা দিন" : "Or pick an upazila below for a village/rural area"}</div>
+              )}
+              {form.division && form.district && districtData && (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "উপজেলা / থানা" : "Upazila / Thana"}</label>
+                  <select value={form.upazila} onChange={(e) => setForm({ ...form, upazila: e.target.value, union: "", pourashava: "", ward: "", area: "", city: e.target.value })} className="input-field">
+                    <option value="">{lang === "bn" ? "উপজেলা / থানা নির্বাচন করুন" : "Select upazila / thana..."}</option>
+                    {districtData.upazilas.map((u) => (
+                      <option key={u.id} value={u.en}>{lang === "bn" ? u.bn : u.en}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {form.upazila && districtData && (() => {
+                const upazila = districtData.upazilas.find((u) => u.en === form.upazila);
+                if (!upazila) return null;
+                return (
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ইউনিয়ন / পৌরসভা" : "Union / Pourashava"}</label>
+                    <select value={form.union || form.pourashava} onChange={(e) => {
+                      const v = e.target.value;
+                      const isPourashava = upazila.pourashavas.some((p) => p.en === v);
+                      setForm({ ...form, union: isPourashava ? "" : v, pourashava: isPourashava ? v : "", ward: "", area: "" });
+                    }} className="input-field">
+                      <option value="">{lang === "bn" ? "ইউনিয়ন / পৌরসভা নির্বাচন করুন" : "Select union / pourashava..."}</option>
+                      {upazila.unions.length > 0 && (
+                        <optgroup label={lang === "bn" ? "ইউনিয়ন" : "Union"}>
+                          {upazila.unions.map((u) => (
+                            <option key={"u" + u.en} value={u.en}>{lang === "bn" ? u.bn : u.en}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {upazila.pourashavas.length > 0 && (
+                        <optgroup label={lang === "bn" ? "পৌরসভা" : "Pourashava"}>
+                          {upazila.pourashavas.map((p) => (
+                            <option key={"p" + p.en} value={p.en}>{lang === "bn" ? p.bn : p.en}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  </div>
+                );
+              })()}
+              {form.pourashava && (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ওয়ার্ড" : "Ward"}</label>
+                  <select value={form.ward} onChange={(e) => setForm({ ...form, ward: e.target.value, area: "" })} className="input-field">
+                    <option value="">{lang === "bn" ? "ওয়ার্ড নির্বাচন করুন" : "Select ward..."}</option>
+                    {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={String(n)}>{lang === "bn" ? `ওয়ার্ড ${n}` : `Ward ${n}`}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {(form.pourashava || form.union) && (
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "এলাকা / মহল্লা" : "Area / Neighborhood"}</label>
+                  <input type="text" value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} className="input-field" placeholder={lang === "bn" ? "আপনার এলাকার নাম লিখুন" : "Type your area name"} />
                 </div>
               )}
 

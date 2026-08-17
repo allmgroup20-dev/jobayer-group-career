@@ -17,7 +17,9 @@ export async function PUT(request: NextRequest) {
 
     const hasLocation =
       body.country !== undefined || body.city !== undefined ||
-      body.division !== undefined || body.district !== undefined || body.upazila !== undefined;
+      body.division !== undefined || body.district !== undefined || body.upazila !== undefined ||
+      body.cityCorporation !== undefined || body.ward !== undefined || body.area !== undefined ||
+      body.union !== undefined || body.pourashava !== undefined;
     if (hasLocation) {
       await ensureWorkerProfileColumns(env);
     }
@@ -54,6 +56,11 @@ export async function PUT(request: NextRequest) {
     if (body.division !== undefined) { updates.push("division = ?"); params.push(body.division || null); }
     if (body.district !== undefined) { updates.push("district = ?"); params.push(body.district || null); }
     if (body.upazila !== undefined) { updates.push("upazila = ?"); params.push(body.upazila || null); }
+    if (body.cityCorporation !== undefined) { updates.push("city_corporation = ?"); params.push(body.cityCorporation || null); }
+    if (body.ward !== undefined) { updates.push("ward = ?"); params.push(body.ward || null); }
+    if (body.area !== undefined) { updates.push("area = ?"); params.push(body.area || null); }
+    if (body.union !== undefined) { updates.push("union = ?"); params.push(body.union || null); }
+    if (body.pourashava !== undefined) { updates.push("pourashava = ?"); params.push(body.pourashava || null); }
     if (body.goal !== undefined) { updates.push("goal = ?"); params.push(body.goal || null); }
     if (body.preferredLearningTime !== undefined) { updates.push("preferred_learning_time = ?"); params.push(body.preferredLearningTime || null); }
     if (body.referralSource !== undefined) { updates.push("referral_source = ?"); params.push(body.referralSource || null); }
