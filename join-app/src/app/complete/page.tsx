@@ -314,6 +314,15 @@ export default function CompletePage() {
             <span className="text-sm font-black text-brand">{percent}%</span>
           </div>
 
+          {/* Small-Area framing: early emphasize earned %, late emphasize small remaining */}
+          <p className="mt-2 text-xs font-bold text-teal">
+            {percent < 50
+              ? t(`আপনি ${percent}% পূরণ করেছেন — চালিয়ে যান!`, `You're at ${percent}% — keep going!`)
+              : percent < 90
+                ? t(`আর মাত্র ${100 - percent}% বাকি — এগিয়ে যান!`, `Only ${100 - percent}% left — keep it up!`)
+                : t(`একদম শেষ! আর মাত্র ${100 - percent}% বাকি 🔥`, `Almost done! Just ${100 - percent}% left 🔥`)}
+          </p>
+
           <div className="mt-3 px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-[11px] font-bold text-white/70 leading-relaxed">
             {t(
               `💡 আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সব কন্টাক্ট একসাথে বেছে নিতে পারেন, সীমা নেই।`,

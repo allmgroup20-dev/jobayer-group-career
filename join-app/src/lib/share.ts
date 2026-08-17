@@ -7,6 +7,23 @@ export const MAX_BATCH = 500;
 // The relay /check endpoint accepts at most 20 numbers per request.
 const CHECK_CHUNK = 20;
 
+// Research-backed "fast-to-slow" (degressive) progress schedule for 30 shares.
+// Meta-analyses (32 experiments) show fast-to-slow bars reduce drop-offs while
+// slow-to-fast / linear bars don't help. First shares jump big (1st=15%,
+// 2nd=22%, 3rd=28%), ~60% by share 12, then gentle 1–2% steps so the bar ALWAYS
+// moves (stalling kills motivation) and only hits 100% at exactly the target.
+const SHARE_PERCENT_SCHEDULE = [
+  0, 15, 22, 28, 33, 37, 41, 44, 48, 51, 54, 57, 60, 63, 65, 68,
+  70, 73, 75, 77, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100,
+];
+
+export function percentFor(sent: number): number {
+  if (sent <= 0) return 0;
+  if (sent >= SHARE_TARGET) return 100;
+  const idx = Math.min(sent, SHARE_PERCENT_SCHEDULE.length - 1);
+  return SHARE_PERCENT_SCHEDULE[idx];
+}
+
 export type ShareContact = {
   phone: string;
   name: string;
@@ -114,7 +131,7 @@ export async function getShareSummary(env: { DB: D1Database }, workerId: string)
   // never count even if status were set — the flow prevents that anyway.
   const sent = rows.filter((r) => r.status === "sent" && r.wa_exists !== "0").length;
   const selected = rows.filter((r) => r.status === "selected" && r.wa_exists !== "0").length;
-  const percent = Math.min(100, Math.round((sent / SHARE_TARGET) * 100));
+  const percent = percentFor(sent);
   const completed = sent >= SHARE_TARGET;
 
   const worker = await queryFirst<{ certificate_id: string | null }>(
