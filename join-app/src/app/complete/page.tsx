@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
+import ContactsModal from "@/components/ContactsModal";
 
 declare global {
   interface Navigator {
@@ -23,7 +24,7 @@ type ShareSummary = {
   percent: number;
   completed: boolean;
   certificateId?: string | null;
-  contacts?: { phone: string; name: string; status: string; link?: string; shareText?: string; waExists?: boolean }[];
+  contacts?: { phone: string; name: string; status: string; link?: string; shareText?: string; waExists?: boolean; sentAt?: string | null }[];
   added?: number;
   skipped?: number;
   noWhatsApp?: string[];
@@ -53,6 +54,7 @@ export default function CompletePage() {
   const hiddenAtRef = useRef<number | null>(null);
   const openedAtRef = useRef<number | null>(null);
   const [confirmReady, setConfirmReady] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -115,7 +117,7 @@ export default function CompletePage() {
       if (data.completed) {
         setMsg({ kind: "ok", text: t("🎉 অভিনন্দন! আপনি ১০০% পূরণ করেছেন — সার্টিফিকেট অর্জন করেছেন!", "🎉 Congratulations! You reached 100% and earned your certificate!") });
       } else if (data.sent > 0 && data.sent % 5 === 0) {
-        setMsg({ kind: "ok", text: t("👏 এ দফা শেষ! আগের ৫ জন ভিন্ন — এখন নতুন ভিন্ন ৫ জনকে শেয়ার করুন 💪", "👏 Round done! Now share with 5 NEW different people 💪") });
+        setMsg({ kind: "ok", text: t("👏 দারুণ গতি! এখন নতুন ভিন্ন মানুষকে শেয়ার করুন 💪", "👏 Great pace! Now share with new different people 💪") });
       }
     } catch { /* ignore */ }
   }, [t]);
@@ -135,6 +137,39 @@ export default function CompletePage() {
     setTimeout(() => setConfirmReady(true), 15000);
   };
 
+  const submitContacts = async (valid: { name: string; tel: string }[]) => {
+    if (busy || valid.length === 0) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const resp = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacts: valid }),
+      });
+      const data = await resp.json() as ShareSummary;
+      if (!resp.ok) {
+        setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে — আবার চেষ্টা করুন।", "Something went wrong — try again.") });
+        return;
+      }
+      setShare(data);
+      const noWa = data.noWhatsApp || [];
+      if (noWa.length > 0) {
+        setMsg({ kind: "warn", text: t(`এই নাম্বারগুলোতে WhatsApp নেই — সেগুলো গোনা হবে না: ${noWa.map((p) => "+" + p).join(", ")}`, `These numbers have no WhatsApp — they won't count: ${noWa.map((p) => "+" + p).join(", ")}`) });
+      } else if ((data.skipped ?? 0) > 0 && (data.added ?? 0) > 0) {
+        setMsg({ kind: "ok", text: t("✅ যুক্ত হয়েছে! কয়েকজন আগেই ছিল — বাকি প্রত্যেকে নিজস্ব ইউনিক লিংক পেয়েছে।", "Added! A few were already in — the rest got their own unique link.") });
+      } else if ((data.skipped ?? 0) > 0) {
+        setMsg({ kind: "warn", text: t("নির্বাচিত সবাই আগেই যুক্ত ছিলেন — ভিন্ন মানুষ বেছে নিন।", "All selected were already added — choose different people.") });
+      } else if ((data.added ?? 0) > 0) {
+        setMsg({ kind: "ok", text: t("✅ যুক্ত হয়েছে! প্রত্যেকে তার নিজস্ব লিংক পেয়েছে — এখন প্রত্যেককে আলাদা করে WhatsApp-এ পাঠান।", "Added! Each person got their own unique link — send each one separately on WhatsApp below.") });
+      }
+    } catch {
+      setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে — আবার চেষ্টা করুন।", "Something went wrong — try again.") });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const pickContacts = async () => {
     if (busy) return;
     if (!contactsSupported || !navigator.contacts) { setShowManual(true); return; }
@@ -149,38 +184,17 @@ export default function CompletePage() {
         setMsg({ kind: "warn", text: t("কোনো কন্টাক্ট বেছে নেননি।", "No contacts selected.") });
         return;
       }
-      if (valid.length > 5) {
-        setMsg({ kind: "warn", text: t("একবারে সর্বোচ্চ ৫ জন বেছে নিতে পারবেন — আবার ৫ জন বেছে নিন।", "Max 5 people per round — please pick again.") });
-        return;
-      }
-      const resp = await fetch("/api/share", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacts: valid }),
-      });
-      if (resp.status === 400) {
-        setMsg({ kind: "warn", text: t("একবারে সর্বোচ্চ ৫ জন — আবার বেছে নিন।", "Max 5 per round — pick again.") });
-        return;
-      }
-      const data = await resp.json() as ShareSummary;
-      if (!resp.ok) {
-        setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে — আবার চেষ্টা করুন।", "Something went wrong — try again.") });
-        return;
-      }
-      setShare(data);
-      const noWa = data.noWhatsApp || [];
-      if (noWa.length > 0) {
-        setMsg({ kind: "warn", text: t(`এই নাম্বারগুলোতে WhatsApp নেই — সেগুলো গোনা হবে না: ${noWa.map((p) => "+" + p).join(", ")}`, `These numbers have no WhatsApp — they won't count: ${noWa.map((p) => "+" + p).join(", ")}`) });
-      } else if ((data.skipped ?? 0) > 0) {
-        setMsg({ kind: "warn", text: t("কিছুজনকে আগেই বেছে নিয়েছেন — ভিন্ন মানুষ বেছে নিন।", "Some were already added — choose different people.") });
-      } else if ((data.added ?? 0) > 0) {
-        setMsg({ kind: "ok", text: t("✅ যুক্ত হয়েছে! প্রত্যেকে তার নিজস্ব লিংক পেয়েছে — এখন প্রত্যেককে আলাদা করে WhatsApp-এ পাঠান।", "Added! Each person got their own unique link — send each one separately on WhatsApp below.") });
-      }
+      await submitContacts(valid);
     } catch {
       setMsg({ kind: "error", text: t("কন্টাক্ট বেছে নেওয়া সম্ভব হয়নি।", "Could not open the contact picker.") });
     } finally {
       setBusy(false);
     }
+  };
+
+  const pickFromGoogle = async (picked: { name: string; tel: string }[]) => {
+    setShowContacts(false);
+    await submitContacts(picked);
   };
 
   const addManual = async () => {
@@ -189,39 +203,18 @@ export default function CompletePage() {
       setMsg({ kind: "warn", text: t("সঠিক ১১ ডিজিটের নম্বর দিন।", "Enter a valid 11-digit number.") });
       return;
     }
-    setBusy(true);
-    setMsg(null);
-    try {
-      const resp = await fetch("/api/share", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacts: [{ name: "", tel: digits }] }),
-      });
-      const data = await resp.json() as ShareSummary;
-      if (!resp.ok) {
-        setMsg({ kind: "error", text: t("নম্বর যোগ করা যায়নি।", "Could not add the number.") });
-        return;
-      }
-      setShare(data);
-      setManualPhone("");
-      setMsg((data.skipped ?? 0) > 0
-        ? { kind: "warn", text: t("এই নম্বরটি আগেই যোগ করা হয়েছে — ভিন্ন নম্বর দিন।", "This number was already added — use a different one.") }
-        : { kind: "ok", text: t("নম্বর যোগ হয়েছে — এখন WhatsApp-এ পাঠান।", "Added — now send it on WhatsApp.") });
-    } catch {
-      setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে।", "Something went wrong.") });
-    } finally {
-      setBusy(false);
-    }
+    await submitContacts([{ name: "", tel: digits }]);
+    setManualPhone("");
   };
 
-  const motivation = (percent: number, sent: number): string => {
-    if (sent >= 25) return t("আপনি টার্গেট পূরণ করেছেন! সার্টিফিকেট নিতে নিচের বাটনে চাপ দিন।", "You completed the target! Tap the button below to claim your certificate.");
+  const motivation = (percent: number, sent: number, target: number): string => {
+    if (sent >= target) return t("আপনি টার্গেট পূরণ করেছেন! সার্টিফিকেট নিতে নিচের বাটনে চাপ দিন।", "You completed the target! Tap the button below to claim your certificate.");
     if (percent >= 96) return t("আর একটু! শেষ ধাপ — চালিয়ে যান! 🔥", "Almost there — final push! 🔥");
     if (percent >= 80) return t("চমৎকার! ৮০%+ এগিয়ে আছেন — শেষের দিকে!", "Excellent! 80%+ done — in the final stretch!");
     if (percent >= 60) return t("দারুণ! ৬০%+ — অর্ধেকের বেশি পার করেছেন!", "Great! Past 60% — over halfway there!");
     if (percent >= 40) return t("ভালো করছেন! ৪০%+ — এগিয়ে যান!", "Good going! 40%+ — keep it up!");
     if (percent >= 20) return t("চমৎকার শুরু! ২০%+ — চালিয়ে যান!", "Great start! 20%+ — keep going!");
-    return t("৫ জন করে ভিন্ন ভিন্ন মানুষকে WhatsApp-এ রেফারেল পাঠান — শুরু করুন!", "Share your referral with 5 new people on WhatsApp to begin!");
+    return t("চাইলে সব কন্টাক্ট একসাথে বেছে নিন — সার্টিফিকেট পেতে সর্বনিম্ন ৩০ জন, আবার যতজন খুশি যোগ করতে পারবেন!", "Pick as many contacts as you like — you need at least 30 people for the certificate, and there's no upper limit!");
   };
 
   const confetti = useMemo(() => {
@@ -256,9 +249,13 @@ export default function CompletePage() {
   }
 
   const percent = share?.percent ?? 0;
-  const selectedContacts = (share?.contacts || []).filter((c) => c.status === "selected");
+  const allContacts = (share?.contacts || []);
+  const sentContacts = allContacts.filter((c) => c.status === "sent");
+  const selectedContacts = allContacts.filter((c) => c.status === "selected");
   const sentCount = share?.sent ?? 0;
   const completed = share?.completed ?? false;
+  const target = share?.target ?? 30;
+  const alreadyAddedPhones = new Set(allContacts.map((c) => c.phone));
 
   return (
     <main className="min-h-screen overflow-x-hidden relative pt-20">
@@ -293,13 +290,13 @@ export default function CompletePage() {
           </div>
         </div>
 
-        {/* Certificate path (share-to-25) */}
+        {/* Certificate path (share-to-30) */}
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">🎓 {t("সার্টিফিকেটের পথে", "Certificate Path")}</h2>
-            <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("প্রতি দফায় ৫ জন", "5 at a time")}</span>
+            <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("সর্বনিম্ন ৩০ জন", "Minimum 30")}</span>
           </div>
-          <p className="mt-2 text-xs text-white/70">{motivation(percent, sentCount)}</p>
+          <p className="mt-2 text-xs text-white/70">{motivation(percent, sentCount, target)}</p>
 
           <div className="mt-3 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden">
@@ -309,6 +306,13 @@ export default function CompletePage() {
               />
             </div>
             <span className="text-sm font-black text-brand">{percent}%</span>
+          </div>
+
+          <div className="mt-3 px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-[11px] font-bold text-white/70 leading-relaxed">
+            {t(
+              `💡 চাইলে আপনার সব কন্টাক্ট একসাথে বেছে নিতে পারেন — সর্বোচ্চ সীমা নেই। সার্টিফিকেট পেতে সর্বনিম্ন ${target} জনকে WhatsApp-এ ইউনিক লিংক পাঠান।`,
+              `💡 You can pick ALL your contacts at once — no upper limit. Send at least ${target} people their unique WhatsApp link for the certificate.`
+            )}
           </div>
 
           {msg && (
@@ -323,9 +327,11 @@ export default function CompletePage() {
 
           {!completed ? (
             <>
-              {selectedContacts.length > 0 && (
+              {(selectedContacts.length > 0 || sentContacts.length > 0) && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">{t("পাঠানোর তালিকা", "To send")}</p>
+                  <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">
+                    {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
+                  </p>
                   {selectedContacts.map((c, i) => (
                     <div key={`${c.phone}-${i}`} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                       <div className="flex-1 min-w-0">
@@ -357,17 +363,50 @@ export default function CompletePage() {
                       )}
                     </div>
                   ))}
+                  {sentContacts.map((c, i) => (
+                    <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 opacity-75">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
+                        <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
+                        <p className="text-[10px] font-bold text-teal mt-0.5">
+                          {c.sentAt
+                            ? t(`✅ একবার পাঠানো হয়েছে (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — আবার পাঠাতে পারেন`, `✅ Sent once (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — you can send again`)
+                            : t("✅ একবার পাঠানো হয়েছে — আবার পাঠাতে পারেন", "✅ Already sent — you can send again")}
+                        </p>
+                      </div>
+                      {c.waExists === false ? (
+                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 text-red border border-red/30 text-[10px] font-black">
+                          {t("WhatsApp নেই", "No WhatsApp")}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => sendTo(c.phone, c.shareText)}
+                          className="flex-shrink-0 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black active:scale-95 transition-all"
+                        >
+                          🔁 {t("আবার পাঠান", "Send again")}
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 
               <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => setShowContacts(true)}
+                  disabled={busy}
+                  className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60"
+                >
+                  {t("📇 Google কন্টাক্ট থেকে সব বেছে নিন (Select All)", "📇 Pick ALL from Google Contacts")}
+                </button>
+
                 {contactsSupported ? (
-                  <button onClick={pickContacts} disabled={busy} className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60">
-                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("📲 ৫ জন বেছে নিন (ফোনবুক থেকে)", "📲 Pick 5 people (from phonebook)")}
+                  <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
+                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("📲 ফোনবুক/সিম/ডিভাইস থেকে বেছে নিন", "📲 Pick from phonebook/SIM/device")}
                   </button>
                 ) : (
-                  <button onClick={() => setShowManual(true)} className="btn-gold w-full text-sm !py-3.5">
-                    {t("📲 ৫ জনকে শেয়ার করুন", "📲 Share with 5 people")}
+                  <button onClick={() => setShowManual(true)} className="btn-white w-full text-sm !py-3.5">
+                    {t("📲 নম্বর লিখে যোগ করুন", "📲 Add numbers manually")}
                   </button>
                 )}
 
@@ -394,7 +433,7 @@ export default function CompletePage() {
               </div>
 
               <p className="mt-3 text-[11px] text-white/40 leading-relaxed">
-                {t("টিপ: প্রতিটি \"পাঠান\" চাপলে সেই ব্যক্তির জন্য আলাদা ইউনিক লিংকসহ WhatsApp খুলবে — সেন্ড করে ফিরে আসলেই গোনা হবে। প্রতিটি লিংক একবারই ব্যবহৃত হয়, তাই একই মানুষ দুইবার গোনা হয় না; প্রতিবার নতুন মানুষ বেছে নিন।", "Tip: each Send opens WhatsApp with a unique link for that person — it counts when you send and come back. Every link is single-use, so the same person is never counted twice; pick new people each round.")}
+                {t(`টিপ: Google-এ আপনার সব কন্টাক্ট নাও থাকতে পারে — সিম/ডিভাইসের জন্য "ফোনবুক থেকে বেছে নিন" ব্যবহার করুন। প্রতিটি "পাঠান"-এ সেই ব্যক্তির জন্য আলাদা ইউনিক লিংক খোলে। পাঠানো কন্টাক্ট নিচে চলে যায় (মুছে যায় না) — চাইলে আবার পাঠাতে পারবেন, তবে গোনা হয় ভিন্ন ভিন্ন মানুষই।`, "Tip: not all your contacts may be on Google — use 'pick from phonebook' for SIM/device contacts. Each Send opens a unique link for that person. Sent contacts move to the bottom (never deleted) and can be sent again, but only distinct people count.")}
               </p>
             </>
           ) : (
@@ -402,7 +441,7 @@ export default function CompletePage() {
               <div className="text-5xl animate-pulse-glow">🎉</div>
               <h3 className="mt-2 text-xl font-black gradient-text">{t("সার্টিফিকেট অর্জন করেছেন!", "Certificate Earned!")}</h3>
               <p className="mt-1 text-xs text-white/70">
-                {t("আপনি ২৫ জনকে রেফারেল পাঠিয়ে এটি অর্জন করেছেন। এটি ডাউনলোড করুন বা অনলাইনে যাচাই করুন।", "Earned by referring 25 people. Download it or verify it online.")}
+                {t(`আপনি ${target} জনকে রেফারেল পাঠিয়ে এটি অর্জন করেছেন। এটি ডাউনলোড করুন বা অনলাইনে যাচাই করুন।`, `Earned by referring ${target} people. Download it or verify it online.`)}
               </p>
               {share?.certificateId && (
                 <button
@@ -468,6 +507,14 @@ export default function CompletePage() {
           {t("হোমে ফিরে যান", "Back to Home")}
         </button>
       </div>
+
+      <ContactsModal
+        open={showContacts}
+        onClose={() => setShowContacts(false)}
+        onPick={pickFromGoogle}
+        busy={busy}
+        alreadyAdded={alreadyAddedPhones}
+      />
     </main>
   );
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "@/lib/env";
 import { ensurePhonebookColumns, ensureWorkerProfileColumns, execute, normalizePhone, query } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
-import { MAX_PER_ROUND, checkWhatsAppNumbers, generateRoundToken, getShareSummary } from "@/lib/share";
+import { MAX_BATCH, checkWhatsAppNumbers, generateRoundToken, getShareSummary } from "@/lib/share";
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     const { contacts } = await request.json() as { contacts?: { name?: string; tel?: string }[] };
     const list = Array.isArray(contacts) ? contacts : [];
 
-    if (list.length > MAX_PER_ROUND) {
-      return NextResponse.json({ error: "MAX_5" }, { status: 400 });
+    if (list.length > MAX_BATCH) {
+      return NextResponse.json({ error: "MAX_BATCH" }, { status: 400 });
     }
 
     const env = await getDB();

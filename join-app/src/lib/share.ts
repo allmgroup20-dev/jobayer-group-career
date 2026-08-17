@@ -1,7 +1,11 @@
 import { query, queryFirst } from "./queries";
 
-export const SHARE_TARGET = 25;
-export const MAX_PER_ROUND = 5;
+export const SHARE_TARGET = 30;
+// Hard safety cap so a single request can't flood the DB. Real limit: none —
+// users may pick as many contacts as they want (the whole phonebook).
+export const MAX_BATCH = 500;
+// The relay /check endpoint accepts at most 20 numbers per request.
+const CHECK_CHUNK = 20;
 
 export type ShareContact = {
   phone: string;
@@ -10,6 +14,7 @@ export type ShareContact = {
   link?: string;
   shareText?: string;
   waExists?: boolean;
+  sentAt?: string | null;
 };
 
 export type ShareSummary = {
@@ -51,7 +56,7 @@ export function buildShareText(siteUrl: string, workerId: string, token: string)
 // Returns a map phone → exists. Returns {} (no check) when the relay is not
 // configured or unreachable — never blocks the user.
 export async function checkWhatsAppNumbers(phones: string[]): Promise<Record<string, boolean>> {
-  const normalized = (phones || []).filter((p) => !!p).slice(0, MAX_PER_ROUND);
+  const normalized = (phones || []).filter((p) => !!p);
   if (normalized.length === 0) return {};
   let relayUrl = "";
   let relayToken = "";
@@ -66,30 +71,41 @@ export async function checkWhatsAppNumbers(phones: string[]): Promise<Record<str
     relayToken = process.env.RELAY_AUTH_TOKEN || "";
   }
   if (!relayUrl || !relayToken) return {};
-  try {
-    const res = await fetch(`${relayUrl.replace(/\/+$/, "")}/check`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-auth-token": relayToken },
-      body: JSON.stringify({ phones: normalized }),
-    });
-    if (!res.ok) return {};
-    const data = await res.json() as { results?: { phone: string; exists: boolean }[] };
-    const map: Record<string, boolean> = {};
-    for (const r of data.results || []) {
+  const map: Record<string, boolean> = {};
+  const chunks: string[][] = [];
+  for (let i = 0; i < normalized.length; i += CHECK_CHUNK) {
+    chunks.push(normalized.slice(i, i + CHECK_CHUNK));
+  }
+  const results = await Promise.all(
+    chunks.map(async (chunk) => {
+      try {
+        const res = await fetch(`${relayUrl.replace(/\/+$/, "")}/check`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-auth-token": relayToken },
+          body: JSON.stringify({ phones: chunk }),
+        });
+        if (!res.ok) return [] as { phone: string; exists: boolean }[];
+        const data = await res.json() as { results?: { phone: string; exists: boolean }[] };
+        return data.results || [];
+      } catch {
+        return [] as { phone: string; exists: boolean }[];
+      }
+    })
+  );
+  for (const data of results) {
+    for (const r of data) {
       if (r && r.phone) map[r.phone] = !!r.exists;
     }
-    return map;
-  } catch {
-    return {};
   }
+  return map;
 }
 
 export async function getShareSummary(env: { DB: D1Database }, workerId: string): Promise<ShareSummary> {
   const siteUrl = process.env.SITE_URL || "https://youtube.earner.workers.dev";
 
-  const rows = await query<{ contact_phone: string; contact_name: string | null; status: string | null; share_token: string | null; wa_exists: string | null }>(
+  const rows = await query<{ contact_phone: string; contact_name: string | null; status: string | null; share_token: string | null; wa_exists: string | null; sent_at: string | null }>(
     env,
-    `SELECT contact_phone, contact_name, status, share_token, wa_exists FROM user_phonebooks
+    `SELECT contact_phone, contact_name, status, share_token, wa_exists, sent_at FROM user_phonebooks
      WHERE worker_id = ? AND source = 'share_task'`,
     [workerId]
   ).catch(() => []);
@@ -112,18 +128,22 @@ export async function getShareSummary(env: { DB: D1Database }, workerId: string)
     percent,
     completed,
     certificateId: worker?.certificate_id || null,
-    contacts: rows.map((r) => {
-      const wa = r.wa_exists === "0" ? false : r.wa_exists === "1" ? true : undefined;
-      return {
-        phone: r.contact_phone,
-        name: r.contact_name || "",
-        status: r.status === "sent" ? "sent" : "selected",
-        // Each contact has its own unique, single-use link. Once this contact
-        // is shared to, its token is never reused for anyone else.
-        link: r.share_token ? buildShareLink(siteUrl, workerId, r.share_token) : undefined,
-        shareText: r.share_token ? buildShareText(siteUrl, workerId, r.share_token) : undefined,
-        waExists: wa,
-      };
-    }),
+    contacts: rows
+      .map((r) => {
+        const wa = r.wa_exists === "0" ? false : r.wa_exists === "1" ? true : undefined;
+        return {
+          phone: r.contact_phone,
+          name: r.contact_name || "",
+          status: r.status === "sent" ? "sent" : "selected",
+          // Each contact has its own unique, single-use link. Once this contact
+          // is shared to, its token is never reused for anyone else.
+          link: r.share_token ? buildShareLink(siteUrl, workerId, r.share_token) : undefined,
+          shareText: r.share_token ? buildShareText(siteUrl, workerId, r.share_token) : undefined,
+          waExists: wa,
+          sentAt: r.sent_at || null,
+        };
+      })
+      // Sent contacts sink to the bottom (still visible) — never hidden.
+      .sort((a, b) => (a.status === "sent" ? 1 : 0) - (b.status === "sent" ? 1 : 0)),
   };
 }

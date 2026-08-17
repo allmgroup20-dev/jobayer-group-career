@@ -30,9 +30,12 @@ export async function POST(request: NextRequest) {
       if (!normalized) {
         return NextResponse.json({ error: "Invalid phone" }, { status: 400 });
       }
+      // Re-send is allowed: a contact that was already shared may be sent again
+      // (its row stays in the list, badge shows "already sent"). Count stays
+      // distinct so it never inflates the 30-person target.
       await execute(env,
         `UPDATE user_phonebooks SET status = 'sent', sent_at = datetime('now')
-         WHERE worker_id = ? AND contact_phone = ? AND status != 'sent' AND (wa_exists IS NULL OR wa_exists != '0')`,
+         WHERE worker_id = ? AND contact_phone = ? AND (wa_exists IS NULL OR wa_exists != '0')`,
         [workerId, normalized]
       ).catch(() => {});
     } else {
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const summary = await getShareSummary(env, workerId);
 
-    // Certificate award when 25 distinct people have been shared to.
+    // Certificate award when SHARE_TARGET distinct people have been shared to.
     if (summary.completed && !summary.certificateId) {
       let certificateId = "";
       for (let attempt = 0; attempt < 5; attempt++) {

@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       name: row.name || "",
       completedAt: row.share_task_completed_at || null,
       siteUrl: process.env.SITE_URL || "https://youtube.earner.workers.dev",
+      target: Number(process.env.SHARE_TARGET) || 30,
     });
   } catch (error) {
     console.error("Certificate verify error:", error);

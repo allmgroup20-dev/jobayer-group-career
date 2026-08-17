@@ -3,12 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { useSearchParams } from "next/navigation";
+import { useLang } from "@/lib/lang";
 
 type CertData = {
   certificateId: string;
   name: string;
   completedAt: string | null;
   siteUrl: string;
+  target?: number;
 };
 
 function formatDate(value: string | null): string {
@@ -20,6 +22,8 @@ function formatDate(value: string | null): string {
 
 function CertificateView() {
   const sp = useSearchParams();
+  const { lang } = useLang();
+  const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
   const id = sp.get("id") || "";
   const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
   const [data, setData] = useState<CertData | null>(null);
@@ -94,7 +98,7 @@ function CertificateView() {
 
             <p className="mt-4 text-sm leading-relaxed text-gray-700 max-w-xl mx-auto">
               has successfully completed their full profile on <b>YouTube Earner</b> and referred
-              <b> 25 people</b> through the referral program, demonstrating outstanding
+              <b> {data.target || 30} people</b> through the referral program, demonstrating outstanding
               community-building and digital marketing skills.
             </p>
 
@@ -132,6 +136,40 @@ function CertificateView() {
             }
           }
         `}</style>
+
+        {/* Value / benefits / income — what this certificate means */}
+        <div className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
+          <h2 className="text-lg font-black text-brand">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</h2>
+          <div className="mt-4 space-y-4">
+            <div className="flex gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
+              <div>
+                <p className="text-sm font-black text-white">{t("কী ধরনের সার্টিফিকেট", "Type of certificate")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">
+                  {t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং অভিজ্ঞতার সরকারি-মানের সনদ। QR কোড, ইউনিক সার্টিফিকেট ID ও অনলাইন যাচাই — নিয়োগকর্তা যেকোনো সময় এই পেজে গিয়ে সত্যতা নিশ্চিত করতে পারেন।", "Referral Ambassador — a verifiable certificate of community-building and digital marketing experience. QR code, unique certificate ID and online verification — any employer can confirm its authenticity on this page.")}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-teal/15 border border-teal/30 flex items-center justify-center text-lg">💼</div>
+              <div>
+                <p className="text-sm font-black text-white">{t("কোন কোন কাজে ব্যবহার করা যাবে", "Where this experience applies")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">
+                  {t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং ভূমিকায় CV-তে যুক্ত করলে প্রার্থী হিসেবে আলাদাভাবে দাঁড় করায়।", "Adds value to your CV for roles like digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing.")}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">💰</div>
+              <div>
+                <p className="text-sm font-black text-white">{t("মাসিক আয় সম্ভাবনা", "Monthly income potential")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">
+                  {t("এই অভিজ্ঞতা-সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব — অভিজ্ঞতা, নিয়োগকর্তা ও ফ্রিল্যান্স প্রজেক্টের ওপর নির্ভর করে।", "With this experience certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month, depending on experience, employer and freelancing projects.")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
