@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useSWRFetch } from "@/lib/use-swr-fetch";
 import { geoIndex, loadDistrict, loadCC, geoSlug, type GeoDivision, type GeoDistrictData, type GeoCC } from "@/lib/geo";
-import { RELIGIONS, findChildren, religionPath } from "@/lib/religions";
+import { religionKeys, religionPath, religionOptions, religionLevels } from "@/lib/religions";
 
 export default function ProfilePage() {
   const { lang } = useLanguageStore();
@@ -17,7 +17,7 @@ export default function ProfilePage() {
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
     { ttlMs: 180_000 }
   );
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "", religionL1: "", religionL2: "", religionL3: "" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", currentPassword: "", workerId: "", ageGroup: "", occupation: "", educationLevel: "", preferredLanguage: "", gender: "", country: "বাংলাদেশ", city: "", division: "", district: "", upazila: "", cityCorporation: "", ward: "", area: "", union: "", pourashava: "", goal: "", preferredLearningTime: "", referralSource: "", communicationPreference: "whatsapp", budgetRange: "", religion: "" });
   const [geoDivisions, setGeoDivisions] = useState<GeoDivision[]>([]);
   const [districtData, setDistrictData] = useState<GeoDistrictData | null>(null);
   const [ccData, setCcData] = useState<GeoCC | null>(null);
@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profileData?.workerId) return;
-    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.cityCorporation || profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", cityCorporation: profileData.cityCorporation || "", ward: profileData.ward || "", area: profileData.area || "", union: profileData.union || "", pourashava: profileData.pourashava || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "", religionL1: (profileData.religion || "").split(">")[0] || "", religionL2: (profileData.religion || "").split(">")[1] || "", religionL3: (profileData.religion || "").split(">")[2] || "" });
+    setForm({ name: profileData.name || "", phone: profileData.phone || "", email: profileData.email || "", password: "", currentPassword: "", workerId: profileData.workerId, ageGroup: profileData.ageGroup || "", occupation: profileData.occupation || "", educationLevel: profileData.educationLevel || "", preferredLanguage: profileData.preferredLanguage || "bn", gender: profileData.gender || "", country: "বাংলাদেশ", city: profileData.cityCorporation || profileData.upazila || profileData.city || "", division: profileData.division || "", district: profileData.district || "", upazila: profileData.upazila || "", cityCorporation: profileData.cityCorporation || "", ward: profileData.ward || "", area: profileData.area || "", union: profileData.union || "", pourashava: profileData.pourashava || "", goal: profileData.goal || "", preferredLearningTime: profileData.preferredLearningTime || "", referralSource: profileData.referralSource || "", communicationPreference: profileData.communicationPreference || "whatsapp", budgetRange: profileData.budgetRange || "", religion: profileData.religion || "" });
     if (profileData.membershipStatus) setMembershipStatus(profileData.membershipStatus);
   }, [profileData]);
 
@@ -108,7 +108,7 @@ export default function ProfilePage() {
     if (form.referralSource) body.referralSource = form.referralSource;
     if (form.communicationPreference) body.communicationPreference = form.communicationPreference;
     if (form.budgetRange) body.budgetRange = form.budgetRange;
-    const religion = religionPath({ l1: form.religionL1, l2: form.religionL2, l3: form.religionL3 }) || form.religion;
+    const religion = form.religion;
     if (religion) body.religion = religion;
     try {
       const res = await fetch("/api/workers/profile", {
@@ -555,37 +555,30 @@ export default function ProfilePage() {
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2">{lang === "bn" ? "ধর্ম" : "Religion"}</label>
                 <div className="space-y-2">
-                  <select value={form.religionL1} onChange={(e) => {
-                    const v = e.target.value;
-                    setForm({ ...form, religionL1: v, religionL2: "", religionL3: "", religion: religionPath({ l1: v }) });
-                  }} className="input-field">
-                    <option value="">{lang === "bn" ? "ধর্ম নির্বাচন করুন" : "Select religion..."}</option>
-                    {RELIGIONS.map((r) => (
-                      <option key={r.v} value={r.v}>{lang === "bn" ? r.bn : r.en}</option>
-                    ))}
-                  </select>
-                  {findChildren(RELIGIONS, form.religionL1) && (
-                    <select value={form.religionL2} onChange={(e) => {
-                      const v = e.target.value;
-                      setForm({ ...form, religionL2: v, religionL3: "", religion: religionPath({ l1: form.religionL1, l2: v }) });
-                    }} className="input-field">
-                      <option value="">{lang === "bn" ? "ভিতরের অংশ নির্বাচন করুন" : "Select branch..."}</option>
-                      {findChildren(RELIGIONS, form.religionL1)?.map((c) => (
-                        <option key={c.v} value={c.v}>{lang === "bn" ? c.bn : c.en}</option>
-                      ))}
-                    </select>
-                  )}
-                  {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2) && (
-                    <select value={form.religionL3} onChange={(e) => {
-                      const v = e.target.value;
-                      setForm({ ...form, religionL3: v, religion: religionPath({ l1: form.religionL1, l2: form.religionL2, l3: v }) });
-                    }} className="input-field">
-                      <option value="">{lang === "bn" ? "আরও ভিতরের অংশ নির্বাচন করুন" : "Select sub-branch..."}</option>
-                      {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2)?.map((c) => (
-                        <option key={c.v} value={c.v}>{lang === "bn" ? c.bn : c.en}</option>
-                      ))}
-                    </select>
-                  )}
+                  {(() => {
+                    const keys = religionKeys(form.religion);
+                    const levels = religionLevels(keys);
+                    return Array.from({ length: levels }, (_, i) => {
+                      const opts = religionOptions(keys, i);
+                      const val = keys[i] || "";
+                      return (
+                        <select
+                          key={i}
+                          value={val}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setForm((p) => ({ ...p, religion: religionPath([...religionKeys(p.religion).slice(0, i), v]) }));
+                          }}
+                          className="input-field"
+                        >
+                          <option value="">{i === 0 ? (lang === "bn" ? "ধর্ম নির্বাচন করুন" : "Select religion...") : (lang === "bn" ? "ভিতরের অংশ নির্বাচন করুন" : "Select branch...")}</option>
+                          {opts.map((o) => (
+                            <option key={o.v} value={o.v}>{lang === "bn" ? o.bn : o.en}</option>
+                          ))}
+                        </select>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 

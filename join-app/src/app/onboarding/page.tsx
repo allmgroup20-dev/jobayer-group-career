@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
 import { geoIndex, loadDistrict, loadCC, geoSlug, type GeoDivision, type GeoDistrictData, type GeoCC } from "@/lib/geo";
-import { RELIGIONS, findChildren, religionPath } from "@/lib/religions";
+import { religionKeys, religionPath, religionOptions, religionLevels } from "@/lib/religions";
 
 type Me = {
   workerId?: string;
@@ -223,9 +223,6 @@ export default function OnboardingPage() {
     union: "",
     pourashava: "",
     religion: "",
-    religionL1: "",
-    religionL2: "",
-    religionL3: "",
     preferredLanguage: "bn",
     goal: "",
     interests: [] as string[],
@@ -266,9 +263,6 @@ export default function OnboardingPage() {
           union: data.union || "",
           pourashava: data.pourashava || "",
           religion: data.religion || "",
-          religionL1: (data.religion || "").split(">")[0] || "",
-          religionL2: (data.religion || "").split(">")[1] || "",
-          religionL3: (data.religion || "").split(">")[2] || "",
           preferredLanguage: data.preferredLanguage || "bn",
           goal: data.goal || "",
           preferredLearningTime: data.preferredLearningTime || "",
@@ -360,7 +354,7 @@ export default function OnboardingPage() {
           if (!form.union && !form.pourashava) return t("ইউনিয়ন / পৌরসভা নির্বাচন করুন", "Select your union / pourashava");
           if (form.pourashava && !form.ward) return t("ওয়ার্ড নির্বাচন করুন", "Select your ward");
         }
-        if (!form.religionL1) return t("ধর্ম নির্বাচন করুন", "Select your religion");
+        if (!religionKeys(form.religion).length) return t("ধর্ম নির্বাচন করুন", "Select your religion");
         return "";
       case "goals":
         if (!form.goal) return t("আপনার লক্ষ্য নির্বাচন করুন", "Select your goal");
@@ -406,7 +400,7 @@ export default function OnboardingPage() {
             area: form.area,
             union: form.union,
             pourashava: form.pourashava,
-            religion: form.religion || form.religionL1,
+            religion: form.religion,
             preferredLanguage: form.preferredLanguage,
           });
           break;
@@ -789,55 +783,30 @@ export default function OnboardingPage() {
               <div>
                 {label("ধর্ম *", "Religion *")}
                 <div className="space-y-2">
-                  <select
-                    value={form.religionL1}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      update("religionL1", v);
-                      update("religionL2", "");
-                      update("religionL3", "");
-                      update("religion", religionPath({ l1: v }));
-                    }}
-                    className="input-field"
-                  >
-                    <option value="">{t("ধর্ম নির্বাচন করুন", "Select religion...")}</option>
-                    {RELIGIONS.map((r) => (
-                      <option key={r.v} value={r.v}>{t(r.bn, r.en)}</option>
-                    ))}
-                  </select>
-                  {findChildren(RELIGIONS, form.religionL1) && (
-                    <select
-                      value={form.religionL2}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        update("religionL2", v);
-                        update("religionL3", "");
-                        update("religion", religionPath({ l1: form.religionL1, l2: v }));
-                      }}
-                      className="input-field"
-                    >
-                      <option value="">{t("ভিতরের অংশ নির্বাচন করুন", "Select branch...")}</option>
-                      {findChildren(RELIGIONS, form.religionL1)?.map((c) => (
-                        <option key={c.v} value={c.v}>{t(c.bn, c.en)}</option>
-                      ))}
-                    </select>
-                  )}
-                  {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2) && (
-                    <select
-                      value={form.religionL3}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        update("religionL3", v);
-                        update("religion", religionPath({ l1: form.religionL1, l2: form.religionL2, l3: v }));
-                      }}
-                      className="input-field"
-                    >
-                      <option value="">{t("আরও ভিতরের অংশ নির্বাচন করুন", "Select sub-branch...")}</option>
-                      {findChildren(findChildren(RELIGIONS, form.religionL1) || [], form.religionL2)?.map((c) => (
-                        <option key={c.v} value={c.v}>{t(c.bn, c.en)}</option>
-                      ))}
-                    </select>
-                  )}
+                  {(() => {
+                    const keys = religionKeys(form.religion);
+                    const levels = religionLevels(keys);
+                    return Array.from({ length: levels }, (_, i) => {
+                      const opts = religionOptions(keys, i);
+                      const val = keys[i] || "";
+                      return (
+                        <select
+                          key={i}
+                          value={val}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            update("religion", religionPath([...keys.slice(0, i), v]));
+                          }}
+                          className="input-field"
+                        >
+                          <option value="">{i === 0 ? t("ধর্ম নির্বাচন করুন", "Select religion...") : t("ভিতরের অংশ নির্বাচন করুন", "Select branch...")}</option>
+                          {opts.map((o) => (
+                            <option key={o.v} value={o.v}>{t(o.bn, o.en)}</option>
+                          ))}
+                        </select>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
               <div>
