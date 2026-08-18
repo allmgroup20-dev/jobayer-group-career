@@ -32,6 +32,8 @@ type ShareSummary = {
 
 type Msg = { kind: "ok" | "warn" | "error"; text: string } | null;
 
+const VERIFY_MS = 60_000; // verification window (max 1 minute)
+
 export default function CompletePage() {
   const { lang } = useLang();
   const router = useRouter();
@@ -53,8 +55,8 @@ export default function CompletePage() {
   const pendingPhoneRef = useRef<string | null>(null);
   const hiddenAtRef = useRef<number | null>(null);
   const openedAtRef = useRef<number | null>(null);
-  const [confirmReady, setConfirmReady] = useState(false);
-  const [countdown, setCountdown] = useState(0);
+  const verifyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [failedPhone, setFailedPhone] = useState<string | null>(null);
   const percentRef = useRef(0);
   const [showContacts, setShowContacts] = useState(false);
   const [listSearch, setListSearch] = useState("");
@@ -64,6 +66,13 @@ export default function CompletePage() {
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
   }, [share]);
+
+  const clearVerifyTimer = () => {
+    if (verifyTimerRef.current) {
+      clearTimeout(verifyTimerRef.current);
+      verifyTimerRef.current = null;
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -105,6 +114,8 @@ export default function CompletePage() {
       if (hid && phone && Date.now() - hid >= 3000) {
         pendingPhoneRef.current = null;
         setPendingPhone(null);
+        setFailedPhone(null);
+        clearVerifyTimer();
         confirmSent(phone);
       }
     };
@@ -145,24 +156,23 @@ export default function CompletePage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
     pendingPhoneRef.current = phone;
     setPendingPhone(phone);
-    setConfirmReady(false);
+    setFailedPhone(null);
     openedAtRef.current = Date.now();
     hiddenAtRef.current = Date.now();
-    // The "পাঠিয়েছি" fallback only unlocks after 8s so users can't tap it
-    // without actually opening/sending in WhatsApp (anti-cheat). Return after a
-    // real WhatsApp visit (≥3s away) is auto-counted instantly.
-    setCountdown(8);
-    let left = 8;
-    const iv = setInterval(() => {
-      left -= 1;
-      if (left <= 0) {
-        clearInterval(iv);
-        setCountdown(0);
-        setConfirmReady(true);
-      } else {
-        setCountdown(left);
+    // Verification window (max 1 min): coming back from a real WhatsApp visit
+    // (≥3s away) verifies instantly. If the user never leaves for WhatsApp and
+    // the 1-minute deadline passes while the page is still visible, the send is
+    // cancelled (not counted).
+    clearVerifyTimer();
+    verifyTimerRef.current = setTimeout(() => {
+      if (!document.hidden) {
+        verifyTimerRef.current = null;
+        pendingPhoneRef.current = null;
+        setPendingPhone(null);
+        setFailedPhone(phone);
+        setMsg({ kind: "warn", text: t("⚠️ সঠিকভাবে পাঠানো যায়নি — এটি বাতিল হয়ে গেছে। সার্টিফিকেটের অগ্রগতি এগোয়নি — পুনরায় পাঠাতে বাটনে চাপ দিন।", "⚠️ The send couldn't be verified — it's been cancelled. Your certificate progress hasn't moved — tap the button to send again.") });
       }
-    }, 1000);
+    }, VERIFY_MS);
   };
 
   const submitContacts = async (valid: { name: string; tel: string }[]) => {
@@ -439,33 +449,55 @@ export default function CompletePage() {
                     <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
                   )}
                   {shownSelected.map((c, i) => (
-                    <div key={`${c.phone}-${i}`} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
-                        <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
-                      </div>
-                      {c.waExists === false ? (
-                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
-                          {t("WhatsApp নেই", "No WhatsApp")}
-                        </span>
-                      ) : pendingPhone === c.phone ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gold font-bold">{t("পাঠিয়ে ফিরে আসুন…", "Send & come back…")}</span>
-                          <button
-                            onClick={() => confirmSent(c.phone)}
-                            disabled={!confirmReady}
-                            className={`flex-shrink-0 px-3 py-2 rounded-xl text-white text-xs font-black active:scale-95 transition-all ${confirmReady ? "bg-teal" : "bg-white/20 opacity-60"}`}
-                          >
-                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t(`⏳ ${countdown} সেকেন্ড…`, `⏳ ${countdown}s…`)}
-                          </button>
+                    <div key={`${c.phone}-${i}`} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
+                          <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
+                          {pendingPhone === c.phone && (
+                            <p className="text-[10px] font-bold text-gold mt-0.5">
+                              🔍 {t("যাচাই করা হচ্ছে", "Verifying")}
+                              <span className="verify-dots"><span /><span /><span /></span>
+                            </p>
+                          )}
+                          {failedPhone === c.phone && (
+                            <p className="text-[10px] font-bold text-gold mt-0.5">{t("✗ বাতিল হয়েছে", "✗ Cancelled")}</p>
+                          )}
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => sendTo(c.phone, c.shareText)}
-                          className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
-                        >
-                          📤 {t("WhatsApp-এ পাঠান", "Send")}
-                        </button>
+                        {c.waExists === false ? (
+                          <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
+                            {t("WhatsApp নেই", "No WhatsApp")}
+                          </span>
+                        ) : pendingPhone === c.phone ? (
+                          <button
+                            onClick={() => sendTo(c.phone, c.shareText)}
+                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
+                          >
+                            🔄 {t("পুনরায় পাঠান", "Send again")}
+                          </button>
+                        ) : failedPhone === c.phone ? (
+                          <button
+                            onClick={() => sendTo(c.phone, c.shareText)}
+                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
+                          >
+                            📤 {t("পুনরায় পাঠান", "Send again")}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => sendTo(c.phone, c.shareText)}
+                            className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
+                          >
+                            📤 {t("WhatsApp-এ পাঠান", "Send")}
+                          </button>
+                        )}
+                      </div>
+                      {pendingPhone === c.phone && (
+                        <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold leading-relaxed">
+                          ⚠️ {t(
+                            "কঠোরভাবে যাচাই করা হচ্ছে — আপনি সঠিকভাবে WhatsApp-এ পাঠিয়েছেন কিনা নিশ্চিত করা হচ্ছে। সঠিকভাবে পাঠানো না হলে এটি বাতিল হয়ে যাবে। এতে আপনার সার্টিফিকেট পাওয়া আরও কঠিন হয়ে যেতে পারে — অগ্রগতিতে পিছিয়ে পড়তে পারেন।",
+                            "Strictly verifying — making sure you actually sent it on WhatsApp. If not sent properly, it will be cancelled. This can make earning your certificate harder — you may fall behind on your progress."
+                          )}
+                        </div>
                       )}
                     </div>
                   ))}
