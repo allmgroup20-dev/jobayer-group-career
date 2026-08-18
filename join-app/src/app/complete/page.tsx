@@ -530,7 +530,7 @@ export default function CompletePage() {
           <p className="mt-4 text-xs font-black text-gold">
             👀 {t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "Here's how your certificate will look")}
           </p>
-          <div ref={certPreviewRef} className="mt-2 w-full" style={{ height: A4_LANDSCAPE_H * certPreviewScale }}>
+          <div ref={certPreviewRef} className="mt-2 w-full overflow-hidden" style={{ height: A4_LANDSCAPE_H * certPreviewScale }}>
             <div
               className="relative bg-white text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden"
               style={{

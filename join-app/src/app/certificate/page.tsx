@@ -87,7 +87,7 @@ function CertificateView() {
         </div>
 
         {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit */}
-        <div ref={ref} className="w-full" style={{ height: A4_LANDSCAPE_H * scale }}>
+        <div ref={ref} className="w-full overflow-hidden" style={{ height: A4_LANDSCAPE_H * scale }}>
           <div
             className="print-area relative bg-white text-gray-900 rounded-2xl shadow-2xl overflow-hidden"
             style={{
