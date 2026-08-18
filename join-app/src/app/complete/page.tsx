@@ -452,6 +452,49 @@ export default function CompletePage() {
             </div>
           )}
 
+          {/* Certificate preview — exactly how the certificate will look. View
+              only (no download); uses the user's real name when available. */}
+          <p className="mt-4 text-xs font-black text-gold">
+            👀 {t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "Here's how your certificate will look")}
+          </p>
+          <div className="mt-2 relative bg-white text-gray-900 rounded-2xl p-5 shadow-2xl">
+            <div className="absolute inset-2 border-2 border-gold rounded-xl pointer-events-none" />
+            <div className="absolute inset-3 border border-gold/50 rounded-lg pointer-events-none" />
+            <div className="relative text-center">
+              <p className="text-[9px] font-black tracking-[0.25em] text-gold">ইউটিউব আর্নার · YOUTUBE EARNER</p>
+              <h3 className="mt-2 text-lg font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
+              <div className="mt-1.5 mx-auto h-0.5 w-28 bg-gradient-to-r from-transparent via-gold to-transparent" />
+              <p className="mt-2 text-[11px] font-bold text-gray-600">This certifies that</p>
+              <p className="mt-2 text-2xl font-black text-brand">{me?.name || t("রহিম উদ্দিন", "Rahim Uddin")}</p>
+              <p className="mt-3 text-[11px] leading-relaxed text-gray-700">
+                has successfully completed their full profile on <b>YouTube Earner</b> and referred
+                <b> {target} people</b> through the referral program, demonstrating outstanding
+                community-building and digital marketing skills.
+              </p>
+              <div className="mt-4 flex items-end justify-between gap-3">
+                <div className="text-left text-[10px] text-gray-600">
+                  <p className="font-black text-gray-900">Certificate ID</p>
+                  <p className="mt-0.5 font-mono font-bold">YA-REF-2026-XXXXXX</p>
+                  <p className="mt-2 font-black text-gray-900">Date</p>
+                  <p className="mt-0.5 font-bold">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="bg-white p-1.5 rounded-lg border border-gray-200">
+                    <QRCode value="https://youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX" size={72} />
+                  </div>
+                  <p className="mt-1 text-[8px] text-gray-500">Scan to verify</p>
+                </div>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-gray-200 text-[10px] text-gray-500">
+                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
+                <p className="mt-0.5">Verify online: youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX</p>
+              </div>
+            </div>
+          </div>
+          <p className="mt-2 text-[10px] font-bold text-white/40">
+            ⓘ {t("নমুনা · SAMPLE — এটি আপনার আসল সার্টিফিকেট নয়, শুধু দেখার জন্য। ডাউনলোড করা যাবে না।", "Sample · preview only — not your real certificate, and it cannot be downloaded.")}
+          </p>
+
           <div className="mt-3 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden">
               <div
