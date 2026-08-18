@@ -54,10 +54,16 @@ export default function CompletePage() {
   const hiddenAtRef = useRef<number | null>(null);
   const openedAtRef = useRef<number | null>(null);
   const [confirmReady, setConfirmReady] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const percentRef = useRef(0);
   const [showContacts, setShowContacts] = useState(false);
   const [listSearch, setListSearch] = useState("");
   const [showCertValue, setShowCertValue] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
+
+  useEffect(() => {
+    percentRef.current = share?.percent ?? 0;
+  }, [share]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -119,8 +125,15 @@ export default function CompletePage() {
       trackEvent("share_sent", { pageCategory: "complete", metadata: { method: "whatsapp" } });
       if (data.completed) {
         setMsg({ kind: "ok", text: t("🎉 অভিনন্দন! আপনি ১০০% পূরণ করেছেন — সার্টিফিকেট অর্জন করেছেন!", "🎉 Congratulations! You reached 100% and earned your certificate!") });
-      } else if (data.sent > 0 && data.sent % 5 === 0) {
-        setMsg({ kind: "ok", text: t("👏 দারুণ গতি! এখন নতুন ভিন্ন মানুষদের কাছে শেয়ার করুন 💪", "👏 Great pace! Now share with new different people 💪") });
+      } else {
+        const prevPercent = percentRef.current;
+        if (data.percent >= 80 && prevPercent < 80) {
+          setMsg({ kind: "ok", text: t(`🚀 একদম শেষে! এখন ${data.percent}% — বাকিটুকু পার করুন!`, `🚀 Almost there! You're at ${data.percent}% — finish it!`) });
+        } else if (data.percent >= 50 && prevPercent < 50) {
+          setMsg({ kind: "ok", text: t(`🎯 অর্ধেক পথ শেষ! এখন ${data.percent}% — চালিয়ে যান!`, `🎯 Halfway there! You're at ${data.percent}% — keep going!`) });
+        } else if (data.sent > 0 && data.sent % 5 === 0) {
+          setMsg({ kind: "ok", text: t(`👏 দারুণ গতি! এখন ${data.percent}% — নতুন ভিন্ন মানুষদের কাছে শেয়ার করুন 💪`, `👏 Great pace! You're at ${data.percent}% — now share with new different people 💪`) });
+        }
       }
     } catch { /* ignore */ }
   }, [t]);
@@ -138,7 +151,18 @@ export default function CompletePage() {
     // The "পাঠিয়েছি" fallback only unlocks after 8s so users can't tap it
     // without actually opening/sending in WhatsApp (anti-cheat). Return after a
     // real WhatsApp visit (≥3s away) is auto-counted instantly.
-    setTimeout(() => setConfirmReady(true), 8000);
+    setCountdown(8);
+    let left = 8;
+    const iv = setInterval(() => {
+      left -= 1;
+      if (left <= 0) {
+        clearInterval(iv);
+        setCountdown(0);
+        setConfirmReady(true);
+      } else {
+        setCountdown(left);
+      }
+    }, 1000);
   };
 
   const submitContacts = async (valid: { name: string; tel: string }[]) => {
@@ -218,7 +242,7 @@ export default function CompletePage() {
     if (percent >= 60) return t("দারুণ! ৬০%+ — অর্ধেকের বেশি পার করেছেন!", "Great! Past 60% — over halfway there!");
     if (percent >= 40) return t("ভালো করছেন! ৪০%+ — এগিয়ে যান!", "Good going! 40%+ — keep it up!");
     if (percent >= 20) return t("চমৎকার শুরু! ২০%+ — চালিয়ে যান!", "Great start! 20%+ — keep going!");
-    return t("অল্প কয়েকজনের কাছে শেয়ার করুন — প্রতিটি শেয়ারে আপনার পার্সেন্টেজ বাড়ছে! ১০০%-এ পৌঁছালেই সার্টিফিকেট।", "Share with a few people — every share grows your percentage! Reach 100% and earn your certificate.");
+    return t("শুধু একজনকে পাঠালেই শুরু — দেখুন আপনার পার্সেন্টেজ বাড়ছে! ১০০%-এ পৌঁছালেই সার্টিফিকেট।", "Start with just one person — watch your percentage grow! Reach 100% and earn your certificate.");
   };
 
   const confetti = useMemo(() => {
@@ -273,7 +297,7 @@ export default function CompletePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden relative pt-20">
-      {confetti.map((c, i) => (
+      {completed && confetti.map((c, i) => (
         <span key={i} className="confetti-piece" style={c} />
       ))}
 
@@ -346,7 +370,7 @@ export default function CompletePage() {
                 <div>
                   <p className="text-sm font-black text-white">{t("আয়ের সম্ভাবনা", "Income potential")}</p>
                   <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("এই অভিজ্ঞতা দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব।", "With this experience, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month.")}
+                    {t("এই অভিজ্ঞতা দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব — অভিজ্ঞতা ও সক্রিয়তার ওপর নির্ভরশীল।", "With this experience, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month — depends on experience and activity.")}
                   </p>
                 </div>
               </div>
@@ -355,7 +379,7 @@ export default function CompletePage() {
                 <div>
                   <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
                   <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে!", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next!")}
+                    {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে! আর QR স্ক্যান বা অনলাইন লিংকে যেকোনো সময় সত্যতা যাচাই করা যায়।", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next! Plus the QR scan or online link verifies its authenticity anytime.")}
                   </p>
                 </div>
               </div>
@@ -365,7 +389,7 @@ export default function CompletePage() {
           <div className="mt-3 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-gold via-pink to-violet transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-gold to-amber transition-all duration-700"
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -381,10 +405,10 @@ export default function CompletePage() {
                 : t(`একদম শেষ! আর মাত্র ${100 - percent}% বাকি 🔥`, `Almost done! Just ${100 - percent}% left 🔥`)}
           </p>
 
-          <div className="mt-3 px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-[11px] font-bold text-white/70 leading-relaxed">
+          <div className="mt-3 px-3 py-2 rounded-xl bg-emerald/10 border border-emerald/30 text-[11px] font-bold text-emerald leading-relaxed">
             {t(
-              `💡 আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সবাইকে একসাথে বেছে নিতে পারেন, সীমা নেই।`,
-              `💡 When you share with someone, watch your percentage grow — hit 100% and earn your certificate. You can pick ALL your contacts at once — no limit.`
+              `✅ আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সবাইকে একসাথে বেছে নিতে পারেন, সীমা নেই।`,
+              `✅ When you share with someone, watch your percentage grow — hit 100% and earn your certificate. You can pick ALL your contacts at once — no limit.`
             )}
           </div>
 
@@ -421,7 +445,7 @@ export default function CompletePage() {
                         <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
                       </div>
                       {c.waExists === false ? (
-                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 text-red border border-red/30 text-[10px] font-black">
+                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
                           {t("WhatsApp নেই", "No WhatsApp")}
                         </span>
                       ) : pendingPhone === c.phone ? (
@@ -432,7 +456,7 @@ export default function CompletePage() {
                             disabled={!confirmReady}
                             className={`flex-shrink-0 px-3 py-2 rounded-xl text-white text-xs font-black active:scale-95 transition-all ${confirmReady ? "bg-teal" : "bg-white/20 opacity-60"}`}
                           >
-                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t("⏳ ৮ সেকেন্ড পরে…", "⏳ wait 8s…")}
+                            {confirmReady ? t("✅ পাঠিয়েছি", "Sent") : t(`⏳ ${countdown} সেকেন্ড…`, `⏳ ${countdown}s…`)}
                           </button>
                         </div>
                       ) : (
@@ -457,7 +481,7 @@ export default function CompletePage() {
                         </p>
                       </div>
                       {c.waExists === false ? (
-                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 text-red border border-red/30 text-[10px] font-black">
+                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
                           {t("WhatsApp নেই", "No WhatsApp")}
                         </span>
                       ) : (
