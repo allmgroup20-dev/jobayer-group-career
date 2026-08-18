@@ -56,6 +56,13 @@ export default function CompletePage() {
   const [listSearch, setListSearch] = useState("");
   const [showCertValue, setShowCertValue] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
+  const [certName, setCertName] = useState("");
+  const [certLocked, setCertLocked] = useState(false);
+  const [certLockedUntil, setCertLockedUntil] = useState<string | null>(null);
+  const [editNameMode, setEditNameMode] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameMsg, setNameMsg] = useState<Msg>(null);
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -73,6 +80,58 @@ export default function CompletePage() {
       if (r.ok) setShare(await r.json());
     } catch { /* ignore */ }
   }, []);
+
+  // Load the name shown on the earned certificate + its 30-day lock state.
+  useEffect(() => {
+    if (!share?.completed || !share?.certificateId) return;
+    let cancelled = false;
+    fetch(`/api/share/certificate?id=${encodeURIComponent(share.certificateId)}`)
+      .then((r) => (r.ok ? r.json() : Promise.resolve(null)))
+      .then((json) => {
+        const d = json as { certName?: string; nameLocked?: boolean; nameLockedUntil?: string | null } | null;
+        if (!cancelled && d) {
+          setCertName(d.certName || "");
+          setCertLocked(!!d.nameLocked);
+          setCertLockedUntil(d.nameLockedUntil || null);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [share?.completed, share?.certificateId]);
+
+  const saveName = async () => {
+    const value = nameInput.trim();
+    if (value.length < 2) {
+      setNameMsg({ kind: "error", text: t("কমপক্ষে ২ অক্ষরের নাম দিন", "Type at least 2 characters") });
+      return;
+    }
+    setSavingName(true);
+    setNameMsg(null);
+    try {
+      const res = await fetch(`/api/share/certificate?id=${encodeURIComponent(share?.certificateId || "")}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: value }),
+      });
+      const json = await res.json() as { error?: string; nameLockedUntil?: string | null; certName?: string };
+      if (!res.ok) {
+        const until = json.nameLockedUntil
+          ? new Date(json.nameLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+          : "";
+        setNameMsg({ kind: "error", text: until ? `${json.error} — ${until} পর্যন্ত` : (json.error || t("ত্রুটি হয়েছে", "Something went wrong")) });
+        return;
+      }
+      setCertName(json.certName ?? value);
+      setCertLocked(true);
+      setCertLockedUntil(json.nameLockedUntil || null);
+      setEditNameMode(false);
+      setNameMsg({ kind: "ok", text: t("✅ নাম সংরক্ষণ হয়েছে — এখন ৩০ দিনের জন্য লক হয়ে গেছে।", "✅ Name saved — it is now locked for 30 days.") });
+    } catch {
+      setNameMsg({ kind: "error", text: t("সংরক্ষণ ব্যর্থ হয়েছে, আবার চেষ্টা করুন।", "Could not save. Please try again.") });
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   // Each GET of the referral link issues a brand-new single-use token, so the
   // "Your Referral Link" card shows a DIFFERENT link every time it is shared.
@@ -676,6 +735,71 @@ export default function CompletePage() {
               <p className="mt-1 text-xs text-white/70">
                 {t("অসাধারণ কমিউনিটি-বিল্ডিং ও ডিজিটাল মার্কেটিং দক্ষতা প্রমাণ করে এটি অর্জন করেছেন — এখন ডাউনলোড করুন বা অনলাইনে যাচাই করুন।", "Earned by proving outstanding community-building and digital marketing skills — download it or verify it online.")}
               </p>
+
+              {/* Name on the certificate — shown in hold state; Edit reveals the
+                  save form so a mis-tap can never save anything by accident. */}
+              <div className="mt-4 rounded-2xl bg-white/[0.06] border border-white/15 p-3.5 text-left">
+                {!editNameMode ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 text-left">
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-wider">
+                        {t("সার্টিফিকেটের নাম", "Name on certificate")}
+                      </p>
+                      <p className="mt-0.5 text-sm font-black text-white truncate">
+                        {certName || me?.name || t("নাম নেই", "No name")}
+                      </p>
+                      {certLocked && certLockedUntil && (
+                        <p className="mt-1 text-[10px] font-bold text-amber">
+                          🔒 {t(`৩০ দিন লক — ${new Date(certLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} পর্যন্ত`, `Locked 30 days — until ${new Date(certLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`)}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { setNameInput(certName || ""); setNameMsg(null); setEditNameMode(true); }}
+                      disabled={certLocked}
+                      className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black active:scale-95 transition-all disabled:opacity-40 disabled:active:scale-100"
+                    >
+                      ✏️ {t("এডিট", "Edit")}
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-wider">
+                      {t("নাম পরিবর্তন করুন", "Change name")}
+                    </p>
+                    <input
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      maxLength={60}
+                      autoFocus
+                      className="mt-2 w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/25 text-white text-sm font-bold focus:outline-none focus:border-pink/60"
+                      placeholder={t("আপনার নাম লিখুন", "Type your name")}
+                    />
+                    <p className="mt-2 rounded-lg bg-amber/10 border border-amber/30 px-2.5 py-1.5 text-[10px] font-bold text-amber leading-relaxed">
+                      ⚠️ {t("একবার সংরক্ষণ করলে নামটি ৩০ দিনের জন্য লক হয়ে যাবে — ৩০ দিন পূর্ণ না হলে আর পরিবর্তন করা যাবে না।", "Once saved, the name locks for 30 days and cannot be changed until then.")}
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={saveName}
+                        disabled={savingName}
+                        className="flex-1 px-3 py-2.5 rounded-xl btn-gold text-xs font-black disabled:opacity-40"
+                      >
+                        {savingName ? "…" : `💾 ${t("সংরক্ষণ করুন", "Save")}`}
+                      </button>
+                      <button
+                        onClick={() => { setEditNameMode(false); setNameMsg(null); }}
+                        className="px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black active:scale-95 transition-all"
+                      >
+                        {t("বাতিল", "Cancel")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {nameMsg && (
+                  <p className={`mt-2 text-[10px] font-bold ${nameMsg.kind === "ok" ? "text-teal" : "text-red"}`}>{nameMsg.text}</p>
+                )}
+              </div>
+
               {share?.certificateId && (
                 <button
                   onClick={() => router.push(`/certificate?id=${share.certificateId}`)}
