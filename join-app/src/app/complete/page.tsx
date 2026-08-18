@@ -44,7 +44,6 @@ export default function CompletePage() {
   const [loadingInit, setLoadingInit] = useState(true);
 
   const [share, setShare] = useState<ShareSummary | null>(null);
-  const [contactsSupported, setContactsSupported] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [manualPhone, setManualPhone] = useState("");
   const [busy, setBusy] = useState(false);
@@ -58,12 +57,6 @@ export default function CompletePage() {
   const [listSearch, setListSearch] = useState("");
   const [showCertValue, setShowCertValue] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
-      setContactsSupported(true);
-    }
-  }, []);
 
   const loadShare = useCallback(async () => {
     try {
@@ -120,7 +113,7 @@ export default function CompletePage() {
       if (data.completed) {
         setMsg({ kind: "ok", text: t("🎉 অভিনন্দন! আপনি ১০০% পূরণ করেছেন — সার্টিফিকেট অর্জন করেছেন!", "🎉 Congratulations! You reached 100% and earned your certificate!") });
       } else if (data.sent > 0 && data.sent % 5 === 0) {
-        setMsg({ kind: "ok", text: t("👏 দারুণ গতি! এখন নতুন ভিন্ন মানুষকে শেয়ার করুন 💪", "👏 Great pace! Now share with new different people 💪") });
+        setMsg({ kind: "ok", text: t("👏 দারুণ গতি! এখন নতুন ভিন্ন মানুষদের কাছে শেয়ার করুন 💪", "👏 Great pace! Now share with new different people 💪") });
       }
     } catch { /* ignore */ }
   }, [t]);
@@ -169,28 +162,6 @@ export default function CompletePage() {
       }
     } catch {
       setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে — আবার চেষ্টা করুন।", "Something went wrong — try again.") });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const pickContacts = async () => {
-    if (busy) return;
-    if (!contactsSupported || !navigator.contacts) { setShowManual(true); return; }
-    setBusy(true);
-    setMsg(null);
-    try {
-      const picked = await navigator.contacts.select(["name", "tel"], { multiple: true });
-      const valid = (picked || [])
-        .filter((c) => c.tel && c.tel.length > 0)
-        .map((c) => ({ name: (c.name && c.name[0]) || "", tel: c.tel![0] || "" }));
-      if (valid.length === 0) {
-        setMsg({ kind: "warn", text: t("কোনো কন্টাক্ট বেছে নেননি।", "No contacts selected.") });
-        return;
-      }
-      await submitContacts(valid);
-    } catch {
-      setMsg({ kind: "error", text: t("কন্টাক্ট বেছে নেওয়া সম্ভব হয়নি।", "Could not open the contact picker.") });
     } finally {
       setBusy(false);
     }
@@ -383,7 +354,7 @@ export default function CompletePage() {
 
           <div className="mt-3 px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-[11px] font-bold text-white/70 leading-relaxed">
             {t(
-              `💡 আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সব কন্টাক্ট একসাথে বেছে নিতে পারেন, সীমা নেই।`,
+              `💡 আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সবাইকে একসাথে বেছে নিতে পারেন, সীমা নেই।`,
               `💡 When you share with someone, watch your percentage grow — hit 100% and earn your certificate. You can pick ALL your contacts at once — no limit.`
             )}
           </div>
@@ -417,7 +388,7 @@ export default function CompletePage() {
                   {shownSelected.map((c, i) => (
                     <div key={`${c.phone}-${i}`} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
+                        <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
                         <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
                       </div>
                       {c.waExists === false ? (
@@ -448,7 +419,7 @@ export default function CompletePage() {
                   {shownSent.map((c, i) => (
                     <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 opacity-75">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{c.name || t("কন্টাক্ট", "Contact")}</p>
+                        <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
                         <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
                         <p className="text-[10px] font-bold text-teal mt-0.5">
                           {c.sentAt
@@ -488,47 +459,35 @@ export default function CompletePage() {
                   disabled={busy}
                   className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60"
                 >
-                  {t("📇 আপনার পছন্দের মানুষকে বেছে নিন", "📇 Choose your favorite people")}
+                  {t("📇 আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
                 </button>
                 <p className="text-center text-[11px] text-white/50 -mt-1">
                   {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
                 </p>
 
-                {contactsSupported ? (
-                  <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
-                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
-                  </button>
-                ) : (
-                  <button onClick={() => setShowManual(true)} className="btn-white w-full text-sm !py-3.5">
-                    {t("📲 পছন্দের মানুষের নাম্বার লিখে যোগ করুন", "📲 Add a favorite person's number")}
-                  </button>
-                )}
-
-                {!contactsSupported && !showManual && (
-                  <p className="text-[11px] text-white/50">
-                    {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers manually below.")}
+                <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/10 p-3">
+                  <p className="text-[11px] font-bold text-white/60 leading-relaxed">
+                    {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
                   </p>
-                )}
-
-                {(showManual || !contactsSupported) && (
-                  <div className="flex gap-2">
-                    <input
-                      value={manualPhone}
-                      onChange={(e) => setManualPhone(e.target.value)}
-                      inputMode="tel"
-                      placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
-                      className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
-                    />
-                    <button onClick={addManual} disabled={busy} className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60">
-                      {t("যোগ করুন", "Add")}
-                    </button>
-                  </div>
-                )}
+                  <button onClick={() => setShowManual(true)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
+                    {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
+                  </button>
+                  {showManual && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        value={manualPhone}
+                        onChange={(e) => setManualPhone(e.target.value)}
+                        inputMode="tel"
+                        placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
+                        className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
+                      />
+                      <button onClick={addManual} disabled={busy} className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60">
+                        {t("যোগ করুন", "Add")}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <p className="mt-3 text-[11px] text-white/40 leading-relaxed">
-                {t(`💡 কিছু কন্টাক্ট Google-এ নাও থাকতে পারে — ফোন/সিম/ডিভাইসে থাকলে নিচের বাটন দিয়ে খুঁজে নিন। প্রতিটি "পাঠান"-এ সেই ব্যক্তির জন্য আলাদা ইউনিক লিংক খোলে; পাঠানো কন্টাক্ট নিচে চলে যায় (মুছে যায় না) — চাইলে আবার পাঠাতে পারবেন।`, "💡 Some contacts may not be on Google — find them on your phone/SIM/device with the button below. Each Send opens a unique link for that person; sent contacts move to the bottom (never deleted) and can be sent again.")}
-              </p>
             </>
           ) : (
             <div className="mt-4 rounded-2xl bg-gradient-to-br from-gold/20 via-pink/20 to-violet/20 border border-gold/30 p-5 text-center">

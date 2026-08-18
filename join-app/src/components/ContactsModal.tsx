@@ -140,8 +140,8 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/10">
           <div>
-            <h3 className="text-base font-black text-white">📇 {busy ? "যোগ হচ্ছে…" : "Google কন্টাক্ট"}</h3>
-            <p className="text-[11px] text-white/50 mt-0.5">সার্চ করে বেছে নিন — চাইলে সবগুলো একসাথে</p>
+            <h3 className="text-base font-black text-white">📇 {busy ? "যোগ হচ্ছে…" : "আপনার পছন্দের মানুষ"}</h3>
+            <p className="text-[11px] text-white/50 mt-0.5">সার্চ করে বেছে নিন — চাইলে সবাইকে একসাথে</p>
           </div>
           <button onClick={onClose} disabled={busy} className="w-9 h-9 rounded-xl bg-white/10 text-white/80 font-black hover:bg-white/20 disabled:opacity-50">
             ✕
@@ -153,7 +153,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
           {state === "loading" && (
             <div className="py-12 text-center">
               <div className="mx-auto w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
-              <p className="mt-4 text-xs text-white/60">Google থেকে কন্টাক্ট আনা হচ্ছে…</p>
+              <p className="mt-4 text-xs text-white/60">Google থেকে আপনার মানুষদের আনা হচ্ছে…</p>
             </div>
           )}
 
@@ -161,7 +161,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
             <div className="py-10 text-center">
               <div className="text-4xl">🔐</div>
               <p className="mt-3 text-sm font-bold text-white">অনুমতি দেওয়া হয়নি</p>
-              <p className="mt-1 text-xs text-white/50">কন্টাক্ট পড়তে Google অনুমতি দিন, তারপর আবার চেষ্টা করুন।</p>
+              <p className="mt-1 text-xs text-white/50">আপনার মানুষদের দেখতে Google অনুমতি দিন, তারপর আবার চেষ্টা করুন।</p>
               <button onClick={fetchTokenAndContacts} className="mt-4 px-5 py-2.5 rounded-xl bg-white text-brand text-sm font-black">
                 আবার চেষ্টা করুন
               </button>
@@ -171,12 +171,12 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
           {state === "fallback" && (
             <div className="py-10 text-center">
               <div className="text-4xl">📲</div>
-              <p className="mt-3 text-sm font-bold text-white">Google কন্টাক্ট লোড করা যায়নি</p>
+              <p className="mt-3 text-sm font-bold text-white">Google থেকে মানুষ পাওয়া যায়নি</p>
               <p className="mt-1 text-xs text-white/50">
-                হয় Google কন্টাক্ট এখন সীমা ছুঁয়ে ফেলেছে বা আপনার কন্টাক্ট Google-এ নেই। চিন্তা নেই — নিচের বাটন দিয়ে ফোনবুক/সিম/ডিভাইস থেকে বেছে নিন।
+                হয় Google-এ সাময়িক সমস্যা বা আপনার পছন্দের মানুষগুলো Google-এ নেই। চিন্তা নেই — বন্ধুর নাম্বার লিখেও যোগ করতে পারবেন।
               </p>
               <button onClick={onClose} className="mt-4 px-5 py-2.5 rounded-xl bg-white text-brand text-sm font-black">
-                ফোনবুক থেকে বেছে নিন
+                নাম্বার লিখে যোগ করুন
               </button>
             </div>
           )}
@@ -216,7 +216,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
 
               {/* List */}
               {filtered.length === 0 ? (
-                <p className="py-8 text-center text-xs text-white/40">কোনো কন্টাক্ট পাওয়া যায়নি।</p>
+                <p className="py-8 text-center text-xs text-white/40">কাউকে পাওয়া যায়নি।</p>
               ) : (
                 <div className="mt-3 space-y-1.5 pb-2">
                   {filtered.map((c) => {
