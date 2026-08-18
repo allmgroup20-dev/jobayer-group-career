@@ -44,6 +44,7 @@ export default function CompletePage() {
   const [loadingInit, setLoadingInit] = useState(true);
 
   const [share, setShare] = useState<ShareSummary | null>(null);
+  const [contactsSupported, setContactsSupported] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [manualPhone, setManualPhone] = useState("");
   const [busy, setBusy] = useState(false);
@@ -57,6 +58,12 @@ export default function CompletePage() {
   const [listSearch, setListSearch] = useState("");
   const [showCertValue, setShowCertValue] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
+      setContactsSupported(true);
+    }
+  }, []);
 
   const loadShare = useCallback(async () => {
     try {
@@ -162,6 +169,28 @@ export default function CompletePage() {
       }
     } catch {
       setMsg({ kind: "error", text: t("কিছু ভুল হয়েছে — আবার চেষ্টা করুন।", "Something went wrong — try again.") });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pickContacts = async () => {
+    if (busy) return;
+    if (!contactsSupported || !navigator.contacts) { setShowManual(true); return; }
+    setBusy(true);
+    setMsg(null);
+    try {
+      const picked = await navigator.contacts.select(["name", "tel"], { multiple: true });
+      const valid = (picked || [])
+        .filter((c) => c.tel && c.tel.length > 0)
+        .map((c) => ({ name: (c.name && c.name[0]) || "", tel: c.tel![0] || "" }));
+      if (valid.length === 0) {
+        setMsg({ kind: "warn", text: t("কাউকে বেছে নেননি।", "No one selected.") });
+        return;
+      }
+      await submitContacts(valid);
+    } catch {
+      setMsg({ kind: "error", text: t("মানুষ বেছে নেওয়া সম্ভব হয়নি।", "Could not open the contact picker.") });
     } finally {
       setBusy(false);
     }
@@ -465,28 +494,34 @@ export default function CompletePage() {
                   {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
                 </p>
 
-                <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/10 p-3">
-                  <p className="text-[11px] font-bold text-white/60 leading-relaxed">
-                    {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
-                  </p>
-                  <button onClick={() => setShowManual(true)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
-                    {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
+                {contactsSupported ? (
+                  <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
+                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
                   </button>
-                  {showManual && (
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        value={manualPhone}
-                        onChange={(e) => setManualPhone(e.target.value)}
-                        inputMode="tel"
-                        placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
-                        className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
-                      />
-                      <button onClick={addManual} disabled={busy} className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60">
-                        {t("যোগ করুন", "Add")}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                ) : (
+                  <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/10 p-3">
+                    <p className="text-[11px] font-bold text-white/60 leading-relaxed">
+                      {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
+                    </p>
+                    <button onClick={() => setShowManual(true)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
+                      {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
+                    </button>
+                    {showManual && (
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          value={manualPhone}
+                          onChange={(e) => setManualPhone(e.target.value)}
+                          inputMode="tel"
+                          placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
+                          className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
+                        />
+                        <button onClick={addManual} disabled={busy} className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60">
+                          {t("যোগ করুন", "Add")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (

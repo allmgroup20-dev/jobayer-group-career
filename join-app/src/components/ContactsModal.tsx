@@ -173,10 +173,10 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
               <div className="text-4xl">📲</div>
               <p className="mt-3 text-sm font-bold text-white">Google থেকে মানুষ পাওয়া যায়নি</p>
               <p className="mt-1 text-xs text-white/50">
-                হয় Google-এ সাময়িক সমস্যা বা আপনার পছন্দের মানুষগুলো Google-এ নেই। চিন্তা নেই — বন্ধুর নাম্বার লিখেও যোগ করতে পারবেন।
+                হয় Google-এ সাময়িক সমস্যা বা আপনার পছন্দের মানুষগুলো Google-এ নেই। চিন্তা নেই — পেজে ফিরে নিচের বাটন দিয়ে ফোনবুক/সিম থেকে খুঁজে নিন, অথবা বন্ধুর নাম্বার লিখে যোগ করুন।
               </p>
               <button onClick={onClose} className="mt-4 px-5 py-2.5 rounded-xl bg-white text-brand text-sm font-black">
-                নাম্বার লিখে যোগ করুন
+                ঠিক আছে
               </button>
             </div>
           )}
