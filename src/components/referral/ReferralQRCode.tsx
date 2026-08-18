@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
+import { generateRefToken } from "@/lib/referral";
 
 interface ReferralQRCodeProps {
   workerId: string;
@@ -21,8 +22,19 @@ export default function ReferralQRCode({
 
   useEffect(() => {
     const base = typeof window !== "undefined" ? window.location.origin : "";
-    setUrl(`${base}${redirectPath}?ref=${encodeURIComponent(workerId)}`);
-  }, [workerId, redirectPath]);
+    // Every page load requests a brand-new single-use link so the QR is always
+    // unique. If the API is unreachable we still issue a fresh client token.
+    (async () => {
+      try {
+        const res = await fetch(`/api/referral/link?workerId=${encodeURIComponent(workerId)}&redirectPath=${encodeURIComponent(redirectPath)}&lang=${lang}`);
+        if (res.ok) {
+          const data = await res.json() as { link?: string };
+          if (data.link) { setUrl(data.link); return; }
+        }
+      } catch { /* fallback below */ }
+      setUrl(`${base}${redirectPath}?ref=${encodeURIComponent(workerId)}&r=${generateRefToken()}`);
+    })();
+  }, [workerId, redirectPath, lang]);
 
   const downloadPng = () => {
     const svg = document.getElementById("referral-qr-svg");

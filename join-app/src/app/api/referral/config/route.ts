@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyWorkerFromCookies } from "@/lib/session";
+import { buildShareLink, buildShareText, generateRoundToken } from "@/lib/share";
 
+// Every GET issues a brand-new single-use link so the "Your Referral Link"
+// card shows a DIFFERENT link each time it is shared (copy / WhatsApp / QR).
+// The token is unique but attribution works purely via the `ref` (workerId).
 export async function GET(request: NextRequest) {
   try {
     const payload = await verifyWorkerFromCookies(request);
@@ -9,11 +13,12 @@ export async function GET(request: NextRequest) {
     }
     const workerId = payload.sub;
     const siteUrl = process.env.SITE_URL || "https://youtube.earner.workers.dev";
+    const token = generateRoundToken();
 
     return NextResponse.json({
       workerId,
-      referralLink: `${siteUrl}/?ref=${workerId}`,
-      shareText: `🎯 এখনই জয়েন করুন! ইউটিউব আর্নারে প্রিমিয়াম রিসোর্স, বোনাস রিসোর্স ও সার্টিফিকেট অর্জনের সুযোগ।\nআমার রেফারেল: ${siteUrl}/?ref=${workerId}`,
+      referralLink: buildShareLink(siteUrl, workerId, token),
+      shareText: buildShareText(siteUrl, workerId, token),
       siteUrl,
     });
   } catch (error) {

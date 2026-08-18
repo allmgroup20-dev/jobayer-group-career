@@ -210,11 +210,20 @@ export default function OnboardingPage() {
     finally { setSyncBusy(false); }
   };
 
-  const inviteAll = () => {
+  const inviteAll = async () => {
+    // Fresh single-use referral link on every invite so no link is ever reused.
+    let link = `https://career.jobayergroup.com/register?ref=${workerId}`;
+    try {
+      const res = await fetch(`/api/referral/link?workerId=${encodeURIComponent(workerId)}&redirectPath=${encodeURIComponent("/register")}&lang=${lang}`);
+      if (res.ok) {
+        const data = await res.json() as { link?: string };
+        if (data.link) link = data.link;
+      }
+    } catch { /* keep fallback link */ }
     const msg = encodeURIComponent(
       t(
-        `🎯 আসুন! Jobayer Group Career-এ ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে।\nআমার রেফারেল: https://career.jobayergroup.com/register?ref=${workerId}`,
-        `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nMy referral: https://career.jobayergroup.com/register?ref=${workerId}`
+        `🎯 আসুন! Jobayer Group Career-এ ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে।\nআমার রেফারেল: ${link}`,
+        `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nMy referral: ${link}`
       )
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");

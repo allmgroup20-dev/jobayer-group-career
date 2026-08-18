@@ -56,6 +56,7 @@ export default function WorkerDashboard() {
   const [selectedAccId, setSelectedAccId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [referralRedirectPath, setReferralRedirectPath] = useState("/register");
+  const [refLink, setRefLink] = useState("");
   const [analytics, setAnalytics] = useState<{
     totalPageViews: number;
     totalSessions: number;
@@ -171,6 +172,43 @@ export default function WorkerDashboard() {
   }, [workerId]);
 
   const isPremium = worker?.membershipStatus === "premium";
+
+  // Fresh single-use referral link: the server issues a brand-new token every
+  // call so each share (copy / WhatsApp / Telegram / QR) uses a DIFFERENT link.
+  const refreshRefLink = async (): Promise<string> => {
+    if (!workerId) return "";
+    try {
+      const res = await fetch(`/api/referral/link?workerId=${encodeURIComponent(workerId)}&redirectPath=${encodeURIComponent(referralRedirectPath)}&lang=${lang}`);
+      if (!res.ok) return "";
+      const data = await res.json() as { link?: string };
+      if (data.link) {
+        setRefLink(data.link);
+        return data.link;
+      }
+    } catch { /* keep existing link */ }
+    return refLink;
+  };
+
+  useEffect(() => {
+    if (!workerId) return;
+    refreshRefLink();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workerId, referralRedirectPath]);
+
+  const openRefShare = async (channel: "whatsapp" | "telegram", lang: "bn" | "en") => {
+    const link = await refreshRefLink();
+    if (!link) return;
+    const msg = encodeURIComponent(
+      lang === "bn"
+        ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
+        : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
+    );
+    if (channel === "telegram") {
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, "_blank");
+    } else {
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+    }
+  };
 
   const doWithdraw = async (autoAccount?: SavedAccount) => {
     const amount = parseFloat(withdrawAmount);
@@ -516,43 +554,24 @@ export default function WorkerDashboard() {
             <div className="flex gap-2 mb-3">
               <input
                 readOnly
-                value={`${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`}
+                value={refLink || `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`}
                 className="input-field text-xs flex-1"
               />
               <button
-                onClick={() => navigator.clipboard.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`)}
+                onClick={async () => {
+                  const link = await refreshRefLink();
+                  await navigator.clipboard.writeText(link || `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`);
+                }}
                 className="btn-primary text-xs !px-4 !py-2.5"
               >
                 {lang === "bn" ? "কপি" : "Copy"}
               </button>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  const link = `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`;
-                  const msg = encodeURIComponent(
-                    lang === "bn"
-                      ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
-                      : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
-                  );
-                  window.open(`https://wa.me/?text=${msg}`, "_blank");
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white text-xs font-bold cursor-pointer"
-              >
+              <button onClick={() => openRefShare("whatsapp", lang)} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white text-xs font-bold cursor-pointer">
                 📲 WhatsApp
               </button>
-              <button
-                onClick={() => {
-                  const link = `${typeof window !== "undefined" ? window.location.origin : ""}${referralRedirectPath}?ref=${worker.workerId}`;
-                  const msg = encodeURIComponent(
-                    lang === "bn"
-                      ? `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
-                      : `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`
-                  );
-                  window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, "_blank");
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#2AABEE] to-[#229ED9] text-white text-xs font-bold cursor-pointer"
-              >
+              <button onClick={() => openRefShare("telegram", lang)} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#2AABEE] to-[#229ED9] text-white text-xs font-bold cursor-pointer">
                 ✈️ Telegram
               </button>
               <button

@@ -74,21 +74,34 @@ export default function CompletePage() {
     } catch { /* ignore */ }
   }, []);
 
+  // Each GET of the referral link issues a brand-new single-use token, so the
+  // "Your Referral Link" card shows a DIFFERENT link every time it is shared.
+  const refreshReferral = useCallback(async () => {
+    try {
+      const resp = await fetch("/api/referral/config");
+      if (!resp.ok) return null;
+      const cfg = await resp.json() as { referralLink?: string; shareText?: string };
+      const next = { link: cfg.referralLink || "", text: cfg.shareText || "" };
+      if (next.link) setLink(next.link);
+      if (next.text) setShareText(next.text);
+      return next;
+    } catch {
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
-    Promise.all([
-      fetch("/api/me").then((r) => (r.ok ? r.json() as Promise<Me> : Promise.resolve(null))),
-      fetch("/api/referral/config").then((r) => (r.ok ? r.json() as Promise<{ referralLink?: string; shareText?: string }> : Promise.resolve(null))),
-    ])
-      .then(([m, cfg]) => {
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() as Promise<Me> : Promise.resolve(null)))
+      .then((m) => {
         if (!m?.workerId) { window.location.href = "/"; return; }
         setMe(m);
-        setLink(cfg?.referralLink || "");
-        setShareText(cfg?.shareText || "");
       })
       .catch(() => {})
       .finally(() => setLoadingInit(false));
+    refreshReferral();
     loadShare();
-  }, [loadShare]);
+  }, [loadShare, refreshReferral]);
 
   // Parallel verification: each sent phone verifies on its own 1-minute timer.
   // Returning from a real WhatsApp visit (≥3s away) verifies instantly. A phone
@@ -179,9 +192,22 @@ export default function CompletePage() {
     } catch { /* ignore */ }
   }, [t]);
 
-  const sendTo = (phone: string, text?: string) => {
-    const msg = text || shareText;
-    if (!msg) return;
+  const sendTo = async (phone: string, text?: string) => {
+    if (!text && !shareText) return;
+    // Rotate first: every send (including "আবার পাঠান") gets a brand-new
+    // single-use referral link. On failure we keep the previous text.
+    let msg = text || shareText;
+    try {
+      const resp = await fetch("/api/share/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (resp.ok) {
+        const data = await resp.json() as { shareText?: string };
+        if (data.shareText) msg = data.shareText;
+      }
+    } catch { /* fall back to the existing text */ }
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp_send" } });
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
     setFailedPhones((prev) => { const n = new Set(prev); n.delete(phone); return n; });
@@ -293,16 +319,20 @@ export default function CompletePage() {
   }, []);
 
   const copy = async () => {
-    try { await navigator.clipboard.writeText(link); } catch { /* ignore */ }
+    const fresh = await refreshReferral();
+    const value = fresh?.link || link;
+    try { await navigator.clipboard.writeText(value); } catch { /* ignore */ }
     setCopied(true);
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "copy" } });
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const shareWhatsApp = () => {
-    if (!shareText) return;
+  const shareWhatsApp = async () => {
+    const fresh = await refreshReferral();
+    const text = fresh?.text || shareText;
+    if (!text) return;
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp" } });
-    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   if (loadingInit) {

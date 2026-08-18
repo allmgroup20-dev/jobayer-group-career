@@ -61,14 +61,23 @@ export default function InviteContacts({ workerId, lang = "bn", redirectPath = "
   }, [fetchContacts]);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const refLink = `${origin}${redirectPath}?ref=${workerId}`;
 
-  const waLink = (contact: { name: string | null; phone: string }) => {
+  // Every invite request gets a brand-new single-use referral link, so the
+  // same contact is never sent the same link twice.
+  const invite = async (contact: { name: string | null; phone: string }) => {
+    let link = `${origin}${redirectPath}?ref=${workerId}`;
+    try {
+      const res = await fetch(`/api/referral/link?workerId=${encodeURIComponent(workerId)}&redirectPath=${encodeURIComponent(redirectPath)}&lang=${lang}`);
+      if (res.ok) {
+        const data = await res.json() as { link?: string };
+        if (data.link) link = data.link;
+      }
+    } catch { /* keep fallback link */ }
     const namePart = contact.name ? `প্রিয় ${contact.name}, ` : "";
     const msg = encodeURIComponent(
-      `${namePart}🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${refLink}`
+      `${namePart}🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
     );
-    return `https://wa.me/88${contact.phone}?text=${msg}`;
+    window.open(`https://wa.me/88${contact.phone}?text=${msg}`, "_blank");
   };
 
   const filteredNotJoined = search
@@ -137,14 +146,12 @@ export default function InviteContacts({ workerId, lang = "bn", redirectPath = "
                 filteredNotJoined.slice(0, 100).map((c) => (
                   <div key={c.phone} className="flex items-center gap-2">
                     <span className="flex-1 truncate text-xs text-amber-900">{c.name || c.phone}</span>
-                    <a
-                      href={waLink(c)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => invite(c)}
                       className="shrink-0 px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white text-[10px] font-bold cursor-pointer hover:opacity-90"
                     >
                       📲 {t("Invite", "Invite")}
-                    </a>
+                    </button>
                   </div>
                 ))
               )}
