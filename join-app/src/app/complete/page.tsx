@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
-import ContactsModal from "@/components/ContactsModal";
 
 declare global {
   interface Navigator {
@@ -51,14 +50,11 @@ export default function CompletePage() {
   const [manualPhone, setManualPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg>(null);
-  const [pendingPhone, setPendingPhone] = useState<string | null>(null);
-  const pendingPhoneRef = useRef<string | null>(null);
+  const [pendingList, setPendingList] = useState<string[]>([]);
+  const pendingDataRef = useRef<Record<string, { timer: ReturnType<typeof setTimeout> | null; away: boolean }>>({});
   const hiddenAtRef = useRef<number | null>(null);
-  const openedAtRef = useRef<number | null>(null);
-  const verifyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [failedPhone, setFailedPhone] = useState<string | null>(null);
+  const [failedPhones, setFailedPhones] = useState<Set<string>>(new Set());
   const percentRef = useRef(0);
-  const [showContacts, setShowContacts] = useState(false);
   const [listSearch, setListSearch] = useState("");
   const [showCertValue, setShowCertValue] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
@@ -66,13 +62,6 @@ export default function CompletePage() {
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
   }, [share]);
-
-  const clearVerifyTimer = () => {
-    if (verifyTimerRef.current) {
-      clearTimeout(verifyTimerRef.current);
-      verifyTimerRef.current = null;
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -103,24 +92,67 @@ export default function CompletePage() {
     loadShare();
   }, [loadShare]);
 
-  // Return-detection: when the user comes back from WhatsApp after ≥12s away,
-  // auto-mark the pending contact as sent.
+  // Parallel verification: each sent phone verifies on its own 1-minute timer.
+  // Returning from a real WhatsApp visit (≥3s away) verifies instantly. A phone
+  // never left for WhatsApp is cancelled at its deadline (not counted).
+  const stopVerify = (phone: string) => {
+    const d = pendingDataRef.current[phone];
+    if (d?.timer) clearTimeout(d.timer);
+    delete pendingDataRef.current[phone];
+    setPendingList((prev) => prev.filter((p) => p !== phone));
+  };
+
+  const verifyPhone = (phone: string) => {
+    stopVerify(phone);
+    confirmSent(phone);
+  };
+
+  const startVerify = (phone: string) => {
+    const existing = pendingDataRef.current[phone];
+    if (existing?.timer) clearTimeout(existing.timer);
+    pendingDataRef.current[phone] = { timer: null, away: false };
+    pendingDataRef.current[phone].timer = setTimeout(() => {
+      const d = pendingDataRef.current[phone];
+      if (!d) return;
+      if (d.away) {
+        verifyPhone(phone);
+      } else {
+        delete pendingDataRef.current[phone];
+        setPendingList((prev) => prev.filter((p) => p !== phone));
+        setFailedPhones((prev) => { const n = new Set(prev); n.add(phone); return n; });
+        setMsg({ kind: "warn", text: t("⚠️ সঠিকভাবে পাঠানো যায়নি — এটি বাতিল হয়ে গেছে। সার্টিফিকেটের অগ্রগতি এগোয়নি — পুনরায় পাঠাতে বাটনে চাপ দিন।", "⚠️ The send couldn't be verified — it's been cancelled. Your certificate progress hasn't moved — tap the button to send again.") });
+      }
+    }, VERIFY_MS);
+  };
+
+  // Return-detection: whenever the page comes back from WhatsApp after ≥3s
+  // away, every pending send that actually left for WhatsApp verifies at once —
+  // no waiting, and more sends keep running in parallel meanwhile.
   useEffect(() => {
     const onVisibility = () => {
-      if (document.hidden) { hiddenAtRef.current = Date.now(); return; }
+      if (document.hidden) {
+        hiddenAtRef.current = Date.now();
+        for (const phone of Object.keys(pendingDataRef.current)) {
+          if (pendingDataRef.current[phone]) pendingDataRef.current[phone].away = true;
+        }
+        return;
+      }
       const hid = hiddenAtRef.current;
       hiddenAtRef.current = null;
-      const phone = pendingPhoneRef.current;
-      if (hid && phone && Date.now() - hid >= 3000) {
-        pendingPhoneRef.current = null;
-        setPendingPhone(null);
-        setFailedPhone(null);
-        clearVerifyTimer();
-        confirmSent(phone);
+      if (hid && Date.now() - hid >= 3000) {
+        for (const phone of Object.keys(pendingDataRef.current)) {
+          if (pendingDataRef.current[phone]?.away) verifyPhone(phone);
+        }
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      for (const phone of Object.keys(pendingDataRef.current)) {
+        const d = pendingDataRef.current[phone];
+        if (d?.timer) clearTimeout(d.timer);
+      }
+    };
   }, []);
 
   const confirmSent = useCallback(async (phone: string) => {
@@ -154,28 +186,15 @@ export default function CompletePage() {
     if (!msg) return;
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp_send" } });
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-    pendingPhoneRef.current = phone;
-    setPendingPhone(phone);
-    setFailedPhone(null);
-    openedAtRef.current = Date.now();
+    setFailedPhones((prev) => { const n = new Set(prev); n.delete(phone); return n; });
     hiddenAtRef.current = Date.now();
-    // Verification window (max 1 min): coming back from a real WhatsApp visit
-    // (≥3s away) verifies instantly. If the user never leaves for WhatsApp and
-    // the 1-minute deadline passes while the page is still visible, the send is
-    // cancelled (not counted).
-    clearVerifyTimer();
-    verifyTimerRef.current = setTimeout(() => {
-      if (!document.hidden) {
-        verifyTimerRef.current = null;
-        pendingPhoneRef.current = null;
-        setPendingPhone(null);
-        setFailedPhone(phone);
-        setMsg({ kind: "warn", text: t("⚠️ সঠিকভাবে পাঠানো যায়নি — এটি বাতিল হয়ে গেছে। সার্টিফিকেটের অগ্রগতি এগোয়নি — পুনরায় পাঠাতে বাটনে চাপ দিন।", "⚠️ The send couldn't be verified — it's been cancelled. Your certificate progress hasn't moved — tap the button to send again.") });
-      }
-    }, VERIFY_MS);
+    if (!pendingDataRef.current[phone]) {
+      setPendingList((prev) => [...prev, phone]);
+    }
+    startVerify(phone);
   };
 
-  const submitContacts = async (valid: { name: string; tel: string }[]) => {
+  const submitContacts = async (valid: { name: string; tel: string; groupId?: string }[]) => {
     if (busy || valid.length === 0) return;
     setBusy(true);
     setMsg(null);
@@ -215,9 +234,24 @@ export default function CompletePage() {
     setMsg(null);
     try {
       const picked = await navigator.contacts.select(["name", "tel"], { multiple: true });
-      const valid = (picked || [])
-        .filter((c) => c.tel && c.tel.length > 0)
-        .map((c) => ({ name: (c.name && c.name[0]) || "", tel: c.tel![0] || "" }));
+      // Keep EVERY number under a person (one card may have 2–15 numbers). All
+      // rows share a groupId so sending to any one number auto-marks the rest
+      // sent and counts as a single person toward the certificate target.
+      const valid: { name: string; tel: string; groupId: string }[] = [];
+      let cardIdx = 0;
+      const base = Date.now();
+      for (const c of picked || []) {
+        const name = (c.name && c.name[0]) || "";
+        const tels = (c.tel || [])
+          .map((raw) => raw || "")
+          .filter((raw) => raw.replace(/\D/g, "").length >= 10);
+        const uniqTels = [...new Set(tels)];
+        if (uniqTels.length === 0) continue;
+        const groupId = `card-${base}-${cardIdx++}`;
+        for (const tel of uniqTels) {
+          valid.push({ name, tel, groupId });
+        }
+      }
       if (valid.length === 0) {
         setMsg({ kind: "warn", text: t("কাউকে বেছে নেননি।", "No one selected.") });
         return;
@@ -228,11 +262,6 @@ export default function CompletePage() {
     } finally {
       setBusy(false);
     }
-  };
-
-  const pickFromGoogle = async (picked: { name: string; tel: string }[]) => {
-    setShowContacts(false);
-    await submitContacts(picked);
   };
 
   const addManual = async () => {
@@ -303,7 +332,6 @@ export default function CompletePage() {
   const sentCount = share?.sent ?? 0;
   const completed = share?.completed ?? false;
   const target = share?.target ?? 30;
-  const alreadyAddedPhones = new Set(allContacts.map((c) => c.phone));
 
   return (
     <main className="min-h-screen overflow-x-hidden relative pt-20">
@@ -449,36 +477,39 @@ export default function CompletePage() {
                     <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
                   )}
                   {shownSelected.map((c, i) => (
-                    <div key={`${c.phone}-${i}`} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                    <div
+                      key={`${c.phone}-${i}`}
+                      className={`bg-white/5 border rounded-xl px-3 py-2 ${failedPhones.has(c.phone) ? "border-red/40 bg-red/[0.07]" : "border-white/10"}`}
+                    >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
                           <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
-                          {pendingPhone === c.phone && (
+                          {pendingList.includes(c.phone) && (
                             <p className="text-[10px] font-bold text-gold mt-0.5">
                               🔍 {t("যাচাই করা হচ্ছে", "Verifying")}
                               <span className="verify-dots"><span /><span /><span /></span>
                             </p>
                           )}
-                          {failedPhone === c.phone && (
-                            <p className="text-[10px] font-bold text-gold mt-0.5">{t("✗ বাতিল হয়েছে", "✗ Cancelled")}</p>
+                          {failedPhones.has(c.phone) && (
+                            <p className="text-[10px] font-bold text-red mt-0.5">{t("✗ বাতিল হয়েছে — আবার পাঠান", "✗ Cancelled — send again")}</p>
                           )}
                         </div>
                         {c.waExists === false ? (
                           <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
                             {t("WhatsApp নেই", "No WhatsApp")}
                           </span>
-                        ) : pendingPhone === c.phone ? (
+                        ) : pendingList.includes(c.phone) ? (
                           <button
                             onClick={() => sendTo(c.phone, c.shareText)}
                             className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
                           >
                             🔄 {t("পুনরায় পাঠান", "Send again")}
                           </button>
-                        ) : failedPhone === c.phone ? (
+                        ) : failedPhones.has(c.phone) ? (
                           <button
                             onClick={() => sendTo(c.phone, c.shareText)}
-                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
+                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 border border-red/40 text-red text-[10px] font-black active:scale-95 transition-all"
                           >
                             📤 {t("পুনরায় পাঠান", "Send again")}
                           </button>
@@ -491,7 +522,7 @@ export default function CompletePage() {
                           </button>
                         )}
                       </div>
-                      {pendingPhone === c.phone && (
+                      {pendingList.includes(c.phone) && (
                         <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold leading-relaxed">
                           ⚠️ {t(
                             "কঠোরভাবে যাচাই করা হচ্ছে — আপনি সঠিকভাবে WhatsApp-এ পাঠিয়েছেন কিনা নিশ্চিত করা হচ্ছে। সঠিকভাবে পাঠানো না হলে এটি বাতিল হয়ে যাবে। এতে আপনার সার্টিফিকেট পাওয়া আরও কঠিন হয়ে যেতে পারে — অগ্রগতিতে পিছিয়ে পড়তে পারেন।",
@@ -540,12 +571,14 @@ export default function CompletePage() {
 
               <div className="mt-4 space-y-2">
                 <button
-                  onClick={() => setShowContacts(true)}
-                  disabled={busy}
-                  className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60"
+                  onClick={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+                  className="btn-gold w-full text-sm !py-3.5 opacity-70"
                 >
-                  {t("📇 আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
+                  📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
                 </button>
+                <p className="text-center text-[11px] font-black text-gold -mt-1">
+                  ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
+                </p>
                 <p className="text-center text-[11px] text-white/50 -mt-1">
                   {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
                 </p>
@@ -651,14 +684,6 @@ export default function CompletePage() {
           {t("হোমে ফিরে যান", "Back to Home")}
         </button>
       </div>
-
-      <ContactsModal
-        open={showContacts}
-        onClose={() => setShowContacts(false)}
-        onPick={pickFromGoogle}
-        busy={busy}
-        alreadyAdded={alreadyAddedPhones}
-      />
     </main>
   );
 }

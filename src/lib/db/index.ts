@@ -1064,6 +1064,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     )`).run();
     await addCol("user_phonebooks", "contact_worker_id", "TEXT");
     await addCol("user_phonebooks", "updated_at", "TEXT");
+    await addCol("user_phonebooks", "group_id", "TEXT");
 
     // Phase 8 migrations
     await addCol("user_sessions", "city", "TEXT");

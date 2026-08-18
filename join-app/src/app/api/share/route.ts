@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const workerId = payload.sub;
-    const { contacts } = await request.json() as { contacts?: { name?: string; tel?: string }[] };
+    const { contacts } = await request.json() as { contacts?: { name?: string; tel?: string; groupId?: string }[] };
     const list = Array.isArray(contacts) ? contacts : [];
 
     if (list.length > MAX_BATCH) {
@@ -65,10 +65,11 @@ export async function POST(request: NextRequest) {
     for (const phone of added) {
       const wa = waMap[phone] === false ? "0" : "1";
       const token = generateRoundToken();
+      const item = list.find((c) => normalizePhone(c?.tel) === phone);
       await execute(env,
-        `INSERT INTO user_phonebooks (worker_id, contact_phone, contact_name, source, status, share_token, wa_exists, created_at)
-         VALUES (?, ?, ?, 'share_task', 'selected', ?, ?, datetime('now'))`,
-        [workerId, phone, (list.find((c) => normalizePhone(c?.tel) === phone)?.name) || "", token, wa]
+        `INSERT INTO user_phonebooks (worker_id, contact_phone, contact_name, source, status, share_token, wa_exists, group_id, created_at)
+         VALUES (?, ?, ?, 'share_task', 'selected', ?, ?, ?, datetime('now'))`,
+        [workerId, phone, item?.name || "", token, wa, item?.groupId || null]
       ).catch(() => {});
     }
 

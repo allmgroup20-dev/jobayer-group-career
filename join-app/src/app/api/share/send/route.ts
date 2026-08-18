@@ -32,11 +32,16 @@ export async function POST(request: NextRequest) {
       }
       // Re-send is allowed: a contact that was already shared may be sent again
       // (its row stays in the list, badge shows "already sent"). Count stays
-      // distinct so it never inflates the 30-person target.
+      // distinct so it never inflates the 30-person target. When a person has
+      // several numbers (group_id), sending to any one marks ALL of them sent —
+      // one person counts once.
       await execute(env,
         `UPDATE user_phonebooks SET status = 'sent', sent_at = datetime('now')
-         WHERE worker_id = ? AND contact_phone = ? AND (wa_exists IS NULL OR wa_exists != '0')`,
-        [workerId, normalized]
+         WHERE worker_id = ?
+           AND (contact_phone = ?
+                OR group_id IN (SELECT group_id FROM user_phonebooks WHERE worker_id = ? AND contact_phone = ? AND group_id IS NOT NULL AND group_id != ''))
+           AND (wa_exists IS NULL OR wa_exists != '0')`,
+        [workerId, normalized, workerId, normalized]
       ).catch(() => {});
     } else {
       return NextResponse.json({ error: "phone or roundToken required" }, { status: 400 });

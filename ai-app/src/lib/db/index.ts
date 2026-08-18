@@ -916,6 +916,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       last_contacted_at TEXT,
       source TEXT DEFAULT 'whatsapp_sync',
       last_checked_at TEXT,
+      group_id TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     )`).run();
 

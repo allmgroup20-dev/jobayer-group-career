@@ -120,17 +120,21 @@ export async function checkWhatsAppNumbers(phones: string[]): Promise<Record<str
 export async function getShareSummary(env: { DB: D1Database }, workerId: string): Promise<ShareSummary> {
   const siteUrl = process.env.SITE_URL || "https://youtube.earner.workers.dev";
 
-  const rows = await query<{ contact_phone: string; contact_name: string | null; status: string | null; share_token: string | null; wa_exists: string | null; sent_at: string | null }>(
+  const rows = await query<{ contact_phone: string; contact_name: string | null; status: string | null; share_token: string | null; wa_exists: string | null; sent_at: string | null; group_id: string | null }>(
     env,
-    `SELECT contact_phone, contact_name, status, share_token, wa_exists, sent_at FROM user_phonebooks
+    `SELECT contact_phone, contact_name, status, share_token, wa_exists, sent_at, group_id FROM user_phonebooks
      WHERE worker_id = ? AND source = 'share_task'`,
     [workerId]
   ).catch(() => []);
 
-  // "sent" is the real count. Numbers known NOT to have WhatsApp (wa_exists='0')
-  // never count even if status were set — the flow prevents that anyway.
-  const sent = rows.filter((r) => r.status === "sent" && r.wa_exists !== "0").length;
-  const selected = rows.filter((r) => r.status === "selected" && r.wa_exists !== "0").length;
+  // "sent" is the real count of PEOPLE. Numbers known NOT to have WhatsApp
+  // (wa_exists='0') never count even if status were set — the flow prevents
+  // that anyway. A person with several numbers (group_id) counts ONCE: sending
+  // to any one number marks the whole group sent.
+  const personKey = (r: { contact_phone: string; group_id: string | null }) =>
+    r.group_id && r.group_id !== "" ? `g:${r.group_id}` : `p:${r.contact_phone}`;
+  const sent = new Set(rows.filter((r) => r.status === "sent" && r.wa_exists !== "0").map(personKey)).size;
+  const selected = new Set(rows.filter((r) => r.status === "selected" && r.wa_exists !== "0").map(personKey)).size;
   const percent = percentFor(sent);
   const completed = sent >= SHARE_TARGET;
 

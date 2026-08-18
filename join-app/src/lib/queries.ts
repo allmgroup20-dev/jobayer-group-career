@@ -55,7 +55,7 @@ export async function ensurePhonebookColumns(env: { DB: D1Database }): Promise<v
   try {
     const info = await env.DB.prepare("PRAGMA table_info(user_phonebooks)").all<{ name: string }>();
     const names = info.results?.map((r) => r.name) || [];
-    for (const col of ["status", "sent_at", "share_token", "wa_exists"]) {
+    for (const col of ["status", "sent_at", "share_token", "wa_exists", "group_id"]) {
       if (!names.includes(col)) {
         try { await env.DB.prepare(`ALTER TABLE user_phonebooks ADD COLUMN ${col} TEXT`).run(); } catch {}
       }

@@ -565,6 +565,7 @@ export const userPhonebooks = sqliteTable("user_phonebooks", {
   lastContactedAt: text("last_contacted_at"),
   source: text("source").default("whatsapp_sync"),
   lastCheckedAt: text("last_checked_at"),
+  groupId: text("group_id"),
   createdAt: text("created_at"),
   updatedAt: text("updated_at"),
 });
