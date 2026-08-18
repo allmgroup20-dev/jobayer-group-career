@@ -46,8 +46,6 @@ export default function CompletePage() {
 
   const [share, setShare] = useState<ShareSummary | null>(null);
   const [contactsSupported, setContactsSupported] = useState(false);
-  const [showManual, setShowManual] = useState(false);
-  const [manualPhone, setManualPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg>(null);
   const [pendingList, setPendingList] = useState<string[]>([]);
@@ -229,7 +227,7 @@ export default function CompletePage() {
 
   const pickContacts = async () => {
     if (busy) return;
-    if (!contactsSupported || !navigator.contacts) { setShowManual(true); return; }
+    if (!contactsSupported || !navigator.contacts) return;
     setBusy(true);
     setMsg(null);
     try {
@@ -264,14 +262,14 @@ export default function CompletePage() {
     }
   };
 
-  const addManual = async () => {
-    const digits = manualPhone.replace(/\D/g, "");
+  const addManualPhone = async (phone: string): Promise<boolean> => {
+    const digits = phone.replace(/\D/g, "");
     if (digits.length < 10) {
       setMsg({ kind: "warn", text: t("সঠিক ১১ ডিজিটের নম্বর দিন।", "Enter a valid 11-digit number.") });
-      return;
+      return false;
     }
     await submitContacts([{ name: "", tel: digits }]);
-    setManualPhone("");
+    return true;
   };
 
   const motivation = (percent: number, sent: number, target: number): string => {
@@ -467,6 +465,14 @@ export default function CompletePage() {
                   <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">
                     {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
                   </p>
+                  <AddPeopleBlock
+                    t={t}
+                    busy={busy}
+                    contactsSupported={contactsSupported}
+                    onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+                    onNativePick={pickContacts}
+                    onManualAdd={addManualPhone}
+                  />
                   <input
                     value={listSearch}
                     onChange={(e) => setListSearch(e.target.value)}
@@ -570,47 +576,14 @@ export default function CompletePage() {
               )}
 
               <div className="mt-4 space-y-2">
-                <button
-                  onClick={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
-                  className="btn-gold w-full text-sm !py-3.5 opacity-70"
-                >
-                  📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
-                </button>
-                <p className="text-center text-[11px] font-black text-gold -mt-1">
-                  ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
-                </p>
-                <p className="text-center text-[11px] text-white/50 -mt-1">
-                  {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
-                </p>
-
-                {contactsSupported ? (
-                  <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
-                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
-                  </button>
-                ) : (
-                  <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/10 p-3">
-                    <p className="text-[11px] font-bold text-white/60 leading-relaxed">
-                      {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
-                    </p>
-                    <button onClick={() => setShowManual(true)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
-                      {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
-                    </button>
-                    {showManual && (
-                      <div className="mt-2 flex gap-2">
-                        <input
-                          value={manualPhone}
-                          onChange={(e) => setManualPhone(e.target.value)}
-                          inputMode="tel"
-                          placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
-                          className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
-                        />
-                        <button onClick={addManual} disabled={busy} className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60">
-                          {t("যোগ করুন", "Add")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <AddPeopleBlock
+                  t={t}
+                  busy={busy}
+                  contactsSupported={contactsSupported}
+                  onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+                  onNativePick={pickContacts}
+                  onManualAdd={addManualPhone}
+                />
               </div>
             </>
           ) : (
@@ -685,5 +658,77 @@ export default function CompletePage() {
         </button>
       </div>
     </main>
+  );
+}
+
+// "Add people" block shown BOTH above the search (top of the list) and below
+// the list, so customers can pick contacts from either place. Each instance
+// keeps its own manual-input state (extracted so re-renders never reset it).
+function AddPeopleBlock({
+  t,
+  busy,
+  contactsSupported,
+  onGoogle,
+  onNativePick,
+  onManualAdd,
+}: {
+  t: (bn: string, en: string) => string;
+  busy: boolean;
+  contactsSupported: boolean;
+  onGoogle: () => void;
+  onNativePick: () => void;
+  onManualAdd: (phone: string) => Promise<boolean>;
+}) {
+  const [showManual, setShowManual] = useState(false);
+  const [manualPhone, setManualPhone] = useState("");
+
+  return (
+    <div className="space-y-2">
+      <button onClick={onGoogle} className="btn-gold w-full text-sm !py-3.5 opacity-70">
+        📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
+      </button>
+      <p className="text-center text-[11px] font-black text-gold -mt-1">
+        ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
+      </p>
+      <p className="text-center text-[11px] text-white/50 -mt-1">
+        {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
+      </p>
+
+      {contactsSupported ? (
+        <button onClick={onNativePick} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
+          {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
+        </button>
+      ) : (
+        <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/10 p-3">
+          <p className="text-[11px] font-bold text-white/60 leading-relaxed">
+            {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
+          </p>
+          <button onClick={() => setShowManual((v) => !v)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
+            {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
+          </button>
+          {showManual && (
+            <div className="mt-2 flex gap-2">
+              <input
+                value={manualPhone}
+                onChange={(e) => setManualPhone(e.target.value)}
+                inputMode="tel"
+                placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
+              />
+              <button
+                onClick={async () => {
+                  const ok = await onManualAdd(manualPhone);
+                  if (ok) setManualPhone("");
+                }}
+                disabled={busy}
+                className="flex-shrink-0 px-4 py-2.5 rounded-xl bg-white text-brand text-sm font-black active:scale-95 transition-all disabled:opacity-60"
+              >
+                {t("যোগ করুন", "Add")}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
