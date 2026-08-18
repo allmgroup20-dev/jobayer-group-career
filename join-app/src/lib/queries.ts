@@ -43,6 +43,12 @@ export async function ensureWorkerProfileColumns(env: { DB: D1Database }): Promi
         try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
       }
     }
+    // Certificate name on the certificate + last-edit time (30-day lock).
+    for (const col of ["certificate_name", "certificate_name_edited_at"]) {
+      if (!names.includes(col)) {
+        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
+      }
+    }
     _workerColsEnsured = true;
   } catch { /* ignore */ }
 }

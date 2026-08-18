@@ -11,6 +11,10 @@ type CertData = {
   completedAt: string | null;
   siteUrl: string;
   target?: number;
+  isOwner: boolean;
+  certName: string;
+  nameLocked: boolean;
+  nameLockedUntil: string | null;
 };
 
 function formatDate(value: string | null): string {
@@ -27,6 +31,13 @@ function CertificateView() {
   const id = sp.get("id") || "";
   const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
   const [data, setData] = useState<CertData | null>(null);
+  const [nameInput, setNameInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editMsg, setEditMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (data) setNameInput(data.certName || data.name || "");
+  }, [data]);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -66,6 +77,38 @@ function CertificateView() {
   const verifyUrl = `${data.siteUrl}/certificate?id=${data.certificateId}`;
   const date = formatDate(data.completedAt);
 
+  const saveName = async () => {
+    const value = nameInput.trim();
+    if (value.length < 2) {
+      setEditMsg({ kind: "err", text: t("কমপক্ষে ২ অক্ষরের নাম দিন", "Type at least 2 characters") });
+      return;
+    }
+    setSaving(true);
+    setEditMsg(null);
+    try {
+      const res = await fetch(`/api/share/certificate?id=${encodeURIComponent(id)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: value }),
+      });
+      const json = await res.json() as { error?: string; nameLockedUntil?: string | null; certName?: string };
+      if (!res.ok) {
+        const until = json.nameLockedUntil
+          ? new Date(json.nameLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+          : "";
+        setEditMsg({ kind: "err", text: until ? `${json.error} — ${until} পর্যন্ত` : (json.error || t("ত্রুটি হয়েছে", "Something went wrong")) });
+        return;
+      }
+      setData((d) => d ? { ...d, certName: json.certName ?? value, name: json.certName ?? value, nameLocked: true, nameLockedUntil: json.nameLockedUntil ?? null } : d);
+      setNameInput(json.certName ?? value);
+      setEditMsg({ kind: "ok", text: t("✅ নাম সংরক্ষণ হয়েছে — এখন ৩০ দিনের জন্য লক হয়ে গেছে।", "✅ Name saved — it is now locked for 30 days.") });
+    } catch {
+      setEditMsg({ kind: "err", text: t("সংরক্ষণ ব্যর্থ হয়েছে, আবার চেষ্টা করুন।", "Could not save. Please try again.") });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
       <div className="max-w-3xl mx-auto">
@@ -89,7 +132,7 @@ function CertificateView() {
           <div className="absolute inset-4 border border-gold/50 rounded-lg pointer-events-none" />
 
           <div className="relative text-center">
-            <p className="text-xs font-black tracking-[0.25em] text-gold">ইউটিউব আর্নার · YOUTUBE EARNER</p>
+            <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-10 w-auto" />
             <h1 className="mt-3 text-2xl md:text-3xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h1>
             <div className="mt-2 mx-auto h-0.5 w-40 bg-gradient-to-r from-transparent via-gold to-transparent" />
             <p className="mt-3 text-sm font-bold text-gray-600">This certifies that</p>
@@ -97,9 +140,9 @@ function CertificateView() {
             <p className="mt-3 text-3xl md:text-4xl font-black text-brand">{data.name}</p>
 
             <p className="mt-4 text-sm leading-relaxed text-gray-700 max-w-xl mx-auto">
-              has successfully completed their full profile on <b>YouTube Earner</b> and referred
-              <b> {data.target || 30} people</b> through the referral program, demonstrating outstanding
-              community-building and digital marketing skills.
+              has successfully completed their full profile on <b>YouTube Earner</b> and proven
+              outstanding community-building and digital marketing skills by uniting a growing
+              community of learners and friends.
             </p>
 
             <div className="mt-6 flex items-end justify-between">
@@ -178,6 +221,62 @@ function CertificateView() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Owner-only: edit the name shown on the certificate (30-day lock) */}
+        {data.isOwner && (
+          <div className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
+            <h2 className="text-lg font-black text-brand">📝 {t("সার্টিফিকেটের নাম", "Name on your certificate")}</h2>
+            <p className="mt-1 text-xs text-white/60">
+              {t("সার্টিফিকেটে যে নাম দেখানো হয় তা পরিবর্তন করতে পারেন।", "You can change the name shown on your certificate.")}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <input
+                value={nameInput}
+                disabled={data.nameLocked}
+                onChange={(e) => setNameInput(e.target.value)}
+                maxLength={60}
+                className="w-full px-3 py-3 rounded-2xl bg-white/10 border border-white/25 text-white text-sm font-bold focus:outline-none focus:border-pink/60 disabled:opacity-50"
+                placeholder={t("আপনার নাম লিখুন", "Type your name")}
+              />
+              <button
+                onClick={saveName}
+                disabled={data.nameLocked || saving}
+                className="flex-shrink-0 px-4 py-3 rounded-2xl btn-gold text-sm font-black disabled:opacity-40"
+              >
+                {saving ? "…" : `💾 ${t("সংরক্ষণ করুন", "Save")}`}
+              </button>
+            </div>
+            {data.nameLocked && data.nameLockedUntil ? (
+              <p className="mt-3 rounded-xl bg-red/10 border border-red/30 px-3 py-2 text-[11px] font-bold text-red leading-relaxed">
+                🔒 {t(
+                  `নামটি লক হয়ে আছে — ${new Date(data.nameLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} পর্যন্ত পরিবর্তন করা যাবে না।`,
+                  `Name is locked — it can't be changed until ${new Date(data.nameLockedUntil).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.`
+                )}
+              </p>
+            ) : (
+              <p className="mt-3 rounded-xl bg-amber/10 border border-amber/30 px-3 py-2 text-[11px] font-bold text-amber leading-relaxed">
+                ⚠️ {t("সতর্কবার্তা: একবার সংরক্ষণ করে দিলে নামটি ৩০ দিনের জন্য লক হয়ে যাবে — ৩০ দিন পূর্ণ না হওয়া পর্যন্ত এটি আর পরিবর্তন করা যাবে না।", "Warning: once you save, the name will be locked for 30 days and cannot be changed until then.")}
+              </p>
+            )}
+            {editMsg && (
+              <p className={`mt-2 text-[11px] font-bold ${editMsg.kind === "ok" ? "text-teal" : "text-red"}`}>{editMsg.text}</p>
+            )}
+          </div>
+        )}
+
+        {/* Next, even more valuable certificate teaser */}
+        <div className="mt-6 rounded-2xl bg-gradient-to-br from-gold/20 via-pink/20 to-violet/20 border border-gold/30 p-6 text-center print:hidden">
+          <div className="text-4xl">🏆</div>
+          <h2 className="mt-2 text-lg font-black gradient-text">
+            {t("আরেকটি আরও মূল্যবান সার্টিফিকেট অপেক্ষা করছে!", "An even more valuable certificate is waiting!")}
+          </h2>
+          <p className="mt-2 text-xs leading-relaxed text-white/70">
+            {t("অভিনন্দন! এই সার্টিফিকেটের পর আপনার জন্য আরও একটি — এর চেয়েও বেশি মূল্যবান সার্টিফিকেট — দেওয়া হবে। এটি দেখতে হোমে গিয়ে নতুন অপশনটি চেক করুন।", "Congratulations! After this certificate, an even more valuable one awaits you. Go to Home and check the new option to see it.")}
+          </p>
+          <a href="/" className="mt-4 btn-gold w-full text-sm !py-3.5 block text-center">
+            🏠 {t("হোমে গিয়ে দেখুন", "Go Home to see it")}
+          </a>
         </div>
       </div>
     </main>

@@ -674,7 +674,7 @@ export default function CompletePage() {
               <div className="text-5xl animate-pulse-glow">🎉</div>
               <h3 className="mt-2 text-xl font-black gradient-text">{t("সার্টিফিকেট অর্জন করেছেন!", "Certificate Earned!")}</h3>
               <p className="mt-1 text-xs text-white/70">
-                {t(`আপনি ${target} জনকে রেফারেল পাঠিয়ে এটি অর্জন করেছেন। এটি ডাউনলোড করুন বা অনলাইনে যাচাই করুন।`, `Earned by referring ${target} people. Download it or verify it online.`)}
+                {t("অসাধারণ কমিউনিটি-বিল্ডিং ও ডিজিটাল মার্কেটিং দক্ষতা প্রমাণ করে এটি অর্জন করেছেন — এখন ডাউনলোড করুন বা অনলাইনে যাচাই করুন।", "Earned by proving outstanding community-building and digital marketing skills — download it or verify it online.")}
               </p>
               {share?.certificateId && (
                 <button
