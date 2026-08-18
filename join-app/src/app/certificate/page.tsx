@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { useSearchParams } from "next/navigation";
 import { useLang } from "@/lib/lang";
+import { A4_LANDSCAPE_H, A4_LANDSCAPE_W, useCertScale } from "@/lib/useCertScale";
 
 type CertData = {
   certificateId: string;
@@ -25,6 +26,7 @@ function CertificateView() {
   const { lang } = useLang();
   const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
   const id = sp.get("id") || "";
+  const { ref, scale } = useCertScale();
   const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
   const [data, setData] = useState<CertData | null>(null);
 
@@ -68,7 +70,7 @@ function CertificateView() {
 
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4 print:hidden">
           <button
             onClick={() => window.print()}
@@ -83,56 +85,69 @@ function CertificateView() {
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
 
-        {/* Certificate */}
-        <div className="print-area relative bg-white text-gray-900 rounded-2xl p-8 md:p-12 shadow-2xl">
-          <div className="absolute inset-3 border-2 border-gold rounded-xl pointer-events-none" />
-          <div className="absolute inset-4 border border-gold/50 rounded-lg pointer-events-none" />
+        {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit */}
+        <div ref={ref} className="w-full" style={{ height: A4_LANDSCAPE_H * scale }}>
+          <div
+            className="print-area relative bg-white text-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+            style={{
+              width: A4_LANDSCAPE_W,
+              height: A4_LANDSCAPE_H,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <div className="absolute inset-4 border-2 border-gold rounded-xl pointer-events-none" />
+            <div className="absolute inset-5 border border-gold/50 rounded-lg pointer-events-none" />
 
-          <div className="relative text-center">
-            <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-10 w-auto" />
-            <h1 className="mt-3 text-2xl md:text-3xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h1>
-            <div className="mt-2 mx-auto h-0.5 w-40 bg-gradient-to-r from-transparent via-gold to-transparent" />
-            <p className="mt-3 text-sm font-bold text-gray-600">This certifies that</p>
+            <div className="relative flex h-full flex-col items-center justify-center px-14 text-center">
+              <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-12 w-auto" />
+              <h1 className="mt-3 text-4xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h1>
+              <div className="mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent" />
+              <p className="mt-3 text-base font-bold text-gray-600">This certifies that</p>
 
-            <p className="mt-3 text-3xl md:text-4xl font-black text-brand">{data.name}</p>
+              <p className="mt-3 text-5xl font-black text-brand">{data.name}</p>
 
-            <p className="mt-4 text-sm leading-relaxed text-gray-700 max-w-xl mx-auto">
-              has successfully completed their full profile on <b>YouTube Earner</b> and proven
-              outstanding community-building and digital marketing skills by uniting a growing
-              community of learners and friends.
-            </p>
+              <p className="mt-4 text-base leading-relaxed text-gray-700 max-w-3xl mx-auto">
+                has successfully completed their full profile on <b>YouTube Earner</b> and proven
+                outstanding community-building and digital marketing skills by uniting a growing
+                community of learners and friends.
+              </p>
 
-            <div className="mt-6 flex items-end justify-between">
-              <div className="text-left text-xs text-gray-600">
-                <p className="font-black text-gray-900">Certificate ID</p>
-                <p className="mt-1 font-mono font-bold">{data.certificateId}</p>
-                <p className="mt-2 font-black text-gray-900">Date</p>
-                <p className="mt-1 font-bold">{date}</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-white p-2 rounded-lg border border-gray-200">
-                  <QRCode value={verifyUrl} size={96} />
+              <div className="mt-6 flex w-full items-end justify-between">
+                <div className="text-left text-sm text-gray-600">
+                  <p className="font-black text-gray-900">Certificate ID</p>
+                  <p className="mt-1 font-mono font-bold">{data.certificateId}</p>
+                  <p className="mt-3 font-black text-gray-900">Date</p>
+                  <p className="mt-1 font-bold">{date}</p>
                 </div>
-                <p className="mt-1 text-[9px] text-gray-500">Scan to verify</p>
+                <div className="flex flex-col items-center">
+                  <div className="bg-white p-2.5 rounded-lg border border-gray-200">
+                    <QRCode value={verifyUrl} size={112} />
+                  </div>
+                  <p className="mt-1 text-[10px] text-gray-500">Scan to verify</p>
+                </div>
               </div>
-            </div>
 
-            <div className="mt-6 pt-3 border-t border-gray-200 text-xs text-gray-500">
-              <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-              <p className="mt-0.5">Verify online: {verifyUrl}</p>
+              <div className="mt-6 w-full pt-4 border-t border-gray-200 text-sm text-gray-500">
+                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
+                <p className="mt-1">Verify online: {verifyUrl}</p>
+              </div>
             </div>
           </div>
         </div>
 
         <style>{`
           @media print {
+            @page { size: A4 landscape; margin: 0; }
             body * { visibility: hidden !important; }
             .print-area, .print-area * { visibility: visible !important; }
             .print-area {
+              transform: none !important;
+              width: 297mm !important;
+              height: 210mm !important;
               position: absolute !important;
-              left: 0; top: 0; width: 100%;
+              left: 0 !important; top: 0 !important;
               box-shadow: none !important; border-radius: 0 !important;
-              margin: 0 !important; padding: 32px !important;
             }
           }
         `}</style>

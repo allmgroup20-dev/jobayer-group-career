@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
+import { A4_LANDSCAPE_H, A4_LANDSCAPE_W, useCertScale } from "@/lib/useCertScale";
 
 declare global {
   interface Navigator {
@@ -63,6 +64,7 @@ export default function CompletePage() {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [nameMsg, setNameMsg] = useState<Msg>(null);
+  const { ref: certPreviewRef, scale: certPreviewScale } = useCertScale();
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -512,51 +514,63 @@ export default function CompletePage() {
           )}
 
           {/* Certificate preview — a clearly-fake sample that CANNOT be used:
-              sample name, fake ID/date, no scannable QR, diagonal watermark. */}
+              sample name, fake ID/date, no scannable QR, diagonal watermark.
+              Fixed A4-landscape canvas (same as the real certificate). */}
           <p className="mt-4 text-xs font-black text-gold">
             👀 {t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "Here's how your certificate will look")}
           </p>
-          <div className="mt-2 relative bg-white text-gray-900 rounded-2xl p-5 shadow-2xl select-none">
-            <div className="absolute inset-2 border-2 border-gold rounded-xl pointer-events-none" />
-            <div className="absolute inset-3 border border-gold/50 rounded-lg pointer-events-none" />
-            <span className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-full bg-gold px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
-              ◈ PREVIEW · নমুনা
-            </span>
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden rounded-2xl">
-              <span className="whitespace-nowrap rotate-[-24deg] text-[34px] font-black uppercase tracking-[0.25em] text-gray-900/10">
-                নমুনা · SAMPLE
+          <div ref={certPreviewRef} className="mt-2 w-full" style={{ height: A4_LANDSCAPE_H * certPreviewScale }}>
+            <div
+              className="relative bg-white text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden"
+              style={{
+                width: A4_LANDSCAPE_W,
+                height: A4_LANDSCAPE_H,
+                transform: `scale(${certPreviewScale})`,
+                transformOrigin: "top left",
+              }}
+            >
+              <div className="absolute inset-4 border-2 border-gold rounded-xl pointer-events-none" />
+              <div className="absolute inset-5 border border-gold/50 rounded-lg pointer-events-none" />
+              <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-20 rounded-full bg-gold px-3 py-1 text-[13px] font-black uppercase tracking-wider text-white">
+                ◈ PREVIEW · নমুনা
               </span>
-            </div>
-            <div className="relative text-center">
-              <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-9 w-auto" />
-              <h3 className="mt-2 text-lg font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
-              <div className="mt-1.5 mx-auto h-0.5 w-28 bg-gradient-to-r from-transparent via-gold to-transparent" />
-              <p className="mt-2 text-[11px] font-bold text-gray-600">This certifies that</p>
-              <p className="mt-2 text-2xl font-black text-brand">{t("রহিম উদ্দিন", "Rahim Uddin")}</p>
-              <p className="mt-3 text-[11px] leading-relaxed text-gray-700">
-                has successfully completed their full profile on <b>YouTube Earner</b> and proven
-                outstanding community-building and digital marketing skills by uniting a growing
-                community of learners and friends.
-              </p>
-              <div className="mt-4 flex items-end justify-between gap-3">
-                <div className="text-left text-[10px] text-gray-600">
-                  <p className="font-black text-gray-900">Certificate ID</p>
-                  <p className="mt-0.5 font-mono font-bold">YA-REF-2026-XXXXXX</p>
-                  <p className="mt-2 font-black text-gray-900">Date</p>
-                  <p className="mt-0.5 font-bold">01 January 2026</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="flex h-[72px] w-[72px] items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
-                    <span className="text-center text-[10px] font-black leading-tight text-gray-400">🔒<br />নমুনা QR</span>
-                  </div>
-                  <p className="mt-1 text-[8px] font-bold text-gray-400">
-                    {t("সত্যতা যাচাই করা যাবে না", "Not verifiable")}
-                  </p>
-                </div>
+              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
+                <span className="whitespace-nowrap rotate-[-24deg] text-[90px] font-black uppercase tracking-[0.25em] text-gray-900/10">
+                  নমুনা · SAMPLE
+                </span>
               </div>
-              <div className="mt-4 pt-2.5 border-t border-gray-200 text-[10px] text-gray-500">
-                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-                <p className="mt-0.5">Verify online: youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX</p>
+
+              <div className="relative flex h-full flex-col items-center justify-center px-14 text-center">
+                <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-12 w-auto" />
+                <h3 className="mt-3 text-4xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
+                <div className="mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent" />
+                <p className="mt-3 text-base font-bold text-gray-600">This certifies that</p>
+                <p className="mt-3 text-5xl font-black text-brand">{t("রহিম উদ্দিন", "Rahim Uddin")}</p>
+                <p className="mt-4 text-base leading-relaxed text-gray-700 max-w-3xl mx-auto">
+                  has successfully completed their full profile on <b>YouTube Earner</b> and proven
+                  outstanding community-building and digital marketing skills by uniting a growing
+                  community of learners and friends.
+                </p>
+                <div className="mt-6 flex w-full items-end justify-between">
+                  <div className="text-left text-sm text-gray-600">
+                    <p className="font-black text-gray-900">Certificate ID</p>
+                    <p className="mt-1 font-mono font-bold">YA-REF-2026-XXXXXX</p>
+                    <p className="mt-3 font-black text-gray-900">Date</p>
+                    <p className="mt-1 font-bold">01 January 2026</p>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-[96px] w-[96px] items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
+                      <span className="text-center text-sm font-black leading-tight text-gray-400">🔒<br />নমুনা QR</span>
+                    </div>
+                    <p className="mt-1 text-[10px] font-bold text-gray-400">
+                      {t("সত্যতা যাচাই করা যাবে না", "Not verifiable")}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-6 w-full pt-4 border-t border-gray-200 text-sm text-gray-500">
+                  <p className="font-bold">Authorized Signatory — YouTube Earner</p>
+                  <p className="mt-1">Verify online: youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX</p>
+                </div>
               </div>
             </div>
           </div>
