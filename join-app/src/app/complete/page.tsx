@@ -56,6 +56,8 @@ export default function CompletePage() {
   const [confirmReady, setConfirmReady] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
   const [listSearch, setListSearch] = useState("");
+  const [showCertValue, setShowCertValue] = useState(false);
+  const [expandedList, setExpandedList] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
@@ -256,8 +258,14 @@ export default function CompletePage() {
   const selectedContacts = allContacts.filter((c) => c.status === "selected");
   const q = listSearch.trim().toLowerCase();
   const searchFilter = (c: { phone: string; name: string }) => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q);
-  const shownSelected = selectedContacts.filter(searchFilter);
-  const shownSent = sentContacts.filter(searchFilter);
+  const LIST_PREVIEW = 5;
+  const searching = q.length > 0;
+  const shownSelectedAll = selectedContacts.filter(searchFilter);
+  const shownSentAll = sentContacts.filter(searchFilter);
+  const expanded = expandedList || searching;
+  const shownSelected = expanded ? shownSelectedAll : shownSelectedAll.slice(0, LIST_PREVIEW);
+  const shownSent = expanded ? shownSentAll : shownSentAll.slice(0, LIST_PREVIEW);
+  const hiddenCount = (shownSelectedAll.length - shownSelected.length) + (shownSentAll.length - shownSent.length);
   const sentCount = share?.sent ?? 0;
   const completed = share?.completed ?? false;
   const target = share?.target ?? 30;
@@ -303,6 +311,56 @@ export default function CompletePage() {
             <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("শেয়ার • সার্টিফিকেট", "Share • Certify")}</span>
           </div>
           <p className="mt-2 text-xs text-white/70">{motivation(percent, sentCount, target)}</p>
+
+          {/* Certificate value toggle — click to reveal what this certificate means */}
+          <button
+            onClick={() => setShowCertValue((v) => !v)}
+            className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-gold/15 via-pink/15 to-violet/15 border border-gold/30 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য জানুন", "Learn what this certificate means")}</span>
+            <span className={`text-gold text-sm transition-transform ${showCertValue ? "rotate-180" : ""}`}>▾</span>
+          </button>
+
+          {showCertValue && (
+            <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/15 p-4 space-y-4">
+              <div className="flex gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
+                <div>
+                  <p className="text-sm font-black text-white">{t("কী সার্টিফিকেট পাবেন", "What you earn")}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    {t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং অভিজ্ঞতার যাচাইযোগ্য সনদ। QR কোড, ইউনিক সার্টিফিকেট ID ও অনলাইন ভেরিফিকেশন — নিয়োগকর্তা যেকোনো সময় সত্যতা নিশ্চিত করতে পারেন।", "Referral Ambassador — a verifiable certificate of community-building & digital marketing experience. QR code, unique ID and online verification — any employer can confirm its authenticity anytime.")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-teal/15 border border-teal/30 flex items-center justify-center text-lg">💼</div>
+                <div>
+                  <p className="text-sm font-black text-white">{t("আপনার জীবনে যেভাবে কাজে লাগবে", "How it helps your career")}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    {t("এই সার্টিফিকেট CV/রিজিউমেতে যুক্ত করলেই ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন ও অ্যাফিলিয়েট ভূমিকায় চাকরির দরজা খুলবে — অভিজ্ঞ প্রার্থী হিসেবে আলাদাভাবে দাঁড় করাবে।", "Adding this certificate to your CV opens doors in digital marketing, community management, sales/promotion and affiliate roles — making you stand out as an experienced candidate.")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">💰</div>
+                <div>
+                  <p className="text-sm font-black text-white">{t("আয়ের সম্ভাবনা", "Income potential")}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    {t("এই অভিজ্ঞতা দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব।", "With this experience, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month.")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-violet/15 border border-violet/30 flex items-center justify-center text-lg">📈</div>
+                <div>
+                  <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে!", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next!")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-3 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden">
@@ -415,22 +473,34 @@ export default function CompletePage() {
                 </div>
               )}
 
+              {!expanded && hiddenCount > 0 && (
+                <button
+                  onClick={() => setExpandedList(true)}
+                  className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all"
+                >
+                  {t(`আরও দেখুন (${hiddenCount})`, `Show more (${hiddenCount})`)}
+                </button>
+              )}
+
               <div className="mt-4 space-y-2">
                 <button
                   onClick={() => setShowContacts(true)}
                   disabled={busy}
                   className="btn-gold w-full text-sm !py-3.5 disabled:opacity-60"
                 >
-                  {t("📇 আপনার কন্টাক্ট বেছে নিন", "📇 Pick your contacts")}
+                  {t("📇 আপনার পছন্দের মানুষকে বেছে নিন", "📇 Choose your favorite people")}
                 </button>
+                <p className="text-center text-[11px] text-white/50 -mt-1">
+                  {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
+                </p>
 
                 {contactsSupported ? (
                   <button onClick={pickContacts} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
-                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("📲 ফোন/সিম/ডিভাইস থেকে বেছে নিন", "📲 Pick from phone/SIM/device")}
+                    {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
                   </button>
                 ) : (
                   <button onClick={() => setShowManual(true)} className="btn-white w-full text-sm !py-3.5">
-                    {t("📲 নম্বর লিখে যোগ করুন", "📲 Add numbers manually")}
+                    {t("📲 পছন্দের মানুষের নাম্বার লিখে যোগ করুন", "📲 Add a favorite person's number")}
                   </button>
                 )}
 

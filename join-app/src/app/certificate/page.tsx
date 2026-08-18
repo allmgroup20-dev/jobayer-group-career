@@ -168,6 +168,15 @@ function CertificateView() {
                 </p>
               </div>
             </div>
+            <div className="flex gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-violet/15 border border-violet/30 flex items-center justify-center text-lg">📈</div>
+              <div>
+                <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">
+                  {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে!", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next!")}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
