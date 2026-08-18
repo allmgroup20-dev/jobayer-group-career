@@ -461,15 +461,15 @@ export default function CompletePage() {
             <div className="absolute inset-2 border-2 border-gold rounded-xl pointer-events-none" />
             <div className="absolute inset-3 border border-gold/50 rounded-lg pointer-events-none" />
             <div className="relative text-center">
-              <p className="text-[9px] font-black tracking-[0.25em] text-gold">ইউটিউব আর্নার · YOUTUBE EARNER</p>
+              <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-9 w-auto" />
               <h3 className="mt-2 text-lg font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
               <div className="mt-1.5 mx-auto h-0.5 w-28 bg-gradient-to-r from-transparent via-gold to-transparent" />
               <p className="mt-2 text-[11px] font-bold text-gray-600">This certifies that</p>
               <p className="mt-2 text-2xl font-black text-brand">{me?.name || t("রহিম উদ্দিন", "Rahim Uddin")}</p>
               <p className="mt-3 text-[11px] leading-relaxed text-gray-700">
-                has successfully completed their full profile on <b>YouTube Earner</b> and referred
-                <b> {target} people</b> through the referral program, demonstrating outstanding
-                community-building and digital marketing skills.
+                has successfully completed their full profile on <b>YouTube Earner</b> and proven
+                outstanding community-building and digital marketing skills by uniting a growing
+                community of learners and friends.
               </p>
               <div className="mt-4 flex items-end justify-between gap-3">
                 <div className="text-left text-[10px] text-gray-600">
