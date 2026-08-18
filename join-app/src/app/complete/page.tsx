@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-type Me = { workerId?: string; name?: string; totalTeamMembers?: number; resourceIncome?: number };
+type Me = { workerId?: string; name?: string; totalTeamMembers?: number; resourceIncome?: number; referralJoins?: number };
 
 type ShareSummary = {
   target: number;
@@ -55,7 +55,8 @@ export default function CompletePage() {
   const [failedPhones, setFailedPhones] = useState<Set<string>>(new Set());
   const percentRef = useRef(0);
   const [listSearch, setListSearch] = useState("");
-  const [showCertValue, setShowCertValue] = useState(false);
+  const [showCertPreview, setShowCertPreview] = useState(false);
+  const [showShotHelp, setShowShotHelp] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
   const [certName, setCertName] = useState("");
   const [certLocked, setCertLocked] = useState(false);
@@ -388,6 +389,16 @@ export default function CompletePage() {
     setTimeout(() => setCopied(false), 1800);
   };
 
+  const copyMessage = async () => {
+    const fresh = await refreshReferral();
+    const text = fresh?.text || shareText;
+    if (!text) return;
+    try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
+    setCopied(true);
+    trackEvent("share_click", { pageCategory: "complete", metadata: { method: "copy_message" } });
+    setTimeout(() => setCopied(false), 1800);
+  };
+
   const shareWhatsApp = async () => {
     const fresh = await refreshReferral();
     const text = fresh?.text || shareText;
@@ -421,6 +432,7 @@ export default function CompletePage() {
   const sentCount = share?.sent ?? 0;
   const completed = share?.completed ?? false;
   const target = share?.target ?? 30;
+  const referralJoins = me?.referralJoins ?? 0;
 
   return (
     <main className="min-h-screen overflow-x-hidden relative pt-20">
@@ -446,7 +458,7 @@ export default function CompletePage() {
           <div className="card-pop !p-4">
             <div className="text-2xl">👥</div>
             <p className="mt-1 text-xl font-black text-brand">{me?.totalTeamMembers ?? 0}</p>
-            <p className="text-[11px] font-bold text-ink-soft">{t("টিম সদস্য", "Team Members")}</p>
+            <p className="text-[11px] font-bold text-ink-soft">{t("সহযোগী", "Associates")}</p>
           </div>
           <div className="card-pop !p-4">
             <div className="text-2xl">💰</div>
@@ -455,63 +467,62 @@ export default function CompletePage() {
           </div>
         </div>
 
-        {/* Certificate path (share-to-30) */}
+        {/* Certificate journey — 3 steps */}
+        <div className="mt-8">
+          <p className="text-xs font-black text-white/50 uppercase tracking-widest text-center">
+            {t("আপনার সার্টিফিকেট যাত্রা", "Your Certificate Journey")}
+          </p>
+          <div className="mt-3 flex items-center justify-center gap-1">
+            {[1, 2, 3].map((n) => {
+              const stepDone = n === 1 && completed;
+              const stepUnlocked = n >= 2 && completed;
+              return (
+                <div key={n} className="flex items-center gap-1">
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
+                    stepDone ? "bg-teal/25 border-teal/60 text-teal"
+                    : stepUnlocked ? "bg-gold/20 border-gold/50 text-gold"
+                    : "bg-white/5 border-white/15 text-white/40"
+                  }`}>
+                    {stepDone ? "✓" : n}
+                  </div>
+                  {n < 3 && (
+                    <div className={`h-0.5 w-5 rounded-full ${n <= (completed ? 1 : 0) ? "bg-gold/60" : "bg-white/10"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Certificate 1 — Foundation (share task) */}
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black flex items-center gap-2">🎓 {t("সার্টিফিকেটের পথে", "Certificate Path")}</h2>
-            <span className="badge-glow bg-teal/20 text-teal border border-teal/40">{t("শেয়ার • সার্টিফিকেট", "Share • Certify")}</span>
+            <h2 className="text-lg font-black flex items-center gap-2">
+              <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
+              <span>
+                {t("ফাউন্ডেশন সার্টিফিকেট", "Foundation Certificate")}
+                <span className="block text-[10px] font-bold text-white/40">{t("স্তর ১ • প্রথম ধাপ", "Level 1 • First step")}</span>
+              </span>
+            </h2>
+            <span className={`badge-glow ${completed ? "bg-teal/20 text-teal border border-teal/40" : "bg-gold/20 text-gold border border-gold/40"}`}>
+              {completed ? t("✅ সম্পন্ন", "Done") : t("🚀 চলছে", "In progress")}
+            </span>
           </div>
-          <p className="mt-2 text-xs text-white/70">{motivation(percent, sentCount, target)}</p>
+          <p className="mt-2 text-xs text-white/70">
+            {t("৩০ জন সহযোগীকে আমন্ত্রণ জানিয়ে ১০০% পূরণ করুন", "Invite 30 associates to reach 100%")}
+          </p>
 
-          {/* Certificate value toggle — click to reveal what this certificate means */}
+          {/* Preview — hidden behind a button so the card stays calm */}
           <button
-            onClick={() => setShowCertValue((v) => !v)}
-            className="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-gold/15 via-pink/15 to-violet/15 border border-gold/30 active:scale-[0.99] transition-all"
+            onClick={() => setShowCertPreview((v) => !v)}
+            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 active:scale-[0.99] transition-all"
           >
-            <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য জানুন", "Learn what this certificate means")}</span>
-            <span className={`text-gold text-sm transition-transform ${showCertValue ? "rotate-180" : ""}`}>▾</span>
+            <span className="text-xs font-black text-teal">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
+            <span className={`text-white/60 text-sm transition-transform ${showCertPreview ? "rotate-180" : ""}`}>▾</span>
           </button>
 
-          {showCertValue && (
-            <div className="mt-3 rounded-2xl bg-white/[0.04] border border-white/15 p-4 space-y-4">
-              <div className="flex gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
-                <div>
-                  <p className="text-sm font-black text-white">{t("কী সার্টিফিকেট পাবেন", "What you earn")}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং অভিজ্ঞতার যাচাইযোগ্য সনদ। QR কোড, ইউনিক সার্টিফিকেট ID ও অনলাইন ভেরিফিকেশন — নিয়োগকর্তা যেকোনো সময় সত্যতা নিশ্চিত করতে পারেন।", "Referral Ambassador — a verifiable certificate of community-building & digital marketing experience. QR code, unique ID and online verification — any employer can confirm its authenticity anytime.")}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-xl bg-teal/15 border border-teal/30 flex items-center justify-center text-lg">💼</div>
-                <div>
-                  <p className="text-sm font-black text-white">{t("আপনার জীবনে যেভাবে কাজে লাগবে", "How it helps your career")}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("এই সার্টিফিকেট CV/রিজিউমেতে যুক্ত করলেই ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন ও অ্যাফিলিয়েট ভূমিকায় চাকরির দরজা খুলবে — অভিজ্ঞ প্রার্থী হিসেবে আলাদাভাবে দাঁড় করাবে।", "Adding this certificate to your CV opens doors in digital marketing, community management, sales/promotion and affiliate roles — making you stand out as an experienced candidate.")}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">💰</div>
-                <div>
-                  <p className="text-sm font-black text-white">{t("আয়ের সম্ভাবনা", "Income potential")}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("এই অভিজ্ঞতা দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব — অভিজ্ঞতা ও সক্রিয়তার ওপর নির্ভরশীল।", "With this experience, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month — depends on experience and activity.")}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-xl bg-violet/15 border border-violet/30 flex items-center justify-center text-lg">📈</div>
-                <div>
-                  <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে! আর QR স্ক্যান বা অনলাইন লিংকে যেকোনো সময় সত্যতা যাচাই করা যায়।", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next! Plus the QR scan or online link verifies its authenticity anytime.")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {showCertPreview && (
+          <>
 
           {/* Certificate preview — a clearly-fake sample that CANNOT be used:
               sample name, fake ID/date, no scannable QR, diagonal watermark.
@@ -577,8 +588,11 @@ export default function CompletePage() {
           <p className="mt-2 rounded-xl bg-red/10 border border-red/30 px-3 py-2 text-[10px] font-bold text-red leading-relaxed">
             ⚠️ {t("এটি নমুনা মাত্র — স্ক্রিনশট নিয়ে কোথাও ব্যবহার করা যাবে না। আসল সার্টিফিকেটে আপনার নিজের নাম, ইউনিক আইডি ও যাচাইযোগ্য QR থাকবে — যা ১০০% পূরণ করলেই পাওয়া যাবে।", "This is only a sample — it cannot be used anywhere, even via screenshot. Your real certificate will have your own name, a unique ID and a verifiable QR — available only after you reach 100%.")}
           </p>
+          </>
+          )}
 
-          <div className="mt-3 flex items-center gap-3">
+          {/* Single progress — one bar, one encouraging line */}
+          <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-gold to-amber transition-all duration-700"
@@ -587,22 +601,7 @@ export default function CompletePage() {
             </div>
             <span className="text-sm font-black text-brand">{percent}%</span>
           </div>
-
-          {/* Small-Area framing: early emphasize earned %, late emphasize small remaining */}
-          <p className="mt-2 text-xs font-bold text-teal">
-            {percent < 50
-              ? t(`আপনি ${percent}% পূরণ করেছেন — চালিয়ে যান!`, `You're at ${percent}% — keep going!`)
-              : percent < 90
-                ? t(`আর মাত্র ${100 - percent}% বাকি — এগিয়ে যান!`, `Only ${100 - percent}% left — keep it up!`)
-                : t(`একদম শেষ! আর মাত্র ${100 - percent}% বাকি 🔥`, `Almost done! Just ${100 - percent}% left 🔥`)}
-          </p>
-
-          <div className="mt-3 px-3 py-2 rounded-xl bg-emerald/10 border border-emerald/30 text-[11px] font-bold text-emerald leading-relaxed">
-            {t(
-              `✅ আপনি যখন একজনকে শেয়ার করবেন, দেখবেন আপনার পার্সেন্টেজ বাড়ছে — এভাবে ১০০%-এ পৌঁছালেই সার্টিফিকেট। সবাইকে একসাথে বেছে নিতে পারেন, সীমা নেই।`,
-              `✅ When you share with someone, watch your percentage grow — hit 100% and earn your certificate. You can pick ALL your contacts at once — no limit.`
-            )}
-          </div>
+          <p className="mt-2 text-xs font-bold text-teal">{motivation(percent, sentCount, target)}</p>
 
           {msg && (
             <div className={`mt-3 px-3 py-2 rounded-xl text-xs font-bold ${
@@ -686,9 +685,9 @@ export default function CompletePage() {
                       </div>
                       {pendingList.includes(c.phone) && (
                         <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold leading-relaxed">
-                          ⚠️ {t(
-                            "কঠোরভাবে যাচাই করা হচ্ছে — আপনি সঠিকভাবে WhatsApp-এ পাঠিয়েছেন কিনা নিশ্চিত করা হচ্ছে। সঠিকভাবে পাঠানো না হলে এটি বাতিল হয়ে যাবে। এতে আপনার সার্টিফিকেট পাওয়া আরও কঠিন হয়ে যেতে পারে — অগ্রগতিতে পিছিয়ে পড়তে পারেন।",
-                            "Strictly verifying — making sure you actually sent it on WhatsApp. If not sent properly, it will be cancelled. This can make earning your certificate harder — you may fall behind on your progress."
+                          🔍 {t(
+                            "যাচাই করা হচ্ছে — নিশ্চিত করছি আপনি সত্যিই WhatsApp-এ পাঠিয়েছেন। সঠিকভাবে না পাঠালে এটি গোনা হবে না; চাইলে আবার পাঠাতে পারেন।",
+                            "Verifying — making sure you really sent it on WhatsApp. If not sent properly, it won't count; you can always send again."
                           )}
                         </div>
                       )}
@@ -826,52 +825,150 @@ export default function CompletePage() {
           )}
         </div>
 
-        {/* Referral */}
+        {/* Certificate 2 — Referral Ambassador */}
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black flex items-center gap-2">🔗 {t("আপনার রেফারেল লিংক", "Your Referral Link")}</h2>
-            <span className="badge-glow bg-gold/20 text-gold border border-gold/40">{t("শেয়ার করুন • সার্টিফিকেট অর্জন করুন", "Share • Earn Certificates")}</span>
-          </div>
-          <p className="mt-2 text-xs text-white/70">
-            {t("এই লিংক দিয়ে যত বেশি বন্ধু জয়েন করবে, ততই সার্টিফিকেটের কাছাকাছি যাবেন।", "The more friends join through this link, the closer you get to your certificate.")}
-          </p>
-          <div className="mt-3 flex gap-2">
-            <input
-              readOnly
-              value={link}
-              onFocus={(e) => e.target.select()}
-              className="w-full px-3 py-3 rounded-2xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold truncate focus:outline-none"
-            />
-            <button onClick={copy} className={`flex-shrink-0 px-4 py-3 rounded-2xl font-black text-sm transition-all active:scale-95 ${copied ? "bg-teal text-white" : "bg-white text-brand"}`}>
-              {copied ? "✅" : t("কপি", "Copy")}
-            </button>
+            <h2 className="text-lg font-black flex items-center gap-2">
+              <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
+              <span>
+                {t("রেফারেল অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
+                <span className="block text-[10px] font-bold text-white/40">{t("স্তর ২ • দ্বিতীয় ধাপ", "Level 2 • Second step")}</span>
+              </span>
+            </h2>
+            <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
+              {!completed ? t("🔒 লক", "Locked") : t("🚀 চলছে", "In progress")}
+            </span>
           </div>
 
-          {/* QR */}
-          <div className="mt-4 flex justify-center">
-            <div className="bg-white rounded-3xl p-4 shadow-xl">
-              {link ? <QRCode value={link} size={160} /> : null}
-            </div>
-          </div>
+          {!completed ? (
+            <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
+              🔒 {t("প্রথমে ফাউন্ডেশন সার্টিফিকেট ১০০% সম্পন্ন করুন — এরপর এই সার্টিফিকেট ও ফাইনাল সার্টিফিকেট একসাথে আনলক হবে।", "Finish the Foundation Certificate to 100% first — then this certificate and the Final one unlock together.")}
+            </p>
+          ) : (
+            <>
+              <p className="mt-2 text-xs text-white/70">
+                {t("৩টি কাজ সম্পন্ন করলেই সার্টিফিকেট পাবেন", "Complete these 3 steps to earn it")}
+              </p>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button onClick={shareWhatsApp} className="btn-gold w-full text-sm !py-3.5">
-              📲 {t("WhatsApp-এ শেয়ার", "Share on WhatsApp")}
-            </button>
-            <button onClick={copy} className="btn-white w-full text-sm !py-3.5">
-              🔗 {copied ? t("কপি হয়েছে!", "Copied!") : t("লিংক কপি করুন", "Copy Link")}
-            </button>
-          </div>
+              <div className="mt-3 space-y-2">
+                {/* Step 1 — 11 joins */}
+                <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
+                  <span className="w-6 h-6 shrink-0 rounded-full bg-teal/20 text-teal text-xs font-black flex items-center justify-center mt-0.5">১</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-white">{t("১১ জন সহযোগী জয়েন করান", "Get 11 associates to join")}</p>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <div className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
+                      </div>
+                      <span className="text-[11px] font-black text-teal">{referralJoins}/11</span>
+                    </div>
+                    <p className="mt-1 text-[10px] text-white/50">{t("আপনার লিংকে যারা আসলে জয়েন করেছে", "People who actually joined through your link")}</p>
+                  </div>
+                </div>
+
+                {/* Step 2 — share written message */}
+                <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
+                  <span className="w-6 h-6 shrink-0 rounded-full bg-gold/20 text-gold text-xs font-black flex items-center justify-center mt-0.5">২</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-white">{t("লিখিত মেসেজ শেয়ার করুন", "Share the written message")}</p>
+                    <p className="mt-0.5 text-[10px] text-white/50 leading-relaxed">
+                      {t("অ্যাপ থেকে মেসেজ কপি করে ৩টি ফেসবুক গ্রুপ + ১টি WhatsApp গ্রুপ + নিজের প্রোফাইলে পোস্ট করুন", "Copy the message from the app and post it in 3 Facebook groups + 1 WhatsApp group + your own profile")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 — screenshots */}
+                <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
+                  <span className="w-6 h-6 shrink-0 rounded-full bg-pink/20 text-pink text-xs font-black flex items-center justify-center mt-0.5">৩</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-white">{t("৪টি স্ক্রিনশট জমা দিন", "Submit 4 screenshots")}</p>
+                    <p className="mt-0.5 text-[10px] text-white/50 leading-relaxed">
+                      {t("শেয়ারের স্ক্রিনশট আমাদের পাঠান — ২৪ ঘণ্টার মধ্যে ভেরিফাই করে সার্টিফিকেট দেব", "Send us the screenshots — we verify within 24 hours and issue the certificate")}
+                    </p>
+                    <button onClick={() => setShowShotHelp((v) => !v)} className="mt-1.5 text-[10px] font-black text-pink underline">
+                      📤 {t("কীভাবে জমা দেবেন", "How to submit")} <span className={`inline-block transition-transform ${showShotHelp ? "rotate-180" : ""}`}>▾</span>
+                    </button>
+                    {showShotHelp && (
+                      <div className="mt-2 rounded-lg bg-white/[0.04] border border-white/10 p-2.5 text-[10px] text-white/60 leading-relaxed">
+                        <p>১. নিচের "📝 মেসেজ কপি করুন" বাটনে চাপ দিয়ে লেখাটি কপি করুন</p>
+                        <p className="mt-1">২. ৩টি ফেসবুক গ্রুপে + ১টি WhatsApp গ্রুপে + নিজের প্রোফাইলে পোস্ট করুন</p>
+                        <p className="mt-1">৩. প্রতিটি পোস্টের স্ক্রিনশট নিন (মোট ৪টি)</p>
+                        <p className="mt-1">৪. স্ক্রিনশট জমা দেওয়ার সিস্টেম শীঘ্রই চালু হবে — ভেরিফাইয়ে ২৪ ঘণ্টা সময় লাগে</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sharing tools */}
+              <div className="mt-4">
+                <p className="text-[11px] font-black text-white/50 uppercase tracking-wide">{t("আপনার শেয়ার সরঞ্জাম", "Your sharing tools")}</p>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    readOnly
+                    value={link}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full px-3 py-3 rounded-2xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold truncate focus:outline-none"
+                  />
+                  <button onClick={copy} className={`flex-shrink-0 px-4 py-3 rounded-2xl font-black text-sm transition-all active:scale-95 ${copied ? "bg-teal text-white" : "bg-white text-brand"}`}>
+                    {copied ? "✅" : t("কপি", "Copy")}
+                  </button>
+                </div>
+
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button onClick={refreshReferral} className="py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all">
+                    🔄 {t("নতুন লিংক", "New link")}
+                  </button>
+                  <button onClick={copyMessage} className="py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-gold active:scale-[0.99] transition-all">
+                    📝 {t("মেসেজ কপি করুন", "Copy message")}
+                  </button>
+                </div>
+                <p className="mt-1.5 text-[10px] text-white/40 text-center">
+                  {t("প্রতিবার শেয়ারে নতুন আলাদা লিংক তৈরি হয় — সবাই একই লিংক পাবে না", "Every share creates a fresh unique link — no one gets the same link twice")}
+                </p>
+
+                <div className="mt-3 flex justify-center">
+                  <div className="bg-white rounded-3xl p-4 shadow-xl">
+                    {link ? <QRCode value={link} size={150} /> : null}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <button onClick={shareWhatsApp} className="btn-gold w-full text-sm !py-3.5">
+                    📲 {t("WhatsApp-এ শেয়ার", "Share on WhatsApp")}
+                  </button>
+                  <button onClick={copy} className="btn-white w-full text-sm !py-3.5">
+                    🔗 {copied ? t("কপি হয়েছে!", "Copied!") : t("লিংক কপি করুন", "Copy Link")}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Tips */}
-        <div className="mt-6 card-pop text-left !p-5">
-          <h3 className="font-black text-brand mb-3">💡 {t("কীভাবে এগিয়ে যাবেন", "How to Grow")}</h3>
-          <ul className="space-y-2 text-sm text-ink-soft">
-            <li>1️⃣ {t("লিংকটি ফেসবুক, ইউটিউব ও হোয়াটসঅ্যাপে শেয়ার করুন", "Share your link on Facebook, YouTube & WhatsApp")}</li>
-            <li>2️⃣ {t("প্রতি রেফারেলে সার্টিফিকেটের অগ্রগতি ও বোনাস রিসোর্স পাবেন", "Earn certificate progress & bonus resources on every referral")}</li>
-            <li>3️⃣ {t("বন্ধু বাড়লে সার্টিফিকেট ও স্বীকৃতি বাড়বে", "More friends = more certificates & recognition")}</li>
-          </ul>
+        {/* Certificate 3 — Elite Final */}
+        <div className="mt-6 card-splash !rounded-[2rem] text-left">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black flex items-center gap-2">
+              <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
+              <span>
+                {t("এলিট ফাইনাল সার্টিফিকেট", "Elite Final Certificate")}
+                <span className="block text-[10px] font-bold text-white/40">{t("স্তর ৩ • শেষ ধাপ", "Level 3 • Final step")}</span>
+              </span>
+            </h2>
+            <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-violet/20 text-violet border border-violet/40"}`}>
+              {!completed ? t("🔒 লক", "Locked") : t("✨ আনলক", "Unlocked")}
+            </span>
+          </div>
+          {!completed ? (
+            <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
+              🔒 {t("প্রথম সার্টিফিকেট ১০০% করলেই এই সার্টিফিকেট আনলক হবে।", "This certificate unlocks as soon as you finish the first one.")}
+            </p>
+          ) : (
+            <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
+              ✨ {t("অভিনন্দন — ফাইনাল সার্টিফিকেট আনলক হয়েছে! কাজের বিশদ বিবরণ শীঘ্রই এখানে যুক্ত হবে।", "Congratulations — the Final certificate is unlocked! The full task details are coming soon.")}
+            </p>
+          )}
         </div>
 
         <button onClick={() => router.push("/")} className="mt-6 btn-outline w-full">

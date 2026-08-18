@@ -32,6 +32,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Worker not found" }, { status: 404 });
     }
 
+    // Real joins via this worker's referral link (Level-2 certificate progress).
+    const joinsRow = await queryFirst<{ total: number }>(
+      env, "SELECT COUNT(*) AS total FROM workers WHERE sponsor_id = ?", [workerId]
+    ).catch(() => null);
+    const referralJoins = joinsRow?.total ?? 0;
+
     const looksLikePhone = (value?: string) => {
       if (!value) return false;
       const digits = value.replace(/\D/g, "");
@@ -73,6 +79,7 @@ export async function GET(request: NextRequest) {
       religion: worker.religion || "",
       totalTeamMembers: worker.total_team_members ?? 0,
       resourceIncome: worker.resource_income ?? 0,
+      referralJoins,
       interestsUpdatedAt: worker.interests_updated_at || null,
       profileCompleted: !!(
         worker.age_group && worker.occupation && worker.education_level &&

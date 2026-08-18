@@ -29,6 +29,7 @@ function CertificateView() {
   const { ref, scale } = useCertScale();
   const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
   const [data, setData] = useState<CertData | null>(null);
+  const [showValue, setShowValue] = useState(false);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -152,10 +153,19 @@ function CertificateView() {
           }
         `}</style>
 
-        {/* Value / benefits / income — what this certificate means */}
-        <div className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
-          <h2 className="text-lg font-black text-brand">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</h2>
-          <div className="mt-4 space-y-4">
+        {/* Value / benefits — behind a button so the page stays calm */}
+        <div className="mt-6 print:hidden">
+          <button
+            onClick={() => setShowValue((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</span>
+            <span className={`text-white/60 text-sm transition-transform ${showValue ? "rotate-180" : ""}`}>▾</span>
+          </button>
+
+          {showValue && (
+            <div className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
+              <div className="mt-2 space-y-4">
             <div className="flex gap-3">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
               <div>
@@ -191,8 +201,10 @@ function CertificateView() {
                   {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে!", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next!")}
                 </p>
               </div>
+              </div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Next, even more valuable certificate teaser */}
