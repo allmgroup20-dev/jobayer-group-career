@@ -452,20 +452,28 @@ export default function CompletePage() {
             </div>
           )}
 
-          {/* Certificate preview — exactly how the certificate will look. View
-              only (no download); uses the user's real name when available. */}
+          {/* Certificate preview — a clearly-fake sample that CANNOT be used:
+              sample name, fake ID/date, no scannable QR, diagonal watermark. */}
           <p className="mt-4 text-xs font-black text-gold">
             👀 {t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "Here's how your certificate will look")}
           </p>
-          <div className="mt-2 relative bg-white text-gray-900 rounded-2xl p-5 shadow-2xl">
+          <div className="mt-2 relative bg-white text-gray-900 rounded-2xl p-5 shadow-2xl select-none">
             <div className="absolute inset-2 border-2 border-gold rounded-xl pointer-events-none" />
             <div className="absolute inset-3 border border-gold/50 rounded-lg pointer-events-none" />
+            <span className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-20 rounded-full bg-gold px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+              ◈ PREVIEW · নমুনা
+            </span>
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden rounded-2xl">
+              <span className="whitespace-nowrap rotate-[-24deg] text-[34px] font-black uppercase tracking-[0.25em] text-gray-900/10">
+                নমুনা · SAMPLE
+              </span>
+            </div>
             <div className="relative text-center">
               <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-9 w-auto" />
               <h3 className="mt-2 text-lg font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
               <div className="mt-1.5 mx-auto h-0.5 w-28 bg-gradient-to-r from-transparent via-gold to-transparent" />
               <p className="mt-2 text-[11px] font-bold text-gray-600">This certifies that</p>
-              <p className="mt-2 text-2xl font-black text-brand">{me?.name || t("রহিম উদ্দিন", "Rahim Uddin")}</p>
+              <p className="mt-2 text-2xl font-black text-brand">{t("রহিম উদ্দিন", "Rahim Uddin")}</p>
               <p className="mt-3 text-[11px] leading-relaxed text-gray-700">
                 has successfully completed their full profile on <b>YouTube Earner</b> and proven
                 outstanding community-building and digital marketing skills by uniting a growing
@@ -476,13 +484,15 @@ export default function CompletePage() {
                   <p className="font-black text-gray-900">Certificate ID</p>
                   <p className="mt-0.5 font-mono font-bold">YA-REF-2026-XXXXXX</p>
                   <p className="mt-2 font-black text-gray-900">Date</p>
-                  <p className="mt-0.5 font-bold">{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="mt-0.5 font-bold">01 January 2026</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="bg-white p-1.5 rounded-lg border border-gray-200">
-                    <QRCode value="https://youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX" size={72} />
+                  <div className="flex h-[72px] w-[72px] items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
+                    <span className="text-center text-[10px] font-black leading-tight text-gray-400">🔒<br />নমুনা QR</span>
                   </div>
-                  <p className="mt-1 text-[8px] text-gray-500">Scan to verify</p>
+                  <p className="mt-1 text-[8px] font-bold text-gray-400">
+                    {t("সত্যতা যাচাই করা যাবে না", "Not verifiable")}
+                  </p>
                 </div>
               </div>
               <div className="mt-4 pt-2.5 border-t border-gray-200 text-[10px] text-gray-500">
@@ -491,8 +501,8 @@ export default function CompletePage() {
               </div>
             </div>
           </div>
-          <p className="mt-2 text-[10px] font-bold text-white/40">
-            ⓘ {t("নমুনা · SAMPLE — এটি আপনার আসল সার্টিফিকেট নয়, শুধু দেখার জন্য। ডাউনলোড করা যাবে না।", "Sample · preview only — not your real certificate, and it cannot be downloaded.")}
+          <p className="mt-2 rounded-xl bg-red/10 border border-red/30 px-3 py-2 text-[10px] font-bold text-red leading-relaxed">
+            ⚠️ {t("এটি নমুনা মাত্র — স্ক্রিনশট নিয়ে কোথাও ব্যবহার করা যাবে না। আসল সার্টিফিকেটে আপনার নিজের নাম, ইউনিক আইডি ও যাচাইযোগ্য QR থাকবে — যা ১০০% পূরণ করলেই পাওয়া যাবে।", "This is only a sample — it cannot be used anywhere, even via screenshot. Your real certificate will have your own name, a unique ID and a verifiable QR — available only after you reach 100%.")}
           </p>
 
           <div className="mt-3 flex items-center gap-3">
