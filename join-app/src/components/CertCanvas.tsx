@@ -308,8 +308,21 @@ export default function CertCanvas({
               </p>
             </div>
           </div>
+        ) : isAmbassador ? (
+          <div className="mt-6 w-full rounded-xl border border-gold/50 bg-[#F5EFE0] px-6 py-3 shadow-lg">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <img src="/certs/ambassador-signature.png" alt="Signature" className="h-11 w-auto" />
+                <p className="mt-1 text-base font-black tracking-wide text-[#0e2444]">PREETI LOBANA</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6b5322]">Country Manager &amp; Vice President</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6b5322]">YouTube India</p>
+              </div>
+              <img src="/certs/ambassador-seal.png" alt="Official Seal" className="h-16 w-16 rounded-full object-cover ring-2 ring-[#C69B3C] shadow" />
+            </div>
+            <p className="mt-2 text-center text-[10px] font-bold text-[#3d2b1f]">Verify online: {verifyLine}</p>
+          </div>
         ) : (
-          <div className={`mt-6 w-full pt-4 border-t text-sm ${isAmbassador ? "border-white/20 text-white/70" : "border-gray-200 text-gray-500"}`}>
+          <div className="mt-6 w-full pt-4 border-t text-sm text-gray-500">
             <p className="font-bold">Authorized Signatory — YouTube Earner</p>
             <p className="mt-1">Verify online: {verifyLine}</p>
           </div>
