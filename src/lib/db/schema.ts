@@ -217,6 +217,17 @@ export const apiCostLogs = sqliteTable("api_cost_logs", {
   createdAt: text("created_at"),
 });
 
+export const screenshotSubmissions = sqliteTable("screenshot_submissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  workerId: text("worker_id").notNull(),
+  certificateLevel: integer("certificate_level").notNull().default(2),
+  status: text("status").notNull().default("pending"),
+  kvKeys: text("kv_keys"),
+  savedForAi: integer("saved_for_ai").notNull().default(0),
+  adminVerifiedAt: text("admin_verified_at"),
+  createdAt: text("created_at"),
+});
+
 export const testSessions = sqliteTable("test_sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   sessionId: text("session_id").unique().notNull(),

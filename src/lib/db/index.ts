@@ -80,6 +80,16 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
         status TEXT NOT NULL DEFAULT 'ok',
         created_at TEXT DEFAULT (datetime('now'))
       )`).run().catch(() => {});
+      await env.DB.prepare(`CREATE TABLE IF NOT EXISTS screenshot_submissions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        worker_id TEXT NOT NULL,
+        certificate_level INTEGER NOT NULL DEFAULT 2,
+        status TEXT NOT NULL DEFAULT 'pending',
+        kv_keys TEXT,
+        saved_for_ai INTEGER NOT NULL DEFAULT 0,
+        admin_verified_at TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      )`).run().catch(() => {});
 
       const seeded = await env.DB.prepare(
         "SELECT setting_value FROM company_settings WHERE setting_key = 'schema_seeded'"
@@ -95,6 +105,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
           ('retention_engine', 1, 'Retention engine', 'ai'),
           ('ai_knowledge', 1, 'AI knowledge auto-seed', 'ai'),
           ('ai_profiler', 1, 'AI profiler', 'ai'),
+          ('ai_screenshot_verify', 0, 'AI screenshot verification', 'ai'),
           ('whatsapp', 1, 'WhatsApp Cloud API', 'messaging'),
           ('whatsapp_otp_verify', 0, 'WhatsApp OTP verification', 'messaging'),
           ('telegram', 1, 'Telegram bot', 'messaging'),
@@ -137,7 +148,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     const cols = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
     const names = cols.results?.map(r => r.name) || [];
     const tbls = await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs')"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs','screenshot_submissions')"
     ).all<{ name: string }>();
     const tables = tbls.results?.map(r => r.name) || [];
     const seeded = await env.DB.prepare(
@@ -148,6 +159,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       tables.includes("feature_flags") &&
       tables.includes("site_content") &&
       tables.includes("api_cost_logs") &&
+      tables.includes("screenshot_submissions") &&
       !!seeded
     ) {
       g[DONE_FLAG] = true;

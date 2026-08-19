@@ -26,6 +26,23 @@ export async function getDB(): Promise<{ DB: D1Database }> {
   }
 }
 
+let kvCache: { CACHE: KVNamespace } | null = null;
+
+// Shared KV namespace (same as the root admin app). Screenshots are stored
+// here under 'shots:' keys with a TTL so they auto-delete after verification.
+export async function getKV(): Promise<{ CACHE: KVNamespace }> {
+  if (kvCache) return kvCache;
+  try {
+    const ctx = await getCloudflareContext({ async: true });
+    const kv = (ctx.env as any).CACHE as KVNamespace;
+    if (!kv) throw new Error("KV binding 'CACHE' is undefined");
+    kvCache = { CACHE: kv };
+    return kvCache;
+  } catch (e) {
+    throw e instanceof Error ? e : new Error("KV connection failed");
+  }
+}
+
 export async function getGoogleClientId(): Promise<string> {
   return process.env.GOOGLE_CLIENT_ID || "";
 }

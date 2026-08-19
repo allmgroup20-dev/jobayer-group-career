@@ -20,6 +20,7 @@ const navTabs = [
   { href: "/company/marketing", en: "Marketing", bn: "মার্কেটিং", icon: "📈" },
   { href: "/company/content", en: "Content", bn: "কন্টেন্ট", icon: "📝" },
   { href: "/company/members", en: "People", bn: "সদস্য", icon: "👥" },
+  { href: "/company/certificates", en: "Certificates", bn: "সার্টিফিকেট", icon: "📜" },
   { href: "/company/features", en: "Features", bn: "ফিচার", icon: "🔌" },
   { href: "/company/api-costs", en: "API Costs", bn: "API খরচ", icon: "💲" },
   { href: "/company/settings", en: "Settings", bn: "সেটিংস", icon: "⚙️" },

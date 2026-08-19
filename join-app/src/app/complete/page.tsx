@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
-import { A4_LANDSCAPE_H, A4_LANDSCAPE_W, useCertScale } from "@/lib/useCertScale";
+import CertificateSample from "@/components/CertificateSample";
 
 declare global {
   interface Navigator {
@@ -42,7 +43,6 @@ export default function CompletePage() {
   const [me, setMe] = useState<Me | null>(null);
   const [link, setLink] = useState("");
   const [shareText, setShareText] = useState("");
-  const [copied, setCopied] = useState(false);
   const [loadingInit, setLoadingInit] = useState(true);
 
   const [share, setShare] = useState<ShareSummary | null>(null);
@@ -56,6 +56,9 @@ export default function CompletePage() {
   const percentRef = useRef(0);
   const [listSearch, setListSearch] = useState("");
   const [showCertPreview, setShowCertPreview] = useState(false);
+  const [showCert2Preview, setShowCert2Preview] = useState(false);
+  const [showCert3Preview, setShowCert3Preview] = useState(false);
+  const [showWaPicker, setShowWaPicker] = useState(false);
   const [showShotHelp, setShowShotHelp] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
   const [certName, setCertName] = useState("");
@@ -65,7 +68,13 @@ export default function CompletePage() {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [nameMsg, setNameMsg] = useState<Msg>(null);
-  const { ref: certPreviewRef, scale: certPreviewScale } = useCertScale();
+  const [msgCopied, setMsgCopied] = useState(false);
+  const [shotStatus, setShotStatus] = useState<"none" | "pending" | "verified" | "rejected">("none");
+  const [shotCount, setShotCount] = useState(0);
+  const [shotFiles, setShotFiles] = useState<File[]>([]);
+  const [shotThumbs, setShotThumbs] = useState<string[]>([]);
+  const [shotUploading, setShotUploading] = useState(false);
+  const [shotMsg, setShotMsg] = useState<Msg>(null);
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -380,31 +389,63 @@ export default function CompletePage() {
     }));
   }, []);
 
-  const copy = async () => {
-    const fresh = await refreshReferral();
-    const value = fresh?.link || link;
-    try { await navigator.clipboard.writeText(value); } catch { /* ignore */ }
-    setCopied(true);
-    trackEvent("share_click", { pageCategory: "complete", metadata: { method: "copy" } });
-    setTimeout(() => setCopied(false), 1800);
-  };
-
   const copyMessage = async () => {
     const fresh = await refreshReferral();
     const text = fresh?.text || shareText;
     if (!text) return;
     try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
-    setCopied(true);
+    setMsgCopied(true);
     trackEvent("share_click", { pageCategory: "complete", metadata: { method: "copy_message" } });
-    setTimeout(() => setCopied(false), 1800);
+    setTimeout(() => setMsgCopied(false), 1800);
   };
 
-  const shareWhatsApp = async () => {
-    const fresh = await refreshReferral();
-    const text = fresh?.text || shareText;
-    if (!text) return;
-    trackEvent("share_click", { pageCategory: "complete", metadata: { method: "whatsapp" } });
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  const completed = share?.completed ?? false;
+
+  // Referral-certificate screenshot proof: current status + upload.
+  useEffect(() => {
+    if (!completed) return;
+    fetch("/api/share/screenshots")
+      .then((r) => (r.ok ? r.json() : Promise.resolve(null)))
+      .then((d) => {
+        const s = d as { status?: string; count?: number } | null;
+        if (s?.status && s.status !== "none") {
+          setShotStatus(s.status as "pending" | "verified" | "rejected");
+          setShotCount(s.count || 0);
+        }
+      })
+      .catch(() => {});
+  }, [completed]);
+
+  const onShotPick = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).slice(0, 4);
+    setShotFiles(files);
+    setShotThumbs(files.map((f) => URL.createObjectURL(f)));
+    setShotMsg(null);
+  };
+
+  const submitScreenshots = async () => {
+    if (shotUploading || shotFiles.length === 0) return;
+    setShotUploading(true);
+    setShotMsg(null);
+    try {
+      const fd = new FormData();
+      for (const f of shotFiles) fd.append("files", f);
+      const res = await fetch("/api/share/screenshots", { method: "POST", body: fd });
+      const json = await res.json() as { error?: string };
+      if (!res.ok) {
+        setShotMsg({ kind: "error", text: json.error || t("জমা দেওয়া যায়নি — আবার চেষ্টা করুন", "Could not submit — try again") });
+        return;
+      }
+      setShotStatus("pending");
+      setShotCount(shotFiles.length);
+      setShotFiles([]);
+      setShotThumbs([]);
+      setShotMsg({ kind: "ok", text: t("✅ জমা হয়েছে! ২৪ ঘণ্টার মধ্যে ভেরিফাই হবে।", "✅ Submitted! We'll verify within 24 hours.") });
+    } catch {
+      setShotMsg({ kind: "error", text: t("জমা দেওয়া যায়নি — আবার চেষ্টা করুন", "Could not submit — try again") });
+    } finally {
+      setShotUploading(false);
+    }
   };
 
   if (loadingInit) {
@@ -430,9 +471,141 @@ export default function CompletePage() {
   const shownSent = expanded ? shownSentAll : shownSentAll.slice(0, LIST_PREVIEW);
   const hiddenCount = (shownSelectedAll.length - shownSelected.length) + (shownSentAll.length - shownSent.length);
   const sentCount = share?.sent ?? 0;
-  const completed = share?.completed ?? false;
   const target = share?.target ?? 30;
   const referralJoins = me?.referralJoins ?? 0;
+
+  // The contact-picker + send list is shared by BOTH the Foundation card and
+  // the Referral Ambassador card (its WhatsApp option opens on click). Rendered
+  // from a single JSX fragment so the two stay identical.
+  const contactSendSection = (
+    <>
+      {(selectedContacts.length > 0 || sentContacts.length > 0) && (
+        <div className="mt-4 space-y-2">
+          <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">
+            {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
+          </p>
+          <AddPeopleBlock
+            t={t}
+            busy={busy}
+            contactsSupported={contactsSupported}
+            onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+            onNativePick={pickContacts}
+            onManualAdd={addManualPhone}
+          />
+          <input
+            value={listSearch}
+            onChange={(e) => setListSearch(e.target.value)}
+            placeholder={t("🔍 নাম বা নম্বর দিয়ে খুঁজুন…", "🔍 Search by name or number…")}
+            className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold placeholder-white/40 focus:outline-none focus:border-pink/60"
+          />
+          {shownSelected.length === 0 && shownSent.length === 0 && (
+            <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
+          )}
+          {shownSelected.map((c, i) => (
+            <div
+              key={`${c.phone}-${i}`}
+              className={`bg-white/5 border rounded-xl px-3 py-2 ${failedPhones.has(c.phone) ? "border-red/40 bg-red/[0.07]" : "border-white/10"}`}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
+                  <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
+                  {pendingList.includes(c.phone) && (
+                    <p className="text-[10px] font-bold text-gold mt-0.5">
+                      🔍 {t("যাচাই করা হচ্ছে", "Verifying")}
+                      <span className="verify-dots"><span /><span /><span /></span>
+                    </p>
+                  )}
+                  {failedPhones.has(c.phone) && (
+                    <p className="text-[10px] font-bold text-red mt-0.5">{t("✗ বাতিল হয়েছে — আবার পাঠান", "✗ Cancelled — send again")}</p>
+                  )}
+                </div>
+                {c.waExists === false ? (
+                  <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
+                    {t("WhatsApp নেই", "No WhatsApp")}
+                  </span>
+                ) : pendingList.includes(c.phone) ? (
+                  <button
+                    onClick={() => sendTo(c.phone, c.shareText)}
+                    className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
+                  >
+                    🔄 {t("পুনরায় পাঠান", "Send again")}
+                  </button>
+                ) : failedPhones.has(c.phone) ? (
+                  <button
+                    onClick={() => sendTo(c.phone, c.shareText)}
+                    className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 border border-red/40 text-red text-[10px] font-black active:scale-95 transition-all"
+                  >
+                    📤 {t("পুনরায় পাঠান", "Send again")}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => sendTo(c.phone, c.shareText)}
+                    className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
+                  >
+                    📤 {t("WhatsApp-এ পাঠান", "Send")}
+                  </button>
+                )}
+              </div>
+              {pendingList.includes(c.phone) && (
+                <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold leading-relaxed">
+                  🔍 {t(
+                    "যাচাই করা হচ্ছে — নিশ্চিত করছি আপনি সত্যিই WhatsApp-এ পাঠিয়েছেন। সঠিকভাবে না পাঠালে এটি গোনা হবে না; চাইলে আবার পাঠাতে পারেন।",
+                    "Verifying — making sure you really sent it on WhatsApp. If not sent properly, it won't count; you can always send again."
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          {shownSent.map((c, i) => (
+            <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 opacity-75">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
+                <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
+                <p className="text-[10px] font-bold text-teal mt-0.5">
+                  {c.sentAt
+                    ? t(`✅ একবার পাঠানো হয়েছে (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — আবার পাঠাতে পারেন`, `✅ Sent once (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — you can send again`)
+                    : t("✅ একবার পাঠানো হয়েছে — আবার পাঠাতে পারেন", "✅ Already sent — you can send again")}
+                </p>
+              </div>
+              {c.waExists === false ? (
+                <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
+                  {t("WhatsApp নেই", "No WhatsApp")}
+                </span>
+              ) : (
+                <button
+                  onClick={() => sendTo(c.phone, c.shareText)}
+                  className="flex-shrink-0 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black active:scale-95 transition-all"
+                >
+                  🔁 {t("আবার পাঠান", "Send again")}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!expanded && hiddenCount > 0 && (
+        <button
+          onClick={() => setExpandedList(true)}
+          className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all"
+        >
+          {t(`আরও দেখুন (${hiddenCount})`, `Show more (${hiddenCount})`)}
+        </button>
+      )}
+
+      <div className="mt-4 space-y-2">
+        <AddPeopleBlock
+          t={t}
+          busy={busy}
+          contactsSupported={contactsSupported}
+          onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+          onNativePick={pickContacts}
+          onManualAdd={addManualPhone}
+        />
+      </div>
+    </>
+  );
 
   return (
     <main className="min-h-screen overflow-x-hidden relative pt-20">
@@ -521,75 +694,7 @@ export default function CompletePage() {
             <span className={`text-white/60 text-sm transition-transform ${showCertPreview ? "rotate-180" : ""}`}>▾</span>
           </button>
 
-          {showCertPreview && (
-          <>
-
-          {/* Certificate preview — a clearly-fake sample that CANNOT be used:
-              sample name, fake ID/date, no scannable QR, diagonal watermark.
-              Fixed A4-landscape canvas (same as the real certificate). */}
-          <p className="mt-4 text-xs font-black text-gold">
-            👀 {t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "Here's how your certificate will look")}
-          </p>
-          <div ref={certPreviewRef} className="mt-2 w-full overflow-hidden" style={{ height: A4_LANDSCAPE_H * certPreviewScale }}>
-            <div
-              className="relative bg-white text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden"
-              style={{
-                width: A4_LANDSCAPE_W,
-                height: A4_LANDSCAPE_H,
-                transform: `scale(${certPreviewScale})`,
-                transformOrigin: "top left",
-              }}
-            >
-              <div className="absolute inset-4 border-2 border-gold rounded-xl pointer-events-none" />
-              <div className="absolute inset-5 border border-gold/50 rounded-lg pointer-events-none" />
-              <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-20 rounded-full bg-gold px-3 py-1 text-[13px] font-black uppercase tracking-wider text-white">
-                ◈ PREVIEW · নমুনা
-              </span>
-              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
-                <span className="whitespace-nowrap rotate-[-24deg] text-[90px] font-black uppercase tracking-[0.25em] text-gray-900/10">
-                  নমুনা · SAMPLE
-                </span>
-              </div>
-
-              <div className="relative flex h-full flex-col items-center justify-center px-14 text-center">
-                <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-12 w-auto" />
-                <h3 className="mt-3 text-4xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h3>
-                <div className="mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent" />
-                <p className="mt-3 text-base font-bold text-gray-600">This certifies that</p>
-                <p className="mt-3 text-5xl font-black text-brand">{t("রহিম উদ্দিন", "Rahim Uddin")}</p>
-                <p className="mt-4 text-base leading-relaxed text-gray-700 max-w-3xl mx-auto">
-                  has successfully completed their full profile on <b>YouTube Earner</b> and proven
-                  outstanding community-building and digital marketing skills by uniting a growing
-                  community of learners and friends.
-                </p>
-                <div className="mt-6 flex w-full items-end justify-between">
-                  <div className="text-left text-sm text-gray-600">
-                    <p className="font-black text-gray-900">Certificate ID</p>
-                    <p className="mt-1 font-mono font-bold">YA-REF-2026-XXXXXX</p>
-                    <p className="mt-3 font-black text-gray-900">Date</p>
-                    <p className="mt-1 font-bold">01 January 2026</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-[96px] w-[96px] items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
-                      <span className="text-center text-sm font-black leading-tight text-gray-400">🔒<br />নমুনা QR</span>
-                    </div>
-                    <p className="mt-1 text-[10px] font-bold text-gray-400">
-                      {t("সত্যতা যাচাই করা যাবে না", "Not verifiable")}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-6 w-full pt-4 border-t border-gray-200 text-sm text-gray-500">
-                  <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-                  <p className="mt-1">Verify online: youtube.earner.workers.dev/certificate?id=YA-REF-2026-XXXXXX</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="mt-2 rounded-xl bg-red/10 border border-red/30 px-3 py-2 text-[10px] font-bold text-red leading-relaxed">
-            ⚠️ {t("এটি নমুনা মাত্র — স্ক্রিনশট নিয়ে কোথাও ব্যবহার করা যাবে না। আসল সার্টিফিকেটে আপনার নিজের নাম, ইউনিক আইডি ও যাচাইযোগ্য QR থাকবে — যা ১০০% পূরণ করলেই পাওয়া যাবে।", "This is only a sample — it cannot be used anywhere, even via screenshot. Your real certificate will have your own name, a unique ID and a verifiable QR — available only after you reach 100%.")}
-          </p>
-          </>
-          )}
+          {showCertPreview && <CertificateSample variant="foundation" />}
 
           {/* Single progress — one bar, one encouraging line */}
           <div className="mt-4 flex items-center gap-3">
@@ -613,133 +718,9 @@ export default function CompletePage() {
             </div>
           )}
 
-          {!completed ? (
+{!completed ? (
             <>
-              {(selectedContacts.length > 0 || sentContacts.length > 0) && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide">
-                    {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
-                  </p>
-                  <AddPeopleBlock
-                    t={t}
-                    busy={busy}
-                    contactsSupported={contactsSupported}
-                    onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
-                    onNativePick={pickContacts}
-                    onManualAdd={addManualPhone}
-                  />
-                  <input
-                    value={listSearch}
-                    onChange={(e) => setListSearch(e.target.value)}
-                    placeholder={t("🔍 নাম বা নম্বর দিয়ে খুঁজুন…", "🔍 Search by name or number…")}
-                    className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold placeholder-white/40 focus:outline-none focus:border-pink/60"
-                  />
-                  {shownSelected.length === 0 && shownSent.length === 0 && (
-                    <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
-                  )}
-                  {shownSelected.map((c, i) => (
-                    <div
-                      key={`${c.phone}-${i}`}
-                      className={`bg-white/5 border rounded-xl px-3 py-2 ${failedPhones.has(c.phone) ? "border-red/40 bg-red/[0.07]" : "border-white/10"}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
-                          <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
-                          {pendingList.includes(c.phone) && (
-                            <p className="text-[10px] font-bold text-gold mt-0.5">
-                              🔍 {t("যাচাই করা হচ্ছে", "Verifying")}
-                              <span className="verify-dots"><span /><span /><span /></span>
-                            </p>
-                          )}
-                          {failedPhones.has(c.phone) && (
-                            <p className="text-[10px] font-bold text-red mt-0.5">{t("✗ বাতিল হয়েছে — আবার পাঠান", "✗ Cancelled — send again")}</p>
-                          )}
-                        </div>
-                        {c.waExists === false ? (
-                          <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
-                            {t("WhatsApp নেই", "No WhatsApp")}
-                          </span>
-                        ) : pendingList.includes(c.phone) ? (
-                          <button
-                            onClick={() => sendTo(c.phone, c.shareText)}
-                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
-                          >
-                            🔄 {t("পুনরায় পাঠান", "Send again")}
-                          </button>
-                        ) : failedPhones.has(c.phone) ? (
-                          <button
-                            onClick={() => sendTo(c.phone, c.shareText)}
-                            className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 border border-red/40 text-red text-[10px] font-black active:scale-95 transition-all"
-                          >
-                            📤 {t("পুনরায় পাঠান", "Send again")}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => sendTo(c.phone, c.shareText)}
-                            className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
-                          >
-                            📤 {t("WhatsApp-এ পাঠান", "Send")}
-                          </button>
-                        )}
-                      </div>
-                      {pendingList.includes(c.phone) && (
-                        <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold leading-relaxed">
-                          🔍 {t(
-                            "যাচাই করা হচ্ছে — নিশ্চিত করছি আপনি সত্যিই WhatsApp-এ পাঠিয়েছেন। সঠিকভাবে না পাঠালে এটি গোনা হবে না; চাইলে আবার পাঠাতে পারেন।",
-                            "Verifying — making sure you really sent it on WhatsApp. If not sent properly, it won't count; you can always send again."
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {shownSent.map((c, i) => (
-                    <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 opacity-75">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
-                        <p className="text-[10px] text-white/40 font-mono">{`+${c.phone}`}</p>
-                        <p className="text-[10px] font-bold text-teal mt-0.5">
-                          {c.sentAt
-                            ? t(`✅ একবার পাঠানো হয়েছে (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — আবার পাঠাতে পারেন`, `✅ Sent once (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — you can send again`)
-                            : t("✅ একবার পাঠানো হয়েছে — আবার পাঠাতে পারেন", "✅ Already sent — you can send again")}
-                        </p>
-                      </div>
-                      {c.waExists === false ? (
-                        <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-white/5 text-white/40 border border-white/10 text-[10px] font-black">
-                          {t("WhatsApp নেই", "No WhatsApp")}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => sendTo(c.phone, c.shareText)}
-                          className="flex-shrink-0 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black active:scale-95 transition-all"
-                        >
-                          🔁 {t("আবার পাঠান", "Send again")}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!expanded && hiddenCount > 0 && (
-                <button
-                  onClick={() => setExpandedList(true)}
-                  className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all"
-                >
-                  {t(`আরও দেখুন (${hiddenCount})`, `Show more (${hiddenCount})`)}
-                </button>
-              )}
-
-              <div className="mt-4 space-y-2">
-                <AddPeopleBlock
-                  t={t}
-                  busy={busy}
-                  contactsSupported={contactsSupported}
-                  onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
-                  onNativePick={pickContacts}
-                  onManualAdd={addManualPhone}
-                />
-              </div>
+              {contactSendSection}
             </>
           ) : (
             <div className="mt-4 rounded-2xl bg-gradient-to-br from-gold/20 via-pink/20 to-violet/20 border border-gold/30 p-5 text-center">
@@ -893,34 +874,83 @@ export default function CompletePage() {
                         <p>১. নিচের "📝 মেসেজ কপি করুন" বাটনে চাপ দিয়ে লেখাটি কপি করুন</p>
                         <p className="mt-1">২. ৩টি ফেসবুক গ্রুপে + ১টি WhatsApp গ্রুপে + নিজের প্রোফাইলে পোস্ট করুন</p>
                         <p className="mt-1">৩. প্রতিটি পোস্টের স্ক্রিনশট নিন (মোট ৪টি)</p>
-                        <p className="mt-1">৪. স্ক্রিনশট জমা দেওয়ার সিস্টেম শীঘ্রই চালু হবে — ভেরিফাইয়ে ২৪ ঘণ্টা সময় লাগে</p>
+                        <p className="mt-1">৪. নিচের স্ক্রিনশট বক্সে ৪টি ছবি যুক্ত করে "স্ক্রিনশট জমা দিন" বাটনে চাপ দিন — ভেরিফাইয়ে ২৪ ঘণ্টা সময় লাগে</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
+              {/* Screenshot submission (step 3) */}
+              <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                {shotStatus === "verified" ? (
+                  <div className="rounded-xl bg-teal/15 border border-teal/30 px-3 py-2 text-[11px] font-black text-teal leading-relaxed">
+                    ✅ {t("ভেরিফাই হয়েছে — আপনার স্ক্রিনশটগুলো গৃহীত হয়েছে", "Verified — your screenshots were accepted")}
+                  </div>
+                ) : shotStatus === "pending" ? (
+                  <div className="rounded-xl bg-gold/15 border border-gold/30 px-3 py-2 text-[11px] font-black text-gold leading-relaxed">
+                    🔍 {t("ভেরিফাইয়ের অপেক্ষায় — ২৪ ঘণ্টার মধ্যে সম্পন্ন হবে", "Waiting for verification — done within 24 hours")}
+                  </div>
+                ) : shotStatus === "rejected" ? (
+                  <div className="rounded-xl bg-red/15 border border-red/30 px-3 py-2 text-[11px] font-black text-red leading-relaxed">
+                    ❌ {t("বাতিল হয়েছে — নতুন করে জমা দিন", "Rejected — please resubmit")}
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-[11px] font-black text-white/70">{t("আপনার ৪টি স্ক্রিনশট এখানে যুক্ত করুন", "Add your 4 screenshots here")}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {shotThumbs.map((src, i) => (
+                        <div key={i} className="relative">
+                          <img src={src} className="w-16 h-16 object-cover rounded-lg border border-white/20" alt="" />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const f = shotFiles.filter((_, j) => j !== i);
+                              setShotFiles(f);
+                              setShotThumbs(f.map((x) => URL.createObjectURL(x)));
+                            }}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red text-white text-[10px] font-black leading-none"
+                          >×</button>
+                        </div>
+                      ))}
+                      {shotThumbs.length < 4 && (
+                        <label className="w-16 h-16 rounded-lg border-2 border-dashed border-white/25 flex items-center justify-center text-2xl text-white/40 cursor-pointer">
+                          +
+                          <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={onShotPick} />
+                        </label>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={submitScreenshots}
+                      disabled={shotUploading || shotFiles.length === 0}
+                      className="mt-2 w-full py-2.5 rounded-xl btn-gold text-xs font-black disabled:opacity-50"
+                    >
+                      {shotUploading ? t("জমা হচ্ছে…", "Uploading…") : t("📤 স্ক্রিনশট জমা দিন", "Submit screenshots")}
+                    </button>
+                    {shotMsg && (
+                      <p className={`mt-1 text-[10px] font-bold ${shotMsg.kind === "ok" ? "text-teal" : "text-red"}`}>{shotMsg.text}</p>
+                    )}
+                  </>
+                )}
+              </div>
+
               {/* Sharing tools */}
               <div className="mt-4">
                 <p className="text-[11px] font-black text-white/50 uppercase tracking-wide">{t("আপনার শেয়ার সরঞ্জাম", "Your sharing tools")}</p>
-                <div className="mt-2 flex gap-2">
-                  <input
-                    readOnly
-                    value={link}
-                    onFocus={(e) => e.target.select()}
-                    className="w-full px-3 py-3 rounded-2xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold truncate focus:outline-none"
-                  />
-                  <button onClick={copy} className={`flex-shrink-0 px-4 py-3 rounded-2xl font-black text-sm transition-all active:scale-95 ${copied ? "bg-teal text-white" : "bg-white text-brand"}`}>
-                    {copied ? "✅" : t("কপি", "Copy")}
-                  </button>
-                </div>
+                <input
+                  readOnly
+                  value={link}
+                  onFocus={(e) => e.target.select()}
+                  className="mt-2 w-full px-3 py-3 rounded-2xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold truncate focus:outline-none"
+                />
 
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <button onClick={refreshReferral} className="py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all">
                     🔄 {t("নতুন লিংক", "New link")}
                   </button>
-                  <button onClick={copyMessage} className="py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-gold active:scale-[0.99] transition-all">
-                    📝 {t("মেসেজ কপি করুন", "Copy message")}
+                  <button onClick={copyMessage} className={`py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black active:scale-[0.99] transition-all ${msgCopied ? "text-teal" : "text-gold"}`}>
+                    {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("মেসেজ কপি করুন", "Copy message")}`}
                   </button>
                 </div>
                 <p className="mt-1.5 text-[10px] text-white/40 text-center">
@@ -933,15 +963,23 @@ export default function CompletePage() {
                   </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <button onClick={shareWhatsApp} className="btn-gold w-full text-sm !py-3.5">
-                    📲 {t("WhatsApp-এ শেয়ার", "Share on WhatsApp")}
-                  </button>
-                  <button onClick={copy} className="btn-white w-full text-sm !py-3.5">
-                    🔗 {copied ? t("কপি হয়েছে!", "Copied!") : t("লিংক কপি করুন", "Copy Link")}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowWaPicker((v) => !v)}
+                  className="mt-3 w-full btn-gold text-sm !py-3.5"
+                >
+                  📲 {showWaPicker ? t("WhatsApp-এ পাঠানো বন্ধ করুন", "Close WhatsApp sending") : t("WhatsApp-এ পাঠান", "Send on WhatsApp")} <span className={`inline-block transition-transform ${showWaPicker ? "rotate-180" : ""}`}>▾</span>
+                </button>
+
+                {showWaPicker && contactSendSection}
               </div>
+
+              <button
+                onClick={() => setShowCert2Preview((v) => !v)}
+                className="mt-4 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-gold active:scale-[0.99] transition-all"
+              >
+                👀 {showCert2Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "See how your certificate will look")} <span className={`inline-block transition-transform ${showCert2Preview ? "rotate-180" : ""}`}>▾</span>
+              </button>
+              {showCert2Preview && <CertificateSample variant="ambassador" />}
             </>
           )}
         </div>
@@ -969,6 +1007,14 @@ export default function CompletePage() {
               ✨ {t("অভিনন্দন — ফাইনাল সার্টিফিকেট আনলক হয়েছে! কাজের বিশদ বিবরণ শীঘ্রই এখানে যুক্ত হবে।", "Congratulations — the Final certificate is unlocked! The full task details are coming soon.")}
             </p>
           )}
+
+          <button
+            onClick={() => setShowCert3Preview((v) => !v)}
+            className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-violet active:scale-[0.99] transition-all"
+          >
+            👀 {showCert3Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার ফাইনাল সার্টিফিকেট", "See how your Final certificate will look")} <span className={`inline-block transition-transform ${showCert3Preview ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showCert3Preview && <CertificateSample variant="elite" />}
         </div>
 
         <button onClick={() => router.push("/")} className="mt-6 btn-outline w-full">

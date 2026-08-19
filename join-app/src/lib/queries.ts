@@ -70,6 +70,29 @@ export async function ensurePhonebookColumns(env: { DB: D1Database }): Promise<v
   } catch { /* ignore */ }
 }
 
+let _screenshotTableEnsured = false;
+
+// Ensures the screenshot_submissions table exists (referral-certificate proof).
+// Rows are created by the user's upload; status moves pending → verified /
+// rejected by the admin panel (root app). The actual images live in KV under
+// 'shots:' keys with TTL (auto-delete), so only metadata is kept here.
+export async function ensureScreenshotTable(env: { DB: D1Database }): Promise<void> {
+  if (_screenshotTableEnsured) return;
+  try {
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS screenshot_submissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      worker_id TEXT NOT NULL,
+      certificate_level INTEGER NOT NULL DEFAULT 2,
+      status TEXT NOT NULL DEFAULT 'pending',
+      kv_keys TEXT,
+      saved_for_ai INTEGER NOT NULL DEFAULT 0,
+      admin_verified_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`).run();
+    _screenshotTableEnsured = true;
+  } catch { /* ignore */ }
+}
+
 // Normalizes a phone number to a canonical digit string for dedup matching.
 // Strips everything except digits; maps leading 01… to 8801…; keeps last 10-13 digits.
 export function normalizePhone(input: string | undefined | null): string {
