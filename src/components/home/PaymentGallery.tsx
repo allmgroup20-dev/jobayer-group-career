@@ -13,8 +13,6 @@ export default function PaymentGallery() {
   const { lang } = useLanguageStore();
   const { content, enabled } = useSiteContent<GalleryContent>("gallery", galleryDefaults, { enabledByDefault: false });
   const [lightbox, setLightbox] = useState<number | null>(null);
-
-  if (!enabled) return null;
   const images = content.images;
   const t = content;
 
@@ -23,6 +21,7 @@ export default function PaymentGallery() {
   }, [images.length]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (lightbox === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightbox(null);
@@ -31,7 +30,9 @@ export default function PaymentGallery() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox, go]);
+  }, [lightbox, go, enabled]);
+
+  if (!enabled) return null;
 
   return (
     <div className="rounded-2xl p-5 md:p-6 bg-white border border-border">

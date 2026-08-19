@@ -18,17 +18,18 @@ export default function Testimonials({ compact }: { compact?: boolean }) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [showAllGrid, setShowAllGrid] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("carousel");
-
-  if (!enabled) return null;
   const allCarouselTestimonials = [...content.testimonials, ...content.phpSliderTestimonials];
   const displayCarousel = compact ? allCarouselTestimonials.slice(0, 4) : allCarouselTestimonials;
 
   useEffect(() => {
+    if (!enabled) return;
     if (compact) return;
     if (activeTab !== "carousel") return;
     intervalRef.current = setInterval(() => setSlideIdx((p) => (p + 1) % displayCarousel.length), 4000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [activeTab, displayCarousel.length, compact]);
+  }, [activeTab, displayCarousel.length, compact, enabled]);
+
+  if (!enabled) return null;
 
   const goTo = (n: number) => {
     setSlideIdx(n);
