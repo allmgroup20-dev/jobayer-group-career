@@ -22,6 +22,8 @@
   --color-line: #F3E6D8;
   --font-sans: system-ui, -apple-system, sans-serif;
   --font-bengali: var(--font-bengali, 'SolaimanLipi', system-ui, sans-serif);
+  --font-cinzel: var(--font-cinzel, 'Cinzel', 'Times New Roman', serif);
+  --font-great-vibes: var(--font-great-vibes, 'Great Vibes', 'Brush Script MT', cursive);
 }
 
 @layer base {

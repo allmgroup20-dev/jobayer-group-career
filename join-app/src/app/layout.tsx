@@ -13,6 +13,18 @@ const solaimanLipi = localFont({
   variable: "--font-bengali",
 });
 
+const cinzel = localFont({
+  src: [{ path: "./fonts/certs/Cinzel-Variable.woff2", weight: "600 700", style: "normal" }],
+  display: "swap",
+  variable: "--font-cinzel",
+});
+
+const greatVibes = localFont({
+  src: [{ path: "./fonts/certs/GreatVibes-Regular.woff2", weight: "400", style: "normal" }],
+  display: "swap",
+  variable: "--font-great-vibes",
+});
+
 const SITE_URL = process.env.SITE_URL || "https://youtube.earner.workers.dev";
 const SITE_NAME = process.env.SITE_NAME || "YouTube Earner Worker";
 
@@ -54,7 +66,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn" className={`${solaimanLipi.variable}`}>
+    <html lang="bn" className={`${solaimanLipi.variable} ${cinzel.variable} ${greatVibes.variable}`}>
       <body className="min-h-screen bg-bg font-bengali antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
