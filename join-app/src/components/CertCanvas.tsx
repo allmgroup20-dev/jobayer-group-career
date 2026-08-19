@@ -566,30 +566,24 @@ export default function CertCanvas({
                     hairline + caps name) */}
                 <div className="flex items-end gap-8">
                   <div className="flex w-[170px] flex-col items-center text-center">
-                    <div className="flex items-end justify-center gap-1.5">
-                      <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="h-7 w-auto opacity-90" />
-                      <img src="/certs/elite-seal-ceo.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
-                    </div>
+                    <img src="/certs/elite-seal-ceo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
+                    <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="mt-1.5 h-7 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Neal Mohan</p>
                     <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Executive Officer</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
-                    <div className="flex items-end justify-center gap-1.5">
-                      <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="h-7 w-auto opacity-90" />
-                      <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
-                    </div>
+                    <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
+                    <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="mt-1.5 h-7 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Mary Ellen Coe</p>
                     <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Business Officer</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
-                    <div className="flex items-end justify-center gap-1.5">
-                      <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="h-7 w-auto opacity-90" />
-                      <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
-                    </div>
+                    <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
+                    <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="mt-1.5 h-7 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Sanjay Gupta</p>
