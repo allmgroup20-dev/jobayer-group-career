@@ -38,25 +38,21 @@ export type CertCanvasData = {
 //                Great Vibes name, executive signing area (graphite name,
 //                champagne role lines, silver accents, printed signature +
 //                graphite/gold seal + white quiet-zone QR)
-//   elite      — ultra-luxury international honor (LUXURY CREATOR AWARD —
-//                executive edition): COMPLETE ART DIRECTION — full-bleed midnight
-//                navy mat (#091725→#0D1D2C→#12283A) with a single master metallic
-//                gold hairline frame + ultra-fine platinum hairline + 4 layered
-//                architectural corners (navy→gold→platinum→ivory diagonal cuts),
-//                one flowing metallic gold S-curve ribbon in the bottom navy band
-//                (dark gold edge → metallic body → champagne highlight → thin
-//                bright reflection), central ivory inlaid plate (#FBF8F0, cotton
-//                paper grain + warm light + faint champagne wave + recessed
-//                shadow + gold inner frame), editorial Cinzel "CERTIFICATE OF
-//                EXCELLENCE" masthead with gold-foil subtitle + diamond ornaments,
-//                7-layer embossed medallion (graphite shadow → gold scalloped
-//                edge → platinum ring → navy velvet ring → engraved gold ring →
-//                laurel + faceted gold diamond → micro stars), champagne-foil
-//                Great Vibes name over a single thin gold rule with diamond
-//                point, 3-column executive signing area (CEO/CBO/APAC) with
-//                seals, micro-typography metadata + graphite QR. Generous
-//                negative space — few large confident shapes, no decoration
-//                overload, no red, no flat gold, 100% English.
+//   elite      — ultra-luxury international honor (ELITE FINAL CERTIFICATE):
+//                100% reconstruction of the approved reference design — warm
+//                ivory paper with fine grain, bold charcoal left panel with an
+//                organic curved edge + thick gold curve + fine parallel gold
+//                line, jagged 12-point gold medallion (gold-foil scalloped
+//                perimeter, dark radial core, twin rings, ticks, ELITE/
+//                EXCELLENCE) sitting on the panel boundary, soft champagne
+//                shapes top-right, sweeping gold hairlines top + bottom, brand
+//                two-tone wordmark + website, dark capsule title bar
+//                "CERTIFICATE OF EXCELLENCE", small-caps presentation eyebrow,
+//                large gold-foil block name (Cinzel, no script) over a thin
+//                gold rule + descriptor + body copy, bottom row with 3
+//                executive signatures (double champagne hairline + caps name),
+//                date + certificate ID, and quiet QR + verify. No red, no flat
+//                gold, no invented decoration — 100% English.
 function SideOrnament({ side }: { side: "left" | "right" }) {
   const left = side === "left";
   const b = "M118 0 C 100 80, 106 170, 96 258 C 88 346, 100 442, 112 468 C 104 536, 92 620, 100 700 C 105 746, 114 776, 118 794";
@@ -133,144 +129,6 @@ function SideOrnament({ side }: { side: "left" | "right" }) {
   );
 }
 
-/* ── Elite "Luxury Creator Award" building blocks ─────────────────────────
-   midnight navy + ivory + platinum + champagne + metallic gold + diamond.
-   A few large, confident shapes — not scattered micro-decoration. */
-
-function LuxuryCorner({ corner }: { corner: "tl" | "tr" | "bl" | "br" }) {
-  const base = "absolute h-[52px] w-[52px] pointer-events-none";
-  const pos =
-    corner === "tl"
-      ? "top-[28px] left-[28px]"
-      : corner === "tr"
-        ? "top-[28px] right-[28px]"
-        : corner === "bl"
-          ? "bottom-[28px] left-[28px]"
-          : "bottom-[28px] right-[28px]";
-  const flipH = corner === "tr" || corner === "br" ? "-scale-x-100" : "";
-  const flipV = corner === "bl" || corner === "br" ? "-scale-y-100" : "";
-  return (
-    <div className={`${base} ${pos} ${flipH} ${flipV}`}>
-      <div
-        className="absolute inset-0"
-        style={{ clipPath: "polygon(0 0, 100% 0, 0 100%)", background: "linear-gradient(135deg, #0D1D2C, #12283A)" }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{ clipPath: "polygon(0 0, 60% 0, 0 60%)", background: "linear-gradient(135deg, #FFF3C4, #D5AF50 38%, #87621F 76%, #5B4116)" }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{ clipPath: "polygon(0 0, 100% 0, 0 100%)", boxShadow: "inset 0 0 0 1px rgba(242,245,247,0.3)" }}
-      />
-    </div>
-  );
-}
-
-function EliteMedallion() {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative flex h-[82px] w-[82px] items-center justify-center">
-        {/* layer 1 · tight contact shadow — pressed into the card, not floating */}
-        <div className="absolute inset-[3px] rounded-full shadow-[0_5px_10px_rgba(9,23,37,0.28),inset_0_1px_0_rgba(255,243,196,0.5)]" />
-        {/* layer 2 · metallic gold scalloped outer edge */}
-        <div className="ye-gold-metal absolute inset-0 rounded-full shadow-[inset_0_2px_3px_rgba(255,243,196,0.45),inset_0_-3px_6px_rgba(0,0,0,0.4)]" />
-        {/* very thin bright polished rim (upper-left light) */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{ boxShadow: "inset 0 0 0 1px rgba(255,243,196,0.35), inset -2px -2px 4px rgba(0,0,0,0.18)" }}
-        />
-        {/* fine scallop engraving on the gold edge */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{ backgroundImage: "radial-gradient(circle, rgba(255,243,196,0.55) 1px, transparent 1.6px)", backgroundSize: "9px 9px" }}
-        />
-        {/* bright upper-left highlight (soft, satin — not plastic) */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{ background: "radial-gradient(circle at 30% 26%, rgba(255,255,255,0.3), transparent 46%)" }}
-        />
-        {/* layer 3 · polished platinum ring */}
-        <div className="ye-platinum-metal absolute inset-[7px] rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.5),inset_0_-2px_3px_rgba(0,0,0,0.28)]" />
-        {/* layer 4 · navy/graphite velvet inner ring */}
-        <div className="ye-navy-velvet-ring absolute inset-[12px] rounded-full" />
-        {/* layer 5 · one fine engraved gold ring */}
-        <div className="absolute inset-[15px] rounded-full border border-dotted border-[#D5AF50]/80" />
-        {/* crystal glow on center */}
-        <div
-          className="absolute inset-[15px] rounded-full"
-          style={{ background: "radial-gradient(circle at 32% 26%, rgba(245,250,252,0.3), transparent 42%)" }}
-        />
-        {/* micro engraving stars (max 3) */}
-        <span className="absolute left-[23%] top-[19%] h-[4px] w-[4px] rounded-full bg-white opacity-70" />
-        <span className="absolute right-[19%] top-[33%] h-[3px] w-[3px] rounded-full bg-white opacity-55" />
-        <span className="absolute left-[27%] bottom-[21%] h-[3px] w-[3px] rounded-full bg-[#F5FAFC] opacity-60" />
-        {/* layer 6+7 · restrained laurel + faceted gold diamond */}
-        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
-          <defs>
-            <linearGradient id="yeDiamondGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#FFF3C4" />
-              <stop offset="0.4" stopColor="#D5AF50" />
-              <stop offset="0.75" stopColor="#B8862F" />
-              <stop offset="1" stopColor="#87621F" />
-            </linearGradient>
-          </defs>
-          {/* thin engraved laurel branches */}
-          <path d="M31 35 C 22 46, 18 58, 26 68" fill="none" stroke="url(#yeDiamondGrad)" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
-          <path d="M69 35 C 78 46, 82 58, 74 68" fill="none" stroke="url(#yeDiamondGrad)" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
-          <path d="M27 44 l3.6 -2.4 l0.4 4 Z" fill="#D5AF50" opacity="0.7" />
-          <path d="M24 53 l3.5 -2.5 l0.5 3.7 Z" fill="#D5AF50" opacity="0.7" />
-          <path d="M73 44 l-3.6 -2.4 l-0.4 4 Z" fill="#D5AF50" opacity="0.7" />
-          <path d="M76 53 l-3.5 -2.5 l-0.5 3.7 Z" fill="#D5AF50" opacity="0.7" />
-          {/* one elegant faceted gold diamond — small + precise */}
-          <path d="M50 31 L58 44 L50 66 L42 44 Z" fill="url(#yeDiamondGrad)" stroke="#FFF3C4" strokeWidth="0.8" />
-          <path d="M50 31 L58 44 L50 44 Z" fill="#FFFFFF" opacity="0.28" />
-          <path d="M50 44 L58 44 L50 66 Z" fill="#5B4116" opacity="0.4" />
-        </svg>
-      </div>
-    </div>
-  );
-}
-
-function LuxuryDivider({ width = 320 }: { width?: number }) {
-  return (
-    <div className="flex items-center justify-center gap-2" style={{ width }}>
-      <div className="ye-gold-rule-e h-px flex-1" />
-      <svg viewBox="0 0 10 10" className="h-[8px] w-[8px]" aria-hidden="true">
-        <rect x="2.7" y="2.7" width="4.6" height="4.6" transform="rotate(45 5 5)" fill="#FFFFFF" stroke="#D5AF50" strokeWidth="1" />
-      </svg>
-      <div className="ye-gold-rule-e h-px flex-1" />
-    </div>
-  );
-}
-
-function ExecutiveSignature({
-  sig,
-  seal,
-  name,
-  role,
-  office,
-}: {
-  sig: string;
-  seal: string;
-  name: string;
-  role: string;
-  office: string;
-}) {
-  return (
-    <div className="flex flex-col items-center text-center">
-      <div className="flex items-end justify-center gap-2">
-        <img src={sig} alt={name} className="h-8 w-auto opacity-90" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))" }} />
-        <img src={seal} alt="Seal" className="h-7 w-7 rounded-full object-cover mix-blend-multiply ring-1 ring-[#D5AF50]/50" />
-      </div>
-      <div className="ye-gold-rule-e mt-1 h-px w-24" />
-      <p className="mt-1.5 font-cinzel text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#111214]">{name}</p>
-      <p className="mt-0.5 text-[6.5px] font-bold uppercase tracking-[0.12em] text-[#68737C]">{role}</p>
-      <p className="mt-0.5 text-[7.5px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">{office}</p>
-    </div>
-  );
-}
-
 export default function CertCanvas({
   tier,
   sample = false,
@@ -315,81 +173,123 @@ export default function CertCanvas({
       : "has successfully completed their full profile on YouTube Earner and proven outstanding community-building and digital marketing skills by uniting a growing community of learners and friends.";
 
   const watermarkColor = isElite
-    ? "text-[#F5F0E6]/[0.05]"
+    ? "text-[#252225]/[0.06]"
     : isAmbassador
       ? "text-[#111214]/[0.06]"
       : "text-gray-900/10";
 
   return (
     <div
-      className={`relative text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-[#FBF8F1]" : isElite ? "bg-[#091725]" : "bg-white"} ${className || ""}`}
+      className={`relative text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-[#FBF8F1]" : isElite ? "bg-[#fffefa]" : "bg-white"} ${className || ""}`}
       style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, ...style }}
     >
       {/* ═══════════ Tier decorations ═══════════ */}
       {isElite ? (
         <>
-          {/* ═══ LUXURY CREATOR AWARD — executive edition ═══
-              COMPLETE ART DIRECTION: midnight navy mat → ivory inlaid plate
-              → metallic gold architecture → one flowing gold ribbon.
-              (few large shapes · generous negative space · no red · 100% EN) */}
-          {/* ── layer 1 · full-bleed midnight navy mat ── */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 34%, #12283A 0%, #0D1D2C 55%, #091725 100%)",
-            }}
-          />
-          {/* navy depth grain */}
-          <div className="ye-navy-grain absolute inset-0 pointer-events-none" />
-          {/* satin center sheen (extremely subtle velvet light) */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 50% 42%, rgba(255,255,255,0.03), transparent 55%)" }}
-          />
-          {/* ── layer 2 · outer gold frame (one master gold hairline, restrained) ── */}
-          <div
-            className="absolute inset-[10px] rounded-[14px] opacity-[0.85] pointer-events-none"
-            style={{ border: "1px solid", borderImage: "linear-gradient(135deg, #5B4116 0%, #87621F 14%, #D5AF50 30%, #FFF3C4 48%, #F2D27B 62%, #D5AF50 78%, #87621F 90%, #5B4116 100%) 1" }}
-          />
-          {/* ultra-fine platinum hairline just outside the gold */}
-          <div className="absolute inset-[13px] rounded-[12px] border border-[#AEB8C0]/60 pointer-events-none" />
-          {/* ── layer 3 · architectural corners (4) — navy → gold → platinum → ivory ── */}
-          <LuxuryCorner corner="tl" />
-          <LuxuryCorner corner="tr" />
-          <LuxuryCorner corner="bl" />
-          <LuxuryCorner corner="br" />
-          {/* ── layer 4 · central ivory plate (inlaid card) ── */}
-          <div className="absolute left-[44px] right-[44px] top-[44px] bottom-[64px] rounded-[12px] pointer-events-none">
-            {/* ivory cardstock base + warm light + soft vignette */}
-            <div className="ye-ivory-plate absolute inset-0 rounded-[12px]" />
-            {/* fine cotton paper grain */}
-            <div className="ye-paper-grain absolute inset-0 rounded-[12px]" />
-            {/* faint champagne wave (one, subtle) */}
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1034 686" fill="none" preserveAspectRatio="none">
-              <path d="M-20 150 C 200 110, 420 210, 620 160 C 820 110, 980 210, 1054 150" stroke="#E9D6A4" strokeWidth="1.2" opacity="0.05" />
+          {/* ═══ ELITE FINAL CERTIFICATE — reference design reconstruction ═══
+              100% copy of the approved reference (preview.html): warm ivory
+              paper + grain, bold charcoal left panel with organic curved edge,
+              thick gold curve + fine parallel gold line, jagged 12-point gold
+              medallion on the panel boundary, champagne shapes top-right,
+              sweeping gold hairlines top + bottom, subtle inner paper edge.
+              (few large shapes · no red · 100% EN) */}
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+            <svg viewBox="0 0 1122 794" className="w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="yeRefPaper" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#fffefa" />
+                  <stop offset=".55" stopColor="#fffdf8" />
+                  <stop offset="1" stopColor="#fbfaf4" />
+                </linearGradient>
+                <linearGradient id="yeRefPanel" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#0e0d0e" />
+                  <stop offset=".82" stopColor="#151315" />
+                  <stop offset="1" stopColor="#211d20" />
+                </linearGradient>
+                <linearGradient id="yeRefGoldFoil" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#8c6314" />
+                  <stop offset=".18" stopColor="#d0a333" />
+                  <stop offset=".38" stopColor="#f0d36f" />
+                  <stop offset=".55" stopColor="#b9851d" />
+                  <stop offset=".78" stopColor="#e5c85b" />
+                  <stop offset="1" stopColor="#936714" />
+                </linearGradient>
+                <linearGradient id="yeRefGoldLine" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#9f781e" />
+                  <stop offset=".45" stopColor="#ead27e" />
+                  <stop offset="1" stopColor="#a57718" />
+                </linearGradient>
+                <radialGradient id="yeRefMedalCenter" cx=".34" cy=".28" r=".82">
+                  <stop offset="0" stopColor="#262124" />
+                  <stop offset=".6" stopColor="#121012" />
+                  <stop offset="1" stopColor="#090809" />
+                </radialGradient>
+                <filter id="yeRefMedalShadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="3" dy="6" stdDeviation="6" floodColor="#000" floodOpacity=".34" />
+                </filter>
+                <filter id="yeRefGrain" x="-10%" y="-10%" width="120%" height="120%">
+                  <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11" result="n" />
+                  <feColorMatrix in="n" type="saturate" values="0" result="m" />
+                  <feComponentTransfer in="m">
+                    <feFuncA type="table" tableValues="0 .022" />
+                  </feComponentTransfer>
+                </filter>
+                <path id="yeRefMedalOuter" d="M0-61 C5-72 14-72 20-63 C26-54 33-53 43-56 C53-59 59-53 57-43 C55-33 59-26 68-20 C77-13 75-4 65 1 C56 6 54 14 59 24 C64 34 58 41 48 40 C37 39 30 44 27 54 C24 65 15 68 7 60 C0 52-8 53-15 60 C-23 68-32 64-34 53 C-36 43-42 38-52 40 C-63 42-68 35-64 25 C-60 15-62 8-71 2 C-80-4-78-13-69-19 C-60-26-58-34-61-43 C-64-54-56-60-46-57 C-36-54-28-57-23-66 C-17-76-8-72 0-61Z" />
+                <path id="yeRefMedalInner" d="M0-48 C8-56 16-54 21-46 C27-38 34-36 44-39 C53-42 58-35 55-26 C52-17 55-10 63-4 C71 2 68 10 60 14 C51 18 49 26 53 35 C57 44 50 50 41 48 C32 46 25 51 20 59 C15 68 7 67 2 59 C-3 51-12 50-20 56 C-29 61-36 55-35 46 C-34 37-40 31-48 27 C-57 23-57 15-49 10 C-40 5-38-4-43-12 C-49-21-44-28-35-30 C-26-31-20-38-21-47 C-22-56-13-60-7-52 C-4-48-2-47 0-48Z" />
+              </defs>
+
+              {/* paper base + grain */}
+              <rect width="1122" height="794" fill="url(#yeRefPaper)" />
+              <rect width="1122" height="794" fill="#ffffff" opacity=".12" filter="url(#yeRefGrain)" />
+
+              {/* right top champagne shapes — restrained, like the reference */}
+              <path d="M760 0 C823 34 871 65 933 72 C1004 80 1067 64 1122 22 L1122 0Z" fill="#fbfaf4" />
+              <path d="M815 0 C854 30 894 59 941 68 C1015 83 1078 68 1122 37 L1122 0Z" fill="#f0ead7" />
+              <path d="M1079 73 C1095 87 1110 92 1122 94 L1122 205 C1087 200 1061 176 1045 145 C1034 124 1031 103 1033 85Z" fill="#f4eedf" />
+
+              {/* left dark panel */}
+              <path d="M0 0H78 C118 67 142 147 150 235 C159 333 157 452 146 546 C136 638 115 719 78 794 H0Z" fill="url(#yeRefPanel)" />
+
+              {/* primary gold edge line */}
+              <path d="M79 0 C121 68 145 148 154 237 C164 334 161 452 150 546 C140 641 117 722 79 794" fill="none" stroke="url(#yeRefGoldLine)" strokeWidth="4.8" />
+              {/* fine gold parallel edge */}
+              <path d="M86 0 C127 69 152 148 161 237 C170 336 168 451 156 548 C146 641 123 722 86 794" fill="none" stroke="#d7bd72" strokeWidth="1.05" opacity=".74" />
+
+              {/* top sweeping hairlines */}
+              <g fill="none" strokeLinecap="round">
+                <path d="M92 12 C175 92 258 80 348 0" stroke="#aa914f" strokeWidth="1.15" opacity=".72" />
+                <path d="M91 20 C176 101 264 88 358 0" stroke="#baa36a" strokeWidth="1.05" opacity=".70" />
+                <path d="M90 28 C178 111 273 96 368 0" stroke="#c9bb96" strokeWidth="1" opacity=".62" />
+                <path d="M90 36 C181 120 281 105 378 0" stroke="#d3c9ac" strokeWidth=".95" opacity=".56" />
+              </g>
+
+              {/* bottom sweeping hairlines */}
+              <g fill="none" strokeLinecap="round">
+                <path d="M89 781 C174 701 260 711 351 794" stroke="#aa914f" strokeWidth="1.15" opacity=".72" />
+                <path d="M90 773 C177 691 267 703 360 794" stroke="#baa36a" strokeWidth="1.05" opacity=".70" />
+                <path d="M91 765 C180 683 276 695 369 794" stroke="#c9bb96" strokeWidth="1" opacity=".62" />
+                <path d="M92 757 C183 675 286 687 378 794" stroke="#d3c9ac" strokeWidth=".95" opacity=".56" />
+              </g>
+
+              {/* medallion — centered on the curved boundary */}
+              <g transform="translate(162 396) scale(.92)" filter="url(#yeRefMedalShadow)">
+                <use href="#yeRefMedalOuter" fill="url(#yeRefGoldFoil)" stroke="#78540c" strokeWidth="1.4" />
+                <use href="#yeRefMedalInner" fill="url(#yeRefMedalCenter)" stroke="#e8c85f" strokeWidth="2" />
+                <circle r="42" fill="none" stroke="#a87b1a" strokeWidth="1.1" />
+                <circle r="37" fill="none" stroke="#e9ca67" strokeWidth=".75" opacity=".9" />
+                {/* delicate decorative ticks */}
+                <g stroke="#e1bd54" strokeWidth="1">
+                  <path d="M0-34V-27M0 27V34M-34 0H-27M27 0H34" />
+                  <path d="M-24-24L-19-19M19 19L24 24M24-24L19-19M-19 19L-24 24" />
+                </g>
+                <text x="0" y="-3" textAnchor="middle" fill="#f0d16e" fontFamily="Arial, Helvetica, sans-serif" fontSize="12.4" fontWeight="800" letterSpacing="1.2">ELITE</text>
+                <text x="0" y="13" textAnchor="middle" fill="#f3e5b5" fontFamily="Arial, Helvetica, sans-serif" fontSize="7.2" fontWeight="700" letterSpacing="1">EXCELLENCE</text>
+              </g>
+
+              {/* ultra-subtle inner paper edge */}
+              <rect x="5" y="5" width="1112" height="784" fill="none" stroke="#eee7d8" strokeWidth="1" />
             </svg>
-            {/* plate edge · layer 1 · soft recessed shadow (inlaid, not floating) */}
-            <div
-              className="absolute inset-0 rounded-[12px] pointer-events-none"
-              style={{ boxShadow: "inset 0 1.5px 10px rgba(9,23,37,0.08), inset 0 -1.5px 10px rgba(9,23,37,0.05)" }}
-            />
-            {/* plate edge · layer 2 · ultra-fine champagne line */}
-            <div className="absolute inset-[15px] rounded-[7px] border border-[#E9D6A4]/65 pointer-events-none" />
-            {/* plate edge · layer 3 · subtle platinum hairline */}
-            <div className="absolute inset-[12px] rounded-[9px] border border-[#AEB8C0]/45 pointer-events-none" />
-            {/* subtle warm edge light */}
-            <div
-              className="absolute inset-0 rounded-[12px] pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at 50% 38%, rgba(255,255,255,0.3), transparent 60%)" }}
-            />
-            {/* extremely subtle edge darkening — clean cardstock depth */}
-            <div
-              className="absolute inset-0 rounded-[12px] pointer-events-none"
-              style={{ background: "radial-gradient(ellipse at center, transparent 72%, rgba(9,23,37,0.045) 100%)" }}
-            />
           </div>
-          {/* ── layer 5 · clean bottom navy band (ribbon removed — user QA) ── */}
         </>
       ) : isAmbassador ? (
         <>
@@ -610,116 +510,125 @@ export default function CertCanvas({
         <div
           className={`relative flex h-full flex-col items-center justify-center text-center ${
             isElite
-              ? "px-[78px] pt-[48px] pb-[96px] text-[#1A1A1A]"
+              ? "p-0 text-[#1A1A1A]"
               : "px-14 text-gray-900"
           }`}
         >
           {isElite ? (
-            <div className="relative z-20 flex w-full flex-col items-center text-center">
-              {/* typographic column — hidden grid, optical axis ≈ 561 */}
-              <div className="flex w-full max-w-[620px] flex-col items-center text-center">
-                {/* editorial masthead — brand logo + tier marker + title */}
-                <img src="/logo-light.png" alt="YouTube Earner" className="h-6 w-auto opacity-90" />
-                <div className="mt-2 flex items-center justify-center gap-2">
-                  <div className="ye-gold-rule-e h-px w-8" />
-                  <span className="text-[7px] font-bold uppercase tracking-[0.32em] text-[#AEB8C0]">Elite · Executive Recognition</span>
-                  <div className="ye-gold-rule-e h-px w-8" />
+            <div className="absolute inset-0 z-20">
+              {/* ── content column — shifted right to match the reference
+                    proportions (optical center ≈ x647, because of the left panel) ── */}
+              <div className="absolute left-[172px] right-[40px] top-0 flex h-full flex-col items-center text-center">
+                {/* brand — two-tone wordmark + website */}
+                <div className="mt-[84px] flex flex-col items-center">
+                  <div className="h-[6px] w-[36px] rounded-[1.5px] bg-[#111011]" />
+                  <p className="mt-[30px] text-[15px] font-bold tracking-[0.18em] text-[#181619]">
+                    <span className="text-[#ba9229]">YOUTUBE</span>
+                    <span> EARNER</span>
+                  </p>
+                  <p className="mt-[10px] text-[8.5px] font-bold tracking-[0.18em] text-[#181619]">
+                    YOUTUBE.EARNER.WORKERS.DEV
+                  </p>
                 </div>
-                <h3
-                  className="mt-2.5 font-cinzel text-[42px] font-bold leading-none tracking-[0.2em] text-[#111214]"
-                  style={{ marginRight: "-0.2em" }}
-                >
-                  CERTIFICATE
-                </h3>
-                <div className="mt-3 flex items-center justify-center gap-3">
-                  <div className="ye-gold-rule-e h-px w-20" />
-                  <svg viewBox="0 0 10 10" className="h-2 w-2" aria-hidden="true">
-                    <rect x="2.7" y="2.7" width="4.6" height="4.6" transform="rotate(45 5 5)" fill="#FFFFFF" stroke="#D5AF50" strokeWidth="1" />
-                  </svg>
-                  <span
-                    className="ye-champagne-master font-cinzel text-[16px] font-bold uppercase tracking-[0.45em]"
-                    style={{ marginRight: "-0.45em" }}
-                  >
-                    OF EXCELLENCE
+
+                {/* capsule title bar */}
+                <div className="mt-[52px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
+                  <span className="font-cinzel text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#FEFCF6]">
+                    Certificate of Excellence
                   </span>
-                  <svg viewBox="0 0 10 10" className="h-2 w-2" aria-hidden="true">
-                    <rect x="2.7" y="2.7" width="4.6" height="4.6" transform="rotate(45 5 5)" fill="#FFFFFF" stroke="#D5AF50" strokeWidth="1" />
-                  </svg>
-                  <div className="ye-gold-rule-e h-px w-20" />
                 </div>
-                {/* premium embossed medallion */}
-                <div className="mt-5">
-                  <EliteMedallion />
-                </div>
-                {/* presentation line */}
-                <p className="mt-5 text-[10.5px] font-semibold uppercase tracking-[0.36em] text-[#57504a]">
+
+                {/* presentation eyebrow */}
+                <p className="mt-[30px] text-[8.8px] font-bold uppercase tracking-[0.22em] text-[#252225]">
                   This certificate is proudly presented to
                 </p>
-                {/* champagne-gold script name with embossed lift */}
+
+                {/* large gold-foil block name (no script — matches reference) */}
                 <p
-                  className="ye-name-foil-e mt-3 font-great-vibes text-[48px] leading-none"
-                  style={{ filter: "drop-shadow(0 1px 0 rgba(255,243,196,0.55)) drop-shadow(0 1px 1px rgba(60,40,5,0.16))" }}
+                  className="ye-ref-name mt-[70px] max-w-[620px] truncate font-cinzel text-[44px] font-bold leading-none tracking-[0.02em]"
+                  style={{ marginRight: "-0.02em" }}
                 >
                   {name}
                 </p>
-                <div className="mt-3">
-                  <LuxuryDivider width={360} />
-                </div>
-                {/* achievement description — editorial copy, restrained */}
-                <p className="mt-3 max-w-[540px] text-[13px] font-medium leading-[1.55] tracking-[0.01em] text-[#57504a]">
+
+                {/* thin gold rule under the name */}
+                <div className="ye-ref-gold-rule mt-[16px] h-[1.5px] w-[292px]" />
+
+                {/* descriptor */}
+                <p className="mt-[16px] text-[8.6px] font-bold uppercase tracking-[0.16em] text-[#272427]">
+                  Elite · Executive Recognition
+                </p>
+
+                {/* body copy */}
+                <p className="mt-[18px] max-w-[560px] text-[9.5px] font-medium leading-[1.7] tracking-[0.02em] text-[#393638]">
                   {bodyText}
                 </p>
               </div>
-              {/* executive signing area */}
-              <div className="mt-5 w-full">
-                <div className="grid grid-cols-3 gap-5 text-center text-[#2a2a2a]">
-                  <ExecutiveSignature
-                    sig="/certs/elite-signature-ceo.png"
-                    seal="/certs/elite-seal-ceo.png"
-                    name="Neal Mohan"
-                    role="Chief Executive Officer"
-                    office="YouTube Global · San Bruno, USA"
-                  />
-                  <ExecutiveSignature
-                    sig="/certs/elite-signature-cbo.png"
-                    seal="/certs/elite-seal-cbo.png"
-                    name="Mary Ellen Coe"
-                    role="Chief Business Officer"
-                    office="YouTube Global · San Bruno, USA"
-                  />
-                  <ExecutiveSignature
-                    sig="/certs/elite-signature-apac.png"
-                    seal="/certs/elite-seal-apac.png"
-                    name="Sanjay Gupta"
-                    role="President, Asia-Pacific"
-                    office="YouTube Asia Pacific · Singapore"
-                  />
+
+              {/* ── bottom row — executive signatures · date/ID · QR/verify ── */}
+              <div className="absolute left-[172px] right-[40px] top-[620px] flex items-end justify-between">
+                {/* 3 executive signatures — reference style (double champagne
+                    hairline + caps name) */}
+                <div className="flex items-end gap-8">
+                  <div className="flex w-[170px] flex-col items-center text-center">
+                    <div className="flex items-end justify-center gap-1.5">
+                      <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="h-7 w-auto opacity-90" />
+                      <img src="/certs/elite-seal-ceo.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
+                    </div>
+                    <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
+                    <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
+                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Neal Mohan</p>
+                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Executive Officer</p>
+                  </div>
+                  <div className="flex w-[170px] flex-col items-center text-center">
+                    <div className="flex items-end justify-center gap-1.5">
+                      <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="h-7 w-auto opacity-90" />
+                      <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
+                    </div>
+                    <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
+                    <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
+                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Mary Ellen Coe</p>
+                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Business Officer</p>
+                  </div>
+                  <div className="flex w-[170px] flex-col items-center text-center">
+                    <div className="flex items-end justify-center gap-1.5">
+                      <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="h-7 w-auto opacity-90" />
+                      <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-6 w-6 rounded-full object-cover ring-1 ring-[#c79a28]/40" />
+                    </div>
+                    <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
+                    <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
+                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Sanjay Gupta</p>
+                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">President, Asia-Pacific</p>
+                  </div>
                 </div>
-                {/* metadata + QR row — informationally rich, visually quiet */}
-                <div className="mt-4 flex w-full items-end justify-between border-t border-[#E9D6A4]/55 pt-2.5 text-[#2a2a2a]">
-                  <div className="text-left">
-                    <p className="text-[7px] font-bold uppercase tracking-[0.18em] text-[#929DA6]">Issued Date</p>
-                    <p className="mt-1 text-[12px] font-bold text-[#1a1a1a]">{date}</p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    {sample ? (
-                      <div className="flex h-[56px] w-[56px] items-center justify-center rounded-md border border-[#AEB8C0] bg-[#F2F5F7]">
-                        <span className="text-center text-[8px] font-bold leading-tight text-[#AEB8C0]">🔒<br />SAMPLE</span>
-                      </div>
-                    ) : (
-                      <div className="rounded-md border border-[#D5AF50]/40 bg-white p-1.5">
-                        <QRCode value={data?.qrValue || ""} size={56} />
-                      </div>
-                    )}
-                    <p className="mt-1.5 text-[7px] font-bold uppercase tracking-[0.1em] text-[#AEB8C0]">
-                      {sample ? "Not verifiable" : "Scan to verify"}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[7px] font-bold uppercase tracking-[0.18em] text-[#929DA6]">Certificate ID</p>
-                    <p className="mt-1 font-mono text-[12px] font-bold text-[#1a1a1a]">{certId}</p>
-                    <p className="mt-1.5 text-[7px] font-bold uppercase tracking-[0.1em] text-[#929DA6]">Verify: {verifyLine}</p>
-                  </div>
+
+                {/* date + certificate id */}
+                <div className="flex w-[170px] flex-col items-center text-center">
+                  <p className="text-[12.7px] font-bold tracking-[0.06em] text-[#161416]">{date}</p>
+                  <div className="mt-2 h-px w-24 bg-[#c5b88f]" />
+                  <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
+                  <p className="mt-1.5 text-[7.6px] font-bold uppercase tracking-[0.18em] text-[#454144]">Date</p>
+                  <p className="mt-2.5 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Certificate ID</p>
+                  <p className="mt-0.5 font-mono text-[9px] font-bold text-[#161416]">{certId}</p>
+                </div>
+
+                {/* QR + verify */}
+                <div className="flex flex-col items-center">
+                  {sample ? (
+                    <div className="flex h-[56px] w-[56px] items-center justify-center rounded-md border border-[#b9b2a6] bg-[#f6f3ea]">
+                      <span className="text-center text-[7px] font-bold leading-tight text-[#8a8378]">🔒<br />SAMPLE</span>
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-[#c79a28]/40 bg-white p-1.5">
+                      <QRCode value={data?.qrValue || ""} size={56} />
+                    </div>
+                  )}
+                  <p className="mt-1.5 text-[6.5px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">
+                    {sample ? "Not verifiable" : "Scan to verify"}
+                  </p>
+                  <p className="mt-1 max-w-[150px] text-center text-[5.8px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[#a19a90]">
+                    Verify: {verifyLine}
+                  </p>
                 </div>
               </div>
             </div>
@@ -814,39 +723,17 @@ export default function CertCanvas({
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.035'/></feComponentTransfer></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
         }
 
-        /* ── Elite "Luxury Creator Award" palette ─────────────────────────── */
-        /* midnight navy + ivory + platinum + champagne + metallic gold + diamond
-           (one master gold-foil system · no red, no flat gold) */
-        .ye-champagne-master {
-          background: linear-gradient(180deg, #F3E5C1 0%, #FFF3C4 18%, #F2D27B 45%, #D5AF50 72%, #B8862F 100%);
+        /* ── Elite palette — reference design reconstruction ─────────────── */
+        /* warm ivory paper + charcoal panel + gold foil + champagne + ink
+           (gold-foil name + thin gold rule utilities; no red, no flat gold) */
+        .ye-ref-name {
+          background: linear-gradient(180deg, #8c6314 0%, #d0a333 18%, #f0d36f 38%, #b9851d 55%, #e5c85b 78%, #936714 100%);
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
         }
-        .ye-name-foil-e {
-          background: linear-gradient(180deg, #F3E5C1 0%, #FFF3C4 20%, #F2D27B 42%, #D5AF50 62%, #B8862F 80%, #87621F 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-        }
-        .ye-gold-rule-e {
-          background: linear-gradient(90deg, transparent, #E9D6A4 25%, #F3E5C1 50%, #E9D6A4 75%, transparent);
-        }
-        .ye-gold-metal {
-          background: linear-gradient(135deg, #5B4116 0%, #87621F 14%, #D5AF50 32%, #FFF3C4 48%, #F2D27B 58%, #D5AF50 72%, #87621F 86%, #5B4116 100%);
-        }
-        .ye-platinum-metal {
-          background: linear-gradient(135deg, #AEB8C0 0%, #D5DCE1 16%, #F5FAFC 34%, #FFFFFF 48%, #F2F5F7 58%, #D5DCE1 76%, #AEB8C0 100%);
-        }
-        .ye-navy-velvet-ring {
-          background: radial-gradient(circle at 32% 26%, rgba(255,255,255,0.06), transparent 55%),
-            linear-gradient(180deg, #0D1D2C, #12283A 55%, #091725);
-        }
-        .ye-navy-grain {
-          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.028'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
-        }
-        .ye-ivory-plate {
-          background: radial-gradient(ellipse at 50% 38%, #FFFDF8 0%, #FBF8F0 45%, #F5F0E6 100%);
+        .ye-ref-gold-rule {
+          background: linear-gradient(90deg, #9f781e, #ead27e, #a57718);
         }
       `}</style>
     </div>
