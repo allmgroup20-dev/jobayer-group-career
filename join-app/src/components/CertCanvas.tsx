@@ -1,7 +1,6 @@
 "use client";
 
 import QRCode from "react-qr-code";
-import { useLang } from "@/lib/lang";
 import { A4_LANDSCAPE_W, A4_LANDSCAPE_H } from "@/lib/useCertScale";
 
 export type CertTier = "foundation" | "ambassador" | "elite";
@@ -18,13 +17,16 @@ export type CertCanvasData = {
 // previews (complete page), the real certificate page AND the fullscreen zoom
 // lightbox, so every tier looks identical wherever it appears.
 //
-// Three intentionally very different designs:
+// Three intentionally very different designs — ALL TEXT INSIDE THE CERTIFICATE IS
+// ALWAYS 100% ENGLISH (no Bengali on the canvas, regardless of app language):
 //   foundation — simple, calm (entry tier; kept as-is)
 //   ambassador — premium executive award: deep navy panel, double gold frame,
 //                corner ornaments, medal + ribbons
-//   elite      — ultra-luxury international honor: metallic gold frame, corner
-//                medallions, damask pattern, crest + laurels, gold-gradient text,
-//                holographic bands and a slow metallic sheen
+//   elite      — ultra-luxury international honor (restrained luxury: ivory
+//                parchment + oxblood + champagne gold): thin double gold frame,
+//                filigree/guilloche strip, corner medallions, royal seal with YE
+//                monogram, ribbon banner cartouche, gold-foil italic name,
+//                diamond rule, holographic micro-bands, slow metallic sheen
 export default function CertCanvas({
   tier,
   sample = false,
@@ -38,9 +40,6 @@ export default function CertCanvas({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const { lang } = useLang();
-  const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
-
   const isAmbassador = tier === "ambassador";
   const isElite = tier === "elite";
 
@@ -56,7 +55,7 @@ export default function CertCanvas({
       ? "YA-AMB-2026-XXXXXX"
       : "YA-REF-2026-XXXXXX";
 
-  const name = data?.name || t("রহিম উদ্দিন", "Rahim Uddin");
+  const name = data?.name || "Rahim Uddin";
   const certId = data?.certificateId || sampleId;
   const date = data?.date || "01 January 2026";
   const verifyLine = data?.siteUrl
@@ -64,25 +63,16 @@ export default function CertCanvas({
     : `youtube.earner.workers.dev/certificate?id=${certId}`;
 
   const ribbonText = isElite
-    ? t("🎖️ WORLD-CLASS · সর্বোচ্চ প্রিমিয়াম", "🎖️ WORLD-CLASS · Ultimate Premium")
+    ? "🎖️ WORLD-CLASS · ULTIMATE PREMIUM"
     : isAmbassador
-      ? t("🥇 PREMIUM · প্রিমিয়াম স্তর", "🥇 PREMIUM · Premium tier")
+      ? "🥇 PREMIUM · PREMIUM TIER"
       : null;
 
   const bodyText = isElite
-    ? t(
-        "has been awarded the highest honor of the YouTube Earner community for extraordinary performance, uniting and mentoring a nationwide network of learners — a world-class benchmark of leadership, influence and digital mastery.",
-        "has been awarded the highest honor of the YouTube Earner community for extraordinary performance, uniting and mentoring a nationwide network of learners — a world-class benchmark of leadership, influence and digital mastery."
-      )
+    ? "has been awarded the highest honor of the YouTube Earner community for extraordinary performance, uniting and mentoring a nationwide network of learners — a world-class benchmark of leadership, influence and digital mastery."
     : isAmbassador
-      ? t(
-          "has earned this premium recognition for outstanding community-building and digital marketing excellence, bringing a growing network of associates together as a trusted referral ambassador.",
-          "has earned this premium recognition for outstanding community-building and digital marketing excellence, bringing a growing network of associates together as a trusted referral ambassador."
-        )
-      : t(
-          "has successfully completed their full profile on YouTube Earner and proven outstanding community-building and digital marketing skills by uniting a growing community of learners and friends.",
-          "has successfully completed their full profile on YouTube Earner and proven outstanding community-building and digital marketing skills by uniting a growing community of learners and friends."
-        );
+      ? "has earned this premium recognition for outstanding community-building and digital marketing excellence, bringing a growing network of associates together as a trusted referral ambassador."
+      : "has successfully completed their full profile on YouTube Earner and proven outstanding community-building and digital marketing skills by uniting a growing community of learners and friends.";
 
   const watermarkColor = isElite
     ? "text-[#6E1423]/10"
@@ -135,7 +125,7 @@ export default function CertCanvas({
           <div className="absolute top-1/2 right-0 w-1.5 -translate-y-1/2 h-40 rounded-l bg-gradient-to-b from-transparent via-[#C69B3C] to-transparent pointer-events-none" />
           {/* microtext authenticity line */}
           <p className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-black tracking-[0.35em] text-[#C69B3C]/80 uppercase">
-            {t("নমুনা নম্বর", "No.")} {certId.slice(3)} · YouTube Earner · {t("যাচাইযোগ্য", "Verifiable")}
+            NO. {certId.slice(3)} · YouTube Earner · VERIFIABLE
           </p>
         </>
       ) : isAmbassador ? (
@@ -169,11 +159,11 @@ export default function CertCanvas({
       {sample && (
         <>
           <span className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-30 rounded-full bg-gold px-3 py-1 text-[13px] font-black uppercase tracking-wider text-white">
-            ◈ PREVIEW · নমুনা
+            ◈ PREVIEW · SAMPLE
           </span>
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
             <span className={`whitespace-nowrap rotate-[-24deg] text-[90px] font-black uppercase tracking-[0.25em] ${watermarkColor}`}>
-              নমুনা · SAMPLE
+              SAMPLE
             </span>
           </div>
         </>
@@ -290,7 +280,7 @@ export default function CertCanvas({
           <div className="flex flex-col items-center">
             {sample ? (
               <div className="flex h-[96px] w-[96px] items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
-                <span className="text-center text-sm font-black leading-tight text-gray-400">🔒<br />নমুনা QR</span>
+                <span className="text-center text-sm font-black leading-tight text-gray-400">🔒<br />SAMPLE QR</span>
               </div>
             ) : (
               <div className="bg-white p-2.5 rounded-lg border border-gray-200">
@@ -298,7 +288,7 @@ export default function CertCanvas({
               </div>
             )}
             <p className="mt-1 text-[10px] font-bold text-gray-400">
-              {sample ? t("সত্যতা যাচাই করা যাবে না", "Not verifiable") : "Scan to verify"}
+              {sample ? "Not verifiable" : "Scan to verify"}
             </p>
           </div>
         </div>
@@ -314,7 +304,7 @@ export default function CertCanvas({
                 <span className="text-[#F5D76E] text-base">✦</span>
               </div>
               <p className="mt-1 text-[8px] font-black tracking-[0.2em] uppercase text-[#6E1423]">
-                {t("সরকারি সিল", "Official Seal")}
+                OFFICIAL SEAL
               </p>
             </div>
           </div>

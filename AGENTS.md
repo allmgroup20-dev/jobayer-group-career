@@ -20,6 +20,7 @@
 - New location columns live in 4 places: join-app `ensureWorkerProfileColumns()`, join-app API routes, root `src/lib/db/index.ts` (SCHEMA_COLS + forced migration), root API routes + dashboard.
 - Keep `city` column populated (aliased to upazila / city corporation / pourashava) so `profileCompleted` logic keeps working.
 - Geo data is served as **static assets** (free + unlimited on Cloudflare, served from CDN edge) — NOT via API endpoints, to support very large user counts on the free plan.
+- **Certificate canvases (`join-app/src/components/CertCanvas.tsx`) MUST be 100% English inside — never add Bengali to the certificate itself** (name, ribbons, badges, watermark, microtext, QR caption, seal label). Surrounding page UI (hints, warnings, buttons) stays bilingual via `useLang`.
 
 ## Data sources (verified)
 
