@@ -225,7 +225,7 @@ export default function CertCanvas({
                   <stop offset="1" stopColor="#090809" />
                 </radialGradient>
                 <filter id="yeRefMedalShadow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="3" dy="6" stdDeviation="6" floodColor="#000" floodOpacity=".34" />
+                  <feDropShadow dx="2" dy="4" stdDeviation="5" floodColor="#000" floodOpacity=".30" />
                 </filter>
                 <filter id="yeRefGrain" x="-10%" y="-10%" width="120%" height="120%">
                   <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11" result="n" />
@@ -271,19 +271,21 @@ export default function CertCanvas({
                 <path d="M92 757 C183 675 286 687 378 794" stroke="#d3c9ac" strokeWidth=".95" opacity=".56" />
               </g>
 
-              {/* medallion — centered on the curved boundary */}
-              <g transform="translate(162 396) scale(.92)" filter="url(#yeRefMedalShadow)">
-                <use href="#yeRefMedalOuter" fill="url(#yeRefGoldFoil)" stroke="#78540c" strokeWidth="1.4" />
-                <use href="#yeRefMedalInner" fill="url(#yeRefMedalCenter)" stroke="#e8c85f" strokeWidth="2" />
-                <circle r="42" fill="none" stroke="#a87b1a" strokeWidth="1.1" />
-                <circle r="37" fill="none" stroke="#e9ca67" strokeWidth=".75" opacity=".9" />
-                {/* delicate decorative ticks */}
-                <g stroke="#e1bd54" strokeWidth="1">
-                  <path d="M0-34V-27M0 27V34M-34 0H-27M27 0H34" />
-                  <path d="M-24-24L-19-19M19 19L24 24M24-24L19-19M-19 19L-24 24" />
+              {/* medallion — clean symmetric 12-point gold star medal on the curved boundary */}
+              <g transform="translate(162 396)" filter="url(#yeRefMedalShadow)">
+                {/* clean 12-point gold star — two 6-point stars, 30° apart (fully symmetric) */}
+                <g fill="url(#yeRefGoldFoil)" stroke="#78540c" strokeWidth="1.2">
+                  <use href="#yeRefStar6" />
+                  <use href="#yeRefStar6" transform="rotate(30)" />
                 </g>
-                <text x="0" y="-3" textAnchor="middle" fill="#f0d16e" fontFamily="Arial, Helvetica, sans-serif" fontSize="12.4" fontWeight="800" letterSpacing="1.2">ELITE</text>
-                <text x="0" y="13" textAnchor="middle" fill="#f3e5b5" fontFamily="Arial, Helvetica, sans-serif" fontSize="7.2" fontWeight="700" letterSpacing="1">EXCELLENCE</text>
+                {/* circular medal core — dark charcoal radial + two clean gold rings */}
+                <circle r="46" fill="url(#yeRefMedalCenter)" stroke="#a87b1a" strokeWidth="1.5" />
+                <circle r="42" fill="none" stroke="#e9ca67" strokeWidth=".8" opacity=".9" />
+                {/* clean center emblem — faceted gold diamond + two laurel arcs */}
+                <path d="M-26 8 C-20 -4 -10 -6 -5 2" fill="none" stroke="url(#yeRefGoldFoil)" strokeWidth="1.3" strokeLinecap="round" opacity=".9" />
+                <path d="M26 8 C20 -4 10 -6 5 2" fill="none" stroke="url(#yeRefGoldFoil)" strokeWidth="1.3" strokeLinecap="round" opacity=".9" />
+                <path d="M0-20 L8-7 L0 18 L-8-7 Z" fill="url(#yeRefGoldFoil)" stroke="#f0d36f" strokeWidth=".7" />
+                <path d="M0-20 L8-7 L0-7 Z" fill="#ffffff" opacity=".28" />
               </g>
 
               {/* ultra-subtle inner paper edge */}
@@ -519,20 +521,13 @@ export default function CertCanvas({
               {/* ── content column — shifted right to match the reference
                     proportions (optical center ≈ x647, because of the left panel) ── */}
               <div className="absolute left-[172px] right-[40px] top-0 flex h-full flex-col items-center text-center">
-                {/* brand — two-tone wordmark + website */}
+                {/* brand logo — dark logo on ivory paper */}
                 <div className="mt-[84px] flex flex-col items-center">
-                  <div className="h-[6px] w-[36px] rounded-[1.5px] bg-[#111011]" />
-                  <p className="mt-[30px] text-[15px] font-bold tracking-[0.18em] text-[#181619]">
-                    <span className="text-[#ba9229]">YOUTUBE</span>
-                    <span> EARNER</span>
-                  </p>
-                  <p className="mt-[10px] text-[8.5px] font-bold tracking-[0.18em] text-[#181619]">
-                    YOUTUBE.EARNER.WORKERS.DEV
-                  </p>
+                  <img src="/logo-light.png" alt="YouTube Earner" className="h-9 w-auto opacity-95" />
                 </div>
 
                 {/* capsule title bar */}
-                <div className="mt-[52px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
+                <div className="mt-[96px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
                   <span className="font-cinzel text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#FEFCF6]">
                     Certificate of Excellence
                   </span>
