@@ -440,7 +440,7 @@ export default function CertCanvas({
           {isElite ? (
             <div className="relative z-20 flex flex-col items-center">
               {/* brand logo — always visible on the light ivory card */}
-              <img src="/logo-light.png" alt="YouTube Earner" className="mb-3 h-9 w-auto" />
+              <img src="/logo-light.png" alt="YouTube Earner" className="mb-2 h-8 w-auto" />
               <div className="relative flex h-20 w-20 items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-[3px] border-[#C69B3C]" />
                 <div className="absolute inset-[6px] rounded-full border border-[#C69B3C]/60" />
@@ -535,19 +535,66 @@ export default function CertCanvas({
           </div>
 
           {isElite ? (
-            <div className="mt-6 flex w-full items-end justify-between pt-4 border-t border-[#C69B3C]/40 text-sm text-[#3d2b1f]">
-              <div>
-                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-                <p className="mt-1">Verify online: {verifyLine}</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7a1830] to-[#5c0f1e] shadow-inner ring-1 ring-[#C69B3C]/70">
-                  <span className="text-[#F5D76E] text-base">✦</span>
+            <div className="mt-4 w-full pt-4 border-t border-[#C69B3C]/40">
+              <div className="grid grid-cols-3 gap-3 text-center text-[#3d2b1f]">
+                <div>
+                  <div className="flex items-end justify-center gap-2.5">
+                    <img
+                      src="/certs/elite-signature-ceo.png"
+                      alt="Neal Mohan"
+                      className="h-9 w-auto opacity-95"
+                      style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.15))" }}
+                    />
+                    <img
+                      src="/certs/elite-seal-ceo.png"
+                      alt="Seal"
+                      className="h-8 w-8 rounded-full object-cover mix-blend-multiply ring-1 ring-[#C69B3C]/60"
+                    />
+                  </div>
+                  <p className="mt-1 font-serif text-[13px] font-bold tracking-wide">Neal Mohan</p>
+                  <p className="mt-0.5 text-[8px] font-black uppercase tracking-[0.12em] text-[#6E1423]">Chief Executive Officer</p>
+                  <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#8a6d3c]">YouTube Global · San Bruno, USA</p>
                 </div>
-                <p className="mt-1 text-[8px] font-black tracking-[0.2em] uppercase text-[#6E1423]">
-                  OFFICIAL SEAL
-                </p>
+                <div>
+                  <div className="flex items-end justify-center gap-2.5">
+                    <img
+                      src="/certs/elite-signature-cbo.png"
+                      alt="Mary Ellen Coe"
+                      className="h-9 w-auto opacity-95"
+                      style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.15))" }}
+                    />
+                    <img
+                      src="/certs/elite-seal-cbo.png"
+                      alt="Seal"
+                      className="h-8 w-8 rounded-full object-cover mix-blend-multiply ring-1 ring-[#C69B3C]/60"
+                    />
+                  </div>
+                  <p className="mt-1 font-serif text-[13px] font-bold tracking-wide">Mary Ellen Coe</p>
+                  <p className="mt-0.5 text-[8px] font-black uppercase tracking-[0.12em] text-[#6E1423]">Chief Business Officer</p>
+                  <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#8a6d3c]">YouTube Global · San Bruno, USA</p>
+                </div>
+                <div>
+                  <div className="flex items-end justify-center gap-2.5">
+                    <img
+                      src="/certs/elite-signature-apac.png"
+                      alt="Sanjay Gupta"
+                      className="h-9 w-auto opacity-95"
+                      style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.15))" }}
+                    />
+                    <img
+                      src="/certs/elite-seal-apac.png"
+                      alt="Seal"
+                      className="h-8 w-8 rounded-full object-cover mix-blend-multiply ring-1 ring-[#C69B3C]/60"
+                    />
+                  </div>
+                  <p className="mt-1 font-serif text-[13px] font-bold tracking-wide">Sanjay Gupta</p>
+                  <p className="mt-0.5 text-[8px] font-black uppercase tracking-[0.12em] text-[#6E1423]">President, Asia-Pacific</p>
+                  <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-[#8a6d3c]">YouTube Asia Pacific · Singapore</p>
+                </div>
               </div>
+              <p className="mt-2.5 text-center text-[9px] font-bold tracking-[0.12em] text-[#8a6d3c]">
+                Verify online: {verifyLine}
+              </p>
             </div>
           ) : (
             <div className="mt-6 w-full pt-4 border-t text-sm text-gray-500">
