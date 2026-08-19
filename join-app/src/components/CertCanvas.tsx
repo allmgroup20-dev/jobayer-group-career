@@ -167,50 +167,6 @@ function LuxuryCorner({ corner }: { corner: "tl" | "tr" | "bl" | "br" }) {
   );
 }
 
-function GoldRibbon() {
-  return (
-    <svg className="absolute bottom-[14px] left-0 right-0 h-[60px] w-full pointer-events-none" viewBox="0 0 1122 68" fill="none" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="yeRibbonBody" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#87621F" />
-          <stop offset="0.14" stopColor="#B8862F" />
-          <stop offset="0.26" stopColor="#D5AF50" />
-          <stop offset="0.36" stopColor="#F2D27B" />
-          <stop offset="0.44" stopColor="#FFF3C4" />
-          <stop offset="0.5" stopColor="#D5AF50" />
-          <stop offset="0.62" stopColor="#B8862F" />
-          <stop offset="0.72" stopColor="#F2D27B" />
-          <stop offset="0.8" stopColor="#FFF3C4" />
-          <stop offset="0.9" stopColor="#D5AF50" />
-          <stop offset="1" stopColor="#87621F" />
-        </linearGradient>
-      </defs>
-      {/* soft contact shadow (below the ribbon) */}
-      <path
-        d="M-140 56 C 80 40, 240 70, 400 58 C 560 46, 720 68, 940 52 C 1080 42, 1200 58, 1262 48 L1262 62 C 1200 72, 1080 58, 940 72 C 720 86, 560 64, 400 76 C 240 88, 80 58, -140 74 Z"
-        fill="#0D0F12"
-        opacity="0.14"
-      />
-      {/* dark gold edge (bottom rim — gives the ribbon thickness) */}
-      <path
-        d="M-140 46 C 80 30, 240 60, 400 48 C 560 36, 720 58, 940 42 C 1080 32, 1200 48, 1262 38 L1262 52 C 1200 62, 1080 48, 940 62 C 720 76, 560 54, 400 66 C 240 78, 80 48, -140 64 Z"
-        fill="#5B4116"
-      />
-      {/* metallic gold body — controlled highlight zones (≈44% + 80%) */}
-      <path
-        d="M-140 24 C 80 8, 240 38, 400 26 C 560 14, 720 36, 940 20 C 1080 10, 1200 28, 1262 18 L1262 38 C 1200 48, 1080 30, 940 42 C 720 58, 560 36, 400 48 C 240 60, 80 30, -140 46 Z"
-        fill="url(#yeRibbonBody)"
-      />
-      {/* subtle dark top edge */}
-      <path d="M-140 24 C 80 8, 240 38, 400 26 C 560 14, 720 36, 940 20 C 1080 10, 1200 28, 1262 18" stroke="#5B4116" strokeWidth="1.1" opacity="0.5" />
-      {/* one controlled champagne highlight (upper-left light zone) */}
-      <path d="M110 9 C 235 3, 340 17, 430 16" stroke="#F2D27B" strokeWidth="4.5" opacity="0.55" strokeLinecap="round" />
-      {/* tiny specular accent — same light zone, very subtle */}
-      <path d="M145 6 C 215 1, 290 11, 350 10" stroke="#FFFFFF" strokeWidth="1.1" opacity="0.32" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function EliteMedallion() {
   return (
     <div className="flex flex-col items-center">
@@ -433,10 +389,7 @@ export default function CertCanvas({
               style={{ background: "radial-gradient(ellipse at center, transparent 72%, rgba(9,23,37,0.045) 100%)" }}
             />
           </div>
-          {/* ── layer 5 · flowing metallic gold ribbon (bottom navy band) ── */}
-          <div className="absolute bottom-[12px] left-0 right-0 pointer-events-none">
-            <GoldRibbon />
-          </div>
+          {/* ── layer 5 · clean bottom navy band (ribbon removed — user QA) ── */}
         </>
       ) : isAmbassador ? (
         <>
