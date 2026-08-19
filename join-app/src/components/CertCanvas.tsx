@@ -277,9 +277,10 @@ export default function CertCanvas({
       {isAmbassador ? (
         <div className="relative flex h-full flex-col items-center justify-center px-36 text-center text-[#1a1a1a]">
           {/* editorial header */}
-          <p className="text-[10px] font-black uppercase tracking-[0.42em] text-[#202226]">YouTube Earner</p>
+          {/* brand logo — always visible; dark logo on light ivory background */}
+          <img src="/logo-light.png" alt="YouTube Earner" className="h-9 w-auto opacity-95" />
 
-          <h3 className="mt-3.5 font-cinzel text-[50px] font-bold leading-none tracking-[0.14em] text-[#111214]">
+          <h3 className="mt-4 font-cinzel text-[50px] font-bold leading-none tracking-[0.14em] text-[#111214]">
             CERTIFICATE
           </h3>
 
@@ -434,6 +435,8 @@ export default function CertCanvas({
         >
           {isElite ? (
             <div className="relative z-20 flex flex-col items-center">
+              {/* brand logo — always visible on the light ivory card */}
+              <img src="/logo-light.png" alt="YouTube Earner" className="mb-3 h-9 w-auto" />
               <div className="relative flex h-20 w-20 items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-[3px] border-[#C69B3C]" />
                 <div className="absolute inset-[6px] rounded-full border border-[#C69B3C]/60" />
