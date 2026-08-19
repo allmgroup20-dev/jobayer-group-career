@@ -85,54 +85,58 @@ export default function CertCanvas({
         );
 
   const watermarkColor = isElite
-    ? "text-[#8a6d1f]/10"
+    ? "text-[#6E1423]/10"
     : isAmbassador
       ? "text-white/10"
       : "text-gray-900/10";
 
   return (
     <div
-      className={`relative bg-white text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-gradient-to-b from-[#0e2444] to-[#153a63]" : isElite ? "bg-[#fdfaf2]" : "bg-white"} ${className || ""}`}
+      className={`relative bg-white text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-gradient-to-b from-[#0e2444] to-[#153a63]" : isElite ? "bg-[#F8F1E1]" : "bg-white"} ${className || ""}`}
       style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, ...style }}
     >
       {/* ═══════════ Tier decorations ═══════════ */}
       {isElite ? (
         <>
-          {/* metallic gold outer band */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#f7d76a] via-[#c9a227] to-[#8a6d1f] pointer-events-none" />
-          <div className="absolute inset-[7px] bg-[#fdfaf2] rounded-[10px] pointer-events-none" />
-          {/* ornate triple frame */}
-          <div className="absolute inset-3 border-2 border-[#b8860b] rounded-xl pointer-events-none" />
-          <div className="absolute inset-4 border border-[#d4af37]/70 rounded-lg pointer-events-none" />
-          <div className="absolute inset-5 border border-dotted border-[#b8860b]/60 rounded-lg pointer-events-none" />
-          {/* damask / guilloche pattern + vignette */}
+          {/* restrained luxury: ivory canvas + thin double gold frame (no full-bleed gold) */}
+          <div className="absolute inset-2 rounded-2xl border-2 border-[#C69B3C] overflow-hidden pointer-events-none">
+            <div className="ye-certs-sheen" />
+          </div>
+          <div className="absolute inset-4 rounded-xl border border-[#C69B3C]/60 pointer-events-none" />
+          {/* filigree / guilloche strip */}
+          <div className="absolute inset-5 rounded-lg border border-dotted border-[#C69B3C]/50 pointer-events-none" />
           <div
-            className="absolute inset-5 rounded-lg opacity-[0.06] pointer-events-none"
-            style={{ backgroundImage: "repeating-radial-gradient(circle at 22% 30%, #8a6d1f 0 1px, transparent 1px 26px)" }}
+            className="absolute inset-[6px] rounded-xl opacity-[0.05] pointer-events-none"
+            style={{ backgroundImage: "repeating-linear-gradient(45deg, #C69B3C 0 2px, transparent 2px 10px)" }}
+          />
+          {/* damask pattern + soft vignette */}
+          <div
+            className="absolute inset-5 rounded-lg opacity-[0.05] pointer-events-none"
+            style={{ backgroundImage: "repeating-radial-gradient(circle at 22% 30%, #C69B3C 0 1px, transparent 1px 26px)" }}
           />
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at center, transparent 55%, rgba(139,109,31,0.12) 100%)" }}
+            style={{ background: "radial-gradient(ellipse at center, transparent 55%, rgba(110,20,35,0.10) 100%)" }}
           />
-          {/* corner medallions */}
+          {/* corner medallions — ivory disc, gold ring, oxblood star */}
           {["top-5 left-5", "top-5 right-5", "bottom-5 left-5", "bottom-5 right-5"].map((pos) => (
             <div
               key={pos}
-              className={`absolute ${pos} h-12 w-12 rounded-full bg-gradient-to-br from-[#f7d76a] via-[#d4af37] to-[#8a6d1f] flex items-center justify-center shadow-inner ring-2 ring-white/50 pointer-events-none`}
+              className={`absolute ${pos} h-12 w-12 rounded-full bg-[#F8F1E1] border-[1.5px] border-[#C69B3C] flex items-center justify-center shadow-sm pointer-events-none`}
             >
-              <span className="text-lg text-white drop-shadow">✦</span>
+              <span className="text-lg text-[#6E1423]">✦</span>
             </div>
           ))}
-          {/* holographic security bands */}
-          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-gold via-pink to-violet pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-violet via-pink to-gold pointer-events-none" />
+          {/* holographic security micro-bands */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gold via-pink to-violet pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-violet via-pink to-gold pointer-events-none" />
           {/* side pinstripes */}
-          <div className="absolute top-1/2 left-0 w-1.5 -translate-y-1/2 h-40 rounded-r bg-gradient-to-b from-transparent via-[#d4af37] to-transparent pointer-events-none" />
-          <div className="absolute top-1/2 right-0 w-1.5 -translate-y-1/2 h-40 rounded-l bg-gradient-to-b from-transparent via-[#d4af37] to-transparent pointer-events-none" />
-          {/* metallic sheen */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="ye-certs-sheen" />
-          </div>
+          <div className="absolute top-1/2 left-0 w-1.5 -translate-y-1/2 h-40 rounded-r bg-gradient-to-b from-transparent via-[#C69B3C] to-transparent pointer-events-none" />
+          <div className="absolute top-1/2 right-0 w-1.5 -translate-y-1/2 h-40 rounded-l bg-gradient-to-b from-transparent via-[#C69B3C] to-transparent pointer-events-none" />
+          {/* microtext authenticity line */}
+          <p className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-black tracking-[0.35em] text-[#C69B3C]/80 uppercase">
+            {t("নমুনা নম্বর", "No.")} {certId.slice(3)} · YouTube Earner · {t("যাচাইযোগ্য", "Verifiable")}
+          </p>
         </>
       ) : isAmbassador ? (
         <>
@@ -178,7 +182,7 @@ export default function CertCanvas({
       {/* ═══════════ Content ═══════════ */}
       <div
         className={`relative flex h-full flex-col items-center justify-center px-14 text-center ${
-          isAmbassador ? "text-white" : isElite ? "text-[#6b5322]" : "text-gray-900"
+          isAmbassador ? "text-white" : isElite ? "text-[#1A1A1A]" : "text-gray-900"
         }`}
       >
         {isAmbassador ? (
@@ -193,12 +197,22 @@ export default function CertCanvas({
           </div>
         ) : isElite ? (
           <div className="relative z-20 flex flex-col items-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#b8860b] bg-gradient-to-br from-[#f7d76a] via-[#d4af37] to-[#8a6d1f] shadow-[0_0_0_4px_rgba(255,255,255,0.6),0_0_0_5px_#d4af37]">
-              <span className="text-3xl text-white drop-shadow">🏆</span>
+            <div className="relative flex h-20 w-20 items-center justify-center">
+              {/* concentric gold rings */}
+              <div className="absolute inset-0 rounded-full border-[3px] border-[#C69B3C]" />
+              <div className="absolute inset-[6px] rounded-full border border-[#C69B3C]/60" />
+              <div className="absolute inset-[10px] rounded-full border border-dotted border-[#C69B3C]/70" />
+              {/* oxblood disc + YE monogram */}
+              <div className="absolute inset-[4px] rounded-full bg-gradient-to-br from-[#7a1830] to-[#5c0f1e] flex items-center justify-center shadow-inner">
+                <span className="text-2xl font-serif font-black text-[#F5D76E] tracking-tight">YE</span>
+              </div>
+              {/* laurel hints */}
+              <span className="absolute -right-6 top-1/2 -translate-y-1/2 text-2xl text-[#C69B3C]">❋</span>
+              <span className="absolute -left-6 top-1/2 -translate-y-1/2 text-2xl text-[#C69B3C]">❋</span>
             </div>
-            <div className="-mt-1 flex gap-1.5">
-              <div className="h-7 w-4 rounded-b-sm bg-gradient-to-b from-[#c9a227] to-[#7a5a1e]" />
-              <div className="h-7 w-4 rounded-b-sm bg-gradient-to-b from-[#c9a227] to-[#7a5a1e]" />
+            <div className="-mt-1.5 flex gap-1">
+              <div className="h-6 w-3.5 rounded-b-sm bg-gradient-to-b from-[#6E1423] to-[#4a0d16]" />
+              <div className="h-6 w-3.5 rounded-b-sm bg-gradient-to-b from-[#6E1423] to-[#4a0d16]" />
             </div>
           </div>
         ) : (
@@ -206,19 +220,24 @@ export default function CertCanvas({
         )}
 
         {ribbonText && (
-          <span
-            className={`mt-2 rounded-full px-4 py-1 text-[13px] font-black tracking-wide text-white ${
-              isElite ? "bg-gradient-to-r from-gold via-pink to-violet" : "bg-gradient-to-r from-gold to-amber"
-            }`}
-          >
-            {ribbonText}
-          </span>
+          isElite ? (
+            <span
+              className="relative z-20 mt-2 px-6 py-1.5 bg-[#6E1423] text-[#F5D76E] text-[13px] font-black tracking-[0.18em] uppercase shadow-md rounded-sm"
+              style={{ clipPath: "polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%)" }}
+            >
+              {ribbonText}
+            </span>
+          ) : (
+            <span className="mt-2 rounded-full px-4 py-1 text-[13px] font-black tracking-wide text-white bg-gradient-to-r from-gold to-amber">
+              {ribbonText}
+            </span>
+          )
         )}
 
         <h3
           className={`mt-3 font-black tracking-wide ${
             isElite
-              ? "bg-clip-text text-transparent bg-gradient-to-b from-[#e7c23c] via-[#b8860b] to-[#8a6d1f] drop-shadow-sm font-serif text-[42px]"
+              ? "font-serif text-[40px] tracking-[0.08em] text-[#1A1A1A]"
               : isAmbassador
                 ? "font-serif text-4xl text-white"
                 : "text-4xl text-gray-900"
@@ -227,23 +246,27 @@ export default function CertCanvas({
           {certTitle}
         </h3>
 
-        <div
-          className={`mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent ${
-            isAmbassador ? "via-gold" : ""
-          }`}
-        />
+        {isElite ? (
+          <div className="mt-2 flex items-center justify-center gap-2 w-72 mx-auto">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#C69B3C]" />
+            <span className="text-[#C69B3C] text-sm leading-none">◆</span>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#C69B3C]" />
+          </div>
+        ) : (
+          <div className={`mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent ${isAmbassador ? "via-gold" : ""}`} />
+        )}
 
-        <p className={`mt-3 text-base font-bold ${isAmbassador ? "text-white/60" : isElite ? "text-[#8a6d1f]" : "text-gray-600"}`}>
+        <p className={`mt-3 text-base font-bold ${isAmbassador ? "text-white/60" : isElite ? "italic text-[#7a1830]" : "text-gray-600"}`}>
           This certifies that
         </p>
 
         <p
-          className={`mt-3 text-5xl font-black ${
+          className={`mt-3 font-black ${
             isElite
-              ? "bg-clip-text text-transparent bg-gradient-to-b from-[#b8860b] to-[#8a6d1f] font-serif"
+              ? "font-serif italic text-[54px] bg-clip-text text-transparent bg-gradient-to-b from-[#E8C860] via-[#C69B3C] to-[#9a7a2e] drop-shadow-[0_1px_1px_rgba(110,20,35,0.2)]"
               : isAmbassador
-                ? "bg-clip-text text-transparent bg-gradient-to-b from-[#f7d76a] to-[#d4af37]"
-                : "text-brand"
+                ? "text-5xl bg-clip-text text-transparent bg-gradient-to-b from-[#f7d76a] to-[#d4af37]"
+                : "text-5xl text-brand"
           }`}
         >
           {name}
@@ -251,17 +274,17 @@ export default function CertCanvas({
 
         <p
           className={`mt-4 text-base leading-relaxed max-w-3xl mx-auto ${
-            isAmbassador ? "font-medium text-white/80" : isElite ? "font-medium text-[#7a5a1e]" : "text-gray-700"
+            isAmbassador ? "font-medium text-white/80" : isElite ? "font-medium text-[#3d2b1f]" : "text-gray-700"
           }`}
         >
           {bodyText}
         </p>
 
-        <div className={`mt-6 flex w-full items-end justify-between ${isAmbassador ? "text-white/80" : isElite ? "text-[#6b5322]" : "text-gray-600"}`}>
+        <div className={`mt-6 flex w-full items-end justify-between ${isAmbassador ? "text-white/80" : isElite ? "text-[#3d2b1f]" : "text-gray-600"}`}>
           <div className="text-left text-sm">
-            <p className={`font-black ${isAmbassador ? "text-gold" : isElite ? "text-[#8a6d1f]" : "text-gray-900"}`}>Certificate ID</p>
+            <p className={`font-black tracking-[0.08em] uppercase text-xs ${isAmbassador ? "text-gold" : isElite ? "text-[#6E1423]" : "text-gray-900"}`}>Certificate ID</p>
             <p className="mt-1 font-mono font-bold">{certId}</p>
-            <p className={`mt-3 font-black ${isAmbassador ? "text-gold" : isElite ? "text-[#8a6d1f]" : "text-gray-900"}`}>Date</p>
+            <p className={`mt-3 font-black tracking-[0.08em] uppercase text-xs ${isAmbassador ? "text-gold" : isElite ? "text-[#6E1423]" : "text-gray-900"}`}>Date</p>
             <p className="mt-1 font-bold">{date}</p>
           </div>
           <div className="flex flex-col items-center">
@@ -280,10 +303,27 @@ export default function CertCanvas({
           </div>
         </div>
 
-        <div className={`mt-6 w-full pt-4 border-t text-sm ${isAmbassador ? "border-white/20 text-white/70" : isElite ? "border-[#c9a227]/40 text-[#6b5322]" : "border-gray-200 text-gray-500"}`}>
-          <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-          <p className="mt-1">Verify online: {verifyLine}</p>
-        </div>
+        {isElite ? (
+          <div className="mt-6 flex w-full items-end justify-between pt-4 border-t border-[#C69B3C]/40 text-sm text-[#3d2b1f]">
+            <div>
+              <p className="font-bold">Authorized Signatory — YouTube Earner</p>
+              <p className="mt-1">Verify online: {verifyLine}</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7a1830] to-[#5c0f1e] shadow-inner ring-1 ring-[#C69B3C]/70">
+                <span className="text-[#F5D76E] text-base">✦</span>
+              </div>
+              <p className="mt-1 text-[8px] font-black tracking-[0.2em] uppercase text-[#6E1423]">
+                {t("সরকারি সিল", "Official Seal")}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className={`mt-6 w-full pt-4 border-t text-sm ${isAmbassador ? "border-white/20 text-white/70" : "border-gray-200 text-gray-500"}`}>
+            <p className="font-bold">Authorized Signatory — YouTube Earner</p>
+            <p className="mt-1">Verify online: {verifyLine}</p>
+          </div>
+        )}
       </div>
 
       <style>{`
