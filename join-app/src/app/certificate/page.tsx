@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import QRCode from "react-qr-code";
 import { useSearchParams } from "next/navigation";
 import { useLang } from "@/lib/lang";
-import { A4_LANDSCAPE_H, A4_LANDSCAPE_W, useCertScale } from "@/lib/useCertScale";
+import { A4_LANDSCAPE_H, useCertScale } from "@/lib/useCertScale";
+import CertCanvas from "@/components/CertCanvas";
+import CertLightbox from "@/components/CertLightbox";
 
 type CertData = {
   certificateId: string;
@@ -30,6 +31,7 @@ function CertificateView() {
   const [state, setState] = useState<"loading" | "ok" | "missing">("loading");
   const [data, setData] = useState<CertData | null>(null);
   const [showValue, setShowValue] = useState(false);
+  const [showZoom, setShowZoom] = useState(false);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -86,56 +88,46 @@ function CertificateView() {
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
 
-        {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit */}
-        <div ref={ref} className="w-full overflow-hidden" style={{ height: A4_LANDSCAPE_H * scale }}>
-          <div
-            className="print-area relative bg-white text-gray-900 rounded-2xl shadow-2xl overflow-hidden"
-            style={{
-              width: A4_LANDSCAPE_W,
-              height: A4_LANDSCAPE_H,
-              transform: `scale(${scale})`,
-              transformOrigin: "top left",
-            }}
-          >
-            <div className="absolute inset-4 border-2 border-gold rounded-xl pointer-events-none" />
-            <div className="absolute inset-5 border border-gold/50 rounded-lg pointer-events-none" />
-
-            <div className="relative flex h-full flex-col items-center justify-center px-14 text-center">
-              <img src="/logo-light.png" alt="YouTube Earner" className="mx-auto h-12 w-auto" />
-              <h1 className="mt-3 text-4xl font-black text-gray-900">CERTIFICATE OF ACHIEVEMENT</h1>
-              <div className="mt-2 mx-auto h-0.5 w-64 bg-gradient-to-r from-transparent via-gold to-transparent" />
-              <p className="mt-3 text-base font-bold text-gray-600">This certifies that</p>
-
-              <p className="mt-3 text-5xl font-black text-brand">{data.name}</p>
-
-              <p className="mt-4 text-base leading-relaxed text-gray-700 max-w-3xl mx-auto">
-                has successfully completed their full profile on <b>YouTube Earner</b> and proven
-                outstanding community-building and digital marketing skills by uniting a growing
-                community of learners and friends.
-              </p>
-
-              <div className="mt-6 flex w-full items-end justify-between">
-                <div className="text-left text-sm text-gray-600">
-                  <p className="font-black text-gray-900">Certificate ID</p>
-                  <p className="mt-1 font-mono font-bold">{data.certificateId}</p>
-                  <p className="mt-3 font-black text-gray-900">Date</p>
-                  <p className="mt-1 font-bold">{date}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-white p-2.5 rounded-lg border border-gray-200">
-                    <QRCode value={verifyUrl} size={112} />
-                  </div>
-                  <p className="mt-1 text-[10px] text-gray-500">Scan to verify</p>
-                </div>
-              </div>
-
-              <div className="mt-6 w-full pt-4 border-t border-gray-200 text-sm text-gray-500">
-                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-                <p className="mt-1">Verify online: {verifyUrl}</p>
-              </div>
-            </div>
+        {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit.
+            Clicking it opens the fullscreen zoom viewer (CertLightbox). */}
+        <button
+          type="button"
+          onClick={() => setShowZoom(true)}
+          aria-label={t("সার্টিফিকেট বড় করে দেখুন", "View certificate larger")}
+          className="mt-2 block w-full text-left active:scale-[0.995] transition-transform"
+        >
+          <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
+            <CertCanvas
+              className="print-area"
+              tier="foundation"
+              data={{
+                name: data.name,
+                certificateId: data.certificateId,
+                date,
+                qrValue: verifyUrl,
+                siteUrl: data.siteUrl,
+              }}
+              style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}
+            />
           </div>
-        </div>
+        </button>
+
+        <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-teal print:hidden">
+          🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
+        </p>
+
+        <CertLightbox
+          open={showZoom}
+          onClose={() => setShowZoom(false)}
+          tier="foundation"
+          data={{
+            name: data.name,
+            certificateId: data.certificateId,
+            date,
+            qrValue: verifyUrl,
+            siteUrl: data.siteUrl,
+          }}
+        />
 
         <style>{`
           @media print {
