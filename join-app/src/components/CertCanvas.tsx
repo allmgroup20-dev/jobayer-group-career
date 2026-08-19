@@ -389,15 +389,19 @@ export default function CertCanvas({
               <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">YouTube India</p>
             </div>
 
-            {/* graphite + gold printed seal — blends into the paper */}
+            {/* premium gold medallion seal — golden disc, larger rings */}
             <div className="relative flex items-center justify-center">
-              <div className="absolute h-[74px] w-[74px] rounded-full border border-[#8E969E]/50" />
-              <div className="ye-graphite-surface absolute h-[68px] w-[68px] rounded-full opacity-90 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]" />
-              <div className="absolute h-[68px] w-[68px] rounded-full border border-[#E8D8AD]/60" />
+              <div className="absolute h-[104px] w-[104px] rounded-full border border-[#D9B95C]/60" />
+              <div className="absolute h-[98px] w-[98px] rounded-full border border-[#E8D8AD]/70" />
+              <div className="ye-gold-surface absolute h-[90px] w-[90px] rounded-full shadow-[inset_0_2px_3px_rgba(255,255,255,0.45),inset_0_-3px_6px_rgba(0,0,0,0.35),0_6px_14px_rgba(0,0,0,0.2)]" />
+              <div
+                className="absolute h-[90px] w-[90px] rounded-full"
+                style={{ background: "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), transparent 45%)" }}
+              />
               <img
                 src="/certs/ambassador-seal.png"
                 alt="Official Seal"
-                className="relative h-[60px] w-[60px] rounded-full object-cover opacity-95 mix-blend-multiply"
+                className="relative h-[78px] w-[78px] rounded-full object-cover opacity-95 mix-blend-multiply"
               />
             </div>
 
@@ -589,6 +593,9 @@ export default function CertCanvas({
         }
         .ye-silver-surface {
           background: linear-gradient(135deg, #626A72 0%, #8E969E 14%, #D9DEE2 32%, #F5F7F8 50%, #B8BEC4 64%, #8E969E 84%, #626A72 100%);
+        }
+        .ye-gold-surface {
+          background: linear-gradient(135deg, #5F491A 0%, #87691F 15%, #D9B95C 32%, #FFF4CF 48%, #F4D98B 58%, #D9B95C 70%, #87691F 88%, #5F491A 100%);
         }
         .ye-graphite-surface {
           background: linear-gradient(135deg, #111214 0%, #202226 45%, #2A2D31 60%, #111214 100%);
