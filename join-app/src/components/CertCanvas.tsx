@@ -669,8 +669,27 @@ export default function CertCanvas({
                 </div>
               </div>
               <div className="mt-6 w-full pt-4 border-t text-sm text-gray-500">
-                <p className="font-bold">Authorized Signatory — YouTube Earner</p>
-                <p className="mt-1">Verify online: {verifyLine}</p>
+                <div className="flex items-center justify-center gap-6 text-center">
+                  {/* signer identity — signature + gold rule + name + designation + office (same as Ambassador) */}
+                  <div className="flex flex-col items-center">
+                    <div className="relative inline-block">
+                      <img
+                        src="/certs/ambassador-signature.png"
+                        alt="Signature"
+                        className="h-14 w-auto opacity-90"
+                        style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.18))" }}
+                      />
+                      <div className="ye-gold-rule absolute left-0 -bottom-2 h-px w-full" />
+                    </div>
+                    <p className="mt-4 text-[15px] font-bold tracking-wide text-[#111214]">PREETI LOBANA</p>
+                    <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">Country Manager &amp; Vice President</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">YouTube India</p>
+                  </div>
+                  {/* official seal */}
+                  <img src="/certs/ambassador-seal.png" alt="Official Seal" className="h-16 w-16 rounded-full object-cover mix-blend-multiply" />
+                </div>
+                <p className="mt-3 text-center font-bold text-gray-900">Authorized Signatory — YouTube Earner</p>
+                <p className="mt-1 text-center">Verify online: {verifyLine}</p>
               </div>
             </>
           )}
