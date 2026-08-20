@@ -523,11 +523,11 @@ export default function CertCanvas({
               <div className="absolute left-[172px] right-[40px] top-0 flex h-full flex-col items-center text-center">
                 {/* brand logo — dark logo on ivory paper */}
                 <div className="mt-[84px] flex flex-col items-center">
-                  <img src="/logo-light.png" alt="YouTube Earner" className="h-9 w-auto opacity-95" />
+                  <img src="/logo-light.png" alt="YouTube Earner" className="h-12 w-auto opacity-95" />
                 </div>
 
                 {/* capsule title bar */}
-                <div className="mt-[96px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
+                <div className="mt-[84px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
                   <span className="font-cinzel text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#FEFCF6]">
                     Certificate of Excellence
                   </span>
@@ -567,38 +567,38 @@ export default function CertCanvas({
                 <div className="flex items-end gap-8">
                   <div className="flex w-[170px] flex-col items-center text-center">
                     <img src="/certs/elite-seal-ceo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
-                    <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="mt-1.5 h-7 w-auto opacity-90" />
+                    <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
-                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Neal Mohan</p>
-                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Executive Officer</p>
+                    <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Neal Mohan</p>
+                    <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Executive Officer</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
                     <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
-                    <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="mt-1.5 h-7 w-auto opacity-90" />
+                    <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
-                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Mary Ellen Coe</p>
-                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">Chief Business Officer</p>
+                    <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Mary Ellen Coe</p>
+                    <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Business Officer</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
                     <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
-                    <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="mt-1.5 h-7 w-auto opacity-90" />
+                    <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
-                    <p className="mt-1 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Sanjay Gupta</p>
-                    <p className="mt-0.5 text-[5.6px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">President, Asia-Pacific</p>
+                    <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Sanjay Gupta</p>
+                    <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">President, Asia-Pacific</p>
                   </div>
                 </div>
 
                 {/* date + certificate id */}
                 <div className="flex w-[170px] flex-col items-center text-center">
-                  <p className="text-[12.7px] font-bold tracking-[0.06em] text-[#161416]">{date}</p>
+                  <p className="text-[14px] font-bold tracking-[0.06em] text-[#161416]">{date}</p>
                   <div className="mt-2 h-px w-24 bg-[#c5b88f]" />
                   <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
-                  <p className="mt-1.5 text-[7.6px] font-bold uppercase tracking-[0.18em] text-[#454144]">Date</p>
-                  <p className="mt-2.5 text-[6.8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Certificate ID</p>
-                  <p className="mt-0.5 font-mono text-[9px] font-bold text-[#161416]">{certId}</p>
+                  <p className="mt-1.5 text-[8.5px] font-bold uppercase tracking-[0.18em] text-[#454144]">Date</p>
+                  <p className="mt-2.5 text-[8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Certificate ID</p>
+                  <p className="mt-0.5 font-mono text-[10.5px] font-bold text-[#161416]">{certId}</p>
                 </div>
 
                 {/* QR + verify */}
@@ -612,10 +612,10 @@ export default function CertCanvas({
                       <QRCode value={data?.qrValue || ""} size={56} />
                     </div>
                   )}
-                  <p className="mt-1.5 text-[6.5px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">
+                  <p className="mt-1.5 text-[7.5px] font-bold uppercase tracking-[0.1em] text-[#7a7478]">
                     {sample ? "Not verifiable" : "Scan to verify"}
                   </p>
-                  <p className="mt-1 max-w-[150px] text-center text-[5.8px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[#a19a90]">
+                  <p className="mt-1 max-w-[160px] text-center text-[6.5px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[#a19a90]">
                     Verify: {verifyLine}
                   </p>
                 </div>
