@@ -66,14 +66,10 @@ function CertificateView() {
 
   useEffect(() => {
     if (state !== "ok" || !data) return;
-    fetch(`/api/delivery/rate?tier=${tier}&mode=${deliveryMode}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        const d = j as { totalBdt: number; rate: number; totalUsd: number } | null;
-        if (d && typeof d.totalBdt === "number") setRateInfo({ rate: d.rate, totalUsd: d.totalUsd, totalBdt: d.totalBdt });
-      })
-      .catch(() => {});
-  }, [state, data, tier, deliveryMode]);
+    const FIXED_RATE = 111;
+    const totalBdt = Math.floor(totalUsd * FIXED_RATE);
+    setRateInfo({ rate: FIXED_RATE, totalUsd, totalBdt });
+  }, [state, data, tier, deliveryMode, totalUsd]);
 
   useEffect(() => {
     if (state !== "ok") return;
@@ -321,6 +317,9 @@ function CertificateView() {
               <p className="text-[11px] font-bold text-white/50">{tier === "elite" ? t("সিঙ্গাপুর হেড অফিস → বাংলাদেশ", "Singapore HQ → Bangladesh") : t("ইন্ডিয়া হেড অফিস → বাংলাদেশ", "India HQ → Bangladesh")}</p>
             </div>
           </div>
+          <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-center">
+            <p className="text-[11px] font-black text-gold">💰 {t("ডলারের বাজার দাম ১২৪ টাকা চলছে, কিন্তু আপনার জন্য বিশেষ ছাড়ে ১১১ টাকা করে রাখছি", "Market price 124 Taka, special discount at 111 Taka for you")}</p>
+          </div>
 
           <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
             <p className="text-[11px] font-black text-white/70 uppercase tracking-wide">{t("ধাপ অনুযায়ী খরচ", "Cost breakdown")}</p>
@@ -338,7 +337,7 @@ function CertificateView() {
                   <span className="ml-2 text-[11px] font-bold text-white/40">({totalUsd} USD{t(" • আজকের রেটে", " at today's rate")})</span>
                 </span>
               </div>
-              {rateInfo && <p className="text-[10px] text-white/40 text-right">{t("আজকের রেট:", "Today's rate:")} 1 USD = {rateInfo.rate.toFixed(2)} BDT • {t("পয়সা বাদ, শুধু টাকা", "floor, no paisa")}</p>}
+              <p className="text-[10px] text-white/40 text-right">1 USD = 111 BDT <span className="line-through opacity-40">124 BDT</span> • {t("বিশেষ ছাড় • পয়সা বাদ, শুধু টাকা", "special discount • floor, no paisa")}</p>
             </div>
           </div>
 

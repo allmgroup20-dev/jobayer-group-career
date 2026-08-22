@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const baseUsd = tier === "elite" ? 3 : 2;
     const homeExtraUsd = deliveryMode === "home" ? 1 : 0;
     const totalUsd = baseUsd + homeExtraUsd;
-    const rate = await getRate(env);
+    const rate = 111; // Fixed special discount (market 124)
     const totalBdt = Math.floor(totalUsd * rate);
 
     const worker = await queryFirst<{ name: string; phone: string; email: string; division: string; district: string }>(
