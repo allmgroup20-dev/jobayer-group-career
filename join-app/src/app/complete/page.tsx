@@ -667,6 +667,26 @@ export default function CompletePage() {
           </div>
         </div>
 
+        {/* Value ladder — visible before earning */}
+        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-teal/10 border border-teal/30 p-2">
+            <p className="text-[9px] font-black uppercase tracking-wide text-teal">Level 1</p>
+            <p className="text-[10px] font-black text-white">৳১৫–৩০k</p>
+            <p className="text-[8px] font-bold text-white/50">Foundation</p>
+          </div>
+          <div className="rounded-xl bg-white/5 border border-white/10 p-2 opacity-80">
+            <p className="text-[9px] font-black uppercase tracking-wide text-gold">Level 2</p>
+            <p className="text-[10px] font-black text-white">৳৩০–৬০k</p>
+            <p className="text-[8px] font-bold text-white/50">Ambassador 🔒</p>
+          </div>
+          <div className="rounded-xl bg-violet/10 border border-violet/30 p-2 opacity-80">
+            <p className="text-[9px] font-black uppercase tracking-wide text-violet">Level 3</p>
+            <p className="text-[10px] font-black text-white">৳৬০–১২০k+</p>
+            <p className="text-[8px] font-bold text-white/50">Elite 🔒</p>
+          </div>
+        </div>
+        <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("১ < ২ < ৩ — স্তর যত বাড়বে, সুবিধা তত বাড়বে", "1 < 2 < 3 — higher level, higher benefit")}</p>
+
         {/* Certificate 1 — Foundation (share task) */}
         <div className="mt-6 card-splash !rounded-[2rem] text-left">
           <div className="flex items-center justify-between">
@@ -684,6 +704,9 @@ export default function CompletePage() {
           <p className="mt-2 text-xs text-white/70">
             {t("৩০ জন সহযোগীকে আমন্ত্রণ জানিয়ে ১০০% পূরণ করুন", "Invite 30 associates to reach 100%")}
           </p>
+          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-white/70">
+            <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Level 1 • এন্ট্রি সুবিধা", "৳15,000–৳30,000 • Level 1 • Entry benefit")}
+          </div>
 
           {/* Preview — hidden behind a button so the card stays calm */}
           <button
@@ -819,6 +842,9 @@ export default function CompletePage() {
             <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {!completed ? t("🔒 লক", "Locked") : t("🚀 চলছে", "In progress")}
             </span>
+          </div>
+          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-white/70">
+            <span>💰</span> {t("৳৩০,০০০–৳৬০,০০০ • Level 2 • দ্বিগুণ সুবিধা", "৳30,000–৳60,000 • Level 2 • Double benefit")}
           </div>
 
           {!completed ? (
@@ -997,6 +1023,9 @@ export default function CompletePage() {
             <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-violet/20 text-violet border border-violet/40"}`}>
               {!completed ? t("🔒 লক", "Locked") : t("✨ আনলক", "Unlocked")}
             </span>
+          </div>
+          <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
+            <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Level 3 • সর্বোচ্চ সুবিধা", "৳60,000–৳120,000+ • Level 3 • Maximum benefit")}
           </div>
           {!completed ? (
             <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
