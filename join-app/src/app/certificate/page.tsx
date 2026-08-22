@@ -70,6 +70,12 @@ function CertificateView() {
 
   const verifyUrl = `${data.siteUrl}/certificate?id=${data.certificateId}`;
   const date = formatDate(data.completedAt);
+  const tier: "foundation" | "ambassador" | "elite" = (() => {
+    const id = data.certificateId || "";
+    if (id.startsWith("YA-ELITE-")) return "elite";
+    if (id.startsWith("YA-AMB-")) return "ambassador";
+    return "foundation";
+  })();
 
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
@@ -99,7 +105,7 @@ function CertificateView() {
           <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
             <CertCanvas
               className="print-area"
-              tier="foundation"
+              tier={tier}
               data={{
                 name: data.name,
                 certificateId: data.certificateId,
@@ -119,7 +125,7 @@ function CertificateView() {
         <CertLightbox
           open={showZoom}
           onClose={() => setShowZoom(false)}
-          tier="foundation"
+          tier={tier}
           data={{
             name: data.name,
             certificateId: data.certificateId,
@@ -157,13 +163,23 @@ function CertificateView() {
 
           {showValue && (
             <div className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
+              {/* Tier badge */}
+              <div className={`mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-black tracking-wider uppercase ${tier === "elite" ? "bg-gold/15 border-gold/30 text-gold" : tier === "ambassador" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/10 border-white/15 text-white/70"}`}>
+                {tier === "elite" ? t("স্তর ৩ · সর্বোচ্চ · Elite Final", "Level 3 · Highest · Elite Final")
+                  : tier === "ambassador" ? t("স্তর ২ · মাঝারি · Ambassador", "Level 2 · Mid · Ambassador")
+                  : t("স্তর ১ · এন্ট্রি · Foundation", "Level 1 · Entry · Foundation")}
+              </div>
               <div className="mt-2 space-y-4">
             <div className="flex gap-3">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
               <div>
                 <p className="text-sm font-black text-white">{t("কী ধরনের সার্টিফিকেট", "Type of certificate")}</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং অভিজ্ঞতার সরকারি-মানের সনদ। QR কোড, ইউনিক সার্টিফিকেট ID ও অনলাইন যাচাই — নিয়োগকর্তা যেকোনো সময় এই পেজে গিয়ে সত্যতা নিশ্চিত করতে পারেন।", "Referral Ambassador — a verifiable certificate of community-building and digital marketing experience. QR code, unique certificate ID and online verification — any employer can confirm its authenticity on this page.")}
+                  {tier === "elite"
+                    ? t("Elite Final — YouTube Earner কমিউনিটির সর্বোচ্চ সম্মান। অসাধারণ পারফরম্যান্স ও দেশব্যাপী লার্নারদের মেন্টরিং-এর বিশ্বমানের স্বীকৃতি। ৩ জন গ্লোবাল এক্সিকিউটিভ সই + QR যাচাই।", "Elite Final — the highest honor of the YouTube Earner community. World-class recognition for extraordinary performance and nationwide learner mentoring. Signed by 3 global executives + QR verification.")
+                    : tier === "ambassador"
+                    ? t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এ প্রিমিয়াম স্বীকৃতি। বিশ্বস্ত অ্যাম্বাসেডর হিসেবে নেটওয়ার্ক গড়ার সরকারি-মানের সনদ। QR যাচাই সহ।", "Referral Ambassador — premium recognition for community-building and digital marketing. Verifiable certificate as a trusted ambassador. With QR verification.")
+                    : t("ফাউন্ডেশন — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এর এন্ট্রি-লেভেল অভিজ্ঞতার সনদ। প্রোফাইল সম্পন্ন ও প্রাথমিক দক্ষতা প্রমাণের স্বীকৃতি। QR যাচাই সহ।", "Foundation — entry-level certificate of community-building and digital marketing. Recognition for completing your profile and proving core skills. With QR verification.")}
                 </p>
               </div>
             </div>
@@ -172,7 +188,11 @@ function CertificateView() {
               <div>
                 <p className="text-sm font-black text-white">{t("কোন কোন কাজে ব্যবহার করা যাবে", "Where this experience applies")}</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং ভূমিকায় CV-তে যুক্ত করলে প্রার্থী হিসেবে আলাদাভাবে দাঁড় করায়।", "Adds value to your CV for roles like digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing.")}
+                  {tier === "elite"
+                    ? t("টিম লিড, প্রজেক্ট ম্যানেজার, ডিজিটাল মার্কেটিং লিড, ইনফ্লুয়েন্সার ম্যানেজার ও স্টার্টআপ লিডারশিপ ভূমিকায় CV-তে সবচেয়ে বেশি প্রাধান্য পায়।", "Carries the most weight for team lead, project manager, digital marketing lead, influencer manager and startup leadership roles.")
+                    : tier === "ambassador"
+                    ? t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং-এ মাঝারি-স্তরের ভূমিকায় বাড়তি সুবিধা।", "Adds strong value for digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing — mid-level advantage.")
+                    : t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং ভূমিকায় CV-তে এন্ট্রি হিসেবে কাজে লাগে।", "Useful as an entry credential for digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing.")}
                 </p>
               </div>
             </div>
@@ -181,7 +201,11 @@ function CertificateView() {
               <div>
                 <p className="text-sm font-black text-white">{t("মাসিক আয় সম্ভাবনা", "Monthly income potential")}</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {t("এই অভিজ্ঞতা-সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব — অভিজ্ঞতা, নিয়োগকর্তা ও ফ্রিল্যান্স প্রজেক্টের ওপর নির্ভর করে।", "With this experience certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month, depending on experience, employer and freelancing projects.")}
+                  {tier === "elite"
+                    ? t("এই সর্বোচ্চ সার্টিফিকেট দিয়ে লিডারশিপ ও এডভান্সড ডিজিটাল মার্কেটিং ভূমিকায় সাধারণত ৳৬০,০০০–৳১,২০,০০০+ আয় সম্ভব — অভিজ্ঞতা ও নিয়োগকর্তার ওপর নির্ভর করে।", "With this top certificate, leadership and advanced digital marketing roles typically pay ৳60,000–৳120,000+ per month, depending on experience and employer.")
+                    : tier === "ambassador"
+                    ? t("অ্যাম্বাসেডর সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় সাধারণত ৳৩৫,০০০–৳৭০,০০০ আয় সম্ভব।", "With the Ambassador certificate, mid-level digital marketing and community roles typically pay ৳35,000–৳70,000 per month.")
+                    : t("ফাউন্ডেশন সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব।", "With the Foundation certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month.")}
                 </p>
               </div>
             </div>
@@ -190,7 +214,11 @@ function CertificateView() {
               <div>
                 <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {t("গ্লোবাল সার্ভেতে ৭৬% সার্টিফিকেটধারী আয় বৃদ্ধি বা প্রমোশন পেয়েছেন — আপনারটাও হতে পারে!", "In a global survey, 76% of certificate holders received a salary increase or promotion — yours could be next!")}
+                  {tier === "elite"
+                    ? t("৩ জন গ্লোবাল এক্সিকিউটিভ (CEO, CBO, APAC President) সই + ইউনিক ID + QR — সর্বোচ্চ যাচাইযোগ্যতা।", "Signed by 3 global executives (CEO, CBO, APAC President) + unique ID + QR — maximum verifiability.")
+                    : tier === "ambassador"
+                    ? t("Country Manager (PREETI LOBANA) সই + সিল + QR — নিয়োগকর্তা এই পেজ থেকেই যাচাই করতে পারেন।", "Signed by Country Manager (PREETI LOBANA) + seal + QR — any employer can verify on this page.")
+                    : t("Authorized Signatory + ইউনিক ID + QR — এন্ট্রি-লেভেল যাচাইযোগ্য সনদ।", "Authorized Signatory + unique ID + QR — verifiable entry-level credential.")}
                 </p>
               </div>
               </div>

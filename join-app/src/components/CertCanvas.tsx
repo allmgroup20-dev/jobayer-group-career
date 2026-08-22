@@ -501,6 +501,7 @@ export default function CertCanvas({
               <p className="mt-1 text-[14px] font-bold text-[#111214]">{date}</p>
               <p className="mt-2.5 text-[9px] font-black uppercase tracking-[0.28em] text-[#B99238]">Certificate ID</p>
               <p className="mt-1 font-mono text-[12px] font-bold text-[#111214]">{certId}</p>
+              <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#B99238]/60">Level 2 · Ambassador</p>
             </div>
           </div>
 
@@ -529,7 +530,7 @@ export default function CertCanvas({
                 {/* capsule title bar */}
                 <div className="mt-[84px] flex h-[28px] w-[455px] items-center justify-center rounded-full bg-[#111011]">
                   <span className="font-cinzel text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#FEFCF6]">
-                    Certificate of Excellence
+                    Elite Final Certificate
                   </span>
                 </div>
 
@@ -599,6 +600,7 @@ export default function CertCanvas({
                   <p className="mt-1.5 text-[8.5px] font-bold uppercase tracking-[0.18em] text-[#454144]">Date</p>
                   <p className="mt-2.5 text-[8px] font-bold uppercase tracking-[0.12em] text-[#454144]">Certificate ID</p>
                   <p className="mt-0.5 font-mono text-[10.5px] font-bold text-[#161416]">{certId}</p>
+                  <p className="mt-1 text-[7px] font-bold uppercase tracking-[0.12em] text-[#a19a90]">Level 3 · Elite Final</p>
                 </div>
 
                 {/* QR + verify */}
@@ -650,6 +652,7 @@ export default function CertCanvas({
                 <div className="text-left text-sm">
                   <p className="font-black tracking-[0.08em] uppercase text-xs text-gray-900">Certificate ID</p>
                   <p className="mt-1 font-mono font-bold">{certId}</p>
+                  <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-gray-400">Level 1 · Foundation</p>
                   <p className="mt-3 font-black tracking-[0.08em] uppercase text-xs text-gray-900">Date</p>
                   <p className="mt-1 font-bold">{date}</p>
                 </div>
