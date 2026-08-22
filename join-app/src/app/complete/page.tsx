@@ -78,6 +78,11 @@ export default function CompletePage() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [paying, setPaying] = useState(false);
   const [payMsg, setPayMsg] = useState<Msg>(null);
+  const [selectedAmount, setSelectedAmount] = useState<number>(99);
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [interestFacility, setInterestFacility] = useState<string>("");
+  const [otherInterest, setOtherInterest] = useState<string>("");
+  const [is100Interested, setIs100Interested] = useState<boolean | null>(null);
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -435,13 +440,33 @@ export default function CompletePage() {
 
   const handlePremiumPay = async () => {
     if (paying) return;
+    // Amount: custom takes precedence, clamp 99-10000
+    let amt = 99;
+    if (customAmount.trim()) {
+      const parsed = Number(customAmount.trim());
+      if (Number.isFinite(parsed)) amt = Math.round(parsed);
+    } else {
+      amt = selectedAmount;
+    }
+    if (amt < 99) amt = 99;
+    if (amt > 10000) amt = 10000;
+    if (is100Interested === false) {
+      setPayMsg({ kind: "warn", text: t("১০০% আগ্রহী না হলে পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে আবার চেষ্টা করুন", "If not 100% interested, no need to pay — try again when interested") });
+      return;
+    }
     setPaying(true);
     setPayMsg(null);
     try {
+      const interestNote = [
+        interestFacility ? `Facility: ${interestFacility}` : "",
+        otherInterest ? `Other interest: ${otherInterest}` : "",
+        is100Interested ? "100% interested: yes" : "",
+      ].filter(Boolean).join(" | ");
+      const budgetNote = `Budget ${amt} BDT (selected ${selectedAmount}, custom ${customAmount || "-"})`;
       const res = await fetch("/api/membership/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier: "elite" }),
+        body: JSON.stringify({ tier: "elite", amount: amt, budgetNote, interestNote }),
       });
       const json = await res.json().catch(() => ({})) as { GatewayPageURL?: string; error?: string; mock?: boolean };
       if (!res.ok) {
@@ -1088,43 +1113,108 @@ export default function CompletePage() {
             <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
               ✨ {t("অভিনন্দন — আপনি ১০০% প্রিমিয়াম মেম্বার! Elite সার্টিফিকেট আনলক হয়েছে।", "Congratulations — you are 100% premium member! Elite certificate unlocked.")}
             </p>
-          ) : !completed ? (
+          ) : (
             <>
-              <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
-                🔒 {t("প্রথম সার্টিফিকেট ১০০% করলেই Elite-এর প্রিমিয়াম ধাপে যেতে পারবেন।", "Finish the first certificate to 100% to reach Elite premium step.")}
-              </p>
-              <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
-                <p className="text-[11px] font-black text-gold text-center">💎 {t("৯৯ টাকা প্রিমিয়াম মেম্বারশিপ", "99 Taka Premium Membership")}</p>
-                <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("৯৯ টাকা দিলেই ১০০% প্রিমিয়াম মেম্বার — অ্যাডমিন থেকেও প্রিমিয়াম করে দিলে একই সুবিধা।", "Pay 99 Taka to become 100% premium — or admin can make you premium directly.")}</p>
-                <button
-                  onClick={handlePremiumPay}
-                  disabled={paying}
-                  className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
-                >
-                  {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("💳 ৯৯ টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Pay 99 Taka — Become Premium via SSLCommerz")}
-                </button>
-                <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
-                {payMsg && (
+              {!completed && (
+                <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
+                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই প্রিমিয়াম মেম্বারশিপ নিতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become premium now.")}
+                </p>
+              )}
+              {/* 7 Premium Facilities — 100% positive, MLM-free */}
+              <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                <p className="text-[11px] font-black text-white text-center">💎 {t("৯৯ টাকা থেকে প্রিমিয়াম — ৭টি সুবিধা", "Premium from 99 Taka — 7 Benefits")}</p>
+                <div className="mt-2 space-y-2">
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">👥</span>
+                    <div><p className="text-[11px] font-black text-white">{t("১. আর্নিং মেম্বার", "1. Earning Member")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("যারা আয় করতে ১০০% আগ্রহী তাদের জন্য — আপনিও আর্নিং মেম্বার হবেন।", "For those 100% interested in earning — you become an earning member.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">⭐</span>
+                    <div><p className="text-[11px] font-black text-white">{t("২. যেকোনো চাকরিতে অগ্রাধিকার", "2. Priority in Any Job")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("কোম্পানির যেকোনো পদে আপনাকে আগে বিবেচনা করা হবে।", "You will be considered first for any position in the company.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-violet/15 border border-violet/30 flex items-center justify-center text-[11px]">🌍</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৩. জাতীয় + আন্তর্জাতিক সুযোগ", "3. National + International Opportunities")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("দেশ ও বিদেশে কোম্পানির সকল প্রতিষ্ঠানে আবেদনের সুযোগ।", "Opportunities in all company institutions, nationally and internationally.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-pink/15 border border-pink/30 flex items-center justify-center text-[11px]">📚</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৪. গাইডলাইন + প্রশিক্ষণ", "4. Guideline + Training")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("অভিজ্ঞতা না থাকলে নিজস্ব ট্রেইনার দিয়ে তৈরি — অভিজ্ঞতা থাকলে তা প্লাস পয়েন্ট হিসেবে আরও শানিয়ে তোলা হবে।", "No experience? Our trainers will build you. Experienced? We sharpen it as a plus point.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">🎓</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৫. কোর্স সুবিধা", "5. Course Benefit")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("প্রাথমিক পর্যায়ে অভিজ্ঞতা না থাকলে কয়েক লক্ষ টাকার জাতীয়/আন্তর্জাতিক কোর্স — বাংলা/ইংরেজি, পছন্দের ভাষায়; কোর্স শেষে চাকরির যোগ্য।", "If no experience, courses worth several lakhs — national/international, Bangla/English in your preferred language; after completion, eligible for jobs.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">🚀</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৬. ১০০০ নিয়োগ + মনিটাইজেশন চ্যানেল", "6. 1000 Hires + Monetization Channel")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("২০২৬ নভেম্বর–২০২৭ ফেব্রুয়ারি বাংলাদেশে ১০০০ নিয়োগে অগ্রাধিকার (শর্তসাপেক্ষ)। শর্তসাপেক্ষ পূর্ণাঙ্গ মনিটাইজেশন চ্যানেল — আমরা গাইড করব কীভাবে কনটেন্ট বানাবে/ছাড়বে; যে কেউ করতে পারবে; ১০০% সুবিধা। শর্ত: ১ বছরে ২ মাস ৩ লক্ষের কম হলে সাসপেন্ড, তবে আগের আয় ব্যাংকে পাঠানো হবে।", "1000 hires in Bangladesh Nov 2026–Feb 2027 with priority (conditional). Full monetization channel with guidance — anyone can do; 100% benefit. Condition: if 2 months in a year below ৳3 lakh, suspend, but prior earnings sent to bank.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-violet/15 border border-violet/30 flex items-center justify-center text-[11px]">🏆</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৭. সর্বোচ্চ Elite সার্টিফিকেট", "7. Highest Elite Certificate")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("দেশ/বিদেশ যেকোনো প্রতিষ্ঠানে উচ্চ বেতনের চাকরিতে সহায়ক — কোম্পানিতে অত্যাধিক ফ্যাসিলিটি।", "Helps secure high-salary jobs anywhere — maximum facilities in our company.")}</p></div>
+                  </div>
+                </div>
+              </div>
+              {/* Interest + Budget — flexible premium */}
+              <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
+                <p className="text-[11px] font-black text-white">{t("আপনার আগ্রহ জানান (১০০% আগ্রহ কনফার্ম)", "Tell us your interest (confirm 100% interest)")}</p>
+                <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{t("আগে জানানো আগ্রহ থাকলে নিচে লিখুন:", "If you have other interests, write below:")}</p>
+                <div className="mt-2 space-y-2">
+                  <select value={interestFacility} onChange={(e) => setInterestFacility(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold focus:outline-none">
+                    <option value="" className="text-black">{t("৭টির মধ্যে কোন সুবিধাটি সবচেয়ে পছন্দ?", "Which of the 7 benefits do you like most?")}</option>
+                    <option value="earning" className="text-black">{t("আর্নিং মেম্বার", "Earning Member")}</option>
+                    <option value="priority" className="text-black">{t("যেকোনো চাকরিতে অগ্রাধিকার", "Priority in Any Job")}</option>
+                    <option value="national-international" className="text-black">{t("জাতীয় + আন্তর্জাতিক সুযোগ", "National + International")}</option>
+                    <option value="training" className="text-black">{t("গাইডলাইন + প্রশিক্ষণ", "Guideline + Training")}</option>
+                    <option value="courses" className="text-black">{t("কোর্স সুবিধা", "Course Benefit")}</option>
+                    <option value="hiring-channel" className="text-black">{t("১০০০ নিয়োগ + মনিটাইজেশন চ্যানেল", "1000 Hires + Channel")}</option>
+                    <option value="certificate" className="text-black">{t("Elite সার্টিফিকেট", "Elite Certificate")}</option>
+                  </select>
+                  <input value={otherInterest} onChange={(e) => setOtherInterest(e.target.value)} placeholder={t("এর বাইরে আর কোন বিষয়ে আগ্রহ আছে? (ঐচ্ছিক)", "Any other subject you are interested in? (optional)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setIs100Interested(true)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === true ? "bg-teal/20 border-teal/40 text-teal" : "bg-white/5 border-white/15 text-white/60"}`}>{t("✅ হ্যাঁ, ১০০% আগ্রহী", "Yes, 100% interested")}</button>
+                    <button type="button" onClick={() => setIs100Interested(false)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === false ? "bg-white/10 border-white/20 text-white" : "bg-white/5 border-white/15 text-white/60"}`}>{t("না", "No")}</button>
+                  </div>
+                </div>
+                {is100Interested === true && (
+                  <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
+                    <p className="text-[11px] font-black text-gold text-center">{t("আপনার পছন্দের বাজেট দিন (৯৯–১০,০০০ টাকা)", "Enter your preferred budget (99–10,000 Taka)")}</p>
+                    <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("এত সুবিধার পরে আপনি কত বাজেট রাখতে স্বাচ্ছন্দ্যবোধ করেন? ৯৯ থেকে শুরু — ২০১, ২০৯, ১০,০০০ যেকোনো টাকা দিতে পারেন।", "After all these benefits, what budget are you comfortable with? From 99 — you can pay 201, 209 or even 10,000 — any amount.")}</p>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {[99, 199, 501].map((v) => (
+                        <button key={v} type="button" onClick={() => { setSelectedAmount(v); setCustomAmount(""); }} className={`py-2 rounded-xl border text-xs font-black ${selectedAmount === v && !customAmount ? "bg-gold text-black border-gold" : "bg-white/5 border-white/15 text-white/70"}`}>{v} ৳</button>
+                      ))}
+                    </div>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {[1000, 5000, 10000].map((v) => (
+                        <button key={v} type="button" onClick={() => { setSelectedAmount(v); setCustomAmount(""); }} className={`py-2 rounded-xl border text-xs font-black ${selectedAmount === v && !customAmount ? "bg-gold text-black border-gold" : "bg-white/5 border-white/15 text-white/70"}`}>{v.toLocaleString("en-US")} ৳</button>
+                      ))}
+                    </div>
+                    <div className="mt-2 flex gap-2">
+                      <input value={customAmount} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setCustomAmount(v); }} inputMode="numeric" placeholder={t("কাস্টম টাকা (যেমন ২০১)", "Custom amount e.g. 201")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                      <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
+                    </div>
+                    <p className="mt-1.5 text-[9px] text-white/40 text-center">{t("সর্বনিম্ন ৯৯ টাকা — ৯৯-এর নিচে নয়", "Minimum 99 Taka — not below 99")}</p>
+                    <button
+                      onClick={handlePremiumPay}
+                      disabled={paying}
+                      className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                    >
+                      {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t(`💳 ${(customAmount ? Number(customAmount) || selectedAmount : selectedAmount).toLocaleString("en-US")} টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz`, `💳 Pay ${(customAmount ? Number(customAmount) || selectedAmount : selectedAmount).toLocaleString("en-US")} Taka — Become Premium via SSLCommerz`)}
+                    </button>
+                    <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
+                    {payMsg && (
+                      <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
+                    )}
+                  </div>
+                )}
+                {is100Interested === false && (
+                  <p className="mt-2 text-[11px] font-bold text-center text-white/50">{t("১০০% আগ্রহ না থাকলে এখন পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে ফিরে আসুন।", "If not 100% interested, no need to pay now — come back when interested.")}</p>
+                )}
+                {is100Interested === null && payMsg && (
                   <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
                 )}
               </div>
             </>
-          ) : (
-            <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
-              <p className="text-[11px] font-black text-gold text-center">💎 {t("৯৯ টাকা প্রিমিয়াম মেম্বারশিপ প্রয়োজন", "99 Taka Premium Membership Required")}</p>
-              <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("৯৯ টাকা দিলেই ১০০% প্রিমিয়াম মেম্বার — অ্যাডমিন থেকেও প্রিমিয়াম করে দিলে একই সুবিধা।", "Pay 99 Taka to become 100% premium — or admin can make you premium directly.")}</p>
-              <button
-                onClick={handlePremiumPay}
-                disabled={paying}
-                className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
-              >
-                {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("💳 ৯৯ টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Pay 99 Taka — Become Premium via SSLCommerz")}
-              </button>
-              <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
-              {payMsg && (
-                <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
-              )}
-            </div>
           )}
 
           <button

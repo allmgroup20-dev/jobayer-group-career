@@ -4,7 +4,8 @@ import { ensureWorkerProfileColumns, queryFirst, execute } from "@/lib/queries";
 import { verifyWorkerFromCookies } from "@/lib/session";
 import { SslcommerzService } from "@/lib/sslcommerz";
 
-const MEMBERSHIP_AMOUNT = 99;
+const MEMBERSHIP_MIN = 99;
+const MEMBERSHIP_MAX = 10000;
 const MEMBERSHIP_CURRENCY = "BDT";
 
 async function ensureMembershipTable(env: { DB: D1Database }) {
@@ -53,6 +54,13 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.json().catch(() => ({} as Record<string, unknown>));
     const body = rawBody as Record<string, unknown>;
     const tier = (body.tier as string) || "elite";
+    let amount = Number(body.amount ?? MEMBERSHIP_MIN);
+    if (!Number.isFinite(amount)) amount = MEMBERSHIP_MIN;
+    amount = Math.round(amount);
+    if (amount < MEMBERSHIP_MIN) amount = MEMBERSHIP_MIN;
+    if (amount > MEMBERSHIP_MAX) amount = MEMBERSHIP_MAX;
+    const budgetNote = typeof body.budgetNote === "string" ? String(body.budgetNote).slice(0, 500) : null;
+    const interestNote = typeof body.interestNote === "string" ? String(body.interestNote).slice(0, 1000) : null;
 
     const service = await SslcommerzService.fromDB(env);
     // If credentials not configured, allow dev mock for local testing
@@ -64,8 +72,14 @@ export async function POST(request: NextRequest) {
     await execute(
       env,
       "INSERT INTO membership_payments (worker_id, tier, amount, currency, tran_id, status) VALUES (?, ?, ?, ?, ?, 'pending')",
-      [workerId, tier, MEMBERSHIP_AMOUNT, MEMBERSHIP_CURRENCY, tranId]
+      [workerId, tier, amount, MEMBERSHIP_CURRENCY, tranId]
     );
+    // Save budget/interest privately for admin
+    if (budgetNote || interestNote) {
+      try {
+        await execute(env, "UPDATE workers SET budget_range = ? WHERE worker_id = ?", [budgetNote ? `${amount} BDT - ${budgetNote}` : `${amount} BDT`, workerId]);
+      } catch {}
+    }
 
     // If no credentials in dev, simulate premium for testing (local-d1)
     const isDev = process.env.NODE_ENV === "development";
@@ -95,7 +109,7 @@ export async function POST(request: NextRequest) {
     const cusCountry = "Bangladesh";
 
     const GatewayPageURL = await service.initPayment({
-      total_amount: MEMBERSHIP_AMOUNT,
+      total_amount: amount,
       currency: MEMBERSHIP_CURRENCY,
       tran_id: tranId,
       success_url: `${origin}/api/membership/success`,
@@ -107,7 +121,7 @@ export async function POST(request: NextRequest) {
       cus_add1: cusAdd1,
       cus_city: cusCity,
       cus_country: cusCountry,
-      product_name: "Premium Membership - Elite",
+      product_name: `Premium Membership - Elite (${amount} BDT)`,
       product_category: "Membership",
       product_profile: "general",
     });

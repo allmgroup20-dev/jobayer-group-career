@@ -76,9 +76,11 @@ async function handleCallback(request: NextRequest) {
   }
 
   if (verified && payRow) {
-    // Amount check for premium (99 BDT)
+    // Amount check for flexible premium (99 - 10000 BDT)
     const amt = Number(amount);
-    if (Number.isFinite(amt) && Math.abs(amt - 99) > 0.01 && amt !== 0) {
+    const payAmtRow = await queryFirst<{ amount: number }>(env, "SELECT amount FROM membership_payments WHERE tran_id = ?", [tranId]);
+    const expected = payAmtRow?.amount ?? 99;
+    if (Number.isFinite(amt) && amt !== 0 && (amt < 99 - 0.01 || amt > 10000 + 0.01) && Math.abs(amt - expected) > 0.01) {
       await execute(env, "UPDATE membership_payments SET status = 'FAILED', gateway_response = ?, verified_at = datetime('now') WHERE tran_id = ?", [JSON.stringify(data), tranId]);
       return NextResponse.redirect(new URL("/complete?membership=amount_mismatch", request.nextUrl.origin));
     }
