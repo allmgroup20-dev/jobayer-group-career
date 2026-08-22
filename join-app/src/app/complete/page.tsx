@@ -78,11 +78,16 @@ export default function CompletePage() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [paying, setPaying] = useState(false);
   const [payMsg, setPayMsg] = useState<Msg>(null);
-  const [selectedAmount, setSelectedAmount] = useState<number>(99);
-  const [customAmount, setCustomAmount] = useState<string>("");
+  const [amountInput, setAmountInput] = useState<string>("");
   const [interestFacility, setInterestFacility] = useState<string>("");
   const [otherInterest, setOtherInterest] = useState<string>("");
   const [is100Interested, setIs100Interested] = useState<boolean | null>(null);
+  const [deadline, setDeadline] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState<string>("30:00");
+  const [expired, setExpired] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [officers, setOfficers] = useState<Array<{ id: number; name: string; status: "viewing" | "accepted" | "pending" | "rejected" }>>([]);
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -436,19 +441,105 @@ export default function CompletePage() {
         }, 500);
       }
     }
+    // Load 30-min deadline + attempt from localStorage
+    try {
+      const savedDeadline = localStorage.getItem("elite_premium_deadline");
+      const savedAttempt = localStorage.getItem("elite_premium_attempt");
+      if (savedAttempt) setAttempt(Number(savedAttempt) || 0);
+      if (savedDeadline) {
+        const dl = Number(savedDeadline);
+        if (dl > Date.now()) {
+          setDeadline(dl);
+          setExpired(false);
+        } else if (!isPremium) {
+          setExpired(true);
+        }
+      } else if (typeof window !== "undefined") {
+        const dl = Date.now() + 30 * 60 * 1000;
+        localStorage.setItem("elite_premium_deadline", String(dl));
+        setDeadline(dl);
+      }
+    } catch {}
   }, [t]);
 
+  // 30-minute countdown
+  useEffect(() => {
+    if (isPremium || deadline === null || verifying) return;
+    const tick = () => {
+      const diff = deadline - Date.now();
+      if (diff <= 0) {
+        setTimeLeft("00:00");
+        setExpired(true);
+        return;
+      }
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [deadline, isPremium, verifying]);
+
+  const startOfficerVerification = () => {
+    const nextAttempt = attempt + 1;
+    setAttempt(nextAttempt);
+    try { localStorage.setItem("elite_premium_attempt", String(nextAttempt)); } catch {}
+    const count = Math.min(2 + nextAttempt, 5); // 3,4,5 officers
+    const officerNames = ["যাচাই কর্মকর্তা ১", "যাচাই কর্মকর্তা ২", "যাচাই কর্মকর্তা ৩", "যাচাই কর্মকর্তা ৪", "যাচাই কর্মকর্তা ৫"];
+    const initial: Array<{ id: number; name: string; status: "viewing" | "accepted" | "pending" | "rejected" }> = Array.from({ length: count }, (_, i) => ({
+      id: i, name: officerNames[i] || `কর্মকর্তা ${i + 1}`, status: "viewing" as const,
+    }));
+    setOfficers(initial);
+    setVerifying(true);
+    setExpired(false);
+    // Total 60-180s, split per officer
+    const totalMs = Math.min(60000 + nextAttempt * 30000, 180000); // 90s, 120s, 150s...
+    const per = Math.floor(totalMs / count);
+    initial.forEach((_, idx) => {
+      setTimeout(() => {
+        setOfficers((prev) => {
+          const next = [...prev];
+          // Last officer always accepted (ultimately permitted)
+          if (idx === count - 1) next[idx].status = "accepted";
+          else {
+            // Mix: 1 accepted, 1 pending, rest rejected with increasing rejection on higher attempts
+            const r = Math.random();
+            if (idx === 0) next[idx].status = "accepted";
+            else if (r < 0.35 + nextAttempt * 0.05) next[idx].status = "rejected";
+            else next[idx].status = "pending";
+          }
+          return next;
+        });
+        if (idx === count - 1) {
+          // Final officer accepted — grant 30 min again
+          setTimeout(() => {
+            const dl = Date.now() + 30 * 60 * 1000;
+            try { localStorage.setItem("elite_premium_deadline", String(dl)); } catch {}
+            setDeadline(dl);
+            setExpired(false);
+            setVerifying(false);
+            setPayMsg({ kind: "ok", text: t("✅ কর্মকর্তা অনুমতি দিয়েছেন — এখন ৩০ মিনিটের মধ্যে পেমেন্ট করুন", "Approved — you have 30 minutes to pay") });
+          }, 800);
+        }
+      }, per * (idx + 1));
+    });
+  };
+
   const handlePremiumPay = async () => {
-    if (paying) return;
-    // Amount: custom takes precedence, clamp 99-10000
-    let amt = 99;
-    if (customAmount.trim()) {
-      const parsed = Number(customAmount.trim());
-      if (Number.isFinite(parsed)) amt = Math.round(parsed);
-    } else {
-      amt = selectedAmount;
+    if (paying || verifying || expired) return;
+    // 100% flexible — single input, validate only at pay time
+    const raw = amountInput.trim();
+    let amt = Number(raw);
+    if (!raw || !Number.isFinite(amt)) {
+      setPayMsg({ kind: "warn", text: t("অ্যামাউন্ট লিখুন — যেমন ২০১", "Please enter an amount — e.g. 201") });
+      return;
     }
-    if (amt < 99) amt = 99;
+    amt = Math.round(amt);
+    if (amt < 99) {
+      setPayMsg({ kind: "warn", text: t("সর্বনিম্ন ৯৯ টাকা হতে হবে", "Minimum is 99 Taka") });
+      return;
+    }
     if (amt > 10000) amt = 10000;
     if (is100Interested === false) {
       setPayMsg({ kind: "warn", text: t("১০০% আগ্রহী না হলে পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে আবার চেষ্টা করুন", "If not 100% interested, no need to pay — try again when interested") });
@@ -462,7 +553,7 @@ export default function CompletePage() {
         otherInterest ? `Other interest: ${otherInterest}` : "",
         is100Interested ? "100% interested: yes" : "",
       ].filter(Boolean).join(" | ");
-      const budgetNote = `Budget ${amt} BDT (selected ${selectedAmount}, custom ${customAmount || "-"})`;
+      const budgetNote = `Budget ${amt} BDT (flexible input ${amountInput})`;
       const res = await fetch("/api/membership/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1122,7 +1213,8 @@ export default function CompletePage() {
               )}
               {/* 7 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                <p className="text-[11px] font-black text-white text-center">💎 {t("৯৯ টাকা থেকে প্রিমিয়াম — ৭টি সুবিধা", "Premium from 99 Taka — 7 Benefits")}</p>
+                <p className="text-[11px] font-black text-white text-center">💎 {t("প্রিমিয়াম সাতটি সুবিধা", "Premium Seven Benefits")}</p>
+                <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("প্রিমিয়াম সাতটি সুবিধা পেতে আপনার পছন্দের বাজেট দিন এবং মেম্বারশিপ নিন", "To get the seven premium benefits, give your preferred budget and take membership")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">👥</span>
@@ -1154,11 +1246,12 @@ export default function CompletePage() {
                   </div>
                 </div>
               </div>
-              {/* Interest + Budget — flexible premium */}
+              {/* Interest + Budget — 100% flexible, psychological */}
               <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
-                <p className="text-[11px] font-black text-white">{t("আপনার আগ্রহ জানান (১০০% আগ্রহ কনফার্ম)", "Tell us your interest (confirm 100% interest)")}</p>
-                <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{t("আগে জানানো আগ্রহ থাকলে নিচে লিখুন:", "If you have other interests, write below:")}</p>
-                <div className="mt-2 space-y-2">
+                <p className="text-[11px] font-black text-white">{t("আপনার আগ্রহ জানান", "Tell us your interest")}</p>
+                <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{t("এই ৭টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 7 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
+                <p className="mt-2 text-[10px] text-white/60 leading-relaxed bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৭টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 7 benefits? Write that amount below.")}</p>
+                <div className="mt-3 space-y-2">
                   <select value={interestFacility} onChange={(e) => setInterestFacility(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold focus:outline-none">
                     <option value="" className="text-black">{t("৭টির মধ্যে কোন সুবিধাটি সবচেয়ে পছন্দ?", "Which of the 7 benefits do you like most?")}</option>
                     <option value="earning" className="text-black">{t("আর্নিং মেম্বার", "Earning Member")}</option>
@@ -1177,32 +1270,56 @@ export default function CompletePage() {
                 </div>
                 {is100Interested === true && (
                   <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
-                    <p className="text-[11px] font-black text-gold text-center">{t("আপনার পছন্দের বাজেট দিন (৯৯–১০,০০০ টাকা)", "Enter your preferred budget (99–10,000 Taka)")}</p>
-                    <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("এত সুবিধার পরে আপনি কত বাজেট রাখতে স্বাচ্ছন্দ্যবোধ করেন? ৯৯ থেকে শুরু — ২০১, ২০৯, ১০,০০০ যেকোনো টাকা দিতে পারেন।", "After all these benefits, what budget are you comfortable with? From 99 — you can pay 201, 209 or even 10,000 — any amount.")}</p>
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {[99, 199, 501].map((v) => (
-                        <button key={v} type="button" onClick={() => { setSelectedAmount(v); setCustomAmount(""); }} className={`py-2 rounded-xl border text-xs font-black ${selectedAmount === v && !customAmount ? "bg-gold text-black border-gold" : "bg-white/5 border-white/15 text-white/70"}`}>{v} ৳</button>
-                      ))}
-                    </div>
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {[1000, 5000, 10000].map((v) => (
-                        <button key={v} type="button" onClick={() => { setSelectedAmount(v); setCustomAmount(""); }} className={`py-2 rounded-xl border text-xs font-black ${selectedAmount === v && !customAmount ? "bg-gold text-black border-gold" : "bg-white/5 border-white/15 text-white/70"}`}>{v.toLocaleString("en-US")} ৳</button>
-                      ))}
-                    </div>
-                    <div className="mt-2 flex gap-2">
-                      <input value={customAmount} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setCustomAmount(v); }} inputMode="numeric" placeholder={t("কাস্টম টাকা (যেমন ২০১)", "Custom amount e.g. 201")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
-                      <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
-                    </div>
-                    <p className="mt-1.5 text-[9px] text-white/40 text-center">{t("সর্বনিম্ন ৯৯ টাকা — ৯৯-এর নিচে নয়", "Minimum 99 Taka — not below 99")}</p>
-                    <button
-                      onClick={handlePremiumPay}
-                      disabled={paying}
-                      className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
-                    >
-                      {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t(`💳 ${(customAmount ? Number(customAmount) || selectedAmount : selectedAmount).toLocaleString("en-US")} টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz`, `💳 Pay ${(customAmount ? Number(customAmount) || selectedAmount : selectedAmount).toLocaleString("en-US")} Taka — Become Premium via SSLCommerz`)}
-                    </button>
-                    <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
-                    {payMsg && (
+                    <p className="text-[11px] font-black text-gold text-center">{t("আপনার পছন্দের বাজেট দিন", "Enter your preferred budget")}</p>
+                    <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("এই ৭টি সুবিধার জন্য আপনি কত টাকা দিয়ে আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি লিখুন — টাকাটা আপনাকে এখনই পাঠাতে হবে।", "How much do you want to pay to become an interested member for these 7 benefits? Write that amount — you need to send it now.")}</p>
+                    {/* 30-minute countdown */}
+                    {!expired && !verifying ? (
+                      <div className="mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                        <span className="text-[11px] font-black text-gold">⏳ {timeLeft}</span>
+                        <span className="text-[10px] font-bold text-white/60">{t("এই সুবিধা ৩০ মিনিটের জন্য • সময় শেষ হলে আমরা ভাবব আপনি দ্বিধায় আছেন, তাই আর সুযোগ দেব না", "This offer is for 30 minutes • When time ends we will think you are hesitant and won't give another chance")}</span>
+                      </div>
+                    ) : null}
+                    {verifying ? (
+                      <div className="mt-2 rounded-xl bg-white/5 border border-white/10 p-3">
+                        <p className="text-[11px] font-black text-white text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
+                        <div className="mt-2 space-y-1.5">
+                          {officers.map((o) => (
+                            <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10">
+                              <span className="text-[11px] font-bold text-white/80">{o.name}</span>
+                              <span className={`text-[10px] font-black ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-white/50" : "text-gold"}`}>
+                                {o.status === "viewing" ? t("দেখছেন…", "Viewing…") : o.status === "accepted" ? t("একসেপ্ট করেছেন", "Accepted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("এখনও সিদ্ধান্ত নেননি", "Pending")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="mt-2 text-[10px] text-white/50 text-center">{t("১–৩ মিনিট সময় নিচ্ছে — কয়েকজন কর্মকর্তা যাচাই করছেন", "Takes 1–3 minutes — several officers are verifying")}</p>
+                      </div>
+                    ) : expired ? (
+                      <div className="mt-2 rounded-xl bg-red/10 border border-red/30 p-3 text-center">
+                        <p className="text-[11px] font-black text-red">{t("৩০ মিনিট শেষ — আমরা ভাবছি আপনি দ্বিধায় আছেন", "30 minutes over — we think you are hesitant")}</p>
+                        <p className="mt-1 text-[10px] text-white/60 leading-relaxed">{t("সময় শেষ হওয়ায় সুযোগ বন্ধ হয়েছে।", "Opportunity closed as time ended.")}</p>
+                        <button type="button" onClick={startOfficerVerification} disabled={verifying} className="mt-2 w-full py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black disabled:opacity-50">
+                          {t("আমি আগ্রহী — আগেরবার সময় শেষ হওয়ার আগে নিতে পারিনি, দ্বিতীয়বার অনুমতি দিন", "I am interested — couldn't take it before time ended, please allow me again")}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="mt-3 flex gap-2">
+                          <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন — যেমন ২০১", "Enter amount — e.g. 201")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                          <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
+                        </div>
+                        <p className="mt-1.5 text-[9px] text-white/40 text-center">{t("১০০% ফ্লেক্সিবল — ৯৯–১০,০০০ এর মধ্যে যেকোনো টাকা", "100% flexible — any amount between 99–10,000")}</p>
+                        <button
+                          onClick={handlePremiumPay}
+                          disabled={paying || verifying || expired}
+                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                        >
+                          {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই প্রিমিয়াম হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
+                        </button>
+                        <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট • এখনই পাঠাতে হবে", "Secure payment • Must send now")}</p>
+                      </>
+                    )}
+                    {payMsg && !verifying && !expired && (
                       <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
                     )}
                   </div>
