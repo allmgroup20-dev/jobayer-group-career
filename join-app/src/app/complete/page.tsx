@@ -496,7 +496,7 @@ export default function CompletePage() {
     setAttempt(nextAttempt);
     try { localStorage.setItem("elite_premium_attempt", String(nextAttempt)); } catch {}
     const count = Math.min(2 + nextAttempt, 5); // 3,4,5 officers
-    const officerNames = ["যাচাই কর্মকর্তা ১", "যাচাই কর্মকর্তা ২", "যাচাই কর্মকর্তা ৩", "যাচাই কর্মকর্তা ৪", "যাচাই কর্মকর্তা ৫"];
+    const officerNames = ["এক্সিকিউটিভ, যাচাই বিভাগ", "সিনিয়র এক্সিকিউটিভ, সদস্য যাচাই", "অ্যাসিস্ট্যান্ট ম্যানেজার, প্রিমিয়াম অনুমোদন", "ম্যানেজার, সদস্য অনুমোদন", "ডেপুটি ডিরেক্টর, প্রিমিয়াম সদস্যপদ"];
     const initial: Array<{ id: number; name: string; status: "viewing" | "accepted" | "pending" | "rejected" }> = Array.from({ length: count }, (_, i) => ({
       id: i, name: officerNames[i] || `কর্মকর্তা ${i + 1}`, status: "viewing" as const,
     }));
@@ -1291,18 +1291,21 @@ export default function CompletePage() {
                     ) : null}
                     {verifying ? (
                       <div className="mt-2 rounded-xl bg-white/5 border border-white/10 p-3">
-                        <p className="text-[11px] font-black text-white text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
+                        <p className="text-[10px] font-bold text-gold/80 text-center">⏳ {t("কর্মকর্তারা যাচাই করতে আনুমানিক এক থেকে তিন মিনিট সময় লাগতে পারে — অপেক্ষা করুন", "Officers may take ~1–3 minutes to verify — please wait")}</p>
+                        <p className="mt-1 text-[11px] font-black text-white text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
                         <div className="mt-2 space-y-1.5">
                           {officers.map((o) => (
                             <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10">
                               <span className="text-[11px] font-bold text-white/80">{o.name}</span>
-                              <span className={`text-[10px] font-black ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-white/50" : "text-gold"}`}>
-                                {o.status === "viewing" ? t("দেখছেন…", "Viewing…") : o.status === "accepted" ? t("একসেপ্ট করেছেন", "Accepted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("এখনও সিদ্ধান্ত নেননি", "Pending")}
+                              <span className={`text-[10px] font-black flex items-center gap-1 ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-white/50" : "text-gold"}`}>
+                                {o.status === "viewing" ? (
+                                  <span className="inline-flex items-center gap-0.5 animate-pulse">{t("দেখছেন", "Viewing")}<span className="verify-dots inline-flex"><span>.</span><span>.</span><span>.</span></span></span>
+                                ) : o.status === "accepted" ? t("একসেপ্ট করেছেন", "Accepted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("এখনও সিদ্ধান্ত নেননি", "Pending")}
                               </span>
                             </div>
                           ))}
                         </div>
-                        <p className="mt-2 text-[10px] text-white/50 text-center">{t("১–৩ মিনিট সময় নিচ্ছে — কয়েকজন কর্মকর্তা যাচাই করছেন", "Takes 1–3 minutes — several officers are verifying")}</p>
+                        <style>{`.verify-dots span{animation:verifyDot 1s infinite;}.verify-dots span:nth-child(2){animation-delay:0.2s}.verify-dots span:nth-child(3){animation-delay:0.4s}@keyframes verifyDot{0%,80%,100%{opacity:0}40%{opacity:1}}`}</style>
                       </div>
                     ) : expired ? (
                       <div className="mt-2 rounded-xl bg-red/10 border border-red/30 p-3 text-center">
