@@ -75,6 +75,9 @@ export default function CompletePage() {
   const [shotThumbs, setShotThumbs] = useState<string[]>([]);
   const [shotUploading, setShotUploading] = useState(false);
   const [shotMsg, setShotMsg] = useState<Msg>(null);
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [paying, setPaying] = useState(false);
+  const [payMsg, setPayMsg] = useState<Msg>(null);
 
   useEffect(() => {
     percentRef.current = share?.percent ?? 0;
@@ -400,6 +403,60 @@ export default function CompletePage() {
   };
 
   const completed = share?.completed ?? false;
+
+  // Premium membership status (99 BDT via SSLCommerz OR admin sets premium)
+  useEffect(() => {
+    fetch("/api/membership/status")
+      .then((r) => (r.ok ? r.json() : Promise.resolve(null)))
+      .then((d) => {
+        const dd = d as { isPremium?: boolean } | null;
+        if (dd && typeof dd.isPremium === "boolean") setIsPremium(dd.isPremium);
+        else setIsPremium(false);
+      })
+      .catch(() => setIsPremium(false));
+    // Show toast from redirect ?membership=success / failed etc.
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const m = p.get("membership");
+      if (m === "success") setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
+      else if (m === "failed") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট ব্যর্থ হয়েছে — আবার চেষ্টা করুন", "Payment failed — please try again") });
+      else if (m === "cancelled") setPayMsg({ kind: "warn", text: t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled") });
+      if (m) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("membership");
+        window.history.replaceState({}, "", url.toString());
+        // refresh premium status after redirect
+        setTimeout(() => {
+          fetch("/api/membership/status").then(r=>r.ok?r.json():null).then(dd=>{ const d = dd as { isPremium?: boolean } | null; if(d&&typeof d.isPremium==="boolean") setIsPremium(d.isPremium); }).catch(()=>{});
+        }, 500);
+      }
+    }
+  }, [t]);
+
+  const handlePremiumPay = async () => {
+    if (paying) return;
+    setPaying(true);
+    setPayMsg(null);
+    try {
+      const res = await fetch("/api/membership/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: "elite" }),
+      });
+      const json = await res.json().catch(() => ({})) as { GatewayPageURL?: string; error?: string; mock?: boolean };
+      if (!res.ok) {
+        setPayMsg({ kind: "error", text: json.error || t("পেমেন্ট শুরু করা যায়নি", "Could not start payment") });
+        return;
+      }
+      if (json.GatewayPageURL) {
+        window.location.href = json.GatewayPageURL;
+      }
+    } catch {
+      setPayMsg({ kind: "error", text: t("পেমেন্ট শুরু করা যায়নি", "Could not start payment") });
+    } finally {
+      setPaying(false);
+    }
+  };
 
   // Referral-certificate screenshot proof: current status + upload.
   useEffect(() => {
@@ -1020,21 +1077,54 @@ export default function CompletePage() {
                 <span className="block text-[10px] font-bold text-white/40">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
               </span>
             </h2>
-            <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-violet/20 text-violet border border-violet/40"}`}>
-              {!completed ? t("🔒 লক", "Locked") : t("✨ আনলক", "Unlocked")}
+            <span className={`badge-glow ${isPremium ? "bg-violet/20 text-violet border border-violet/40" : !completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
+              {isPremium ? t("💎 প্রিমিয়াম", "Premium") : !completed ? t("🔒 লক", "Locked") : t("💎 প্রিমিয়াম লক", "Premium Locked")}
             </span>
           </div>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
-          {!completed ? (
-            <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
-              🔒 {t("প্রথম সার্টিফিকেট ১০০% করলেই এই সার্টিফিকেট আনলক হবে।", "This certificate unlocks as soon as you finish the first one.")}
-            </p>
-          ) : (
+          {isPremium ? (
             <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
-              ✨ {t("অভিনন্দন — ফাইনাল সার্টিফিকেট আনলক হয়েছে! কাজের বিশদ বিবরণ শীঘ্রই এখানে যুক্ত হবে।", "Congratulations — the Final certificate is unlocked! The full task details are coming soon.")}
+              ✨ {t("অভিনন্দন — আপনি ১০০% প্রিমিয়াম মেম্বার! Elite সার্টিফিকেট আনলক হয়েছে।", "Congratulations — you are 100% premium member! Elite certificate unlocked.")}
             </p>
+          ) : !completed ? (
+            <>
+              <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
+                🔒 {t("প্রথম সার্টিফিকেট ১০০% করলেই Elite-এর প্রিমিয়াম ধাপে যেতে পারবেন।", "Finish the first certificate to 100% to reach Elite premium step.")}
+              </p>
+              <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
+                <p className="text-[11px] font-black text-gold text-center">💎 {t("৯৯ টাকা প্রিমিয়াম মেম্বারশিপ", "99 Taka Premium Membership")}</p>
+                <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("৯৯ টাকা দিলেই ১০০% প্রিমিয়াম মেম্বার — অ্যাডমিন থেকেও প্রিমিয়াম করে দিলে একই সুবিধা।", "Pay 99 Taka to become 100% premium — or admin can make you premium directly.")}</p>
+                <button
+                  onClick={handlePremiumPay}
+                  disabled={paying}
+                  className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                >
+                  {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("💳 ৯৯ টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Pay 99 Taka — Become Premium via SSLCommerz")}
+                </button>
+                <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
+                {payMsg && (
+                  <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
+              <p className="text-[11px] font-black text-gold text-center">💎 {t("৯৯ টাকা প্রিমিয়াম মেম্বারশিপ প্রয়োজন", "99 Taka Premium Membership Required")}</p>
+              <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("৯৯ টাকা দিলেই ১০০% প্রিমিয়াম মেম্বার — অ্যাডমিন থেকেও প্রিমিয়াম করে দিলে একই সুবিধা।", "Pay 99 Taka to become 100% premium — or admin can make you premium directly.")}</p>
+              <button
+                onClick={handlePremiumPay}
+                disabled={paying}
+                className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+              >
+                {paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("💳 ৯৯ টাকা দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Pay 99 Taka — Become Premium via SSLCommerz")}
+              </button>
+              <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট", "Secure payment")}</p>
+              {payMsg && (
+                <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
+              )}
+            </div>
           )}
 
           <button
