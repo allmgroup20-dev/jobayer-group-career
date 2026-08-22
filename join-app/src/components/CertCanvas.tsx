@@ -573,6 +573,7 @@ export default function CertCanvas({
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Neal Mohan</p>
                     <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Executive Officer</p>
+                    <p className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">YouTube Global · San Bruno, USA</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
                     <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
@@ -581,6 +582,7 @@ export default function CertCanvas({
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Mary Ellen Coe</p>
                     <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Business Officer</p>
+                    <p className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">YouTube Global · San Bruno, USA</p>
                   </div>
                   <div className="flex w-[170px] flex-col items-center text-center">
                     <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
@@ -589,6 +591,7 @@ export default function CertCanvas({
                     <div className="mt-px h-px w-24 bg-[#e4dcc5]" />
                     <p className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#454144]">Sanjay Gupta</p>
                     <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">President, Asia-Pacific</p>
+                    <p className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">YouTube Asia Pacific · Singapore</p>
                   </div>
                 </div>
 
