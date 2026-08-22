@@ -1314,11 +1314,13 @@ export default function CompletePage() {
                       </div>
                     ) : (
                       <>
+                        {payMsg && payMsg.text.includes("সর্বনিম্ন ৯৯") && !verifying && !expired && (
+                          <p className="mb-1.5 text-[10px] font-bold text-center text-gold">{payMsg.text}</p>
+                        )}
                         <div className="mt-3 flex gap-2">
                           <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন", "Enter amount")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
                           <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
                         </div>
-                        <p className="mt-1.5 text-[9px] text-white/40 text-center">{t("১০০% ফ্লেক্সিবল — ৯৯–১০,০০০ এর মধ্যে যেকোনো টাকা", "100% flexible — any amount between 99–10,000")}</p>
                         <button
                           onClick={handlePremiumPay}
                           disabled={paying || verifying || expired}
@@ -1329,7 +1331,7 @@ export default function CompletePage() {
                         <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট • এখনই পাঠাতে হবে", "Secure payment • Must send now")}</p>
                       </>
                     )}
-                    {payMsg && !verifying && !expired && (
+                    {payMsg && !payMsg.text.includes("সর্বনিম্ন ৯৯") && !verifying && !expired && (
                       <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
                     )}
                   </div>
