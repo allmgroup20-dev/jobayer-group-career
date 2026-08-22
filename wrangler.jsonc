@@ -5,7 +5,7 @@
   "compatibility_date": "2026-07-12",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "placement": { "mode": "smart" },
-  "triggers": { "crons": ["*/5 * * * *"] },
+  "triggers": { "crons": ["*/5 * * * *", "0 2 * * *"] },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

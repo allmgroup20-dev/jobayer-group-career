@@ -32,6 +32,14 @@ function CertificateView() {
   const [data, setData] = useState<CertData | null>(null);
   const [showValue, setShowValue] = useState(false);
   const [showZoom, setShowZoom] = useState(false);
+  const [deliveryMode, setDeliveryMode] = useState<"post" | "home">("post");
+  const [postOfficeName, setPostOfficeName] = useState("");
+  const [postOfficeAddress, setPostOfficeAddress] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [rateInfo, setRateInfo] = useState<{ rate: number; totalUsd: number; totalBdt: number } | null>(null);
+  const [deliveryPaying, setDeliveryPaying] = useState(false);
+  const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -77,16 +85,90 @@ function CertificateView() {
     return "foundation";
   })();
 
+  const baseUsd = tier === "elite" ? 3 : 2;
+  const totalUsd = baseUsd + (deliveryMode === "home" ? 1 : 0);
+
+  useEffect(() => {
+    fetch(`/api/delivery/rate?tier=${tier}&mode=${deliveryMode}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const d = j as { totalBdt: number; rate: number; totalUsd: number } | null;
+        if (d && typeof d.totalBdt === "number") setRateInfo({ rate: d.rate, totalUsd: d.totalUsd, totalBdt: d.totalBdt });
+      })
+      .catch(() => {});
+  }, [tier, deliveryMode]);
+
+  useEffect(() => {
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const m = j as Record<string, unknown> | null;
+        if (!m) return;
+        const parts = [m.division, m.district, m.upazila, m.cityCorporation, m.ward, m.area, m.union, m.pourashava, m.city, m.country].filter(Boolean) as string[];
+        const addr = parts.join(", ");
+        setDeliveryAddress(addr || (m.city as string) || "");
+      })
+      .catch(() => {});
+    // delivery status toast
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const d = p.get("delivery");
+      if (d === "success") setDeliveryMsg(t("✅ অর্ডার সফল — শীঘ্রই পোস্ট অফিস/হোমে পাঠানো হবে", "Order successful — will be shipped soon"));
+      else if (d === "failed") setDeliveryMsg(t("❌ পেমেন্ট ব্যর্থ", "Payment failed"));
+      else if (d === "cancelled") setDeliveryMsg(t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled"));
+      if (d) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("delivery");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+  }, [t]);
+
+  const handleDeliveryPay = async () => {
+    if (deliveryPaying) return;
+    if (deliveryMode === "post" && (!postOfficeName.trim() || !postOfficeAddress.trim())) {
+      setDeliveryMsg(t("পোস্ট অফিসের নাম ও ঠিকানা দিন", "Please enter post office name and address"));
+      return;
+    }
+    setDeliveryPaying(true);
+    setDeliveryMsg(null);
+    try {
+      const res = await fetch("/api/delivery/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier, deliveryMode, postOfficeName, postOfficeAddress, shippingAddress: deliveryAddress }),
+      });
+      const j = await res.json().catch(() => ({})) as { GatewayPageURL?: string; error?: string };
+      if (!res.ok) {
+        setDeliveryMsg(j.error || t("পেমেন্ট শুরু করা যায়নি", "Could not start payment"));
+        return;
+      }
+      if (j.GatewayPageURL) window.location.href = j.GatewayPageURL;
+    } catch {
+      setDeliveryMsg(t("পেমেন্ট শুরু করা যায়নি", "Could not start payment"));
+    } finally {
+      setDeliveryPaying(false);
+    }
+  };
+
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-4 print:hidden">
-          <button
-            onClick={() => window.print()}
-            className="btn-gold text-sm !py-3 px-5"
-          >
-            🖨️ PDF/প্রিন্ট করুন
-          </button>
+        <div className="flex items-center justify-between mb-4 print:hidden gap-2 flex-wrap">
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.print()}
+              className="btn-gold text-sm !py-3 px-5"
+            >
+              ⬇️ ডাউনলোড
+            </button>
+            <button
+              onClick={() => document.getElementById("delivery-card")?.scrollIntoView({ behavior: "smooth" })}
+              className="btn-outline text-sm !py-3 px-5"
+            >
+              📮 {t("অরিজিনাল কপি অর্ডার করুন", "Order Original Copy")}
+            </button>
+          </div>
           <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
         </div>
 
@@ -225,6 +307,78 @@ function CertificateView() {
             </div>
           </div>
           )}
+        </div>
+
+        {/* Original Certificate Delivery — India/Singapore -> Bangladesh Post Office / Home */}
+        <div id="delivery-card" className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📮</div>
+            <div>
+              <h3 className="text-sm font-black text-white">{t("অরিজিনাল সার্টিফিকেট — হাতে পান", "Get Your Original Certificate")}</h3>
+              <p className="text-[11px] font-bold text-white/50">{tier === "elite" ? t("সিঙ্গাপুর হেড অফিস → বাংলাদেশ", "Singapore HQ → Bangladesh") : t("ইন্ডিয়া হেড অফিস → বাংলাদেশ", "India HQ → Bangladesh")}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
+            <p className="text-[11px] font-black text-white/70 uppercase tracking-wide">{t("ধাপ অনুযায়ী খরচ", "Cost breakdown")}</p>
+            <div className="mt-2 space-y-1.5 text-xs leading-relaxed">
+              <p className="flex justify-between"><span className="text-white/60">{t("① ভালো কাগজে প্রিন্ট", "① Print on quality paper")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{t("② প্যাকেজিং", "② Packaging")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from Singapore to Bangladesh Post Office") : t("③ ইন্ডিয়া হেড অফিস থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from India HQ to Bangladesh Post Office")}</span><span className="font-black text-white">{baseUsd} USD</span></p>
+              {deliveryMode === "home" && (
+                <p className="flex justify-between"><span className="text-white/60">{t("④ হোম ডেলিভারি (অতিরিক্ত)", "④ Home delivery (extra)")}</span><span className="font-black text-gold">+1 USD</span></p>
+              )}
+              <div className="pt-2 mt-2 border-t border-white/10 flex justify-between items-center">
+                <span className="text-sm font-black text-white">{t("মোট", "Total")}</span>
+                <span className="text-right">
+                  <span className="text-sm font-black text-gold">{rateInfo ? `${rateInfo.totalBdt.toLocaleString("en-US")} টাকা` : `${totalUsd} USD`}</span>
+                  <span className="ml-2 text-[11px] font-bold text-white/40">({totalUsd} USD{t(" • আজকের রেটে", " at today's rate")})</span>
+                </span>
+              </div>
+              {rateInfo && <p className="text-[10px] text-white/40 text-right">{t("আজকের রেট:", "Today's rate:")} 1 USD = {rateInfo.rate.toFixed(2)} BDT • {t("পয়সা বাদ, শুধু টাকা", "floor, no paisa")}</p>}
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button onClick={() => setDeliveryMode("post")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode === "post" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/5 border-white/10 text-white/60"}`}>📍 {t("পোস্ট অফিসে নেব", "Post Office")}</button>
+            <button onClick={() => setDeliveryMode("home")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode === "home" ? "bg-gold/15 border-gold/30 text-gold" : "bg-white/5 border-white/10 text-white/60"}`}>🏠 {t("হোম ডেলিভারি (+১ ডলার)", "Home (+1 USD)")}</button>
+          </div>
+          <p className="mt-1.5 text-[10px] text-white/40 text-center">{deliveryMode === "post" ? t("পোস্ট অফিসে ডেলিভারি — হোম ডেলিভারি নিলে +১ ডলার", "Post office delivery — +1 USD for home") : t("হোম ডেলিভারি — পোস্ট অফিসের চেয়ে ১ ডলার বেশি", "Home delivery — 1 USD more than post office")}</p>
+
+          <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-black text-white/70">{t("আপনার জমা করা ঠিকানা", "Your saved address")}</p>
+              <button onClick={() => setEditingAddress((v) => !v)} className="text-[11px] font-black text-gold underline">{editingAddress ? t("বন্ধ করুন", "Close") : t("✏️ এডিট", "Edit")}</button>
+            </div>
+            {!editingAddress ? (
+              <p className="mt-1 text-xs leading-relaxed text-white/80">{deliveryAddress || t("ঠিকানা লোড হচ্ছে…", "Loading address…")}</p>
+            ) : (
+              <textarea value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} rows={3} placeholder={t("আপনার ঠিকানা লিখুন", "Enter your address")} className="mt-2 w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs focus:outline-none" />
+            )}
+          </div>
+
+          {deliveryMode === "post" ? (
+            <div className="mt-3 space-y-2">
+              <input value={postOfficeName} onChange={(e) => setPostOfficeName(e.target.value)} placeholder={t("পোস্ট অফিসের নাম * (যেমন — GPO, Dhaka)", "Post office name * (e.g. GPO, Dhaka)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+              <input value={postOfficeAddress} onChange={(e) => setPostOfficeAddress(e.target.value)} placeholder={t("পোস্ট অফিসের ঠিকানা *", "Post office address *")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+              <p className="text-[10px] text-white/40 leading-relaxed">{t("হোম ডেলিভারি না নিলে পোস্ট অফিসে ডেলিভারি হবে — পোস্ট অফিসের নাম ও ঠিকানা দিন।", "Without home delivery, it will be sent to the post office — enter its name and address.")}</p>
+            </div>
+          ) : (
+            <p className="mt-2 text-[10px] text-white/50 leading-relaxed">{t("হোম ডেলিভারি নির্বাচিত — আপনার বাসার ঠিকানায় পাঠানো হবে।", "Home delivery selected — will be sent to your home address.")}</p>
+          )}
+
+          {deliveryMsg && (
+            <p className={`mt-3 text-xs font-bold text-center ${deliveryMsg.includes("✅") ? "text-teal" : deliveryMsg.includes("❌") ? "text-red" : "text-gold"}`}>{deliveryMsg}</p>
+          )}
+
+          <button
+            onClick={handleDeliveryPay}
+            disabled={deliveryPaying}
+            className="mt-3 w-full py-3 rounded-xl bg-gradient-to-r from-gold to-amber text-black text-sm font-black active:scale-[0.99] transition-all disabled:opacity-50"
+          >
+            {deliveryPaying ? t("প্রক্রিয়াধীন…", "Processing…") : rateInfo ? t(`💳 ${rateInfo.totalBdt.toLocaleString("en-US")} টাকা — SSLCommerz দিয়ে পে করুন`, `Pay ${rateInfo.totalBdt.toLocaleString("en-US")} Taka via SSLCommerz`) : t("💳 পে করুন — SSLCommerz", "Pay via SSLCommerz")}
+          </button>
+          <p className="mt-1.5 text-[10px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("শুধু টাকা, পয়সা বাদ — আজকের রেটে", "Taka only, no paisa — at today's rate")}</p>
         </div>
 
         {/* Next, even more valuable certificate teaser */}
