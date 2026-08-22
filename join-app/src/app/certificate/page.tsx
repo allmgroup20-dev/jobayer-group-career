@@ -41,6 +41,16 @@ function CertificateView() {
   const [deliveryPaying, setDeliveryPaying] = useState(false);
   const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
 
+  const tier: "foundation" | "ambassador" | "elite" = (() => {
+    const cid = data?.certificateId || "";
+    if (cid.startsWith("YA-ELITE-")) return "elite";
+    if (cid.startsWith("YA-AMB-")) return "ambassador";
+    return "foundation";
+  })();
+
+  const baseUsd = tier === "elite" ? 3 : 2;
+  const totalUsd = baseUsd + (deliveryMode === "home" ? 1 : 0);
+
   useEffect(() => {
     if (!id) { setState("missing"); return; }
     let cancelled = false;
@@ -53,6 +63,44 @@ function CertificateView() {
       .catch(() => { if (!cancelled) setState("missing"); });
     return () => { cancelled = true; };
   }, [id]);
+
+  useEffect(() => {
+    if (state !== "ok" || !data) return;
+    fetch(`/api/delivery/rate?tier=${tier}&mode=${deliveryMode}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const d = j as { totalBdt: number; rate: number; totalUsd: number } | null;
+        if (d && typeof d.totalBdt === "number") setRateInfo({ rate: d.rate, totalUsd: d.totalUsd, totalBdt: d.totalBdt });
+      })
+      .catch(() => {});
+  }, [state, data, tier, deliveryMode]);
+
+  useEffect(() => {
+    if (state !== "ok") return;
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const m = j as Record<string, unknown> | null;
+        if (!m) return;
+        const parts = [m.division, m.district, m.upazila, m.cityCorporation, m.ward, m.area, m.union, m.pourashava, m.city, m.country].filter(Boolean) as string[];
+        const addr = parts.join(", ");
+        setDeliveryAddress(addr || (m.city as string) || "");
+      })
+      .catch(() => {});
+    // delivery status toast
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const d = p.get("delivery");
+      if (d === "success") setDeliveryMsg(t("✅ অর্ডার সফল — শীঘ্রই পোস্ট অফিস/হোমে পাঠানো হবে", "Order successful — will be shipped soon"));
+      else if (d === "failed") setDeliveryMsg(t("❌ পেমেন্ট ব্যর্থ", "Payment failed"));
+      else if (d === "cancelled") setDeliveryMsg(t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled"));
+      if (d) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("delivery");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+  }, [state, t]);
 
   if (state === "loading") {
     return (
@@ -78,51 +126,6 @@ function CertificateView() {
 
   const verifyUrl = `${data.siteUrl}/certificate?id=${data.certificateId}`;
   const date = formatDate(data.completedAt);
-  const tier: "foundation" | "ambassador" | "elite" = (() => {
-    const id = data.certificateId || "";
-    if (id.startsWith("YA-ELITE-")) return "elite";
-    if (id.startsWith("YA-AMB-")) return "ambassador";
-    return "foundation";
-  })();
-
-  const baseUsd = tier === "elite" ? 3 : 2;
-  const totalUsd = baseUsd + (deliveryMode === "home" ? 1 : 0);
-
-  useEffect(() => {
-    fetch(`/api/delivery/rate?tier=${tier}&mode=${deliveryMode}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        const d = j as { totalBdt: number; rate: number; totalUsd: number } | null;
-        if (d && typeof d.totalBdt === "number") setRateInfo({ rate: d.rate, totalUsd: d.totalUsd, totalBdt: d.totalBdt });
-      })
-      .catch(() => {});
-  }, [tier, deliveryMode]);
-
-  useEffect(() => {
-    fetch("/api/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        const m = j as Record<string, unknown> | null;
-        if (!m) return;
-        const parts = [m.division, m.district, m.upazila, m.cityCorporation, m.ward, m.area, m.union, m.pourashava, m.city, m.country].filter(Boolean) as string[];
-        const addr = parts.join(", ");
-        setDeliveryAddress(addr || (m.city as string) || "");
-      })
-      .catch(() => {});
-    // delivery status toast
-    if (typeof window !== "undefined") {
-      const p = new URLSearchParams(window.location.search);
-      const d = p.get("delivery");
-      if (d === "success") setDeliveryMsg(t("✅ অর্ডার সফল — শীঘ্রই পোস্ট অফিস/হোমে পাঠানো হবে", "Order successful — will be shipped soon"));
-      else if (d === "failed") setDeliveryMsg(t("❌ পেমেন্ট ব্যর্থ", "Payment failed"));
-      else if (d === "cancelled") setDeliveryMsg(t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled"));
-      if (d) {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("delivery");
-        window.history.replaceState({}, "", url.toString());
-      }
-    }
-  }, [t]);
 
   const handleDeliveryPay = async () => {
     if (deliveryPaying) return;
