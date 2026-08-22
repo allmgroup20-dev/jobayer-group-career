@@ -244,8 +244,8 @@ INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type
   ('max_levels', '10', 'number'),
   ('registration_bonus', '0', 'number'),
   ('terms_version', '1.0', 'text'),
-  ('site_description', 'A premium MLM and e-commerce platform for career growth', 'text'),
-  ('site_description_bn', 'ক্যারিয়ার বৃদ্ধির জন্য একটি প্রিমিয়াম এমএলএম এবং ই-কমার্স প্ল্যাটফর্ম', 'text');
+  ('site_description', 'A community learning and career growth platform', 'text'),
+  ('site_description_bn', 'কমিউনিটি লার্নিং ও ক্যারিয়ার গ্রোথ প্ল্যাটফর্ম', 'text');
 
 -- Insert default admin (password: admin123) - SHA-256 hash
 INSERT OR IGNORE INTO company_users (username, password, name, role) VALUES

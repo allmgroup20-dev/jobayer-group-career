@@ -165,9 +165,9 @@ function CertificateView() {
             <div className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
               {/* Tier badge */}
               <div className={`mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-black tracking-wider uppercase ${tier === "elite" ? "bg-gold/15 border-gold/30 text-gold" : tier === "ambassador" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/10 border-white/15 text-white/70"}`}>
-                {tier === "elite" ? t("স্তর ৩ · সর্বোচ্চ · Elite Final", "Level 3 · Highest · Elite Final")
-                  : tier === "ambassador" ? t("স্তর ২ · মাঝারি · Ambassador", "Level 2 · Mid · Ambassador")
-                  : t("স্তর ১ · এন্ট্রি · Foundation", "Level 1 · Entry · Foundation")}
+                {tier === "elite" ? t("Elite · সর্বোচ্চ সম্মান", "Elite · Highest Honor")
+                  : tier === "ambassador" ? t("Ambassador · প্রফেশনাল", "Ambassador · Professional")
+                  : t("Foundation • এন্ট্রি", "Foundation • Entry")}
               </div>
               <div className="mt-2 space-y-4">
             <div className="flex gap-3">

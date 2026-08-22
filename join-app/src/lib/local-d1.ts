@@ -57,10 +57,10 @@ function seedState() {
 
   ensureTable("commission_levels");
   const levelDefaults = [
-    { level_number: 1, level_name: "Level 1", level_name_bn: "লেভেল ১", percentage: 0, fixed_amount: 20, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 0 },
-    { level_number: 2, level_name: "Level 2", level_name_bn: "লেভেল ২", percentage: 0, fixed_amount: 30, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 11 },
-    { level_number: 3, level_name: "Level 3", level_name_bn: "লেভেল ৩", percentage: 0, fixed_amount: 50, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 25 },
-    { level_number: 4, level_name: "Level 4", level_name_bn: "লেভেল ৪", percentage: 0, fixed_amount: 80, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 50 },
+    { level_number: 1, level_name: "Foundation", level_name_bn: "ফাউন্ডেশন", percentage: 0, fixed_amount: 20, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 0 },
+    { level_number: 2, level_name: "Ambassador", level_name_bn: "অ্যাম্বাসেডর", percentage: 0, fixed_amount: 30, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 11 },
+    { level_number: 3, level_name: "Elite", level_name_bn: "এলিট", percentage: 0, fixed_amount: 50, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 25 },
+    { level_number: 4, level_name: "Elite Plus", level_name_bn: "এলিট প্লাস", percentage: 0, fixed_amount: 80, currency: "BDT", is_active: 1, commission_type: "fixed", min_referral_base: 50 },
   ];
   for (const lvl of levelDefaults) {
     const exists = state.commission_levels!.rows.some((r) => r.level_number === lvl.level_number);
