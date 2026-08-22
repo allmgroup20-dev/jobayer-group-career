@@ -86,6 +86,22 @@ async function handleCallback(request: NextRequest) {
     }
     await execute(env, "UPDATE membership_payments SET status = 'VALID', val_id = ?, gateway_response = ?, verified_at = datetime('now') WHERE tran_id = ?", [valId || null, JSON.stringify(data), tranId]);
     await execute(env, "UPDATE workers SET membership_status = 'premium' WHERE worker_id = ?", [payRow.worker_id]);
+    // Elite certificate immediately on premium (any amount)
+    try {
+      const w = await queryFirst<{ elite_certificate_id: string | null }>(env, "SELECT elite_certificate_id FROM workers WHERE worker_id = ?", [payRow.worker_id]);
+      if (!w?.elite_certificate_id) {
+        const { generateEliteCertificateId } = await import("@/lib/share");
+        let eliteId = "";
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const candidate = generateEliteCertificateId();
+          const clash = await queryFirst<{ worker_id: string }>(env, "SELECT worker_id FROM workers WHERE elite_certificate_id = ? OR certificate_id = ?", [candidate, candidate]);
+          if (!clash) { eliteId = candidate; break; }
+        }
+        if (eliteId) {
+          await execute(env, "UPDATE workers SET elite_certificate_id = ?, elite_certificate_issued_at = datetime('now') WHERE worker_id = ?", [eliteId, payRow.worker_id]);
+        }
+      }
+    } catch {}
     return NextResponse.redirect(new URL("/complete?membership=success", request.nextUrl.origin));
   } else if (payRow) {
     await execute(env, "UPDATE membership_payments SET status = 'FAILED', gateway_response = ?, verified_at = datetime('now') WHERE tran_id = ?", [JSON.stringify(data), tranId]);

@@ -76,6 +76,7 @@ export default function CompletePage() {
   const [shotUploading, setShotUploading] = useState(false);
   const [shotMsg, setShotMsg] = useState<Msg>(null);
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [eliteCertificateId, setEliteCertificateId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [payMsg, setPayMsg] = useState<Msg>(null);
   const [amountInput, setAmountInput] = useState<string>("");
@@ -414,14 +415,16 @@ export default function CompletePage() {
 
   const completed = share?.completed ?? false;
 
-  // Premium membership status (99 BDT via SSLCommerz OR admin sets premium)
+  // Premium membership status (99 BDT via SSLCommerz OR admin sets premium) — premium => Elite immediately
   useEffect(() => {
     fetch("/api/membership/status")
       .then((r) => (r.ok ? r.json() : Promise.resolve(null)))
       .then((d) => {
-        const dd = d as { isPremium?: boolean } | null;
-        if (dd && typeof dd.isPremium === "boolean") setIsPremium(dd.isPremium);
-        else setIsPremium(false);
+        const dd = d as { isPremium?: boolean; eliteCertificateId?: string | null } | null;
+        if (dd && typeof dd.isPremium === "boolean") {
+          setIsPremium(dd.isPremium);
+          if (dd.eliteCertificateId) setEliteCertificateId(dd.eliteCertificateId);
+        } else setIsPremium(false);
       })
       .catch(() => setIsPremium(false));
     // Show toast from redirect ?membership=success / failed etc.
@@ -437,7 +440,7 @@ export default function CompletePage() {
         window.history.replaceState({}, "", url.toString());
         // refresh premium status after redirect
         setTimeout(() => {
-          fetch("/api/membership/status").then(r=>r.ok?r.json():null).then(dd=>{ const d = dd as { isPremium?: boolean } | null; if(d&&typeof d.isPremium==="boolean") setIsPremium(d.isPremium); }).catch(()=>{});
+          fetch("/api/membership/status").then(r=>r.ok?r.json():null).then(dd=>{ const d = dd as { isPremium?: boolean; eliteCertificateId?: string | null } | null; if(d&&typeof d.isPremium==="boolean") { setIsPremium(d.isPremium); if(d.eliteCertificateId) setEliteCertificateId(d.eliteCertificateId); } }).catch(()=>{});
         }, 500);
       }
     }
@@ -1211,9 +1214,20 @@ export default function CompletePage() {
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
           {isPremium ? (
-            <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
-              ✨ {t("অভিনন্দন — আপনি ১০০% প্রিমিয়াম মেম্বার! Elite সার্টিফিকেট আনলক হয়েছে।", "Congratulations — you are 100% premium member! Elite certificate unlocked.")}
-            </p>
+            <>
+              <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
+                ✨ {t("অভিনন্দন — আপনি ১০০% প্রিমিয়াম মেম্বার! Elite সার্টিফিকেট সাথে সাথে প্রাপ্য — এখনই দেখুন।", "Congratulations — you are 100% premium! Elite certificate is immediately yours — view now.")}
+              </p>
+              {eliteCertificateId ? (
+                <a href={`/certificate?id=${eliteCertificateId}`} className="mt-3 btn-gold w-full text-sm !py-3.5 block text-center">
+                  🎓 {t("Elite সার্টিফিকেট দেখুন", "View Elite Certificate")}
+                </a>
+              ) : (
+                <button onClick={() => fetch("/api/membership/status").then(r=>r.ok?r.json():null).then(dd=>{ const d=dd as { eliteCertificateId?: string | null } | null; if(d?.eliteCertificateId) setEliteCertificateId(d.eliteCertificateId); }).catch(()=>{})} className="mt-3 w-full py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black">
+                  {t("🔄 সার্টিফিকেট রিফ্রেশ করুন", "Refresh certificate")}
+                </button>
+              )}
+            </>
           ) : (
             <>
               {!completed && (

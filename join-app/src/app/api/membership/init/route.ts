@@ -91,9 +91,22 @@ export async function POST(request: NextRequest) {
     const hasStore = !!storeIdCheck || !!process.env.SSLCOMMERZ_STORE_ID;
 
     if (!hasStore && isDev) {
-      // Dev mock: directly mark premium and return mock URL
+      // Dev mock: directly mark premium and return mock URL + elite cert
       await execute(env, "UPDATE workers SET membership_status = 'premium' WHERE worker_id = ?", [workerId]);
       await execute(env, "UPDATE membership_payments SET status = 'VALID', verified_at = datetime('now') WHERE tran_id = ?", [tranId]);
+      try {
+        const w = await queryFirst<{ elite_certificate_id: string | null }>(env, "SELECT elite_certificate_id FROM workers WHERE worker_id = ?", [workerId]);
+        if (!w?.elite_certificate_id) {
+          const { generateEliteCertificateId } = await import("@/lib/share");
+          let eliteId = "";
+          for (let attempt = 0; attempt < 5; attempt++) {
+            const candidate = generateEliteCertificateId();
+            const clash = await queryFirst<{ worker_id: string }>(env, "SELECT worker_id FROM workers WHERE elite_certificate_id = ? OR certificate_id = ?", [candidate, candidate]);
+            if (!clash) { eliteId = candidate; break; }
+          }
+          if (eliteId) await execute(env, "UPDATE workers SET elite_certificate_id = ?, elite_certificate_issued_at = datetime('now') WHERE worker_id = ?", [eliteId, workerId]);
+        }
+      } catch {}
       return NextResponse.json({ GatewayPageURL: `${origin}/complete?membership=success`, mock: true, tran_id: tranId });
     }
 

@@ -49,6 +49,11 @@ export function generateCertificateId(now: Date = new Date()): string {
   return `YA-REF-${now.getFullYear()}-${rand}`;
 }
 
+export function generateEliteCertificateId(now: Date = new Date()): string {
+  const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return `YA-ELITE-${now.getFullYear()}-${rand}`;
+}
+
 // One unique token per share round (≤5 people). A fresh token is generated on
 // every round so WhatsApp/Facebook never sees the same link twice.
 export function generateRoundToken(): string {

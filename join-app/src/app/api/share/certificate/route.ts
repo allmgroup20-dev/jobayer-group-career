@@ -35,13 +35,15 @@ export async function GET(request: NextRequest) {
       certificate_name: string | null;
       certificate_name_edited_at: string | null;
       certificate_id: string;
+      elite_certificate_id: string | null;
       share_task_completed_at: string | null;
+      elite_certificate_issued_at: string | null;
     }>(
       env,
       `SELECT worker_id, name, certificate_name, certificate_name_edited_at,
-              certificate_id, share_task_completed_at
-       FROM workers WHERE certificate_id = ?`,
-      [id]
+               certificate_id, elite_certificate_id, share_task_completed_at, elite_certificate_issued_at
+        FROM workers WHERE certificate_id = ? OR elite_certificate_id = ?`,
+      [id, id]
     );
 
     if (!row) {
@@ -53,10 +55,11 @@ export async function GET(request: NextRequest) {
     const { nameLocked, nameLockedUntil } = lockInfo(row.certificate_name_edited_at);
     const certName = row.certificate_name || row.name || "";
 
+    const isEliteRequest = row.elite_certificate_id && id === row.elite_certificate_id;
     return NextResponse.json({
-      certificateId: row.certificate_id,
+      certificateId: isEliteRequest ? row.elite_certificate_id! : row.certificate_id,
       name: certName,
-      completedAt: row.share_task_completed_at || null,
+      completedAt: isEliteRequest ? row.elite_certificate_issued_at || row.share_task_completed_at || null : row.share_task_completed_at || null,
       siteUrl: process.env.SITE_URL || "https://youtube.earner.workers.dev",
       target: Number(process.env.SHARE_TARGET) || 30,
       isOwner,

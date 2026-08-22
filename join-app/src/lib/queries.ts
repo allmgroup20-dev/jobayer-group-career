@@ -49,6 +49,12 @@ export async function ensureWorkerProfileColumns(env: { DB: D1Database }): Promi
         try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
       }
     }
+    // Elite certificate for premium members (any amount 99-10000)
+    for (const col of ["elite_certificate_id", "elite_certificate_issued_at"]) {
+      if (!names.includes(col)) {
+        try { await env.DB.prepare(`ALTER TABLE workers ADD COLUMN ${col} TEXT`).run(); } catch {}
+      }
+    }
     _workerColsEnsured = true;
   } catch { /* ignore */ }
 }
