@@ -441,26 +441,36 @@ export default function CompletePage() {
         }, 500);
       }
     }
-    // Load 30-min deadline + attempt from localStorage
+    // Load attempt count from localStorage
     try {
-      const savedDeadline = localStorage.getItem("elite_premium_deadline");
       const savedAttempt = localStorage.getItem("elite_premium_attempt");
       if (savedAttempt) setAttempt(Number(savedAttempt) || 0);
+    } catch {}
+  }, [t]);
+
+  // 30-min countdown starts immediately when 100% interest is shown
+  useEffect(() => {
+    if (is100Interested !== true || isPremium || verifying) return;
+    try {
+      const savedDeadline = localStorage.getItem("elite_premium_deadline");
       if (savedDeadline) {
         const dl = Number(savedDeadline);
         if (dl > Date.now()) {
           setDeadline(dl);
           setExpired(false);
-        } else if (!isPremium) {
-          setExpired(true);
+          return;
         }
-      } else if (typeof window !== "undefined") {
-        const dl = Date.now() + 30 * 60 * 1000;
-        localStorage.setItem("elite_premium_deadline", String(dl));
-        setDeadline(dl);
       }
-    } catch {}
-  }, [t]);
+      const dl = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem("elite_premium_deadline", String(dl));
+      setDeadline(dl);
+      setExpired(false);
+    } catch {
+      const dl = Date.now() + 30 * 60 * 1000;
+      setDeadline(dl);
+      setExpired(false);
+    }
+  }, [is100Interested, isPremium, verifying]);
 
   // 30-minute countdown
   useEffect(() => {
@@ -1305,7 +1315,7 @@ export default function CompletePage() {
                     ) : (
                       <>
                         <div className="mt-3 flex gap-2">
-                          <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন — যেমন ২০১", "Enter amount — e.g. 201")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                          <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন", "Enter amount")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
                           <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
                         </div>
                         <p className="mt-1.5 text-[9px] text-white/40 text-center">{t("১০০% ফ্লেক্সিবল — ৯৯–১০,০০০ এর মধ্যে যেকোনো টাকা", "100% flexible — any amount between 99–10,000")}</p>
