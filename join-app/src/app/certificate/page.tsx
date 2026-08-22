@@ -204,8 +204,8 @@ function CertificateView() {
                   {tier === "elite"
                     ? t("এই সর্বোচ্চ সার্টিফিকেট দিয়ে লিডারশিপ ও এডভান্সড ডিজিটাল মার্কেটিং ভূমিকায় সাধারণত ৳৬০,০০০–৳১,২০,০০০+ আয় সম্ভব — অভিজ্ঞতা ও নিয়োগকর্তার ওপর নির্ভর করে।", "With this top certificate, leadership and advanced digital marketing roles typically pay ৳60,000–৳120,000+ per month, depending on experience and employer.")
                     : tier === "ambassador"
-                    ? t("অ্যাম্বাসেডর সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় সাধারণত ৳৩৫,০০০–৳৭০,০০০ আয় সম্ভব।", "With the Ambassador certificate, mid-level digital marketing and community roles typically pay ৳35,000–৳70,000 per month.")
-                    : t("ফাউন্ডেশন সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৪০,০০০ আয় সম্ভব।", "With the Foundation certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳40,000 per month.")}
+                    ? t("অ্যাম্বাসেডর সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় সাধারণত ৳৩০,০০০–৳৬০,০০০ আয় সম্ভব।", "With the Ambassador certificate, mid-level digital marketing and community roles typically pay ৳30,000–৳60,000 per month.")
+                    : t("ফাউন্ডেশন সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৩০,০০০ আয় সম্ভব।", "With the Foundation certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳30,000 per month.")}
                 </p>
               </div>
             </div>
