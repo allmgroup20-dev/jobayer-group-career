@@ -668,10 +668,10 @@ export default function CertCanvas({
                   </p>
                 </div>
               </div>
-              <div className="mt-6 w-full pt-4 border-t text-sm text-gray-500">
-                <div className="flex items-center justify-center gap-6 text-center">
-                  {/* signer identity — signature + gold rule + name + designation + office (same as Ambassador) */}
-                  <div className="flex flex-col items-center">
+              <div className="mt-6 flex w-full items-end justify-between border-t pt-4 text-sm text-gray-500">
+                {/* left — signer identity (PREETI LOBANA) */}
+                <div className="flex items-end gap-4 text-left">
+                  <div className="flex flex-col items-start">
                     <div className="relative inline-block">
                       <img
                         src="/certs/ambassador-signature.png"
@@ -685,11 +685,13 @@ export default function CertCanvas({
                     <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">Country Manager &amp; Vice President</p>
                     <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">YouTube India</p>
                   </div>
-                  {/* official seal */}
                   <img src="/certs/ambassador-seal.png" alt="Official Seal" className="h-16 w-16 rounded-full object-cover mix-blend-multiply" />
                 </div>
-                <p className="mt-3 text-center font-bold text-gray-900">Authorized Signatory — YouTube Earner</p>
-                <p className="mt-1 text-center">Verify online: {verifyLine}</p>
+                {/* right — Authorized + Verify */}
+                <div className="flex flex-col items-end text-right">
+                  <p className="font-bold text-gray-900">Authorized Signatory — YouTube Earner</p>
+                  <p className="mt-1">Verify online: {verifyLine}</p>
+                </div>
               </div>
             </>
           )}
