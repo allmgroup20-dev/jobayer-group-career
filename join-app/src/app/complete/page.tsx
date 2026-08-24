@@ -263,7 +263,7 @@ export default function CompletePage() {
       setShare(data);
       trackEvent("share_sent", { pageCategory: "complete", metadata: { method: "whatsapp" } });
       if (data.completed) {
-        setMsg({ kind: "ok", text: t("🎉 অভিনন্দন! আপনি ১০০% পূরণ করেছেন — সার্টিফিকেট অর্জন করেছেন!", "🎉 Congratulations! You reached 100% and earned your certificate!") });
+        setMsg({ kind: "ok", text: t("🎉 অভিনন্দন! আপনি সম্পূর্ণ করেছেন — সার্টিফিকেট অর্জন করেছেন!", "🎉 Congratulations! You reached 100% and earned your certificate!") });
       } else {
         const prevPercent = percentRef.current;
         if (data.percent >= 80 && prevPercent < 80) {
@@ -555,7 +555,7 @@ export default function CompletePage() {
     }
     if (amt > 10000) amt = 10000;
     if (is100Interested === false) {
-      setPayMsg({ kind: "warn", text: t("১০০% আগ্রহী না হলে পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে আবার চেষ্টা করুন", "If not 100% interested, no need to pay — try again when interested") });
+      setPayMsg({ kind: "warn", text: t("শেখায় মনোযোগী না হলে পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে আবার চেষ্টা করুন", "If not 100% interested, no need to pay — try again when interested") });
       return;
     }
     setPaying(true);
@@ -871,7 +871,7 @@ export default function CompletePage() {
             <p className="text-[8px] font-bold text-white/50">Highest Honor 🔒</p>
           </div>
         </div>
-        <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("১ < ২ < ৩ — স্তর যত বাড়বে, সুবিধা তত বাড়বে", "1 < 2 < 3 — higher level, higher benefit")}</p>
+        <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Certificate 1 — Foundation (share task) */}
         <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
@@ -888,7 +888,7 @@ export default function CompletePage() {
             </span>
           </div>
           <p className="mt-2 text-xs text-white/70">
-            {t("৩০ জন শিক্ষার্থীকে পরিচয় করিয়ে ১০০% পূরণ করুন", "Invite 30 learners to reach 100%")}
+            {t("৩০ জন শিক্ষার্থীকে পরিচয় করিয়ে সম্পূর্ণ করুন", "Invite 30 learners to reach 100%")}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-white/70">
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
