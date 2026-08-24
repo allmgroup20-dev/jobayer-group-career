@@ -682,7 +682,7 @@ export default function CompletePage() {
             value={listSearch}
             onChange={(e) => setListSearch(e.target.value)}
             placeholder={t("🔍 নাম বা নম্বর দিয়ে খুঁজুন…", "🔍 Search by name or number…")}
-            className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold placeholder-white/40 focus:outline-none focus:border-pink/60"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-sm font-bold placeholder-slate-400 focus:outline-none focus:border-pink/60"
           />
           {shownSelected.length === 0 && shownSent.length === 0 && (
             <p className="text-[11px] text-white/40 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
@@ -814,7 +814,7 @@ export default function CompletePage() {
 
         {/* Certificate journey — 3 steps */}
         <div className="mt-8">
-          <p className="text-xs font-black text-white/50 uppercase tracking-widest text-center">
+          <p className="text-xs font-black text-slate-500 uppercase tracking-widest text-center">
             {t("আপনার সার্টিফিকেট যাত্রা", "Your Certificate Journey")}
           </p>
           <div className="mt-3 flex items-center justify-center gap-1">
@@ -841,23 +841,23 @@ export default function CompletePage() {
 
         {/* Value ladder — visible before earning */}
         <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl bg-teal/10 border border-teal/30 p-2">
-            <p className="text-[9px] font-black uppercase tracking-wide text-teal">Foundation</p>
-            <p className="text-[10px] font-black text-white">৳১৫–৩০k</p>
-            <p className="text-[8px] font-bold text-white/50">Entry</p>
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2">
+            <p className="text-[9px] font-black uppercase tracking-wide text-teal-700">Foundation</p>
+            <p className="text-[10px] font-black text-slate-900">৳১৫–৩০k</p>
+            <p className="text-[8px] font-bold text-slate-500">Entry</p>
           </div>
-          <div className="rounded-xl bg-white/5 border border-white/10 p-2 opacity-80">
-            <p className="text-[9px] font-black uppercase tracking-wide text-gold">Ambassador</p>
-            <p className="text-[10px] font-black text-white">৳৩০–৬০k</p>
-            <p className="text-[8px] font-bold text-white/50">Professional 🔒</p>
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
+            <p className="text-[9px] font-black uppercase tracking-wide text-amber-700">Ambassador</p>
+            <p className="text-[10px] font-black text-slate-900">৳৩০–৬০k</p>
+            <p className="text-[8px] font-bold text-slate-500">Professional 🔒</p>
           </div>
-          <div className="rounded-xl bg-violet/10 border border-violet/30 p-2 opacity-80">
-            <p className="text-[9px] font-black uppercase tracking-wide text-violet">Elite</p>
-            <p className="text-[10px] font-black text-white">৳৬০–১২০k+</p>
-            <p className="text-[8px] font-bold text-white/50">Highest Honor 🔒</p>
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
+            <p className="text-[9px] font-black uppercase tracking-wide text-violet-700">Elite</p>
+            <p className="text-[10px] font-black text-slate-900">৳৬০–১২০k+</p>
+            <p className="text-[8px] font-bold text-slate-500">Highest Honor 🔒</p>
           </div>
         </div>
-        <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
+        <p className="mt-1.5 text-center text-[10px] font-bold text-slate-500">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Certificate 1 — Foundation (share task) */}
         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
@@ -866,7 +866,7 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
               <span>
                 {t("ফাউন্ডেশন সার্টিফিকেট", "Foundation Certificate")}
-                <span className="block text-[10px] font-bold text-white/40">{t("Foundation • প্রথম ধাপ", "Foundation • First step")}</span>
+                <span className="block text-[10px] font-bold text-slate-500">{t("Foundation • প্রথম ধাপ", "Foundation • First step")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${completed ? "bg-teal/20 text-teal border border-teal/40" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1008,7 +1008,7 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
               <span>
                 {t("রেফারেল অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
-                <span className="block text-[10px] font-bold text-white/40">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
+                <span className="block text-[10px] font-bold text-slate-500">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${!completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1189,7 +1189,7 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
               <span>
                 {t("এলিট ফাইনাল সার্টিফিকেট", "Elite Final Certificate")}
-                <span className="block text-[10px] font-bold text-white/40">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
+                <span className="block text-[10px] font-bold text-slate-500">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1316,10 +1316,10 @@ export default function CompletePage() {
                     <option value="tour" className="text-black">{t("ইন্ডিয়া ভ্রমণ — কোম্পানির খরচে", "India Tour — Company Expense")}</option>
                     <option value="lottery" className="text-black">{t("বার্ষিক পুরস্কার ড্র", "Annual Prize Draw")}</option>
                   </select>
-                  <input value={otherInterest} onChange={(e) => setOtherInterest(e.target.value)} placeholder={t("এর বাইরে আর কোন বিষয়ে আগ্রহ আছে? (ঐচ্ছিক)", "Any other subject you are interested in? (optional)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                  <input value={otherInterest} onChange={(e) => setOtherInterest(e.target.value)} placeholder={t("এর বাইরে আর কোন বিষয়ে আগ্রহ আছে? (ঐচ্ছিক)", "Any other subject you are interested in? (optional)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-slate-400 focus:outline-none" />
                   <div className="flex gap-2">
                     <button type="button" onClick={() => setIs100Interested(true)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === true ? "bg-teal/20 border-teal/40 text-teal" : "bg-white/5 border-white/15 text-white/60"}`}>{t("✅ হ্যাঁ, শেখায় মনোযোগী", "Yes, focused on learning")}</button>
-                    <button type="button" onClick={() => setIs100Interested(false)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === false ? "bg-white/10 border-white/20 text-white" : "bg-white/5 border-white/15 text-white/60"}`}>{t("পরে ভাবব", "Maybe later")}</button>
+                    <button type="button" onClick={() => setIs100Interested(false)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === false ? "bg-white border-slate-200 text-slate-900" : "bg-white/5 border-white/15 text-white/60"}`}>{t("পরে ভাবব", "Maybe later")}</button>
                   </div>
                 </div>
                 {is100Interested === true && (
@@ -1365,7 +1365,7 @@ export default function CompletePage() {
                           <p className="mb-1.5 text-[10px] font-bold text-center text-gold">{payMsg.text}</p>
                         )}
                         <div className="mt-3 flex gap-2">
-                          <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন", "Enter amount")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
+                          <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন", "Enter amount")} className="flex-1 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-slate-400 focus:outline-none" />
                           <span className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-white/60">BDT</span>
                         </div>
                         <button
@@ -1462,7 +1462,7 @@ function AddPeopleBlock({
                 onChange={(e) => setManualPhone(e.target.value)}
                 inputMode="tel"
                 placeholder={t("বন্ধুর নম্বর (01XXXXXXXXX)", "Friend's number (01XXXXXXXXX)")}
-                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-white/40 focus:outline-none"
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/25 text-white text-sm font-bold placeholder-slate-400 focus:outline-none"
               />
               <button
                 onClick={async () => {
