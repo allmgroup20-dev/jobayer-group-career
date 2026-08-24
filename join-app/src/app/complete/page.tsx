@@ -744,7 +744,7 @@ export default function CompletePage() {
             </div>
           ))}
           {shownSent.map((c, i) => (
-            <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-white/[0.03] border border-slate-200 rounded-xl px-3 py-2 opacity-75">
+            <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 opacity-75">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
                 <p className="text-[10px] text-slate-400 font-mono">{`+${c.phone}`}</p>
@@ -774,7 +774,7 @@ export default function CompletePage() {
       {!expanded && hiddenCount > 0 && (
         <button
           onClick={() => setExpandedList(true)}
-          className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all"
+          className="mt-3 w-full py-2.5 rounded-xl bg-slate-50 border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all"
         >
           {t(`আরও দেখুন (${hiddenCount})`, `Show more (${hiddenCount})`)}
         </button>
@@ -927,7 +927,7 @@ export default function CompletePage() {
 
               {/* Name on the certificate — shown in hold state; Edit reveals the
                   save form so a mis-tap can never save anything by accident. */}
-              <div className="mt-4 rounded-2xl bg-white/[0.06] border border-white/15 p-3.5 text-left">
+              <div className="mt-4 rounded-2xl bg-slate-50 border border-white/15 p-3.5 text-left">
                 {!editNameMode ? (
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0 text-left">
@@ -1080,7 +1080,7 @@ export default function CompletePage() {
               </div>
 
               {/* Screenshot submission (step 3) */}
-              <div className="mt-3 rounded-xl bg-white/[0.03] border border-slate-200 p-3">
+              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
                 {shotStatus === "verified" ? (
                   <div className="rounded-xl bg-teal/15 border border-teal/30 px-3 py-2 text-[11px] font-black text-teal leading-relaxed">
                     ✅ {t("ভেরিফাই হয়েছে — আপনার স্ক্রিনশটগুলো গৃহীত হয়েছে", "Verified — your screenshots were accepted")}
@@ -1144,10 +1144,10 @@ export default function CompletePage() {
                 />
 
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  <button onClick={refreshReferral} className="py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all">
+                  <button onClick={refreshReferral} className="py-2.5 rounded-xl bg-slate-50 border border-white/15 text-xs font-black text-teal active:scale-[0.99] transition-all">
                     🔄 {t("নতুন লিংক", "New link")}
                   </button>
-                  <button onClick={copyMessage} className={`py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black active:scale-[0.99] transition-all ${msgCopied ? "text-teal" : "text-gold"}`}>
+                  <button onClick={copyMessage} className={`py-2.5 rounded-xl bg-slate-50 border border-white/15 text-xs font-black active:scale-[0.99] transition-all ${msgCopied ? "text-teal" : "text-gold"}`}>
                     {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("মেসেজ কপি করুন", "Copy message")}`}
                   </button>
                 </div>
@@ -1173,7 +1173,7 @@ export default function CompletePage() {
 
               <button
                 onClick={() => setShowCert2Preview((v) => !v)}
-                className="mt-4 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-gold active:scale-[0.99] transition-all"
+                className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 border border-white/15 text-xs font-black text-gold active:scale-[0.99] transition-all"
               >
                 👀 {showCert2Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "See how your certificate will look")} <span className={`inline-block transition-transform ${showCert2Preview ? "rotate-180" : ""}`}>▾</span>
               </button>
@@ -1222,7 +1222,7 @@ export default function CompletePage() {
                 </p>
               )}
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
-              <div className="mt-3 rounded-xl bg-white/[0.03] border border-slate-200 p-3">
+              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
                 <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
                 <p className="mt-1 text-[10px] text-slate-500 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
@@ -1302,7 +1302,7 @@ export default function CompletePage() {
               <div className="mt-3 rounded-xl bg-white/[0.04] border border-slate-200 p-3">
                 <p className="text-[11px] font-black text-slate-900">{t("আপনার আগ্রহ জানান", "Tell us your interest")}</p>
                 <p className="mt-1 text-[10px] text-slate-500 leading-relaxed">{t("এই ৯টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 9 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
-                <p className="mt-2 text-[10px] text-slate-600 leading-relaxed bg-white/[0.03] border border-slate-200 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৯টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 9 benefits? Write that amount below.")}</p>
+                <p className="mt-2 text-[10px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৯টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 9 benefits? Write that amount below.")}</p>
                 <div className="mt-3 space-y-2">
                   <select value={interestFacility} onChange={(e) => setInterestFacility(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-bold focus:outline-none">
                     <option value="" className="text-black">{t("৯টির মধ্যে কোন সুবিধাটি সবচেয়ে পছন্দ?", "Which of the 9 benefits do you like most?")}</option>
@@ -1339,7 +1339,7 @@ export default function CompletePage() {
                         <p className="mt-1 text-[11px] font-black text-slate-900 text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
                         <div className="mt-2 space-y-1.5">
                           {officers.map((o) => (
-                            <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-slate-200">
+                            <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
                               <span className="text-[11px] font-bold text-slate-700">{o.name}</span>
                               <span className={`text-[10px] font-black flex items-center gap-1 ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-slate-500" : "text-gold"}`}>
                                 {o.status === "viewing" ? (
@@ -1395,7 +1395,7 @@ export default function CompletePage() {
 
           <button
             onClick={() => setShowCert3Preview((v) => !v)}
-            className="mt-3 w-full py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-xs font-black text-violet active:scale-[0.99] transition-all"
+            className="mt-3 w-full py-2.5 rounded-xl bg-slate-50 border border-white/15 text-xs font-black text-violet active:scale-[0.99] transition-all"
           >
             👀 {showCert3Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার ফাইনাল সার্টিফিকেট", "See how your Final certificate will look")} <span className={`inline-block transition-transform ${showCert3Preview ? "rotate-180" : ""}`}>▾</span>
           </button>
