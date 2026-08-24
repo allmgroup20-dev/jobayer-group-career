@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -95,7 +95,7 @@ export default function HomePage() {
             <h2 className="mt-3 text-2xl font-black">
               {checking ? t("লোড হচ্ছে...", "Loading...") : me ? t("আবার স্বাগতম!", "Welcome Back!") : t("চলুন শুরু করি!", "Let's Get Started!")}
             </h2>
-            <p className="mt-1 text-sm text-white/70">
+            <p className="mt-1 text-sm text-slate-600">
               {me
                 ? t("আপনার প্রোফাইল সম্পূর্ণ করুন ও বোনাস রিসোর্স পেতে শুরু করুন", "Complete your profile & start earning bonus resources")
                 : t("লগইন/রেজিস্ট্রেশন সম্পূর্ণ Google দিয়ে", "Login/Register is 100% Google")}
@@ -126,7 +126,7 @@ export default function HomePage() {
               <div className="[&>div]:w-full [&>div>div]:w-full">
                 <GoogleLogin onSuccess={handleSuccess} onError={setError} />
               </div>
-              <p className="text-center text-xs text-white/60">
+              <p className="text-center text-xs text-slate-500">
                 {t(
                   "Google দিয়ে লগইন করলেই আপনার অ্যাকাউন্ট স্বয়ংক্রিয়ভাবে তৈরি হবে।",
                   "Signing in with Google automatically creates your account."
