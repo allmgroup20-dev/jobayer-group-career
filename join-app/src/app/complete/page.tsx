@@ -812,20 +812,6 @@ export default function CompletePage() {
         {me?.name && <p className="mt-1 font-black text-brand">{me.name}</p>}
         {me?.workerId && <p className="text-xs font-bold text-ink-soft mt-0.5">{me.workerId}</p>}
 
-        {/* Stats */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="card-pop !p-4">
-            <div className="text-2xl">👥</div>
-            <p className="mt-1 text-xl font-black text-brand">{me?.totalTeamMembers ?? 0}</p>
-            <p className="text-[11px] font-bold text-ink-soft">{t("শিক্ষার্থী", "Learners")}</p>
-          </div>
-          <div className="card-pop !p-4">
-            <div className="text-2xl">💰</div>
-            <p className="mt-1 text-xl font-black text-teal">{me?.resourceIncome ?? 0}</p>
-            <p className="text-[11px] font-bold text-ink-soft">{t("বোনাস রিসোর্স", "Bonus Resources")}</p>
-          </div>
-        </div>
-
         {/* Certificate journey — 3 steps */}
         <div className="mt-8">
           <p className="text-xs font-black text-white/50 uppercase tracking-widest text-center">
