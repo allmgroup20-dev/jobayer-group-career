@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
@@ -1276,25 +1276,34 @@ export default function CompletePage() {
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">🎉</span>
                     <div className="flex-1">
                       <p className="text-[11px] font-black text-white">{t("৯. বার্ষিক পুরস্কার — ৭০% প্রিমিয়াম মেম্বার পায়", "9. Annual Prize — 70% of Premium Members Win")}</p>
-                      <p className="text-[10px] text-white/60 leading-relaxed">{t("প্রতি বছর ১ বার, সকল প্রিমিয়াম মেম্বারের নাম অটো যুক্ত — গত ৭ বছর ধরে। ১০ কোটি ×১ (১ম), ৫ কোটি ×১, ১ কোটি ×১, ৯০ লাখ ×১, ৭০ লাখ ×১, ৫০ লাখ ×১, ৩০ লাখ ×১, ১০ লাখ ×১, ৯ লাখ ×১, ৭ লাখ ×১ — শীর্ষ ১০ পুরস্কার।", "Once a year, all premium members auto-entered — for 7 years. 10cr ×1 (1st), 5cr ×1, 1cr ×1, 90L ×1, 70L ×1, 50L ×1, 30L ×1, 10L ×1, 9L ×1, 7L ×1 — top 10 prizes.")}</p>
+                      <p className="text-[10px] text-white/60 leading-relaxed">{t("প্রতি বছর ১ বার, সকল প্রিমিয়াম মেম্বারের নাম অটো যুক্ত — গত ৭ বছর ধরে। ১ম পুরস্কার ১০ কোটি — ১ জনকে দেওয়া হবে।", "Once a year, all premium members auto-entered — for 7 years. 1st prize 10 crore — will be given to 1 person.")}</p>
                       <details className="mt-1.5">
-                        <summary className="text-[10px] font-black text-gold cursor-pointer">{t("বাকি পুরস্কার দেখুন", "See remaining prizes")}</summary>
+                        <summary className="text-[10px] font-black text-gold cursor-pointer">{t("বাকিগুলো দেখুন", "See the rest")}</summary>
                         <div className="mt-1.5 rounded-xl bg-white/[0.04] border border-white/10 p-2.5 text-[10px] leading-relaxed">
                           <p className="font-black text-white/80">{t("ধাপে ধাপে পুরস্কার সিঁড়ি", "Step-by-step prize ladder")}</p>
                           <div className="mt-1 grid grid-cols-2 gap-1 text-[10px]">
-                            <span className="text-white/60">৫ লাখ <span className="text-white/40">×১০</span></span>
-                            <span className="text-white/60">৩ লাখ <span className="text-white/40">×২০</span></span>
-                            <span className="text-white/60">১ লাখ <span className="text-white/40">×৩০</span></span>
-                            <span className="text-white/60">৯০ হাজার <span className="text-white/40">×৪০</span></span>
-                            <span className="text-white/60">৭০ হাজার <span className="text-white/40">×৫০</span></span>
-                            <span className="text-white/60">৫০ হাজার <span className="text-white/40">×৬০</span></span>
-                            <span className="text-white/60">৩০ হাজার <span className="text-white/40">×৭০</span></span>
-                            <span className="text-white/60">১০ হাজার <span className="text-white/40">×৯০</span></span>
-                            <span className="text-white/60">৯ হাজার <span className="text-white/40">×১০০</span></span>
-                            <span className="text-white/60">৭ হাজার <span className="text-white/40">×১৫০</span></span>
-                            <span className="text-white/60">৫ হাজার <span className="text-white/40">×২০০</span></span>
-                            <span className="text-white/60">৩ হাজার <span className="text-white/40">×৫০০</span></span>
-                            <span className="text-white/60">১ হাজার <span className="text-white/40">×১০০০</span></span>
+                            <span className="text-white/60">৫ কোটি — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">১ কোটি — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৯০ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৭০ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৫০ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৩০ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">১০ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৯ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৭ লাখ — ১ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৫ লাখ — ১০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৩ লাখ — ২০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">১ লাখ — ৩০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৯০ হাজার — ৪০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৭০ হাজার — ৫০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৫০ হাজার — ৬০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৩০ হাজার — ৭০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">১০ হাজার — ৯০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৯ হাজার — ১০০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৭ হাজার — ১৫০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৫ হাজার — ২০০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">৩ হাজার — ৫০০ জনকে দেওয়া হবে</span>
+                            <span className="text-white/60">১ হাজার — ১০০০ জনকে দেওয়া হবে</span>
                           </div>
                           <p className="mt-1.5 text-[9px] text-white/40 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% প্রিমিয়াম মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু প্রিমিয়ামদের জন্য।", "Total ~2,204 winners — about 70% of premium members get something each year — premium only.")}</p>
                         </div>

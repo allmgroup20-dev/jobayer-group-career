@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDB } from "@/lib/env";
+import { initEnv } from "@/lib/env";
 import { fetchDailyUSDBDT, saveUSDBDTRate } from "@/lib/rates";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const env = await getDB();
+    const env = await initEnv();
     const rate = await fetchDailyUSDBDT();
     if (!rate) return NextResponse.json({ error: "Failed to fetch rate" }, { status: 500 });
     await saveUSDBDTRate(env, rate);
