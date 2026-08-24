@@ -794,17 +794,17 @@ export default function CompletePage() {
   );
 
   return (
-    <main className="min-h-screen overflow-x-hidden relative pt-20">
+    <main className="min-h-screen overflow-x-hidden relative pt-20 bg-[#F8FAFC]">
       {completed && confetti.map((c, i) => (
         <span key={i} className="confetti-piece" style={c} />
       ))}
 
       <div className="max-w-lg mx-auto px-4 py-10 text-center safe-bottom">
-        <div className="mx-auto w-24 h-24 rounded-[2rem] bg-gradient-to-br from-gold via-pink to-violet flex items-center justify-center text-5xl shadow-2xl shadow-pink/40 animate-pulse-glow">
+        <div className="mx-auto w-24 h-24 rounded-[2rem] bg-[#0B1D3A] border-2 border-teal/20 flex items-center justify-center text-5xl shadow-lg animate-pulse-glow">
           🏆
         </div>
-        <h1 className="mt-5 text-3xl md:text-4xl font-black leading-tight">
-          <span className="gradient-text animate-shimmer">{t("অভিনন্দন!", "Congratulations!")}</span>
+        <h1 className="mt-5 text-[clamp(28px,5vw,36px)] font-black leading-tight">
+          <span className="text-[#0B1D3A] drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">{t("অভিনন্দন!", "Congratulations!")}</span>
         </h1>
         <p className="mt-2 text-base text-ink-soft">
           {t("আপনার প্রোফাইল কমপ্লিট হয়েছে", "Your profile is complete")} 🎊
@@ -860,7 +860,7 @@ export default function CompletePage() {
         <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Certificate 1 — Foundation (share task) */}
-        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
+        <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
@@ -1002,7 +1002,7 @@ export default function CompletePage() {
         </div>
 
         {/* Certificate 2 — Referral Ambassador */}
-        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
+        <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
@@ -1183,7 +1183,7 @@ export default function CompletePage() {
         </div>
 
         {/* Certificate 3 — Elite Final */}
-        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
+        <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>

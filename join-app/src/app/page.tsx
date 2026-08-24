@@ -54,10 +54,10 @@ export default function HomePage() {
   return (
     <main className="min-h-screen overflow-x-hidden">
       {/* Hero */}
-      <section className="relative px-4 pt-20 pb-10 text-center">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-gold/20 via-pink/10 to-transparent" />
-        <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-excite/20 blur-3xl animate-floaty" />
-        <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-violet/20 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
+      <section className="relative px-4 pt-20 pb-10 text-center bg-[#0B1D3A] -mx-4 -mt-20 pt-20">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#0B1D3A]" />
+        <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-teal/10 blur-3xl animate-floaty" />
+        <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-white/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
 
         <span className="badge-glow bg-gold/20 text-brand border border-gold/40 animate-wiggle">
           🎉 {t("এখনই জয়েন করুন", "Join Now")}
