@@ -1206,8 +1206,8 @@ export default function CompletePage() {
                 <span className="block text-[10px] font-bold text-white/40">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
               </span>
             </h2>
-            <span className={`badge-glow ${isPremium ? "bg-violet/20 text-violet border border-violet/40" : !completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
-              {isPremium ? t("💎 প্রিমিয়াম", "Premium") : !completed ? t("🔒 লক", "Locked") : t("💎 প্রিমিয়াম লক", "Premium Locked")}
+            <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white/10 text-white/40 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
+              {isPremium ? t("✅ কমিটেড (২–৩ বছর)", "Committed (2–3 years)") : !completed ? t("🔒 লক", "Locked") : t("🔒 কমিটমেন্ট লক", "Commitment Locked")}
             </span>
           </div>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
@@ -1216,7 +1216,7 @@ export default function CompletePage() {
           {isPremium ? (
             <>
               <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
-                ✨ {t("অভিনন্দন — আপনি ১০০% প্রিমিয়াম মেম্বার! Elite সার্টিফিকেট সাথে সাথে প্রাপ্য — এখনই দেখুন।", "Congratulations — you are 100% premium! Elite certificate is immediately yours — view now.")}
+                ✨ {t("অভিনন্দন — আপনি ১০০% কমিটেড! Elite সার্টিফিকেট সাথে সাথে প্রাপ্য — এখনই দেখুন।", "Congratulations — you are 100% committed! Elite certificate is immediately yours — view now.")}
               </p>
               {eliteCertificateId ? (
                 <a href={`/certificate?id=${eliteCertificateId}`} className="mt-3 btn-gold w-full text-sm !py-3.5 block text-center">
@@ -1232,13 +1232,13 @@ export default function CompletePage() {
             <>
               {!completed && (
                 <p className="mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white/60 leading-relaxed">
-                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই প্রিমিয়াম মেম্বারশিপ নিতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become premium now.")}
+                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই কমিটমেন্ট ফি দিয়ে কমিটেড হতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become committed now with commitment fee.")}
                 </p>
               )}
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                <p className="text-[11px] font-black text-white text-center">💎 {t("প্রিমিয়াম নয়টি সুবিধা", "Premium Nine Benefits")}</p>
-                <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("প্রিমিয়াম নয়টি সুবিধা পেতে আপনার পছন্দের বাজেট দিন এবং মেম্বারশিপ নিন", "To get the nine premium benefits, give your preferred budget and take membership")}</p>
+                <p className="text-[11px] font-black text-white text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
+                <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">👥</span>
@@ -1275,7 +1275,7 @@ export default function CompletePage() {
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">🎉</span>
                     <div className="flex-1">
-                      <p className="text-[11px] font-black text-white">{t("৯. বার্ষিক পুরস্কার — ৭০% প্রিমিয়াম মেম্বার পায়", "9. Annual Prize — 70% of Premium Members Win")}</p>
+                      <p className="text-[11px] font-black text-white">{t("৯. বার্ষিক পুরস্কার — ৭০% কমিটেড মেম্বার পায়", "9. Annual Prize — 70% of Committed Members Win")}</p>
                       <p className="text-[10px] text-white/60 leading-relaxed">{t("প্রতি বছর ১ বার, সকল প্রিমিয়াম মেম্বারের নাম অটো যুক্ত — গত ৭ বছর ধরে। ১ম পুরস্কার ১০ কোটি — ১ জনকে দেওয়া হবে।", "Once a year, all premium members auto-entered — for 7 years. 1st prize 10 crore — will be given to 1 person.")}</p>
                       <details className="mt-1.5">
                         <summary className="text-[10px] font-black text-gold cursor-pointer">{t("বাকিগুলো দেখুন", "See the rest")}</summary>
@@ -1305,7 +1305,7 @@ export default function CompletePage() {
                             <span className="text-white/60">৩ হাজার — ৫০০ জনকে দেওয়া হবে</span>
                             <span className="text-white/60">১ হাজার — ১০০০ জনকে দেওয়া হবে</span>
                           </div>
-                          <p className="mt-1.5 text-[9px] text-white/40 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% প্রিমিয়াম মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু প্রিমিয়ামদের জন্য।", "Total ~2,204 winners — about 70% of premium members get something each year — premium only.")}</p>
+                          <p className="mt-1.5 text-[9px] text-white/40 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% কমিটেড মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু কমিটেডদের জন্য।", "Total ~2,204 winners — about 70% of committed members get something each year — committed only.")}</p>
                         </div>
                       </details>
                     </div>
@@ -1387,7 +1387,7 @@ export default function CompletePage() {
                           disabled={paying || verifying || expired}
                           className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
                         >
-                          {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই প্রিমিয়াম হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে প্রিমিয়াম হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
+                          {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই কমিটেড হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে কমিটেড হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
                         </button>
                         <p className="mt-1.5 text-[9px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট • এখনই পাঠাতে হবে", "Secure payment • Must send now")}</p>
                       </>
