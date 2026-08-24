@@ -1235,10 +1235,10 @@ export default function CompletePage() {
                   🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই প্রিমিয়াম মেম্বারশিপ নিতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become premium now.")}
                 </p>
               )}
-              {/* 7 Premium Facilities — 100% positive, MLM-free */}
+              {/* 9 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                <p className="text-[11px] font-black text-white text-center">💎 {t("প্রিমিয়াম সাতটি সুবিধা", "Premium Seven Benefits")}</p>
-                <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("প্রিমিয়াম সাতটি সুবিধা পেতে আপনার পছন্দের বাজেট দিন এবং মেম্বারশিপ নিন", "To get the seven premium benefits, give your preferred budget and take membership")}</p>
+                <p className="text-[11px] font-black text-white text-center">💎 {t("প্রিমিয়াম নয়টি সুবিধা", "Premium Nine Benefits")}</p>
+                <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("প্রিমিয়াম নয়টি সুবিধা পেতে আপনার পছন্দের বাজেট দিন এবং মেম্বারশিপ নিন", "To get the nine premium benefits, give your preferred budget and take membership")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">👥</span>
@@ -1268,16 +1268,49 @@ export default function CompletePage() {
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-violet/15 border border-violet/30 flex items-center justify-center text-[11px]">🏆</span>
                     <div><p className="text-[11px] font-black text-white">{t("৭. সর্বোচ্চ Elite সার্টিফিকেট", "7. Highest Elite Certificate")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("দেশ/বিদেশ যেকোনো প্রতিষ্ঠানে উচ্চ বেতনের চাকরিতে সহায়ক — কোম্পানিতে অত্যাধিক ফ্যাসিলিটি।", "Helps secure high-salary jobs anywhere — maximum facilities in our company.")}</p></div>
                   </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">✈️</span>
+                    <div><p className="text-[11px] font-black text-white">{t("৮. ইন্ডিয়া ভ্রমণ — কোম্পানির খরচে", "8. India Tour — Company Expense")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("যেকোনো সময় ইন্ডিয়া ভ্রমণ + YouTube অফিস পরিদর্শন — টুরিস্ট ভিসা সহ সকল খরচ কোম্পানি বহন করবে, আপনাকে কিছু বহন করতে হবে না।", "Anytime India tour + YouTube office visit — company bears all costs including tourist visa, you bear nothing.")}</p></div>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">🎉</span>
+                    <div className="flex-1">
+                      <p className="text-[11px] font-black text-white">{t("৯. বার্ষিক পুরস্কার — ৭০% প্রিমিয়াম মেম্বার পায়", "9. Annual Prize — 70% of Premium Members Win")}</p>
+                      <p className="text-[10px] text-white/60 leading-relaxed">{t("প্রতি বছর ১ বার, সকল প্রিমিয়াম মেম্বারের নাম অটো যুক্ত — গত ৭ বছর ধরে। ১০ কোটি ×১ (১ম), ৫ কোটি ×১, ১ কোটি ×১, ৯০ লাখ ×১, ৭০ লাখ ×১, ৫০ লাখ ×১, ৩০ লাখ ×১, ১০ লাখ ×১, ৯ লাখ ×১, ৭ লাখ ×১ — শীর্ষ ১০ পুরস্কার।", "Once a year, all premium members auto-entered — for 7 years. 10cr ×1 (1st), 5cr ×1, 1cr ×1, 90L ×1, 70L ×1, 50L ×1, 30L ×1, 10L ×1, 9L ×1, 7L ×1 — top 10 prizes.")}</p>
+                      <details className="mt-1.5">
+                        <summary className="text-[10px] font-black text-gold cursor-pointer">{t("বাকি পুরস্কার দেখুন", "See remaining prizes")}</summary>
+                        <div className="mt-1.5 rounded-xl bg-white/[0.04] border border-white/10 p-2.5 text-[10px] leading-relaxed">
+                          <p className="font-black text-white/80">{t("ধাপে ধাপে পুরস্কার সিঁড়ি", "Step-by-step prize ladder")}</p>
+                          <div className="mt-1 grid grid-cols-2 gap-1 text-[10px]">
+                            <span className="text-white/60">৫ লাখ <span className="text-white/40">×১০</span></span>
+                            <span className="text-white/60">৩ লাখ <span className="text-white/40">×২০</span></span>
+                            <span className="text-white/60">১ লাখ <span className="text-white/40">×৩০</span></span>
+                            <span className="text-white/60">৯০ হাজার <span className="text-white/40">×৪০</span></span>
+                            <span className="text-white/60">৭০ হাজার <span className="text-white/40">×৫০</span></span>
+                            <span className="text-white/60">৫০ হাজার <span className="text-white/40">×৬০</span></span>
+                            <span className="text-white/60">৩০ হাজার <span className="text-white/40">×৭০</span></span>
+                            <span className="text-white/60">১০ হাজার <span className="text-white/40">×৯০</span></span>
+                            <span className="text-white/60">৯ হাজার <span className="text-white/40">×১০০</span></span>
+                            <span className="text-white/60">৭ হাজার <span className="text-white/40">×১৫০</span></span>
+                            <span className="text-white/60">৫ হাজার <span className="text-white/40">×২০০</span></span>
+                            <span className="text-white/60">৩ হাজার <span className="text-white/40">×৫০০</span></span>
+                            <span className="text-white/60">১ হাজার <span className="text-white/40">×১০০০</span></span>
+                          </div>
+                          <p className="mt-1.5 text-[9px] text-white/40 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% প্রিমিয়াম মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু প্রিমিয়ামদের জন্য।", "Total ~2,204 winners — about 70% of premium members get something each year — premium only.")}</p>
+                        </div>
+                      </details>
+                    </div>
+                  </div>
                 </div>
               </div>
               {/* Interest + Budget — 100% flexible, psychological */}
               <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
                 <p className="text-[11px] font-black text-white">{t("আপনার আগ্রহ জানান", "Tell us your interest")}</p>
-                <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{t("এই ৭টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 7 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
-                <p className="mt-2 text-[10px] text-white/60 leading-relaxed bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৭টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 7 benefits? Write that amount below.")}</p>
+                <p className="mt-1 text-[10px] text-white/50 leading-relaxed">{t("এই ৯টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 9 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
+                <p className="mt-2 text-[10px] text-white/60 leading-relaxed bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৯টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 9 benefits? Write that amount below.")}</p>
                 <div className="mt-3 space-y-2">
                   <select value={interestFacility} onChange={(e) => setInterestFacility(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold focus:outline-none">
-                    <option value="" className="text-black">{t("৭টির মধ্যে কোন সুবিধাটি সবচেয়ে পছন্দ?", "Which of the 7 benefits do you like most?")}</option>
+                    <option value="" className="text-black">{t("৯টির মধ্যে কোন সুবিধাটি সবচেয়ে পছন্দ?", "Which of the 9 benefits do you like most?")}</option>
                     <option value="earning" className="text-black">{t("আর্নিং মেম্বার", "Earning Member")}</option>
                     <option value="priority" className="text-black">{t("যেকোনো চাকরিতে অগ্রাধিকার", "Priority in Any Job")}</option>
                     <option value="national-international" className="text-black">{t("জাতীয় + আন্তর্জাতিক সুযোগ", "National + International")}</option>
@@ -1285,6 +1318,8 @@ export default function CompletePage() {
                     <option value="courses" className="text-black">{t("কোর্স সুবিধা", "Course Benefit")}</option>
                     <option value="hiring-channel" className="text-black">{t("১০০০ নিয়োগ + মনিটাইজেশন চ্যানেল", "1000 Hires + Channel")}</option>
                     <option value="certificate" className="text-black">{t("Elite সার্টিফিকেট", "Elite Certificate")}</option>
+                    <option value="tour" className="text-black">{t("ইন্ডিয়া ভ্রমণ — কোম্পানির খরচে", "India Tour — Company Expense")}</option>
+                    <option value="lottery" className="text-black">{t("বার্ষিক পুরস্কার ড্র", "Annual Prize Draw")}</option>
                   </select>
                   <input value={otherInterest} onChange={(e) => setOtherInterest(e.target.value)} placeholder={t("এর বাইরে আর কোন বিষয়ে আগ্রহ আছে? (ঐচ্ছিক)", "Any other subject you are interested in? (optional)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
                   <div className="flex gap-2">
@@ -1295,7 +1330,7 @@ export default function CompletePage() {
                 {is100Interested === true && (
                   <div className="mt-3 rounded-xl bg-gold/10 border border-gold/30 p-3">
                     <p className="text-[11px] font-black text-gold text-center">{t("আপনার পছন্দের বাজেট দিন", "Enter your preferred budget")}</p>
-                    <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("এই ৭টি সুবিধার জন্য আপনি কত টাকা দিয়ে আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি লিখুন — টাকাটা আপনাকে এখনই পাঠাতে হবে।", "How much do you want to pay to become an interested member for these 7 benefits? Write that amount — you need to send it now.")}</p>
+                    <p className="mt-1 text-[10px] text-white/60 text-center leading-relaxed">{t("এই ৯টি সুবিধার জন্য আপনি কত টাকা দিয়ে আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি লিখুন — টাকাটা আপনাকে এখনই পাঠাতে হবে।", "How much do you want to pay to become an interested member for these 9 benefits? Write that amount — you need to send it now.")}</p>
                     {/* 30-minute countdown */}
                     {!expired && !verifying ? (
                       <div className="mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
