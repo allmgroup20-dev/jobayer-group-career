@@ -15,14 +15,14 @@ const BENEFITS = [
   { emoji: "🎁", en: "Instant bonus resources", bn: "বোনাস রিসোর্স" },
   { emoji: "💰", en: "Certificates & recognition", bn: "সার্টিফিকেট ও স্বীকৃতি" },
   { emoji: "📚", en: "970+ premium resources", bn: "৯৭০+ প্রিমিয়াম রিসোর্স" },
-  { emoji: "🤝", en: "Invite friends & earn certificates", bn: "বন্ধু বাড়লে সার্টিফিকেট অর্জন করুন" },
+  { emoji: "🤝", en: "Learn together & earn certificates together", bn: "বন্ধুর সাথে শিখুন, একসাথে সার্টিফিকেট অর্জন করুন" },
 ];
 
 const STEPS = [
   { n: "১", en: "Login with Google", bn: "Google দিয়ে লগইন" },
   { n: "২", en: "Complete your profile", bn: "প্রোফাইল কমপ্লিট করুন" },
   { n: "৩", en: "Learn & unlock resources", bn: "শিখুন ও রিসোর্স আনলক করুন" },
-  { n: "৪", en: "Share & earn certificates", bn: "শেয়ার করুন, সার্টিফিকেট অর্জন করুন" },
+  { n: "৪", en: "Learn together & earn certificates", bn: "একসাথে শিখুন, একসাথে সার্টিফিকেট অর্জন করুন" },
 ];
 
 export default function HomePage() {

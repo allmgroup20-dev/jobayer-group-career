@@ -874,7 +874,7 @@ export default function CompletePage() {
         <p className="mt-1.5 text-center text-[10px] font-bold text-white/40">{t("১ < ২ < ৩ — স্তর যত বাড়বে, সুবিধা তত বাড়বে", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Certificate 1 — Foundation (share task) */}
-        <div className="mt-6 card-splash !rounded-[2rem] text-left">
+        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
@@ -1016,7 +1016,7 @@ export default function CompletePage() {
         </div>
 
         {/* Certificate 2 — Referral Ambassador */}
-        <div className="mt-6 card-splash !rounded-[2rem] text-left">
+        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
@@ -1197,7 +1197,7 @@ export default function CompletePage() {
         </div>
 
         {/* Certificate 3 — Elite Final */}
-        <div className="mt-6 card-splash !rounded-[2rem] text-left">
+        <div className="mt-6 card-splash !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
