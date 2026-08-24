@@ -7,8 +7,8 @@ export interface FaqItem {
 
 export const faqs: FaqItem[] = [
   { qBn: "💵 বিনামূল্যে রেজিস্টার করে কি সত্যিই অনলাইনে আয় করা সম্ভব?", qEn: "💵 Can I really earn online by registering for free?",
-    aBn: "রেজিস্টার সম্পূর্ণ ফ্রি। বন্ধু রিসোর্স নিলে ছোট ধন্যবাদ সম্মানী দেয়া হয় — বিস্তারিত নিয়ম স্বচ্ছভাবে লেখা আছে। আয় আপনার চেষ্টার উপর নির্ভর করে — শেখা নিশ্চিত, প্রয়োগ আপনার।",
-    aEn: "Registration is completely free. When a friend unlocks a resource, a small thank-you appreciation is shared — clear rules are written transparently. Earnings depend on your effort — learning is guaranteed, application is yours." },
+    aBn: "রেজিস্টার সম্পূর্ণ ফ্রি। বন্ধু রিসোর্স নিলে ছোট ধন্যবাদ সম্মানী দেয়া হয় — বিস্তারিত নিয়ম স্বচ্ছভাবে লেখা আছে। আপনি যত শিখবেন, তত এগোবেন — প্রতিটি ধাপে নতুন দক্ষতা নিশ্চিত।",
+    aEn: "Registration is completely free. When a friend unlocks a resource, a small thank-you appreciation is shared — clear rules are written transparently. The more you learn, the more you grow — each step ensures new skills." },
   { qBn: "🛡️ এটি কি কোনো স্ক্যাম বা ফেক প্রোগ্রাম?", qEn: "🛡️ Is this a scam or fake program?",
     aBn: "এটি একটি বৈধ ডিজিটাল রিসোর্স ও রেফারেল প্রোগ্রাম। আমরা ডিজিটাল পণ্য সরবরাহ করি এবং কমিশন ও রিফান্ডের নিয়ম স্বচ্ছভাবে জানাই। আমাদের টার্মস, প্রাইভেসি ও রিফান্ড পলিসি পেজে সব নিয়ম স্পষ্টভাবে লেখা আছে — কোথাও অপ্রতিরোধ্য আয়ের প্রতিশ্রুতি দেওয়া হয় না।",
     aEn: "This is a legitimate digital resource & referral program. We deliver digital products and clearly state our commission and refund rules. Our Terms, Privacy and Refund policy pages explain everything transparently — we never promise unrealistic earnings." },
@@ -16,8 +16,8 @@ export const faqs: FaqItem[] = [
     aBn: "অবশ্যই পারবেন। স্টেপ-বাই-স্টেপ গাইড, ২৪/৭ সাপোর্ট, এবং সহজ ভাষায় তৈরি রিসোর্স — সবকিছু আপনার জন্য। আপনার শুধু দরকার একটি স্মার্টফোন এবং শেখার ইচ্ছা।",
     aEn: "Absolutely. Step-by-step guidance, 24/7 support, and beginner-friendly resources are all provided. All you need is a smartphone and a willingness to learn." },
   { qBn: "💰 কত তাড়াতাড়ি আমি প্রথম পেমেন্ট পাব?", qEn: "💰 How soon will I get my first payment?",
-    aBn: "কমিশন পাওয়ার জন্য সফল রেফারেল প্রয়োজন। রেফারেল সফল হলে ৳২০ কমিশন জমা হয় এবং ৳২০+ হলে উইথড্রয়াল করতে পারবেন। প্রশাসক যাচাই করে পেমেন্ট পাঠান। কত দ্রুত আয় করবেন তা আপনার রেফারেল কার্যক্রমের উপর নির্ভর করে — কোনো নির্দিষ্ট সময়সীমার প্রতিশ্রুতি নেই।",
-    aEn: "Commissions require successful referrals. Once a referral is successful, ৳20 is credited, and you can withdraw once your balance reaches ৳20+. Our admin verifies and sends the payment. How fast you earn depends on your referral activity — we make no time guarantees." },
+    aBn: "বন্ধু রিসোর্স নিলে ধন্যবাদ সম্মানী আপনার অ্যাকাউন্টে যোগ হয় — ৳২০+ হলে উত্তোলন করতে পারবেন। প্রশাসক স্বচ্ছভাবে যাচাই করে পাঠান। আপনি যত শিখবেন, তত এগোবেন — প্রতিটি ধাপে নতুন দক্ষতা নিশ্চিত।",
+    aEn: "When a friend unlocks a resource, a thank-you appreciation is added to your account — withdraw when it reaches ৳20+. Our admin verifies transparently. The more you learn, the more you grow — each step ensures new skills." },
   { qBn: "🔄 কি মাসিক ফি দিতে হবে? নাকি একবারই দিলেই হবে?", qEn: "🔄 Is there a monthly fee or one-time payment?",
     aBn: "রিসোর্স এককালীন পেমেন্টে আনলক হয় এবং সেগুলো আজীবন আপনার থাকে। কোনো মাসিক ফি বা লুকানো চার্জ নেই।",
     aEn: "Resources are unlocked with a one-time payment and are yours for life. There are no monthly fees or hidden charges." },

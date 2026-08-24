@@ -63,15 +63,15 @@ export default function HomePage() {
           🎉 {t("এখনই জয়েন করুন", "Join Now")}
         </span>
 
-        <h1 className="mt-4 text-4xl md:text-5xl font-black leading-tight">
+        <h1 className="mt-4 text-4xl md:text-5xl font-black leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
           <span className="gradient-text animate-shimmer">
-            {t("দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন", "Learn Skills, Unlock Rewards")}
+            {t("আপনার সফলতার শতভাগ নির্ভুল ও নির্ভরযোগ্য সমাধান", "Your 100% Accurate & Reliable Success Solution")}
           </span>
           <br />
-          {t("কোনো ভুয়া প্রমিজ নেই!", "No Fake Promises!")}
+          <span className="text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">{t("কোনো অস্পষ্টতা নয়, কেবল সুনির্দিষ্ট ফলাফল।", "No ambiguity, only precise results.")}</span>
         </h1>
 
-        <p className="mt-3 text-base md:text-lg text-ink-soft max-w-md mx-auto">
+        <p className="mt-3 text-base md:text-lg text-white font-medium max-w-md mx-auto drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
           {t(
             "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও সার্টিফিকেট পেতে এখনই শুরু করুন।",
             "Join with Google in one click — start with a free demo class, premium resources and certificates today."
