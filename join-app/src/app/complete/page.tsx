@@ -1371,7 +1371,7 @@ export default function CompletePage() {
                         <button
                           onClick={handlePremiumPay}
                           disabled={paying || verifying || expired}
-                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-violet to-purple-600 text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D04] text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
                         >
                           {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই কমিটেড হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে কমিটেড হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
                         </button>

@@ -4,10 +4,10 @@
   --color-brand: #0B1D3A;
   --color-brand-light: #1A3354;
   --color-brand-dark: #0A1525;
-  --color-excite: #14B8A6;
-  --color-excite-light: #2DD4BF;
-  --color-gold: #D4AF37;
-  --color-gold-light: #E8C55A;
+  --color-excite: #FF6B35;
+  --color-excite-light: #FF8C42;
+  --color-gold: #FFD600;
+  --color-gold-light: #FFEA00;
   --color-pink: #EC4899;
   --color-pink-light: #F472B6;
   --color-violet: #8B5CF6;
@@ -48,9 +48,9 @@
 @layer components {
   .btn-excite {
     @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-black text-base
-           bg-[#0B1D3A] border border-teal/20
-           shadow-md transition-all duration-300
-           hover:bg-[#0F2A52] hover:shadow-lg active:scale-[0.97] cursor-pointer;
+           bg-[#FF6B35] border-0
+           shadow-lg shadow-orange-500/30 transition-all duration-300
+           hover:bg-[#E85D04] hover:shadow-xl hover:shadow-orange-500/40 active:scale-[0.97] cursor-pointer animate-pulse-glow;
   }
   .btn-gold {
     @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-brand font-black text-base
@@ -112,8 +112,8 @@
   100% { background-position: 200% center; }
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 24px rgba(236, 72, 153, 0.35); }
-  50% { box-shadow: 0 0 48px rgba(236, 72, 153, 0.65); }
+  0%, 100% { box-shadow: 0 0 24px rgba(255, 107, 53, 0.35); }
+  50% { box-shadow: 0 0 48px rgba(255, 107, 53, 0.65); }
 }
 @keyframes confettiFall {
   0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
