@@ -17,9 +17,9 @@ export function buildReferralLink(origin: string, redirectPath: string, workerId
 
 export function buildReferralShareText(lang: "bn" | "en", link: string): string {
   if (lang === "bn") {
-    return `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`;
+    return `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\n৯৭০+ রিসোর্স — একসাথে শিখি: ${link}`;
   }
-  return `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\nEarn by sharing! My referral: ${link}`;
+  return `🎯 Join Jobayer Group Career — 970+ premium resources from just ৳99!\n970+ resources — let's learn together: ${link}`;
 }
 
 // Client-side fallback (used when the API is unreachable): still issues a

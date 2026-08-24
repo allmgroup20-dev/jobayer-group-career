@@ -18,15 +18,15 @@ export const howItWorksSteps = [
     highlightEn: "🎯 Start Today",
   },
   {
-    num: "৩", numEn: "3", icon: "💰",
-    titleBn: "টাকা তুলুন",
-    titleEn: "Withdraw Money",
-    descBn: "আপনার লিংকে যতজন রেজিস্টার করে রিসোর্স কিনবেন, তত কমিশন আপনার অ্যাকাউন্টে জমা হবে (প্রতি সফল রেফারেলে ৳২০, ৪ স্তর পর্যন্ত) এবং বিকাশ/নগদে উত্তোলন করতে পারবেন!",
-    descEn: "The more people who register and purchase resources through your link, the more commission you earn (৳20 per successful referral, up to 4 levels) — withdraw directly to bKash/Nagad!",
-    highlightBn: "🟢 সরাসরি পেমেন্ট",
-    highlightEn: "🟢 Direct Payment",
+    num: "৩", numEn: "3", icon: "📈",
+    titleBn: "অগ্রগতি দেখুন",
+    titleEn: "Track Progress",
+    descBn: "বন্ধু রিসোর্স নিলে আপনার লার্নিং অ্যাকাউন্টে ধন্যবাদ পয়েন্ট যোগ হয় — পরে সহজে ব্যবহার করতে পারবেন।",
+    descEn: "When a friend unlocks a resource, thank-you points are added to your learning account — easy to use later.",
+    highlightBn: "📈 অগ্রগতি দেখুন",
+    highlightEn: "📈 View Progress",
   },
 ];
 
-export const howItWorksFooterNoteBn = "💡 রেফারেল কমিশন ৳২০ — ৪ স্তর পর্যন্ত! যত বেশি রেফারেল, তত বেশি আয়। 🚀 শুরু করুন এখনই!";
-export const howItWorksFooterNoteEn = "💡 Earn ৳20 referral commission — up to 4 levels! The more referrals, the more you earn. 🚀 Start now!";
+export const howItWorksFooterNoteBn = "💡 শেখা যত বাড়বে, কমিউনিটি তত বড় হবে — একসাথে এগিয়ে চলি 🚀";
+export const howItWorksFooterNoteEn = "💡 The more you learn, the bigger the community — let's grow together 🚀";

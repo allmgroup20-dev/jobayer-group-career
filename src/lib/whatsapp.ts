@@ -18,7 +18,7 @@ export function generateWhatsAppTemplate(workerName: string, type: "welcome" | "
     withdrawal: `Dear ${workerName}, your withdrawal request has been processed. Thank you for being with Jobayer Group Career.`,
     premium_upgrade: `🎉 Congratulations ${workerName}! You are now a PREMIUM Member! Enjoy zero tax on withdrawals, automatic payouts, and unlimited resource unlocks. Thank you for your trust!`,
     general_welcome: `👋 Welcome ${workerName}! You are now a General Member of Jobayer Group Career. ✅ Refer friends and earn commissions ✅ Access free resources ✅ Upgrade to Premium to unlock: zero tax, auto payouts, unlimited unlocks. Visit your dashboard to start!`,
-    referral_share: `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে! শেয়ার করে টাকা কমান — এই লিংক থেকে কেউ কিনলে আপনি পাবেন ৳২০ কমিশন। রেজিস্টার করুন: {{refLink}} (কোড: {{refCode}})`,
+    referral_share: `🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে! বন্ধুর সাথে শেয়ার করুন, একসাথে শিখুন: {{refLink}} (কোড: {{refCode}})`,
   }
   return templates[type] || `Hello ${workerName}, thank you for being with Jobayer Group Career.`
 }

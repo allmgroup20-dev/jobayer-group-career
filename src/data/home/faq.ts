@@ -7,8 +7,8 @@ export interface FaqItem {
 
 export const faqs: FaqItem[] = [
   { qBn: "💵 বিনামূল্যে রেজিস্টার করে কি সত্যিই অনলাইনে আয় করা সম্ভব?", qEn: "💵 Can I really earn online by registering for free?",
-    aBn: "রেজিস্টার সম্পূর্ণ ফ্রি। আপনি রিসোর্স আনলক করলে বা অন্যকে রেফার করলে কমিশন পান। প্রতিটি সফল রেফারেলে ৳২০ কমিশন (৪ স্তর পর্যন্ত)। তবে আয়ের কোনো গ্যারান্টি নেই — আপনার আয় নির্ভর করে আপনার রেফারেল কার্যক্রমের উপর।",
-    aEn: "Registration is completely free. You earn commissions when you unlock resources or refer others. Earn ৳20 per successful referral (up to 4 levels). However, there is no income guarantee — your earnings depend on your own referral activity." },
+    aBn: "রেজিস্টার সম্পূর্ণ ফ্রি। বন্ধু রিসোর্স নিলে ছোট ধন্যবাদ সম্মানী দেয়া হয় — বিস্তারিত নিয়ম স্বচ্ছভাবে লেখা আছে। আয় আপনার চেষ্টার উপর নির্ভর করে — শেখা নিশ্চিত, প্রয়োগ আপনার।",
+    aEn: "Registration is completely free. When a friend unlocks a resource, a small thank-you appreciation is shared — clear rules are written transparently. Earnings depend on your effort — learning is guaranteed, application is yours." },
   { qBn: "🛡️ এটি কি কোনো স্ক্যাম বা ফেক প্রোগ্রাম?", qEn: "🛡️ Is this a scam or fake program?",
     aBn: "এটি একটি বৈধ ডিজিটাল রিসোর্স ও রেফারেল প্রোগ্রাম। আমরা ডিজিটাল পণ্য সরবরাহ করি এবং কমিশন ও রিফান্ডের নিয়ম স্বচ্ছভাবে জানাই। আমাদের টার্মস, প্রাইভেসি ও রিফান্ড পলিসি পেজে সব নিয়ম স্পষ্টভাবে লেখা আছে — কোথাও অপ্রতিরোধ্য আয়ের প্রতিশ্রুতি দেওয়া হয় না।",
     aEn: "This is a legitimate digital resource & referral program. We deliver digital products and clearly state our commission and refund rules. Our Terms, Privacy and Refund policy pages explain everything transparently — we never promise unrealistic earnings." },

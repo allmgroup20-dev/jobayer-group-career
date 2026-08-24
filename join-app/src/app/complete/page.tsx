@@ -1241,8 +1241,8 @@ export default function CompletePage() {
                 <p className="mt-1 text-[10px] text-white/50 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
-                    <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">👥</span>
-                    <div><p className="text-[11px] font-black text-white">{t("১. আর্নিং মেম্বার", "1. Earning Member")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("যারা আয় করতে ১০০% আগ্রহী তাদের জন্য — আপনিও আর্নিং মেম্বার হবেন।", "For those 100% interested in earning — you become an earning member.")}</p></div>
+                    <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">🎓</span>
+                    <div><p className="text-[11px] font-black text-white">{t("১. কমিটেড লার্নার", "1. Committed Learner")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("শেখায় ১০০% মনোযোগী শিক্ষার্থীদের জন্য — আপনিও কমিটেড লার্নার হবেন।", "For learners 100% focused on learning — you become a committed learner.")}</p></div>
                   </div>
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">⭐</span>
@@ -1262,7 +1262,7 @@ export default function CompletePage() {
                   </div>
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center text-[11px]">🚀</span>
-                    <div><p className="text-[11px] font-black text-white">{t("৬. ১০০০ নিয়োগ + মনিটাইজেশন চ্যানেল", "6. 1000 Hires + Monetization Channel")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("২০২৬ নভেম্বর–২০২৭ ফেব্রুয়ারি বাংলাদেশে ১০০০ নিয়োগে অগ্রাধিকার (শর্তসাপেক্ষ)। শর্তসাপেক্ষ পূর্ণাঙ্গ মনিটাইজেশন চ্যানেল — আমরা গাইড করব কীভাবে কনটেন্ট বানাবে/ছাড়বে; যে কেউ করতে পারবে; ১০০% সুবিধা। শর্ত: ১ বছরে ২ মাস ৩ লক্ষের কম হলে সাসপেন্ড, তবে আগের আয় ব্যাংকে পাঠানো হবে।", "1000 hires in Bangladesh Nov 2026–Feb 2027 with priority (conditional). Full monetization channel with guidance — anyone can do; 100% benefit. Condition: if 2 months in a year below ৳3 lakh, suspend, but prior earnings sent to bank.")}</p></div>
+                    <div><p className="text-[11px] font-black text-white">{t("৬. ১০০০ নিয়োগ + মনিটাইজেশন চ্যানেল", "6. 1000 Hires + Monetization Channel")}</p><p className="text-[10px] text-white/60 leading-relaxed">{t("২০২৬ নভেম্বর–২০২৭ ফেব্রুয়ারি বাংলাদেশে ১০০০ নিয়োগে অগ্রাধিকার। পূর্ণাঙ্গ মনিটাইজেশন চ্যানেল — আমরা গাইড করব কীভাবে কনটেন্ট বানাবে/ছাড়বে; যে কেউ নিজের গতিতে শিখতে পারবে — প্রতিটি ধাপে নতুন দক্ষতা নিশ্চিত।", "1000 hires in Bangladesh Nov 2026–Feb 2027 with priority. Full monetization channel with guidance — anyone can learn at their own pace — each step ensures new skills.")}</p></div>
                   </div>
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-violet/15 border border-violet/30 flex items-center justify-center text-[11px]">🏆</span>
@@ -1332,8 +1332,8 @@ export default function CompletePage() {
                   </select>
                   <input value={otherInterest} onChange={(e) => setOtherInterest(e.target.value)} placeholder={t("এর বাইরে আর কোন বিষয়ে আগ্রহ আছে? (ঐচ্ছিক)", "Any other subject you are interested in? (optional)")} className="w-full px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold placeholder-white/40 focus:outline-none" />
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => setIs100Interested(true)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === true ? "bg-teal/20 border-teal/40 text-teal" : "bg-white/5 border-white/15 text-white/60"}`}>{t("✅ হ্যাঁ, ১০০% আগ্রহী", "Yes, 100% interested")}</button>
-                    <button type="button" onClick={() => setIs100Interested(false)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === false ? "bg-white/10 border-white/20 text-white" : "bg-white/5 border-white/15 text-white/60"}`}>{t("না", "No")}</button>
+                    <button type="button" onClick={() => setIs100Interested(true)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === true ? "bg-teal/20 border-teal/40 text-teal" : "bg-white/5 border-white/15 text-white/60"}`}>{t("✅ হ্যাঁ, শেখায় মনোযোগী", "Yes, focused on learning")}</button>
+                    <button type="button" onClick={() => setIs100Interested(false)} className={`flex-1 py-2.5 rounded-xl border text-xs font-black ${is100Interested === false ? "bg-white/10 border-white/20 text-white" : "bg-white/5 border-white/15 text-white/60"}`}>{t("পরে ভাবব", "Maybe later")}</button>
                   </div>
                 </div>
                 {is100Interested === true && (
@@ -1344,7 +1344,7 @@ export default function CompletePage() {
                     {!expired && !verifying ? (
                       <div className="mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
                         <span className="text-[11px] font-black text-gold">⏳ {timeLeft}</span>
-                        <span className="text-[10px] font-bold text-white/60">{t("এই সুবিধা ৩০ মিনিটের জন্য • সময় শেষ হলে আমরা ভাবব আপনি দ্বিধায় আছেন, তাই আর সুযোগ দেব না", "This offer is for 30 minutes • When time ends we will think you are hesitant and won't give another chance")}</span>
+                        <span className="text-[10px] font-bold text-white/60">{t("আপনার জন্য ৩০ মিনিট সংরক্ষিত — ধীরে, নিজের গতিতে সিদ্ধান্ত নিন", "Reserved for you for 30 minutes — take your time, decide at your own pace")}</span>
                       </div>
                     ) : null}
                     {verifying ? (
@@ -1366,9 +1366,9 @@ export default function CompletePage() {
                         <style>{`.verify-dots span{animation:verifyDot 1s infinite;}.verify-dots span:nth-child(2){animation-delay:0.2s}.verify-dots span:nth-child(3){animation-delay:0.4s}@keyframes verifyDot{0%,80%,100%{opacity:0}40%{opacity:1}}`}</style>
                       </div>
                     ) : expired ? (
-                      <div className="mt-2 rounded-xl bg-red/10 border border-red/30 p-3 text-center">
-                        <p className="text-[11px] font-black text-red">{t("৩০ মিনিট শেষ — আমরা ভাবছি আপনি দ্বিধায় আছেন", "30 minutes over — we think you are hesitant")}</p>
-                        <p className="mt-1 text-[10px] text-white/60 leading-relaxed">{t("সময় শেষ হওয়ায় সুযোগ বন্ধ হয়েছে।", "Opportunity closed as time ended.")}</p>
+                      <div className="mt-2 rounded-xl bg-white/5 border border-white/10 p-3 text-center">
+                        <p className="text-[11px] font-black text-white">{t("সময় শেষ — আবার শুরু করতে পারেন", "Time's up — you can start again")}</p>
+                        <p className="mt-1 text-[10px] text-white/60 leading-relaxed">{t("আপনার জন্য আবার সংরক্ষণ করা যাবে — নিচে চাপ দিন।", "We can reserve again for you — tap below.")}</p>
                         <button type="button" onClick={startOfficerVerification} disabled={verifying} className="mt-2 w-full py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black disabled:opacity-50">
                           {t("আমি আগ্রহী — আগেরবার সময় শেষ হওয়ার আগে নিতে পারিনি, দ্বিতীয়বার অনুমতি দিন", "I am interested — couldn't take it before time ended, please allow me again")}
                         </button>

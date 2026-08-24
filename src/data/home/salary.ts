@@ -27,12 +27,12 @@ export const liveNotifText = {
 };
 
 export const liveSalaryText = {
-  titleBn: "সর্বশেষ বোনাস 🟢",
-  titleEn: "Latest Bonuses 🟢",
-  successStatusBn: "নগদ অ্যাকাউন্টে ট্রান্সফার সম্পন্ন হয়েছে",
-  successStatusEn: "Transfer to cash account completed",
-  bonusStatusBn: "বোনাস দেওয়া হয়েছে",
-  bonusStatusEn: "Bonus given",
+  titleBn: "সাম্প্রতিক কার্যক্রম 🟢",
+  titleEn: "Recent Activity 🟢",
+  successStatusBn: "রিসোর্স আনলক সম্পন্ন হয়েছে",
+  successStatusEn: "Resource unlock completed",
+  bonusStatusBn: "রিসোর্স আনলক করেছেন",
+  bonusStatusEn: "Resource unlocked",
   liveNotifJoined: "থেকে যুক্ত হয়েছেন!",
   liveNotifJoinedEn: "just joined!",
 };

@@ -125,7 +125,7 @@ const GOALS = [
   { en: "Develop Skills", bn: "স্কিল ডেভেলপ", v: "skill", e: "🎯" },
   { en: "Get a Job", bn: "চাকরি পেতে", v: "job", e: "🕴️" },
   { en: "Become a Content Creator (YouTube/Facebook)", bn: "ইউটিউব/ফেসবুক কনটেন্ট ক্রিয়েটর", v: "content_creator", e: "🎬" },
-  { en: "Earn Extra Income (Side Income)", bn: "অতিরিক্ত আয় / সাইড ইনকাম", v: "extra_income", e: "💰" },
+  { en: "Extra Skill for Side Projects", bn: "অতিরিক্ত দক্ষতা (পাশাপাশি শেখা)", v: "extra_income", e: "💡" },
 ];
 
 const DAILY_HOURS = [
@@ -548,13 +548,13 @@ export default function OnboardingPage() {
               <h1 className="text-2xl font-black text-brand">{t("সবকিছু এক বাটনে সম্মতি", "Grant Everything in One Tap")}</h1>
               <p className="text-sm text-ink-soft">{t("এক ক্লিকে উন্নত অভিজ্ঞতা", "One tap for the best experience")}</p>
 
-              {/* Income goal */}
+              {/* Learning goal */}
               <div className="text-left pt-1">
-                <p className="text-sm font-black text-brand">💰 {t("আপনার আয়ের লক্ষ্য", "Your Earning Goal")}</p>
+                <p className="text-sm font-black text-brand">🎯 {t("আপনার শেখার লক্ষ্য", "Your Learning Goal")}</p>
                 <p className="mt-1 text-xs text-ink-soft leading-relaxed">
                   {t(
-                    "আপনি ইউটিউব, ফ্রিল্যান্সিং বা অনলাইন ব্যবসা — এই ধরনের সেক্টরে আয়ের সুযোগ খুঁজছেন বলেই আমাদের সাথে যুক্ত হয়েছেন। কোনগুলোতে আগ্রহ, একাধিক বাছাই করতে পারেন।",
-                    "You joined us because you're looking for earning opportunities in sectors like YouTube, freelancing or online business. Select all that apply."
+                    "আপনি ইউটিউব, ফ্রিল্যান্সিং বা অনলাইন ব্যবসা — এই ধরনের স্কিল শিখতে আগ্রহী বলেই আমাদের সাথে যুক্ত হয়েছেন। কোনগুলোতে আগ্রহ, একাধিক বাছাই করতে পারেন।",
+                    "You joined to learn skills in YouTube, freelancing or online business. Select all that interest you."
                   )}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">

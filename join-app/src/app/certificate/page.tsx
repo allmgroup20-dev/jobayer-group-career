@@ -278,15 +278,15 @@ function CertificateView() {
               </div>
             </div>
             <div className="flex gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">💰</div>
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">🚀</div>
               <div>
-                <p className="text-sm font-black text-white">{t("মাসিক আয় সম্ভাবনা", "Monthly income potential")}</p>
+                <p className="text-sm font-black text-white">{t("ক্যারিয়ার সম্ভাবনা", "Career Opportunity")}</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/60">
                   {tier === "elite"
-                    ? t("এই সর্বোচ্চ সার্টিফিকেট দিয়ে লিডারশিপ ও এডভান্সড ডিজিটাল মার্কেটিং ভূমিকায় সাধারণত ৳৬০,০০০–৳১,২০,০০০+ আয় সম্ভব — অভিজ্ঞতা ও নিয়োগকর্তার ওপর নির্ভর করে।", "With this top certificate, leadership and advanced digital marketing roles typically pay ৳60,000–৳120,000+ per month, depending on experience and employer.")
+                    ? t("এই সার্টিফিকেট দিয়ে লিডারশিপ ও এডভান্সড ডিজিটাল মার্কেটিং ভূমিকায় আবেদন করতে পারবেন — আপনার শেখা ও চেষ্টা আপনাকে এগিয়ে নেবে।", "With this certificate you can apply for leadership and advanced digital marketing roles — your learning and effort will take you forward.")
                     : tier === "ambassador"
-                    ? t("অ্যাম্বাসেডর সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় সাধারণত ৳৩০,০০০–৳৬০,০০০ আয় সম্ভব।", "With the Ambassador certificate, mid-level digital marketing and community roles typically pay ৳30,000–৳60,000 per month.")
-                    : t("ফাউন্ডেশন সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় সাধারণত মাসে ৳১৫,০০০–৳৩০,০০০ আয় সম্ভব।", "With the Foundation certificate, entry-level digital marketing, community management and sales roles typically pay ৳15,000–৳30,000 per month.")}
+                    ? t("এই সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় আবেদন করতে পারবেন — শেখা যত বাড়বে, সুযোগ তত বাড়বে।", "With this certificate you can apply for mid-level digital marketing and community roles — the more you learn, the more opportunities grow.")
+                    : t("এই সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় আবেদন করতে পারবেন — প্রতিটি ধাপে নতুন দক্ষতা নিশ্চিত।", "With this certificate you can apply for entry-level digital marketing, community management and sales roles — each step ensures new skills.")}
                 </p>
               </div>
             </div>

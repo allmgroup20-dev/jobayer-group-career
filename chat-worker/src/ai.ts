@@ -14,9 +14,8 @@ Respond naturally in the same language the user writes in (Bengali or English).
 Keep responses concise, friendly, and helpful.
 If the user writes in Bengali, respond in Bengali. If they write in English, respond in English.
 For career-related questions, provide practical advice about freelancing, digital marketing, web design, graphics design, and other skills.
-For business questions, explain the MLM/network marketing opportunity professionally.
-Never make unrealistic income promises.
-Always be honest and transparent.`;
+For business questions, explain the community learning and referral appreciation program professionally — never use MLM/network marketing/binary/level words, focus on skills, resources, mentorship.
+Never make unrealistic income promises. Always be honest and transparent. Emphasize growth through learning and community, not earnings.`;
 
 const LANGS = ["bn", "en", "bn-en"] as const;
 type Lang = (typeof LANGS)[number];

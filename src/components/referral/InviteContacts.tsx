@@ -75,7 +75,7 @@ export default function InviteContacts({ workerId, lang = "bn", redirectPath = "
     } catch { /* keep fallback link */ }
     const namePart = contact.name ? `প্রিয় ${contact.name}, ` : "";
     const msg = encodeURIComponent(
-      `${namePart}🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\nশেয়ার করে টাকা কমান! আমার রেফারেল: ${link}`
+      `${namePart}🎯 Jobayer Group Career — ৯৭০+ প্রিমিয়াম রিসোর্স মাত্র ৳৯৯ থেকে!\n৯৭০+ রিসোর্স — একসাথে শিখি: ${link}`
     );
     window.open(`https://wa.me/88${contact.phone}?text=${msg}`, "_blank");
   };
