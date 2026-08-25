@@ -667,7 +667,7 @@ export default function CompletePage() {
     <>
       {(selectedContacts.length > 0 || sentContacts.length > 0) && (
         <div className="mt-4 space-y-2">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+          <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
             {t(`তালিকা (যুক্ত ${selectedContacts.length} • পাঠানো ${sentContacts.length})`, `List (added ${selectedContacts.length} • sent ${sentContacts.length})`)}
           </p>
           <AddPeopleBlock
@@ -685,7 +685,7 @@ export default function CompletePage() {
             className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-bold placeholder-slate-400 focus:outline-none focus:border-pink/60"
           />
           {shownSelected.length === 0 && shownSent.length === 0 && (
-            <p className="text-[11px] text-slate-400 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
+            <p className="text-[11px] text-slate-600 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
           )}
           {shownSelected.map((c, i) => (
             <div
@@ -695,7 +695,7 @@ export default function CompletePage() {
               <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
-                  <p className="text-[10px] text-slate-400 font-mono">{`+${c.phone}`}</p>
+                  <p className="text-[10px] text-slate-600 font-mono">{`+${c.phone}`}</p>
                   {pendingList.includes(c.phone) && (
                     <p className="text-[10px] font-bold text-gold mt-0.5">
                       🔍 {t("যাচাই করা হচ্ছে", "Verifying")}
@@ -707,7 +707,7 @@ export default function CompletePage() {
                   )}
                 </div>
                 {c.waExists === false ? (
-                  <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-200 text-[10px] font-black">
+                  <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-black">
                     {t("WhatsApp নেই", "No WhatsApp")}
                   </span>
                 ) : pendingList.includes(c.phone) ? (
@@ -747,7 +747,7 @@ export default function CompletePage() {
             <div key={`sent-${c.phone}-${i}`} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 opacity-75">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold truncate">{c.name || t("নাম নেই", "No name")}</p>
-                <p className="text-[10px] text-slate-400 font-mono">{`+${c.phone}`}</p>
+                <p className="text-[10px] text-slate-600 font-mono">{`+${c.phone}`}</p>
                 <p className="text-[10px] font-bold text-teal mt-0.5">
                   {c.sentAt
                     ? t(`✅ একবার পাঠানো হয়েছে (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — আবার পাঠাতে পারেন`, `✅ Sent once (${new Date(c.sentAt.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}) — you can send again`)
@@ -755,7 +755,7 @@ export default function CompletePage() {
                 </p>
               </div>
               {c.waExists === false ? (
-                <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-slate-50 text-slate-400 border border-slate-200 text-[10px] font-black">
+                <span className="flex-shrink-0 px-3 py-2 rounded-xl bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-black">
                   {t("WhatsApp নেই", "No WhatsApp")}
                 </span>
               ) : (
@@ -814,7 +814,7 @@ export default function CompletePage() {
 
         {/* Certificate journey — 3 steps */}
         <div className="mt-8">
-          <p className="text-xs font-black text-slate-500 uppercase tracking-widest text-center">
+          <p className="text-xs font-black text-slate-600 uppercase tracking-widest text-center">
             {t("আপনার সার্টিফিকেট যাত্রা", "Your Certificate Journey")}
           </p>
           <div className="mt-3 flex items-center justify-center gap-1">
@@ -826,7 +826,7 @@ export default function CompletePage() {
                   <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
                     stepDone ? "bg-teal/25 border-teal/60 text-teal"
                     : stepUnlocked ? "bg-gold/20 border-gold/50 text-gold"
-                    : "bg-slate-50 border-white/15 text-slate-400"
+                    : "bg-slate-50 border-white/15 text-slate-600"
                   }`}>
                     {stepDone ? "✓" : n}
                   </div>
@@ -844,20 +844,20 @@ export default function CompletePage() {
           <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2">
             <p className="text-[9px] font-black uppercase tracking-wide text-teal-700">Foundation</p>
             <p className="text-[10px] font-black text-slate-900">৳১৫–৩০k</p>
-            <p className="text-[8px] font-bold text-slate-500">Entry</p>
+            <p className="text-[8px] font-bold text-slate-600">Entry</p>
           </div>
           <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
             <p className="text-[9px] font-black uppercase tracking-wide text-amber-700">Ambassador</p>
             <p className="text-[10px] font-black text-slate-900">৳৩০–৬০k</p>
-            <p className="text-[8px] font-bold text-slate-500">Professional 🔒</p>
+            <p className="text-[8px] font-bold text-slate-600">Professional 🔒</p>
           </div>
           <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
             <p className="text-[9px] font-black uppercase tracking-wide text-violet-700">Elite</p>
             <p className="text-[10px] font-black text-slate-900">৳৬০–১২০k+</p>
-            <p className="text-[8px] font-bold text-slate-500">Highest Honor 🔒</p>
+            <p className="text-[8px] font-bold text-slate-600">Highest Honor 🔒</p>
           </div>
         </div>
-        <p className="mt-1.5 text-center text-[10px] font-bold text-slate-500">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
+        <p className="mt-1.5 text-center text-[10px] font-bold text-slate-600">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Certificate 1 — Foundation (share task) */}
         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
@@ -866,7 +866,7 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
               <span>
                 {t("ফাউন্ডেশন সার্টিফিকেট", "Foundation Certificate")}
-                <span className="block text-[10px] font-bold text-slate-500">{t("Foundation • প্রথম ধাপ", "Foundation • First step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Foundation • প্রথম ধাপ", "Foundation • First step")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${completed ? "bg-teal/20 text-teal border border-teal/40" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -931,7 +931,7 @@ export default function CompletePage() {
                 {!editNameMode ? (
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0 text-left">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
                         {t("সার্টিফিকেটের নাম", "Name on certificate")}
                       </p>
                       <p className="mt-0.5 text-sm font-black text-slate-900 truncate">
@@ -953,7 +953,7 @@ export default function CompletePage() {
                   </div>
                 ) : (
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-wider">
                       {t("নাম পরিবর্তন করুন", "Change name")}
                     </p>
                     <input
@@ -1008,10 +1008,10 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
               <span>
                 {t("রেফারেল অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
-                <span className="block text-[10px] font-bold text-slate-500">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
               </span>
             </h2>
-            <span className={`badge-glow ${!completed ? "bg-white text-slate-400 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
+            <span className={`badge-glow ${!completed ? "bg-white text-slate-600 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {!completed ? t("🔒 লক", "Locked") : t("🚀 চলছে", "In progress")}
             </span>
           </div>
@@ -1041,7 +1041,7 @@ export default function CompletePage() {
                       </div>
                       <span className="text-[11px] font-black text-teal">{referralJoins}/11</span>
                     </div>
-                    <p className="mt-1 text-[10px] text-slate-500">{t("আপনার লিংকে যারা আসলে জয়েন করেছে", "People who actually joined through your link")}</p>
+                    <p className="mt-1 text-[10px] text-slate-600">{t("আপনার লিংকে যারা আসলে জয়েন করেছে", "People who actually joined through your link")}</p>
                   </div>
                 </div>
 
@@ -1050,7 +1050,7 @@ export default function CompletePage() {
                   <span className="w-6 h-6 shrink-0 rounded-full bg-gold/20 text-gold text-xs font-black flex items-center justify-center mt-0.5">২</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-900">{t("লিখিত মেসেজ শেয়ার করুন", "Share the written message")}</p>
-                    <p className="mt-0.5 text-[10px] text-slate-500 leading-relaxed">
+                    <p className="mt-0.5 text-[10px] text-slate-600 leading-relaxed">
                       {t("অ্যাপ থেকে মেসেজ কপি করে ৩টি ফেসবুক গ্রুপ + ১টি WhatsApp গ্রুপ + নিজের প্রোফাইলে পোস্ট করুন", "Copy the message from the app and post it in 3 Facebook groups + 1 WhatsApp group + your own profile")}
                     </p>
                   </div>
@@ -1061,7 +1061,7 @@ export default function CompletePage() {
                   <span className="w-6 h-6 shrink-0 rounded-full bg-pink/20 text-pink text-xs font-black flex items-center justify-center mt-0.5">৩</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-900">{t("৪টি স্ক্রিনশট জমা দিন", "Submit 4 screenshots")}</p>
-                    <p className="mt-0.5 text-[10px] text-slate-500 leading-relaxed">
+                    <p className="mt-0.5 text-[10px] text-slate-600 leading-relaxed">
                       {t("শেয়ারের স্ক্রিনশট আমাদের পাঠান — ২৪ ঘণ্টার মধ্যে ভেরিফাই করে সার্টিফিকেট দেব", "Send us the screenshots — we verify within 24 hours and issue the certificate")}
                     </p>
                     <button onClick={() => setShowShotHelp((v) => !v)} className="mt-1.5 text-[10px] font-black text-pink underline">
@@ -1112,7 +1112,7 @@ export default function CompletePage() {
                         </div>
                       ))}
                       {shotThumbs.length < 4 && (
-                        <label className="w-16 h-16 rounded-lg border-2 border-dashed border-white/25 flex items-center justify-center text-2xl text-slate-400 cursor-pointer">
+                        <label className="w-16 h-16 rounded-lg border-2 border-dashed border-white/25 flex items-center justify-center text-2xl text-slate-600 cursor-pointer">
                           +
                           <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={onShotPick} />
                         </label>
@@ -1135,7 +1135,7 @@ export default function CompletePage() {
 
               {/* Sharing tools */}
               <div className="mt-4">
-                <p className="text-[11px] font-black text-slate-500 uppercase tracking-wide">{t("আপনার শেয়ার সরঞ্জাম", "Your sharing tools")}</p>
+                <p className="text-[11px] font-black text-slate-600 uppercase tracking-wide">{t("আপনার শেয়ার সরঞ্জাম", "Your sharing tools")}</p>
                 <input
                   readOnly
                   value={link}
@@ -1151,7 +1151,7 @@ export default function CompletePage() {
                     {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("মেসেজ কপি করুন", "Copy message")}`}
                   </button>
                 </div>
-                <p className="mt-1.5 text-[10px] text-slate-400 text-center">
+                <p className="mt-1.5 text-[10px] text-slate-600 text-center">
                   {t("প্রতিবার শেয়ারে নতুন আলাদা লিংক তৈরি হয় — সবাই একই লিংক পাবে না", "Every share creates a fresh unique link — no one gets the same link twice")}
                 </p>
 
@@ -1189,10 +1189,10 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
               <span>
                 {t("এলিট ফাইনাল সার্টিফিকেট", "Elite Final Certificate")}
-                <span className="block text-[10px] font-bold text-slate-500">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
               </span>
             </h2>
-            <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white text-slate-400 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
+            <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white text-slate-600 border border-white/15" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {isPremium ? t("✅ কমিটেড (২–৩ বছর)", "Committed (2–3 years)") : !completed ? t("🔒 লক", "Locked") : t("🔒 কমিটমেন্ট লক", "Commitment Locked")}
             </span>
           </div>
@@ -1224,7 +1224,7 @@ export default function CompletePage() {
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                 <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
-                <p className="mt-1 text-[10px] text-slate-500 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
+                <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">🎓</span>
@@ -1291,7 +1291,7 @@ export default function CompletePage() {
                             <span className="text-slate-600">৩ হাজার — ৫০০ জনকে দেওয়া হবে</span>
                             <span className="text-slate-600">১ হাজার — ১০০০ জনকে দেওয়া হবে</span>
                           </div>
-                          <p className="mt-1.5 text-[9px] text-slate-400 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% কমিটেড মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু কমিটেডদের জন্য।", "Total ~2,204 winners — about 70% of committed members get something each year — committed only.")}</p>
+                          <p className="mt-1.5 text-[9px] text-slate-600 leading-relaxed">{t("মোট ~২,২০৪ জন বিজয়ী — প্রায় ৭০% কমিটেড মেম্বার প্রতি বছর কিছু না কিছু পায় — শুধু কমিটেডদের জন্য।", "Total ~2,204 winners — about 70% of committed members get something each year — committed only.")}</p>
                         </div>
                       </details>
                     </div>
@@ -1301,7 +1301,7 @@ export default function CompletePage() {
               {/* Interest + Budget — 100% flexible, psychological */}
               <div className="mt-3 rounded-xl bg-white/[0.04] border border-slate-200 p-3">
                 <p className="text-[11px] font-black text-slate-900">{t("আপনার আগ্রহ জানান", "Tell us your interest")}</p>
-                <p className="mt-1 text-[10px] text-slate-500 leading-relaxed">{t("এই ৯টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 9 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
+                <p className="mt-1 text-[10px] text-slate-600 leading-relaxed">{t("এই ৯টি সুবিধা পাওয়ার ক্ষেত্রে আপনার কাছে কি মনে হয় — বাংলাদেশে এইরকম সুবিধা যারা দিচ্ছে তারা কত টাকা নিতে পারে?", "For these 9 benefits — how much do you think others in Bangladesh who offer similar benefits would charge?")}</p>
                 <p className="mt-2 text-[10px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">{t("জাস্ট জানার জন্য — এই মুহূর্তে এই ৯টি সুবিধার জন্য আপনি নিজের জায়গা থেকে কত টাকা দিয়ে আমাদের আগ্রহী মেম্বার হতে চান? সেই অ্যামাউন্টটি নিচে লিখুন।", "Just to know — how much do YOU want to pay from your side to become our interested member for these 9 benefits? Write that amount below.")}</p>
                 <div className="mt-3 space-y-2">
                   <select value={interestFacility} onChange={(e) => setInterestFacility(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-bold focus:outline-none">
@@ -1341,7 +1341,7 @@ export default function CompletePage() {
                           {officers.map((o) => (
                             <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
                               <span className="text-[11px] font-bold text-slate-700">{o.name}</span>
-                              <span className={`text-[10px] font-black flex items-center gap-1 ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-slate-500" : "text-gold"}`}>
+                              <span className={`text-[10px] font-black flex items-center gap-1 ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-slate-600" : "text-gold"}`}>
                                 {o.status === "viewing" ? (
                                   <span className="inline-flex items-center gap-0.5 animate-pulse">{t("দেখছেন", "Viewing")}<span className="verify-dots inline-flex"><span>.</span><span>.</span><span>.</span></span></span>
                                 ) : o.status === "accepted" ? t("একসেপ্ট করেছেন", "Accepted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("এখনও সিদ্ধান্ত নেননি", "Pending")}
@@ -1375,7 +1375,7 @@ export default function CompletePage() {
                         >
                           {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই কমিটেড হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে কমিটেড হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
                         </button>
-                        <p className="mt-1.5 text-[9px] text-slate-400 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট • এখনই পাঠাতে হবে", "Secure payment • Must send now")}</p>
+                        <p className="mt-1.5 text-[9px] text-slate-600 text-center">SSLCommerz • bKash / Nagad / Card • {t("সুরক্ষিত পেমেন্ট • এখনই পাঠাতে হবে", "Secure payment • Must send now")}</p>
                       </>
                     )}
                     {payMsg && !payMsg.text.includes("সর্বনিম্ন ৯৯") && !verifying && !expired && (
@@ -1384,7 +1384,7 @@ export default function CompletePage() {
                   </div>
                 )}
                 {is100Interested === false && (
-                  <p className="mt-2 text-[11px] font-bold text-center text-slate-500">{t("১০০% আগ্রহ না থাকলে এখন পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে ফিরে আসুন।", "If not 100% interested, no need to pay now — come back when interested.")}</p>
+                  <p className="mt-2 text-[11px] font-bold text-center text-slate-600">{t("১০০% আগ্রহ না থাকলে এখন পেমেন্ট প্রয়োজন নেই — আগ্রহ হলে ফিরে আসুন।", "If not 100% interested, no need to pay now — come back when interested.")}</p>
                 )}
                 {is100Interested === null && payMsg && (
                   <p className={`mt-2 text-[11px] font-bold text-center ${payMsg.kind === "ok" ? "text-teal" : payMsg.kind === "warn" ? "text-gold" : "text-red"}`}>{payMsg.text}</p>
@@ -1439,7 +1439,7 @@ function AddPeopleBlock({
       <p className="text-center text-[11px] font-black text-gold -mt-1">
         ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
       </p>
-      <p className="text-center text-[11px] text-slate-500 -mt-1">
+      <p className="text-center text-[11px] text-slate-600 -mt-1">
         {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
       </p>
 
