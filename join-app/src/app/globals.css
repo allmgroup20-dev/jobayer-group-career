@@ -50,7 +50,8 @@
     @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-black text-base
            bg-[#FF6B35] border-0
            shadow-lg shadow-orange-500/30 transition-all duration-300
-           hover:bg-[#E85D04] hover:shadow-xl hover:shadow-orange-500/40 active:scale-[0.97] cursor-pointer animate-pulse-glow;
+           hover:bg-[#E85D04] hover:shadow-xl hover:shadow-orange-500/40 active:scale-[0.97] cursor-pointer;
+    animation: pulseGlow 2.2s ease-in-out infinite;
   }
   .btn-gold {
     @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-brand font-black text-base
