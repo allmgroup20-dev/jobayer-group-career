@@ -1080,7 +1080,7 @@ export default function CompletePage() {
               </div>
 
               {/* Screenshot submission (step 3) */}
-              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
+              <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                 {shotStatus === "verified" ? (
                   <div className="rounded-xl bg-teal/15 border border-teal/30 px-3 py-2 text-[11px] font-black text-teal leading-relaxed">
                     ✅ {t("ভেরিফাই হয়েছে — আপনার স্ক্রিনশটগুলো গৃহীত হয়েছে", "Verified — your screenshots were accepted")}
@@ -1222,7 +1222,7 @@ export default function CompletePage() {
                 </p>
               )}
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
-              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
+              <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                 <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
                 <p className="mt-1 text-[10px] text-slate-500 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
@@ -1334,7 +1334,7 @@ export default function CompletePage() {
                       </div>
                     ) : null}
                     {verifying ? (
-                      <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 p-3">
+                      <div className="mt-2 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                         <p className="text-[10px] font-bold text-gold/80 text-center">⏳ {t("কর্মকর্তারা যাচাই করতে আনুমানিক এক থেকে তিন মিনিট সময় লাগতে পারে — অপেক্ষা করুন", "Officers may take ~1–3 minutes to verify — please wait")}</p>
                         <p className="mt-1 text-[11px] font-black text-slate-900 text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
                         <div className="mt-2 space-y-1.5">

@@ -53,25 +53,25 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden">
-      {/* Hero */}
-      <section className="relative px-4 pt-20 pb-10 text-center bg-[#0B1D3A] -mx-4 -mt-20 pt-20">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#0B1D3A]" />
-        <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-teal/10 blur-3xl animate-floaty" />
-        <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-white/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
+      {/* Hero — Final 75: Background #F8FAFC, Heading #0B1F33, Accent #C2410C, CTA #C2410C */}
+      <section className="relative px-4 pt-20 pb-10 text-center bg-[#F8FAFC] -mx-4 -mt-20 pt-20">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[#F8FAFC]" />
+        <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-[#C2410C]/5 blur-3xl animate-floaty" />
+        <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-[#2563EB]/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
 
-        <span className="badge-glow bg-gold/20 text-brand border border-gold/40 animate-wiggle">
+        <span className="badge-glow bg-[#C2410C]/10 text-[#C2410C] border border-[#C2410C]/20 animate-wiggle">
           🎉 {t("এখনই জয়েন করুন", "Join Now")}
         </span>
 
-        <h1 className="mt-4 text-4xl md:text-5xl font-black leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
-          <span className="gradient-text animate-shimmer">
+        <h1 className="mt-4 text-[clamp(28px,5vw,42px)] font-black leading-tight">
+          <span className="text-[#0B1F33]">
             {t("আপনার সফলতার শতভাগ নির্ভুল ও নির্ভরযোগ্য সমাধান", "Your 100% Accurate & Reliable Success Solution")}
           </span>
           <br />
-          <span className="text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">{t("কোনো অস্পষ্টতা নয়, কেবল সুনির্দিষ্ট ফলাফল।", "No ambiguity, only precise results.")}</span>
+          <span className="text-[#C2410C]">{t("কোনো অস্পষ্টতা নয়, কেবল সুনির্দিষ্ট ফলাফল।", "No ambiguity, only precise results.")}</span>
         </h1>
 
-        <p className="mt-3 text-base md:text-lg text-white font-medium max-w-md mx-auto drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]">
+        <p className="mt-3 text-base md:text-lg text-[#475569] font-medium max-w-md mx-auto">
           {t(
             "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও সার্টিফিকেট পেতে এখনই শুরু করুন।",
             "Join with Google in one click — start with a free demo class, premium resources and certificates today."
@@ -80,8 +80,8 @@ export default function HomePage() {
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm font-black">
-          <span className="badge-glow bg-teal/15 text-teal border border-teal/30">⚡ {t("ফ্রি রেজিস্ট্রেশন", "Free Registration")}</span>
-          <span className="badge-glow bg-violet/15 text-violet border border-violet/30">✅ {t("ফ্রি ডেমো ক্লাস", "Free Demo Class")}</span>
+          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("ফ্রি রেজিস্ট্রেশন", "Free Registration")}</span>
+          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("ফ্রি ডেমো ক্লাস", "Free Demo Class")}</span>
         </div>
       </section>
 
