@@ -103,7 +103,7 @@ export default function HomePage() {
           </div>
 
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-2xl bg-red-500/20 border border-red-300/40 text-sm font-bold text-white">
+            <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm font-bold text-red-800">
               ⚠️ {error}
             </div>
           )}
@@ -163,7 +163,7 @@ export default function HomePage() {
           <div className="space-y-3">
             {STEPS.map((s, i) => (
               <div key={s.n} className="card-pop flex items-center gap-4 animate-pop-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-excite to-pink text-white font-black text-lg flex items-center justify-center shadow-lg shadow-pink/25">
+                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-excite to-pink text-white font-black text-lg flex items-center justify-center shadow-lg shadow-pink/25 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
                   {s.n}
                 </div>
                 <p className="font-bold text-brand">{t(s.bn, s.en)}</p>
