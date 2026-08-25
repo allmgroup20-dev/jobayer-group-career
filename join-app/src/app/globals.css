@@ -60,7 +60,8 @@
     @apply inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-white font-black text-base
            bg-excite border-0
            shadow-lg shadow-orange-500/30 transition-all duration-300
-           hover:bg-[#9A3412] hover:shadow-xl hover:shadow-orange-500/40 active:scale-[0.97] cursor-pointer;
+           hover:bg-[#9A3412] hover:shadow-xl hover:shadow-orange-500/40 active:bg-[#7C2D12] active:scale-[0.97] cursor-pointer
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A] focus-visible:ring-offset-2 focus-visible:ring-offset-white;
     animation: pulseGlow 2.2s ease-in-out infinite;
   }
   .btn-gold {
