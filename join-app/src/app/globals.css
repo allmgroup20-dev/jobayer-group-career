@@ -48,9 +48,10 @@
   }
   html[lang="bn"] body { font-family: var(--font-bengali); }
   :focus-visible {
-    outline: 2px solid var(--color-excite);
+    outline: 2px solid #0F172A;
     outline-offset: 2px;
     border-radius: 10px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
   }
   ::selection { background: var(--color-gold); color: var(--color-brand); }
 }
@@ -87,10 +88,12 @@
     @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 cursor-pointer select-none;
   }
   .input-field {
-    @apply w-full px-4 py-3.5 rounded-2xl border border-line bg-white
-           focus:outline-none focus:ring-2 focus:ring-excite/40 focus:border-excite
+    @apply w-full px-4 py-3.5 rounded-2xl border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#64748B]
+           focus:outline-none focus:ring-2 focus:ring-[#93C5FD] focus:border-[#2563EB]
            transition-all duration-300 text-base;
   }
+  .input-field[data-success="true"] { @apply border-[#15803D]; }
+  .input-field[data-error="true"] { @apply border-[#B91C1C]; }
   .gradient-text {
     @apply text-[#0B1D3A];
   }
@@ -101,6 +104,17 @@
   .badge-glow {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wide;
   }
+  /* Final 42-48: Dashboard, Achievement, Footer, Mobile Nav per master */
+  .dashboard-base { @apply bg-[#F8FAFC]; }
+  .dashboard-sidebar { @apply bg-[#0B1F33] text-white; }
+  .dashboard-progress { @apply bg-[#0F766E]; }
+  .achievement-beginner { @apply bg-[#64748B] text-white; }
+  .achievement-intermediate { @apply bg-[#2563EB] text-white; }
+  .achievement-advanced { @apply bg-[#0F766E] text-white; }
+  .achievement-expert { @apply bg-[#7C3AED] text-white; }
+  .achievement-premium { @apply bg-[#9333EA] text-white; }
+  .achievement-vip { @apply bg-[#4C1D95] text-white; }
+  .achievement-completed { @apply bg-[#15803D] text-white; }
 }
 
 @keyframes floaty {

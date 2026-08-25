@@ -38,9 +38,10 @@
   }
   html[lang="bn"] body { font-family: var(--font-bengali); }
   :focus-visible {
-    outline: 2px solid var(--color-action);
+    outline: 2px solid #0F172A;
     outline-offset: 2px;
     border-radius: 8px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
   }
   ::selection {
     background: var(--color-primary);
@@ -108,10 +109,12 @@
            bg-gradient-to-br from-primary via-primary-light to-primary-dark;
   }
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-border bg-white
-           focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+    @apply w-full px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#0F172A] placeholder:text-[#64748B]
+           focus:outline-none focus:ring-2 focus:ring-[#93C5FD] focus:border-[#2563EB]
            transition-all duration-300 text-sm;
   }
+  .input-field[data-success="true"] { @apply border-[#15803D]; }
+  .input-field[data-error="true"] { @apply border-[#B91C1C]; }
   .gradient-primary {
     @apply bg-gradient-to-br from-primary via-primary-light to-primary-dark;
   }
