@@ -2,9 +2,6 @@
 module.exports = {
   reactStrictMode: true,
   agentRules: false,
-  turbopack: {
-    root: __dirname,
-  },
   images: {
     unoptimized: true,
     formats: ["image/webp"],
