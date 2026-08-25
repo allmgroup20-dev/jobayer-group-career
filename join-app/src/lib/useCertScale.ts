@@ -18,7 +18,7 @@ export const A4_LANDSCAPE_H = 794;
 // canvas would overflow hugely on every smaller screen.
 export function useCertScale() {
   const [el, setEl] = useState<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0);
 
   const ref = useCallback((node: HTMLDivElement | null) => {
     setEl(node);

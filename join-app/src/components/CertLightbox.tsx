@@ -192,8 +192,8 @@ export default function CertLightbox({
       </div>
 
       {/* bottom controls */}
-      <div className="absolute bottom-4 left-0 right-0 z-10 flex items-center justify-center gap-2 px-4">
-        <div className="flex items-center gap-1 rounded-2xl bg-white/10 p-1.5 backdrop-blur">
+      <div className="absolute bottom-4 left-0 right-0 z-10 flex flex-wrap items-center justify-center gap-2 px-4">
+        <div className="flex flex-wrap items-center justify-center gap-1 rounded-2xl bg-white/10 p-1.5 backdrop-blur">
           <button
             onClick={() => zoomStep(1 / 1.3)}
             aria-label="Zoom out"

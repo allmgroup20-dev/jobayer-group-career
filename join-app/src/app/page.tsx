@@ -52,9 +52,9 @@ export default function HomePage() {
   const continuePath = me?.profileCompleted ? "/complete" : "/onboarding";
 
   return (
-    <main className="min-h-screen overflow-x-hidden">
+    <main className="min-h-screen">
       {/* Hero — Final 75: Background #F8FAFC, Heading #0B1F33, Accent #C2410C, CTA #C2410C */}
-      <section className="relative px-4 pt-20 pb-10 text-center bg-[#F8FAFC] -mx-4 -mt-20 pt-20">
+      <section className="relative w-screen left-1/2 -translate-x-1/2 px-4 pt-20 pb-10 text-center bg-[#F8FAFC]">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[#F8FAFC]" />
         <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-[#C2410C]/5 blur-3xl animate-floaty" />
         <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-[#2563EB]/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
@@ -89,7 +89,7 @@ export default function HomePage() {
       <section className="px-4 pb-10">
         <div className="max-w-md mx-auto card-splash animate-pop-in">
           <div className="text-center mb-5">
-            <div className="mx-auto w-20 h-20 rounded-3xl bg-white/15 backdrop-blur flex items-center justify-center text-4xl animate-floaty">
+            <div className="mx-auto w-20 h-20 rounded-3xl bg-pink/10 backdrop-blur flex items-center justify-center text-4xl animate-floaty">
               🎁
             </div>
             <h2 className="mt-3 text-2xl font-black">
@@ -110,7 +110,7 @@ export default function HomePage() {
 
           {checking ? (
             <div className="flex justify-center py-6">
-              <div className="w-9 h-9 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
             </div>
           ) : me ? (
             <div className="space-y-3">
