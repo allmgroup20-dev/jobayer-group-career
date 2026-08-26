@@ -100,7 +100,7 @@ function CertificateView() {
 
   if (state === "loading") {
     return (
-      <main className="min-h-screen flex items-center justify-center pt-20">
+      <main className="min-h-screen flex items-center justify-center page-under-header">
         <div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
       </main>
     );
@@ -108,7 +108,7 @@ function CertificateView() {
 
   if (state === "missing" || !data) {
     return (
-      <main className="min-h-screen flex items-center justify-center pt-20 px-4">
+      <main className="min-h-screen flex items-center justify-center page-under-header px-4">
         <div className="max-w-md w-full card-pop !rounded-[2rem] text-center p-8">
           <div className="text-5xl">🔍</div>
           <h1 className="mt-3 text-2xl font-black text-brand">{t("সার্টিফিকেট পাওয়া যায়নি", "Certificate not found")}</h1>
@@ -151,7 +151,7 @@ function CertificateView() {
   };
 
   return (
-    <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
+    <main className="min-h-screen page-under-header pb-16 px-4 bg-[#0a0a0a]">
       <div className="max-w-4xl mx-auto">
         <div className="mb-4 rounded-2xl bg-teal/15 border border-teal/30 text-[#2DD4BF] text-xs font-bold px-4 py-3 print:hidden">
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
@@ -405,7 +405,7 @@ function CertificateView() {
 export default function CertificatePage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen flex items-center justify-center pt-20">
+      <main className="min-h-screen flex items-center justify-center page-under-header">
         <div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
       </main>
     }>

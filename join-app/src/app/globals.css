@@ -108,6 +108,9 @@
   .badge-glow {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wide;
   }
+  /* Clear the fixed header (h-14 = 56px) plus any notch / status-bar inset.
+     Bare pt-20 (80px) let content slide under the navy bar on notched phones. */
+  .page-under-header { padding-top: calc(3.5rem + env(safe-area-inset-top)); }
 }
 
 @keyframes floaty {

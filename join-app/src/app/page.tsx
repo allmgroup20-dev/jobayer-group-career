@@ -49,9 +49,9 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden page-under-header">
       {/* Hero — Final 75: Background #F8FAFC, Heading #0B1F33, Accent #C2410C, CTA #C2410C */}
-      <section className="relative px-4 pb-10 text-center bg-[#F8FAFC] -mx-4 -mt-20 pt-20">
+      <section className="relative px-4 pb-10 text-center bg-[#F8FAFC] -mx-4">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[#F8FAFC]" />
         <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-[#C2410C]/5 blur-3xl animate-floaty" />
         <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-[#2563EB]/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
