@@ -893,9 +893,9 @@ export default function CompletePage() {
 
           {/* Single progress — one bar, one encouraging line */}
           <div className="mt-4 flex items-center gap-3">
-            <div className="flex-1 h-3 rounded-full bg-slate-200 overflow-hidden">
+            <div className="flex-1 h-3 rounded-full bg-white overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-teal to-emerald-500 transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-gold to-amber transition-all duration-700"
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -1144,10 +1144,10 @@ export default function CompletePage() {
                 />
 
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  <button onClick={refreshReferral} className="min-h-[44px] py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-teal active:scale-[0.99] transition-all break-words text-center leading-tight">
+                  <button onClick={refreshReferral} className="py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-teal active:scale-[0.99] transition-all">
                     🔄 {t("নতুন লিংক", "New link")}
                   </button>
-                  <button onClick={copyMessage} className={`min-h-[44px] py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black active:scale-[0.99] transition-all break-words text-center leading-tight ${msgCopied ? "text-teal" : "text-gold"}`}>
+                  <button onClick={copyMessage} className={`py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black active:scale-[0.99] transition-all ${msgCopied ? "text-teal" : "text-gold"}`}>
                     {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("মেসেজ কপি করুন", "Copy message")}`}
                   </button>
                 </div>

@@ -499,7 +499,7 @@ export default function OnboardingPage() {
             key={o.v}
             type="button"
             onClick={() => onPick(o.v)}
-            className={`chip justify-center min-h-[44px] break-words text-center leading-tight ${active
+            className={`chip justify-center ${active
               ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25"
               : "bg-white border border-line text-ink hover:border-pink/50"}`}
           >
@@ -568,7 +568,7 @@ export default function OnboardingPage() {
                           update("incomeSectors", active ? form.incomeSectors.filter((i) => i !== s.v) : [...form.incomeSectors, s.v]);
                           trackEvent("interest_select", { pageCategory: "onboarding", searchKeyword: s.en, metadata: { action: active ? "deselect" : "select", group: "income_sector", value: s.v } });
                         }}
-                        className={`chip justify-center min-h-[44px] break-words text-center leading-tight ${active ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25" : "bg-white border border-line text-ink hover:border-pink/50"}`}
+                        className={`chip justify-center ${active ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25" : "bg-white border border-line text-ink hover:border-pink/50"}`}
                       >
                         <span>{s.icon}</span> {t(s.bn, s.en)}
                       </button>

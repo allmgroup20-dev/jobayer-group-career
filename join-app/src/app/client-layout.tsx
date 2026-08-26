@@ -9,7 +9,7 @@ function LangToggle() {
   return (
     <button
       onClick={() => setLang(lang === "bn" ? "en" : "bn")}
-      className="flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 text-sm font-black text-white hover:bg-white/20 active:scale-95 transition-colors"
+      className="flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 text-sm font-black text-white active:scale-95 transition-transform"
       aria-label="Toggle language"
     >
       <span className="text-base">🌐</span>
@@ -50,7 +50,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <LanguageProvider>
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center bg-[#0f0f0f] shadow-md shadow-black/40 border-b border-white/10 pt-[env(safe-area-inset-top)]">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center bg-[#0f0f0f] shadow-md shadow-black/40 border-b border-white/10">
         <a href="/" aria-label="YouTube" className="ml-2 md:ml-4">
           <img src="/logo.png" alt="YouTube" className="h-5 w-auto" />
         </a>
