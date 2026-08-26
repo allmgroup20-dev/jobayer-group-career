@@ -57,6 +57,7 @@
   ::selection { background: var(--color-gold); color: var(--color-brand); }
   @media (prefers-reduced-motion: reduce) {
     .animate-floaty, .animate-wiggle, .animate-pulse-glow, .animate-shimmer, .animate-pop-in, .animate-slide-in { animation: none !important; }
+    .confetti-piece { display: none !important; }
   }
 }
 

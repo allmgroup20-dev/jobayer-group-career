@@ -3,10 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
-import CertificateSample from "@/components/CertificateSample";
+
+// Sample previews are heavy (A4 canvas + fonts) and always hidden behind a
+// toggle — load them on demand so the hub's first paint stays light.
+const CertificateSample = dynamic(() => import("@/components/CertificateSample"), { ssr: false });
 
 declare global {
   interface Navigator {
@@ -529,8 +533,8 @@ export default function CompletePage() {
     setOfficers(initial);
     setVerifying(true);
     setExpired(false);
-    // Total 60-180s, split per officer
-    const totalMs = Math.min(60000 + nextAttempt * 30000, 180000); // 90s, 120s, 150s...
+    // Total ≤60s, split per officer — long waits feel like stalling.
+    const totalMs = Math.min(40000 + nextAttempt * 5000, 60000); // 45s, 50s, 55s… capped 60s
     const per = Math.floor(totalMs / count);
     initial.forEach((_, idx) => {
       setTimeout(() => {
@@ -1454,7 +1458,7 @@ export default function CompletePage() {
                     ) : null}
                     {verifying ? (
                       <div className="mt-2 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
-                        <p className="text-[10px] font-bold text-gold/80 text-center">⏳ {t("কর্মকর্তারা যাচাই করতে আনুমানিক এক থেকে তিন মিনিট সময় লাগতে পারে — অপেক্ষা করুন", "Officers may take ~1–3 minutes to verify — please wait")}</p>
+                        <p className="text-[10px] font-bold text-gold/80 text-center">⏳ {t("যাচাই চলছে — সাধারণত ১ মিনিটের মধ্যেই রিপোর্ট পাবেন", "Verifying — you'll usually get the report within 1 minute")}</p>
                         <p className="mt-1 text-[11px] font-black text-slate-900 text-center">{t("কর্মকর্তাদের কাছে পাঠানো হচ্ছে…", "Sending to officers for verification…")}</p>
                         <div className="mt-2 space-y-1.5">
                           {officers.map((o) => (
@@ -1462,8 +1466,8 @@ export default function CompletePage() {
                               <span className="text-[11px] font-bold text-slate-700">{o.name}</span>
                               <span className={`text-[10px] font-black flex items-center gap-1 ${o.status === "accepted" ? "text-teal" : o.status === "rejected" ? "text-red" : o.status === "pending" ? "text-slate-600" : "text-gold"}`}>
                                 {o.status === "viewing" ? (
-                                  <span className="inline-flex items-center gap-0.5 animate-pulse">{t("দেখছেন", "Viewing")}<span className="verify-dots inline-flex"><span>.</span><span>.</span><span>.</span></span></span>
-                                ) : o.status === "accepted" ? t("একসেপ্ট করেছেন", "Accepted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("এখনও সিদ্ধান্ত নেননি", "Pending")}
+                                  <span className="inline-flex items-center gap-0.5 animate-pulse">{t("আপনার তথ্য পর্যালোচনা করছেন", "Reviewing your information")}<span className="verify-dots inline-flex"><span>.</span><span>.</span><span>.</span></span></span>
+                                ) : o.status === "accepted" ? t("✅ অনুকূল রিপোর্ট দিয়েছেন", "✅ Favorable report submitted") : o.status === "rejected" ? t("বাতিল করেছেন", "Rejected") : t("রিপোর্ট প্রস্তুত হচ্ছে", "Report being prepared")}
                               </span>
                             </div>
                           ))}
@@ -1487,6 +1491,12 @@ export default function CompletePage() {
                           <input value={amountInput} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); setAmountInput(v); }} inputMode="numeric" placeholder={t("অ্যামাউন্ট লিখুন", "Enter amount")} className="flex-1 px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-bold placeholder-slate-400 focus:outline-none" />
                           <span className="px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-slate-600">BDT</span>
                         </div>
+                        {amountInput && Number(amountInput) >= 99 && !expired && (
+                          <div className="mt-2 rounded-xl bg-white border border-line p-3 text-left text-[10px] leading-relaxed font-bold text-slate-700">
+                            <p>🔒 {t("এখনই SSLCommerz নিরাপদ পেজে যাবেন — bKash / Nagad / Card", "You'll go to the secure SSLCommerz page now — bKash / Nagad / Card")}</p>
+                            <p className="mt-1">🎓 {t("পেমেন্ট শেষে এই পেজেই ফিরে আসবেন — Elite সার্টিফিকেট সাথে সাথে আনলক", "After payment you return right here — Elite unlocks instantly")}</p>
+                          </div>
+                        )}
                         <button
                           onClick={handlePremiumPay}
                           disabled={paying || verifying || expired}

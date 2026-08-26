@@ -153,24 +153,6 @@ function CertificateView() {
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 bg-[#0a0a0a]">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-4 print:hidden gap-2 flex-wrap">
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.print()}
-              className="btn-excite text-sm !py-3 px-5"
-            >
-              ⬇️ ডাউনলোড
-            </button>
-            <button
-              onClick={() => document.getElementById("delivery-card")?.scrollIntoView({ behavior: "smooth" })}
-              className="btn-outline text-sm !py-3 px-5"
-            >
-              📮 {t("অরিজিনাল কপি অর্ডার করুন", "Order Original Copy")}
-            </button>
-          </div>
-          <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
-        </div>
-
         <div className="mb-4 rounded-2xl bg-teal/15 border border-teal/30 text-[#2DD4BF] text-xs font-bold px-4 py-3 print:hidden">
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
@@ -202,6 +184,25 @@ function CertificateView() {
         <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-[#2DD4BF] print:hidden">
           🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
         </p>
+
+        {/* Owner tools — below the certificate so employers see verification first */}
+        <div className="mt-4 flex items-center justify-between print:hidden gap-2 flex-wrap">
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.print()}
+              className="btn-excite text-sm !py-3 px-5"
+            >
+              ⬇️ ডাউনলোড
+            </button>
+            <button
+              onClick={() => document.getElementById("delivery-card")?.scrollIntoView({ behavior: "smooth" })}
+              className="btn-outline text-sm !py-3 px-5"
+            >
+              📮 {t("অরিজিনাল কপি অর্ডার করুন", "Order Original Copy")}
+            </button>
+          </div>
+          <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
+        </div>
 
         <CertLightbox
           open={showZoom}
@@ -380,7 +381,7 @@ function CertificateView() {
           >
             {deliveryPaying ? t("প্রক্রিয়াধীন…", "Processing…") : rateInfo ? t(`💳 ${rateInfo.totalBdt.toLocaleString("en-US")} টাকা — SSLCommerz দিয়ে পে করুন`, `Pay ${rateInfo.totalBdt.toLocaleString("en-US")} Taka via SSLCommerz`) : t("💳 পে করুন — SSLCommerz", "Pay via SSLCommerz")}
           </button>
-          <p className="mt-1.5 text-[10px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("শুধু টাকা, পয়সা বাদ — আজকের রেটে", "Taka only, no paisa — at today's rate")}</p>
+          <p className="mt-1.5 text-[10px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("শুধু টাকা, পয়সা বাদ — আজকের রেটে • পেমেন্টের পরেই অর্ডার কনফার্ম হবে", "Taka only, no paisa — at today's rate • order confirmed right after payment")}</p>
         </div>
 
         {/* Next, even more valuable certificate teaser */}
