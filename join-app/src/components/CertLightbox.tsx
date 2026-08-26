@@ -85,6 +85,20 @@ export default function CertLightbox({
     setS((prev) => Math.max(MIN_S, Math.min(MAX_S, prev * factor)));
   }, []);
 
+  // Wheel zoom needs a NATIVE non-passive listener: React's onWheel is
+  // registered passively at the root, so preventDefault() there is ignored
+  // (console intervention warning + the page scrolls behind the lightbox).
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!open || !el) return;
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      zoomStep(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+    };
+    el.addEventListener("wheel", onWheelNative, { passive: false });
+    return () => el.removeEventListener("wheel", onWheelNative);
+  }, [open, zoomStep]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -140,12 +154,6 @@ export default function CertLightbox({
     }
   };
 
-  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
-    zoomStep(factor);
-  };
-
   if (!open) return null;
 
   const percent = Math.round((s / fit) * 100);
@@ -173,7 +181,6 @@ export default function CertLightbox({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        onWheel={onWheel}
         className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
         style={{ touchAction: "none" }}
       >

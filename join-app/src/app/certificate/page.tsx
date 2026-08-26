@@ -171,7 +171,7 @@ function CertificateView() {
           <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
         </div>
 
-        <div className="mb-4 rounded-2xl bg-teal/15 border border-teal/30 text-teal text-xs font-bold px-4 py-3 print:hidden">
+        <div className="mb-4 rounded-2xl bg-teal/15 border border-teal/30 text-[#2DD4BF] text-xs font-bold px-4 py-3 print:hidden">
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
 
@@ -199,7 +199,7 @@ function CertificateView() {
           </div>
         </button>
 
-        <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-teal print:hidden">
+        <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-[#2DD4BF] print:hidden">
           🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
         </p>
 
@@ -386,7 +386,7 @@ function CertificateView() {
         {/* Next, even more valuable certificate teaser */}
         <div className="mt-6 rounded-2xl bg-gradient-to-br from-gold/20 via-pink/20 to-violet/20 border border-gold/30 p-6 text-center print:hidden">
           <div className="text-4xl">🏆</div>
-          <h2 className="mt-2 text-lg font-black gradient-text">
+          <h2 className="mt-2 text-lg font-black text-white">
             {t("আরেকটি আরও মূল্যবান সার্টিফিকেট অপেক্ষা করছে!", "An even more valuable certificate is waiting!")}
           </h2>
           <p className="mt-2 text-xs leading-relaxed text-white/70">

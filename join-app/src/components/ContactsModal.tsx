@@ -208,7 +208,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
               </button>
 
               {/* Counter */}
-              <div className="mt-3 px-3 py-2 rounded-xl bg-teal/10 border border-teal/20 text-[11px] font-bold text-teal">
+              <div className="mt-3 px-3 py-2 rounded-xl bg-teal/10 border border-teal/20 text-[11px] font-bold text-[#2DD4BF]">
                 {selected.size > 0
                   ? `✅ ${selected.size} জন বেছে নিয়েছেন — যতজন চান, সবই পারবেন!`
                   : `অল্প কয়েকজন বেছে নিন — শেয়ার করলে আপনার পার্সেন্টেজ বাড়বে!`}

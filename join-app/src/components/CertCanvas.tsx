@@ -234,8 +234,10 @@ export default function CertCanvas({
                     <feFuncA type="table" tableValues="0 .022" />
                   </feComponentTransfer>
                 </filter>
-                <path id="yeRefMedalOuter" d="M0-61 C5-72 14-72 20-63 C26-54 33-53 43-56 C53-59 59-53 57-43 C55-33 59-26 68-20 C77-13 75-4 65 1 C56 6 54 14 59 24 C64 34 58 41 48 40 C37 39 30 44 27 54 C24 65 15 68 7 60 C0 52-8 53-15 60 C-23 68-32 64-34 53 C-36 43-42 38-52 40 C-63 42-68 35-64 25 C-60 15-62 8-71 2 C-80-4-78-13-69-19 C-60-26-58-34-61-43 C-64-54-56-60-46-57 C-36-54-28-57-23-66 C-17-76-8-72 0-61Z" />
-                <path id="yeRefMedalInner" d="M0-48 C8-56 16-54 21-46 C27-38 34-36 44-39 C53-42 58-35 55-26 C52-17 55-10 63-4 C71 2 68 10 60 14 C51 18 49 26 53 35 C57 44 50 50 41 48 C32 46 25 51 20 59 C15 68 7 67 2 59 C-3 51-12 50-20 56 C-29 61-36 55-35 46 C-34 37-40 31-48 27 C-57 23-57 15-49 10 C-40 5-38-4-43-12 C-49-21-44-28-35-30 C-26-31-20-38-21-47 C-22-56-13-60-7-52 C-4-48-2-47 0-48Z" />
+                {/* 6-point star (r=62/29) — used twice, 30° apart, for the clean
+                    symmetric 12-point gold medal. MUST stay defined: the medal's
+                    <use href="#yeRefStar6"> references it. */}
+                <path id="yeRefStar6" d="M0-62 L14.5-25.1 L53.7-31 L29 0 L53.7 31 L14.5 25.1 L0 62 L-14.5 25.1 L-53.7 31 L-29 0 L-53.7-31 L-14.5-25.1Z" />
               </defs>
 
               {/* paper base + grain */}

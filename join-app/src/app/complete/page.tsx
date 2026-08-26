@@ -727,7 +727,7 @@ export default function CompletePage() {
                 ) : (
                   <button
                     onClick={() => sendTo(c.phone, c.shareText)}
-                    className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-slate-900 text-xs font-black active:scale-95 transition-all"
+                    className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
                   >
                     📤 {t("WhatsApp-এ পাঠান", "Send")}
                   </button>
@@ -831,7 +831,7 @@ export default function CompletePage() {
                     {stepDone ? "✓" : n}
                   </div>
                   {n < 3 && (
-                    <div className={`h-0.5 w-5 rounded-full ${n <= (completed ? 1 : 0) ? "bg-gold/60" : "bg-white"}`} />
+                    <div className={`h-0.5 w-5 rounded-full ${n <= (completed ? 1 : 0) ? "bg-gold/60" : "bg-slate-200"}`} />
                   )}
                 </div>
               );
@@ -893,7 +893,7 @@ export default function CompletePage() {
 
           {/* Single progress — one bar, one encouraging line */}
           <div className="mt-4 flex items-center gap-3">
-            <div className="flex-1 h-3 rounded-full bg-white overflow-hidden">
+            <div className="flex-1 h-3 rounded-full bg-slate-200 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-gold to-amber transition-all duration-700"
                 style={{ width: `${percent}%` }}
@@ -1036,7 +1036,7 @@ export default function CompletePage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-900">{t("১১ জন শিক্ষার্থী যুক্ত করুন", "Get 11 learners to join")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
-                      <div className="flex-1 h-2 rounded-full bg-white overflow-hidden">
+                      <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
                         <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
                       </div>
                       <span className="text-[11px] font-black text-teal">{referralJoins}/11</span>
@@ -1107,7 +1107,7 @@ export default function CompletePage() {
                               setShotFiles(f);
                               setShotThumbs(f.map((x) => URL.createObjectURL(x)));
                             }}
-                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red text-slate-900 text-[10px] font-black leading-none"
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red text-white text-[10px] font-black leading-none"
                           >×</button>
                         </div>
                       ))}
@@ -1371,7 +1371,7 @@ export default function CompletePage() {
                         <button
                           onClick={handlePremiumPay}
                           disabled={paying || verifying || expired}
-                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D04] text-slate-900 text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D04] text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
                         >
                           {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই কমিটেড হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে কমিটেড হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
                         </button>

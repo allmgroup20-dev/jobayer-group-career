@@ -8,6 +8,7 @@
   --color-excite-light: #9A3412;
   --color-gold: #F59E0B;
   --color-gold-light: #FBBF24;
+  --color-amber: #F59E0B;
   --color-pink: #EC4899;
   --color-pink-light: #F472B6;
   --color-violet: #7C3AED;
@@ -54,6 +55,9 @@
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
   }
   ::selection { background: var(--color-gold); color: var(--color-brand); }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-floaty, .animate-wiggle, .animate-pulse-glow, .animate-shimmer, .animate-pop-in, .animate-slide-in { animation: none !important; }
+  }
 }
 
 @layer components {
