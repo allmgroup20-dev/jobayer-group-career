@@ -7,7 +7,7 @@ import CertCanvas, { type CertTier } from "@/components/CertCanvas";
 import CertLightbox from "@/components/CertLightbox";
 
 // A self-contained, clearly-fake sample of a certificate ("নমুনা"). Renders on
-// the fixed A4-landscape canvas (1122x794) scaled to fit its container, exactly
+// the fixed A4-landscape canvas (1122x794) scaled to fit its wrapper, exactly
 // like the real certificate — but it can NEVER be used as a real certificate:
 // sample name, fake ID/date, locked (non-scannable) QR, diagonal watermark and
 // a bilingual warning note. Clicking the sample opens a fullscreen zoom viewer.

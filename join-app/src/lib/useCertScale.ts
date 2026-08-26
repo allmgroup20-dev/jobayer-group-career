@@ -8,11 +8,11 @@ import { useCallback, useLayoutEffect, useState } from "react";
 export const A4_LANDSCAPE_W = 1122;
 export const A4_LANDSCAPE_H = 794;
 
-// Measures the wrapping container and returns a scale so a fixed-size
+// Measures the wrapping element and returns a scale so a fixed-size
 // certificate canvas (A4_LANDSCAPE_W x A4_LANDSCAPE_H) fills the available
 // width proportionally. Never upscales beyond 1.
 //
-// Uses a callback ref + layout effect so it re-measures whenever the container
+// Uses a callback ref + layout effect so it re-measures whenever the wrapper
 // actually mounts (e.g. a hidden preview opened later, or the certificate shown
 // only after data loads) — otherwise scale would stay 1 and the fixed 1122px
 // canvas would overflow hugely on every smaller screen.
