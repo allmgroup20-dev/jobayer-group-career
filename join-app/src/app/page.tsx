@@ -19,10 +19,9 @@ const BENEFITS = [
 ];
 
 const STEPS = [
-  { n: "১", en: "Login with Google", bn: "Google দিয়ে লগইন" },
-  { n: "২", en: "Complete your profile", bn: "প্রোফাইল কমপ্লিট করুন" },
-  { n: "৩", en: "Learn & unlock resources", bn: "শিখুন ও রিসোর্স আনলক করুন" },
-  { n: "৪", en: "Learn together & earn certificates", bn: "একসাথে শিখুন, একসাথে সার্টিফিকেট অর্জন করুন" },
+  { n: "১", en: "Log in with Google", bn: "Google দিয়ে লগইন করুন" },
+  { n: "২", en: "Complete your profile", bn: "প্রোফাইল সম্পূর্ণ করুন" },
+  { n: "৩", en: "Learn, unlock resources & earn certificates", bn: "শিখুন, রিসোর্স আনলক করুন ও সার্টিফিকেট অর্জন করুন" },
 ];
 
 export default function HomePage() {
@@ -65,16 +64,16 @@ export default function HomePage() {
 
         <h1 className="mt-4 text-[clamp(28px,5vw,42px)] font-black leading-tight">
           <span className="text-[#0B1F33]">
-            {t("আপনার সফলতার শতভাগ নির্ভুল ও নির্ভরযোগ্য সমাধান", "Your 100% Accurate & Reliable Success Solution")}
+            {t("ইউটিউব আর্নার — এখানে শেখা হয় YouTube-এর সঠিক নিয়ম ও আর্নিং দক্ষতা", "YouTube Earner — learn the official YouTube rules and real earning skills")}
           </span>
           <br />
-          <span className="text-[#C2410C]">{t("কোনো অস্পষ্টতা নয়, কেবল সুনির্দিষ্ট ফলাফল।", "No ambiguity, only precise results.")}</span>
+          <span className="text-[#C2410C]">{t("গ্যারান্টেড ইনকাম নয় — প্রমাণিত দক্ষতা, সার্টিফিকেট ও স্বীকৃতি।", "No guaranteed income — proven skills, certificates and recognition.")}</span>
         </h1>
 
         <p className="mt-3 text-base md:text-lg text-[#475569] font-medium max-w-md mx-auto">
           {t(
-            "Google দিয়ে এক ক্লিকে জয়েন করুন — ফ্রি ডেমো ক্লাস, প্রিমিয়াম রিসোর্স ও সার্টিফিকেট পেতে এখনই শুরু করুন।",
-            "Join with Google in one click — start with a free demo class, premium resources and certificates today."
+            "সঠিক দক্ষতা ছাড়া YouTube-এ বড় হওয়া কঠিন — আমরা সেই ভিত্তি গড়ে দিই। ফ্রি ডেমো ক্লাস দিয়ে শুরু করুন।",
+            "Growing on YouTube without the right skills is hard — we build that foundation. Start with a free demo class."
           )}
         </p>
 
@@ -93,12 +92,12 @@ export default function HomePage() {
               🎁
             </div>
             <h2 className="mt-3 text-2xl font-black">
-              {checking ? t("লোড হচ্ছে...", "Loading...") : me ? t("আবার স্বাগতম!", "Welcome Back!") : t("চলুন শুরু করি!", "Let's Get Started!")}
+              {checking ? t("লোড হচ্ছে...", "Loading...") : me ? t("আবার স্বাগতম!", "Welcome Back!") : t("Google দিয়ে রেজিস্ট্রেশন / লগইন করুন", "Register / Log in with Google")}
             </h2>
             <p className="mt-1 text-sm text-slate-600">
               {me
                 ? t("আপনার প্রোফাইল সম্পূর্ণ করুন ও বোনাস রিসোর্স পেতে শুরু করুন", "Complete your profile & start earning bonus resources")
-                : t("লগইন/রেজিস্ট্রেশন সম্পূর্ণ Google দিয়ে", "Login/Register is 100% Google")}
+                : t("নতুন কিছু লিখতে হবে না — Google অ্যাকাউন্টেই এক ক্লিকে শুরু", "Nothing to type — one click with your Google account")}
             </p>
           </div>
 
@@ -141,7 +140,7 @@ export default function HomePage() {
       <section className="px-4 pb-10">
         <div className="max-w-md mx-auto">
           <h3 className="text-center text-xl font-black text-brand mb-4">
-            {t("যা যা পাবেন", "What You Get")} 👇
+            {t("আমরা যা করি — আপনি যা পাবেন", "What we do — what you get")} 👇
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {BENEFITS.map((b) => (
