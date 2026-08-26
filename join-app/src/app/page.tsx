@@ -48,8 +48,6 @@ export default function HomePage() {
     router.push(isNew ? "/onboarding" : "/onboarding");
   };
 
-  const continuePath = me?.profileCompleted ? "/complete" : "/onboarding";
-
   return (
     <main className="min-h-screen overflow-x-hidden">
       {/* Hero — Final 75: Background #F8FAFC, Heading #0B1F33, Accent #C2410C, CTA #C2410C */}
@@ -113,12 +111,17 @@ export default function HomePage() {
             </div>
           ) : me ? (
             <div className="space-y-3">
-              <button onClick={() => router.push(continuePath)} className="btn-excite w-full">
-                {me.profileCompleted ? "🎉 " + t("রেফারাল সেন্টারে যান", "Go to Referral Center") : "🚀 " + t("প্রোফাইল সম্পূর্ণ করুন", "Complete Profile")}
+              <button
+                onClick={() => router.push(me.profileCompleted ? "/complete" : "/onboarding")}
+                className="btn-excite w-full"
+              >
+                {me.profileCompleted
+                  ? "🎉 " + t("আপনার জার্নি চালিয়ে যান", "Continue Your Journey")
+                  : "🚀 " + t("প্রোফাইল সম্পূর্ণ করুন", "Complete Profile")}
               </button>
-              <button onClick={() => router.push("/complete")} className="btn-white w-full">
-                {t("রেফারেল লিংক দেখুন", "View Referral Link")}
-              </button>
+              <p className="text-center text-[11px] text-slate-500">
+                {t("এক Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -139,9 +142,9 @@ export default function HomePage() {
       {/* Benefits */}
       <section className="px-4 pb-10">
         <div className="max-w-md mx-auto">
-          <h3 className="text-center text-xl font-black text-brand mb-4">
+          <h2 className="text-center text-xl font-black text-brand mb-4">
             {t("আমরা যা করি — আপনি যা পাবেন", "What we do — what you get")} 👇
-          </h3>
+          </h2>
           <div className="grid grid-cols-2 gap-3">
             {BENEFITS.map((b) => (
               <div key={b.en} className="card-pop !p-4 text-center animate-pop-in">
@@ -156,9 +159,9 @@ export default function HomePage() {
       {/* How it works */}
       <section className="px-4 pb-16">
         <div className="max-w-md mx-auto">
-          <h3 className="text-center text-xl font-black text-brand mb-4">
+          <h2 className="text-center text-xl font-black text-brand mb-4">
             {t("কীভাবে কাজ করে", "How It Works")} ⚡
-          </h3>
+          </h2>
           <div className="space-y-3">
             {STEPS.map((s, i) => (
               <div key={s.n} className="card-pop flex items-center gap-4 animate-pop-in" style={{ animationDelay: `${i * 0.1}s` }}>

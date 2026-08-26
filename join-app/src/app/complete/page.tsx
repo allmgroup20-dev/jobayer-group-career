@@ -35,6 +35,11 @@ type Msg = { kind: "ok" | "warn" | "error"; text: string } | null;
 
 const VERIFY_MS = 60_000; // verification window (max 1 minute)
 
+// Google contacts picker is temporarily disabled in the UI. Flip to true to
+// bring both instances back (top + bottom of the contact list) — no other
+// change needed; handlers and ContactsModal wiring remain intact.
+const SHOW_GOOGLE_CONTACTS = false;
+
 export default function CompletePage() {
   const { lang } = useLang();
   const router = useRouter();
@@ -1433,12 +1438,16 @@ function AddPeopleBlock({
 
   return (
     <div className="space-y-2">
-      <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5 opacity-70">
-        📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
-      </button>
-      <p className="text-center text-[11px] font-black text-gold -mt-1">
-        ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
-      </p>
+      {SHOW_GOOGLE_CONTACTS && (
+        <>
+          <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5 opacity-70">
+            📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
+          </button>
+          <p className="text-center text-[11px] font-black text-gold -mt-1">
+            ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
+          </p>
+        </>
+      )}
       <p className="text-center text-[11px] text-slate-600 -mt-1">
         {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
       </p>
