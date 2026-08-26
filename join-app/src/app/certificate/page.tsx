@@ -111,9 +111,9 @@ function CertificateView() {
       <main className="min-h-screen flex items-center justify-center pt-20 px-4">
         <div className="max-w-md w-full card-pop !rounded-[2rem] text-center p-8">
           <div className="text-5xl">🔍</div>
-          <h1 className="mt-3 text-2xl font-black text-brand">সার্টিফিকেট পাওয়া যায়নি</h1>
+          <h1 className="mt-3 text-2xl font-black text-brand">{t("সার্টিফিকেট পাওয়া যায়নি", "Certificate not found")}</h1>
           <p className="mt-2 text-sm text-ink-soft">
-            আপনি যে লিংক দিয়ে এসেছেন তা সঠিক নয় বা সার্টিফিকেটটি এখনো তৈরি হয়নি।
+            {t("আপনি যে লিংক দিয়ে এসেছেন তা সঠিক নয় বা সার্টিফিকেটটি এখনো তৈরি হয়নি।", "The link you followed is invalid, or this certificate hasn't been issued yet.")}
           </p>
         </div>
       </main>

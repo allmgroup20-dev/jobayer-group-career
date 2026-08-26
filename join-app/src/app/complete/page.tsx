@@ -457,7 +457,7 @@ export default function CompletePage() {
       const m = p.get("membership");
       if (m === "success") {
         setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
-        setActiveStep("elite");
+        switchStep("elite");
       }
       else if (m === "failed") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট ব্যর্থ হয়েছে — আবার চেষ্টা করুন", "Payment failed — please try again") });
       else if (m === "cancelled") setPayMsg({ kind: "warn", text: t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled") });
@@ -901,33 +901,6 @@ export default function CompletePage() {
         {me?.name && <p className="mt-1 font-black text-brand">{me.name}</p>}
         {me?.workerId && <p className="text-xs font-bold text-ink-soft mt-0.5">{me.workerId}</p>}
 
-        {/* Certificate journey — 3 steps */}
-        <div className="mt-8">
-          <p className="text-xs font-black text-slate-600 uppercase tracking-widest text-center">
-            {t("আপনার সার্টিফিকেট যাত্রা", "Your Certificate Journey")}
-          </p>
-          <div className="mt-3 flex items-center justify-center gap-1">
-            {[1, 2, 3].map((n) => {
-              const stepDone = n === 1 && completed;
-              const stepUnlocked = n >= 2 && completed;
-              return (
-                <div key={n} className="flex items-center gap-1">
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
-                    stepDone ? "bg-teal/25 border-teal/60 text-teal"
-                    : stepUnlocked ? "bg-gold/20 border-gold/50 text-gold"
-                    : "bg-slate-50 border-slate-200 text-slate-600"
-                  }`}>
-                    {stepDone ? "✓" : n}
-                  </div>
-                  {n < 3 && (
-                    <div className={`h-0.5 w-5 rounded-full ${n <= (completed ? 1 : 0) ? "bg-gold/60" : "bg-slate-200"}`} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Value ladder — swipeable chips so nothing is cramped at 320px */}
         <div className="mt-6 flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1 -mx-4 px-4 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3">
@@ -965,8 +938,23 @@ export default function CompletePage() {
             return (
               <button
                 key={tb.key}
+                id={`hub-tab-${tb.key}`}
                 role="tab"
                 aria-selected={active}
+                tabIndex={active ? 0 : -1}
+                onKeyDown={(e) => {
+                  const idx = HUB_TABS.findIndex((x) => x.key === tb.key);
+                  let next = -1;
+                  if (e.key === "ArrowRight") next = (idx + 1) % HUB_TABS.length;
+                  else if (e.key === "ArrowLeft") next = (idx - 1 + HUB_TABS.length) % HUB_TABS.length;
+                  else if (e.key === "Home") next = 0;
+                  else if (e.key === "End") next = HUB_TABS.length - 1;
+                  if (next >= 0) {
+                    e.preventDefault();
+                    switchStep(HUB_TABS[next].key);
+                    document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
+                  }
+                }}
                 onClick={() => switchStep(tb.key)}
                 className={`min-h-[48px] rounded-xl px-1 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
               >

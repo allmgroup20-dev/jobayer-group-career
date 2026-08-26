@@ -78,6 +78,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
       }
       setContacts(unique);
       setSelected(new Set());
+      setErrMsg("");
       setState("list");
     } catch {
       setState("denied");
@@ -183,7 +184,13 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
 
           {state === "list" && (
             <>
-              {errMsg && <p className="mb-3 text-[11px] text-warning font-bold">{errMsg}</p>}
+              {errMsg && (
+                <p className="mb-3 text-[11px] font-bold text-warning">
+                  {errMsg.startsWith("no-")
+                    ? "Google সংযোগ একটু অস্থির ছিল — তালিকা লোড হয়েছে, চাইলে আবার চেষ্টা করতে পারেন।"
+                    : errMsg}
+                </p>
+              )}
 
               {/* Search */}
               <input

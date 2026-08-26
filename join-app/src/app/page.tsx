@@ -120,7 +120,7 @@ export default function HomePage() {
                   : "🚀 " + t("প্রোফাইল সম্পূর্ণ করুন", "Complete Profile")}
               </button>
               <p className="text-center text-[11px] text-slate-500">
-                {t("এক Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
+                {t("আপনার অগ্রগতি সংরক্ষিত — যেখানে ছেড়েছিলেন সেখান থেকেই চালিয়ে যান।", "Your progress is saved — pick up right where you left off.")}
               </p>
             </div>
           ) : (
