@@ -56,7 +56,7 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -top-10 -left-10 -z-10 w-40 h-40 rounded-full bg-[#C2410C]/5 blur-3xl animate-floaty" />
         <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-[#2563EB]/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
 
-        <span className="badge-glow bg-[#C2410C]/10 text-[#C2410C] border border-[#C2410C]/20 animate-wiggle">
+        <span className="badge-glow bg-[#C2410C]/10 text-[#C2410C] border border-[#C2410C]/20 animate-wiggle mt-4">
           🎉 {t("এখনই জয়েন করুন", "Join Now")}
         </span>
 

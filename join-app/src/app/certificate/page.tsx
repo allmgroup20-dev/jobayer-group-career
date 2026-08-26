@@ -405,7 +405,7 @@ function CertificateView() {
 export default function CertificatePage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen flex items-center justify-center page-under-header">
+      <main className="min-h-screen flex items-center justify-center pt-20">
         <div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
       </main>
     }>
