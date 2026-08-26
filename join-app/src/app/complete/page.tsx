@@ -124,6 +124,19 @@ export default function CompletePage() {
     if (s === "ambassador" || s === "elite" || s === "foundation") setActiveStep(s);
   }, []);
 
+  // Tab switching keeps a shareable deep-link (?step=…) without changing routes.
+  // MUST live above every effect that calls it (e.g. the ?membership=success
+  // toast below) AND above the loadingInit early-return — otherwise effects can
+  // fire while the binding is still in its temporal dead zone and crash.
+  const switchStep = useCallback((k: HubTab) => {
+    setActiveStep(k);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", k);
+      window.history.replaceState({}, "", url.toString());
+    } catch {}
+  }, []);
+
   const loadShare = useCallback(async () => {
     try {
       const r = await fetch("/api/share");
@@ -686,16 +699,6 @@ export default function CompletePage() {
   const sentCount = share?.sent ?? 0;
   const target = share?.target ?? 30;
   const referralJoins = me?.referralJoins ?? 0;
-
-  // Tab switching keeps a shareable deep-link (?step=…) without changing routes.
-  const switchStep = useCallback((k: HubTab) => {
-    setActiveStep(k);
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("step", k);
-      window.history.replaceState({}, "", url.toString());
-    } catch {}
-  }, []);
 
   // Next Best Action — the ONE thing to do right now, based on real progress.
   type Nba = { title: string; sub: string; cta: string; run: () => void };
