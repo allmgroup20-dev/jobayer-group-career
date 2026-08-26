@@ -33,6 +33,14 @@ type ShareSummary = {
 
 type Msg = { kind: "ok" | "warn" | "error"; text: string } | null;
 
+type HubTab = "foundation" | "ambassador" | "elite";
+
+const HUB_TABS: { key: HubTab; icon: string; bn: string; en: string }[] = [
+  { key: "foundation", icon: "🎓", bn: "ফাউন্ডেশন", en: "Foundation" },
+  { key: "ambassador", icon: "🔗", bn: "অ্যাম্বাসেডর", en: "Ambassador" },
+  { key: "elite", icon: "🏆", bn: "এলিট", en: "Elite" },
+];
+
 const VERIFY_MS = 60_000; // verification window (max 1 minute)
 
 // Google contacts picker is temporarily disabled in the UI. Flip to true to
@@ -81,6 +89,7 @@ export default function CompletePage() {
   const [shotUploading, setShotUploading] = useState(false);
   const [shotMsg, setShotMsg] = useState<Msg>(null);
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [activeStep, setActiveStep] = useState<HubTab>("foundation");
   const [eliteCertificateId, setEliteCertificateId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [payMsg, setPayMsg] = useState<Msg>(null);
@@ -103,6 +112,12 @@ export default function CompletePage() {
     if (typeof window !== "undefined" && "contacts" in navigator && !!navigator.contacts) {
       setContactsSupported(true);
     }
+  }, []);
+
+  // Deep-link support: /complete?step=ambassador opens that tab directly.
+  useEffect(() => {
+    const s = new URLSearchParams(window.location.search).get("step");
+    if (s === "ambassador" || s === "elite" || s === "foundation") setActiveStep(s);
   }, []);
 
   const loadShare = useCallback(async () => {
@@ -436,7 +451,10 @@ export default function CompletePage() {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const m = p.get("membership");
-      if (m === "success") setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
+      if (m === "success") {
+        setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
+        setActiveStep("elite");
+      }
       else if (m === "failed") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট ব্যর্থ হয়েছে — আবার চেষ্টা করুন", "Payment failed — please try again") });
       else if (m === "cancelled") setPayMsg({ kind: "warn", text: t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled") });
       if (m) {
@@ -665,6 +683,68 @@ export default function CompletePage() {
   const target = share?.target ?? 30;
   const referralJoins = me?.referralJoins ?? 0;
 
+  // Tab switching keeps a shareable deep-link (?step=…) without changing routes.
+  const switchStep = useCallback((k: HubTab) => {
+    setActiveStep(k);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", k);
+      window.history.replaceState({}, "", url.toString());
+    } catch {}
+  }, []);
+
+  // Next Best Action — the ONE thing to do right now, based on real progress.
+  type Nba = { title: string; sub: string; cta: string; run: () => void };
+  const nba: Nba | null = (() => {
+    if (!completed) {
+      return {
+        title: t("Foundation সার্টিফিকেট চালিয়ে যান", "Continue your Foundation certificate"),
+        sub: t(
+          `${percent}% সম্পন্ন — প্রতিটি শেয়ার আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
+          `${percent}% done — every share moves you closer to 100%`
+        ),
+        cta: t("শেয়ার চালিয়ে যান", "Continue sharing"),
+        run: () => switchStep("foundation"),
+      };
+    }
+    if (!isPremium) {
+      if (referralJoins < 11) {
+        return {
+          title: t("Ambassador: আরও মানুষ যুক্ত করুন", "Ambassador: invite more people"),
+          sub: t(
+            `আপনার লিংকে ${referralJoins}/১১ জন যুক্ত হয়েছে — Foundation ✓ সম্পন্ন`,
+            `${referralJoins} of 11 joined via your link — Foundation ✓ complete`
+          ),
+          cta: t("Ambassador ধাপ দেখুন", "Open Ambassador step"),
+          run: () => switchStep("ambassador"),
+        };
+      }
+      return {
+        title: t("Elite এখনই আনলক করুন", "Unlock Elite now"),
+        sub: t(
+          "Foundation ✓ — কমিটমেন্ট ফি দিলেই Elite সার্টিফিকেট সাথে সাথে",
+          "Foundation ✓ — commit once and get the Elite certificate instantly"
+        ),
+        cta: t("Elite ধাপ দেখুন", "Open Elite step"),
+        run: () => switchStep("elite"),
+      };
+    }
+    if (!eliteCertificateId) {
+      return {
+        title: t("Elite সার্টিফিকেট লোড করুন", "Load your Elite certificate"),
+        sub: t("কমিটমেন্ট নিশ্চিত — একবার রিফ্রেশ করলেই প্রস্তুত", "Commitment confirmed — one refresh and it's ready"),
+        cta: t("🔄 সার্টিফিকেট রিফ্রেশ করুন", "🔄 Refresh certificate"),
+        run: () => switchStep("elite"),
+      };
+    }
+    return {
+      title: t("আপনার Elite সার্টিফিকেট প্রস্তুত 🎉", "Your Elite certificate is ready 🎉"),
+      sub: t("ডাউনলোড করুন, যাচাই করুন বা অরিজিনাল কপি অর্ডার করুন", "Download it, verify it, or order an original copy"),
+      cta: t("🎓 Elite সার্টিফিকেট দেখুন", "🎓 View Elite Certificate"),
+      run: () => router.push(`/certificate?id=${eliteCertificateId}`),
+    };
+  })();
+
   // The contact-picker + send list is shared by BOTH the Foundation card and
   // the Referral Ambassador card (its WhatsApp option opens on click). Rendered
   // from a single JSX fragment so the two stay identical.
@@ -804,7 +884,7 @@ export default function CompletePage() {
         <span key={i} className="confetti-piece" style={c} />
       ))}
 
-      <div className="max-w-lg mx-auto px-4 py-10 text-center safe-bottom">
+      <div className="max-w-lg mx-auto px-4 pt-10 pb-32 md:pb-16 text-center">
         <div className="mx-auto w-24 h-24 rounded-[2rem] bg-[#0B1D3A] border-2 border-teal/20 flex items-center justify-center text-5xl shadow-lg animate-pulse-glow">
           🏆
         </div>
@@ -844,27 +924,57 @@ export default function CompletePage() {
           </div>
         </div>
 
-        {/* Value ladder — visible before earning */}
-        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2">
-            <p className="text-[9px] font-black uppercase tracking-wide text-teal-700">Foundation</p>
-            <p className="text-[10px] font-black text-slate-900">৳১৫–৩০k</p>
-            <p className="text-[8px] font-bold text-slate-600">Entry</p>
+        {/* Value ladder — swipeable chips so nothing is cramped at 320px */}
+        <div className="mt-6 flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1 -mx-4 px-4 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3">
+            <p className="text-[10px] font-black uppercase tracking-wide text-teal">Foundation</p>
+            <p className="text-sm font-black text-slate-900">৳১৫–৩০k</p>
+            <p className="text-[10px] font-bold text-slate-600">Entry</p>
           </div>
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
-            <p className="text-[9px] font-black uppercase tracking-wide text-amber-700">Ambassador</p>
-            <p className="text-[10px] font-black text-slate-900">৳৩০–৬০k</p>
-            <p className="text-[8px] font-bold text-slate-600">Professional 🔒</p>
+          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3 opacity-90">
+            <p className="text-[10px] font-black uppercase tracking-wide text-warning">Ambassador</p>
+            <p className="text-sm font-black text-slate-900">৳৩০–৬০k</p>
+            <p className="text-[10px] font-bold text-slate-600">Professional 🔒</p>
           </div>
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-2 opacity-80">
-            <p className="text-[9px] font-black uppercase tracking-wide text-violet-700">Elite</p>
-            <p className="text-[10px] font-black text-slate-900">৳৬০–১২০k+</p>
-            <p className="text-[8px] font-bold text-slate-600">Highest Honor 🔒</p>
+          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3 opacity-90">
+            <p className="text-[10px] font-black uppercase tracking-wide text-violet">Elite</p>
+            <p className="text-sm font-black text-slate-900">৳৬০–১২০k+</p>
+            <p className="text-[10px] font-bold text-slate-600">Highest Honor 🔒</p>
           </div>
         </div>
         <p className="mt-1.5 text-center text-[10px] font-bold text-slate-600">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
+        {/* Next Best Action — the ONE thing to do now */}
+        {nba && (
+          <div className="mt-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/15 via-transparent to-transparent p-4 text-left shadow-sm">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t("এখন কী করবেন", "What to do now")}</p>
+            <p className="mt-1 text-base font-black leading-snug text-brand">{nba.title}</p>
+            <p className="mt-0.5 text-xs font-bold text-slate-600">{nba.sub}</p>
+            <button onClick={nba.run} className="mt-3 w-full btn-excite text-sm !py-3.5">{nba.cta}</button>
+          </div>
+        )}
+
+        {/* Hub tabs — one focused step at a time */}
+        <div role="tablist" aria-label={t("সার্টিফিকেট ধাপ", "Certificate steps")} className="mt-6 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 border border-line p-1">
+          {HUB_TABS.map((tb) => {
+            const active = activeStep === tb.key;
+            return (
+              <button
+                key={tb.key}
+                role="tab"
+                aria-selected={active}
+                onClick={() => switchStep(tb.key)}
+                className={`min-h-[48px] rounded-xl px-1 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
+              >
+                <span className="text-base leading-none">{tb.icon}</span>
+                <span>{t(tb.bn, tb.en)}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Certificate 1 — Foundation (share task) */}
+        {activeStep === "foundation" && (
         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
@@ -1005,8 +1115,10 @@ export default function CompletePage() {
             </div>
           )}
         </div>
+        )}
 
         {/* Certificate 2 — Referral Ambassador */}
+        {activeStep === "ambassador" && (
         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
@@ -1186,8 +1298,10 @@ export default function CompletePage() {
             </>
           )}
         </div>
+        )}
 
         {/* Certificate 3 — Elite Final */}
+        {activeStep === "elite" && (
         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
@@ -1406,11 +1520,19 @@ export default function CompletePage() {
           </button>
           {showCert3Preview && <CertificateSample variant="elite" />}
         </div>
+        )}
 
         <button onClick={() => router.push("/")} className="mt-6 btn-outline w-full">
           {t("হোমে ফিরে যান", "Back to Home")}
         </button>
       </div>
+
+      {/* Mobile sticky next-step — always one thumb-reachable primary action */}
+      {nba && (
+        <div className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-line bg-white/95 backdrop-blur px-4 pt-3 safe-bottom">
+          <button onClick={nba.run} className="w-full btn-excite text-sm !py-3">{nba.cta}</button>
+        </div>
+      )}
     </main>
   );
 }
