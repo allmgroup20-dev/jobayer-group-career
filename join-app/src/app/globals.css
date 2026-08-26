@@ -47,7 +47,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  html[lang="bn"] body { font-family: var(--font-bengali); }
+  html[lang="bn"] body { font-family: var(--font-bengali), var(--font-bengali-fallback), "Nirmala UI", "Vrinda", system-ui, sans-serif; }
   :focus-visible {
     outline: 2px solid #0F172A;
     outline-offset: 2px;

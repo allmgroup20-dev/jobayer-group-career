@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./client-layout";
 
@@ -11,6 +12,16 @@ const solaimanLipi = localFont({
   display: "swap",
   preload: true,
   variable: "--font-bengali",
+  fallback: ["Noto Sans Bengali", "Nirmala UI", "Vrinda", "Arial", "sans-serif"],
+  adjustFontFallback: false,
+});
+
+const notoBengali = Noto_Sans_Bengali({
+  subsets: ["bengali"],
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-bengali-fallback",
+  fallback: ["Nirmala UI", "Vrinda", "Arial", "sans-serif"],
 });
 
 const cinzel = localFont({
@@ -66,7 +77,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn" className={`${solaimanLipi.variable} ${cinzel.variable} ${greatVibes.variable}`}>
+    <html lang="bn" className={`${solaimanLipi.variable} ${notoBengali.variable} ${cinzel.variable} ${greatVibes.variable}`}>
       <body className="min-h-screen bg-bg font-bengali antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
