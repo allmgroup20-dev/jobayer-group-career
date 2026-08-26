@@ -20,7 +20,7 @@ export default function CertificateError({
           <button onClick={() => reset()} className="flex-1 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-xs font-black">
             🔄 রিলোড করুন
           </button>
-          <a href="/" className="flex-1 py-2.5 rounded-xl btn-gold text-xs font-black text-center block">
+          <a href="/" className="flex-1 py-2.5 rounded-xl btn-excite text-xs font-black text-center block">
             হোমে যান
           </a>
         </div>

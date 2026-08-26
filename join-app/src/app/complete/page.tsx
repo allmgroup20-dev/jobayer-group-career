@@ -682,7 +682,7 @@ export default function CompletePage() {
             value={listSearch}
             onChange={(e) => setListSearch(e.target.value)}
             placeholder={t("🔍 নাম বা নম্বর দিয়ে খুঁজুন…", "🔍 Search by name or number…")}
-            className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-bold placeholder-slate-400 focus:outline-none focus:border-pink/60"
+            className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-bold placeholder-slate-400 focus:outline-none focus:border-[#2563EB]"
           />
           {shownSelected.length === 0 && shownSent.length === 0 && (
             <p className="text-[11px] text-slate-600 py-1">{t("কিছু পাওয়া যায়নি।", "Nothing found.")}</p>
@@ -895,7 +895,7 @@ export default function CompletePage() {
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-slate-200 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-gold to-amber transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-teal to-success transition-all duration-700"
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -961,7 +961,7 @@ export default function CompletePage() {
                       onChange={(e) => setNameInput(e.target.value)}
                       maxLength={60}
                       autoFocus
-                      className="mt-2 w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-bold focus:outline-none focus:border-pink/60"
+                      className="mt-2 w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-bold focus:outline-none focus:border-[#2563EB]"
                       placeholder={t("আপনার নাম লিখুন", "Type your name")}
                     />
                     <p className="mt-2 rounded-lg bg-amber/10 border border-amber/30 px-2.5 py-1.5 text-[10px] font-bold text-amber leading-relaxed">
@@ -971,7 +971,7 @@ export default function CompletePage() {
                       <button
                         onClick={saveName}
                         disabled={savingName}
-                        className="flex-1 px-3 py-2.5 rounded-xl btn-gold text-xs font-black disabled:opacity-40"
+                        className="flex-1 px-3 py-2.5 rounded-xl btn-excite text-xs font-black disabled:opacity-40"
                       >
                         {savingName ? "…" : `💾 ${t("সংরক্ষণ করুন", "Save")}`}
                       </button>
@@ -1122,7 +1122,7 @@ export default function CompletePage() {
                       type="button"
                       onClick={submitScreenshots}
                       disabled={shotUploading || shotFiles.length === 0}
-                      className="mt-2 w-full py-2.5 rounded-xl btn-gold text-xs font-black disabled:opacity-50"
+                      className="mt-2 w-full py-2.5 rounded-xl btn-excite text-xs font-black disabled:opacity-50"
                     >
                       {shotUploading ? t("জমা হচ্ছে…", "Uploading…") : t("📤 স্ক্রিনশট জমা দিন", "Submit screenshots")}
                     </button>
@@ -1163,7 +1163,7 @@ export default function CompletePage() {
 
                 <button
                   onClick={() => setShowWaPicker((v) => !v)}
-                  className="mt-3 w-full btn-gold text-sm !py-3.5"
+                  className="mt-3 w-full btn-excite text-sm !py-3.5"
                 >
                   📲 {showWaPicker ? t("WhatsApp-এ পাঠানো বন্ধ করুন", "Close WhatsApp sending") : t("WhatsApp-এ পাঠান", "Send on WhatsApp")} <span className={`inline-block transition-transform ${showWaPicker ? "rotate-180" : ""}`}>▾</span>
                 </button>
@@ -1371,7 +1371,7 @@ export default function CompletePage() {
                         <button
                           onClick={handlePremiumPay}
                           disabled={paying || verifying || expired}
-                          className="mt-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#E85D04] text-white text-xs font-black active:scale-[0.99] transition-all disabled:opacity-50"
+                          className="mt-2 w-full py-2.5 rounded-xl bg-excite text-white text-xs font-black active:bg-[#7C2D12] active:scale-[0.99] transition-all disabled:opacity-50"
                         >
                           {paying ? t("প্রক্রিয়াধীন…", "Processing…") : amountInput ? t(`💳 ${Number(amountInput).toLocaleString("en-US")} টাকা পাঠান — এখনই কমিটেড হোন`, `💳 Send ${Number(amountInput).toLocaleString("en-US")} Taka — Become Premium Now`) : t("💳 আপনার পছন্দের বাজেট দিয়ে কমিটেড হোন — SSLCommerz", "💳 Become Premium with your preferred budget — SSLCommerz")}
                         </button>
@@ -1433,7 +1433,7 @@ function AddPeopleBlock({
 
   return (
     <div className="space-y-2">
-      <button onClick={onGoogle} className="btn-gold w-full text-sm !py-3.5 opacity-70">
+      <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5 opacity-70">
         📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
       </button>
       <p className="text-center text-[11px] font-black text-gold -mt-1">

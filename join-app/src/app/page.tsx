@@ -114,7 +114,7 @@ export default function HomePage() {
             </div>
           ) : me ? (
             <div className="space-y-3">
-              <button onClick={() => router.push(continuePath)} className="btn-gold w-full">
+              <button onClick={() => router.push(continuePath)} className="btn-excite w-full">
                 {me.profileCompleted ? "🎉 " + t("রেফারাল সেন্টারে যান", "Go to Referral Center") : "🚀 " + t("প্রোফাইল সম্পূর্ণ করুন", "Complete Profile")}
               </button>
               <button onClick={() => router.push("/complete")} className="btn-white w-full">
@@ -163,7 +163,7 @@ export default function HomePage() {
           <div className="space-y-3">
             {STEPS.map((s, i) => (
               <div key={s.n} className="card-pop flex items-center gap-4 animate-pop-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-excite to-pink text-white font-black text-lg flex items-center justify-center shadow-lg shadow-pink/25 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-excite text-white font-black text-lg flex items-center justify-center shadow-lg shadow-excite/25 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
                   {s.n}
                 </div>
                 <p className="font-bold text-brand">{t(s.bn, s.en)}</p>

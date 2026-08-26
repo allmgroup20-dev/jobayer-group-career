@@ -50,7 +50,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <LanguageProvider>
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center bg-[#0f0f0f] shadow-md shadow-black/40 border-b border-white/10 pt-[env(safe-area-inset-top)]">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center bg-[#0B1F33] shadow-md shadow-black/30 border-b border-white/10 pt-[env(safe-area-inset-top)]">
         <a href="/" aria-label="YouTube" className="ml-2 md:ml-4">
           <img src="/logo.png" alt="YouTube" className="h-5 w-auto" />
         </a>

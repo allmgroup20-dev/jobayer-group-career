@@ -500,8 +500,8 @@ export default function OnboardingPage() {
             type="button"
             onClick={() => onPick(o.v)}
             className={`chip justify-center min-h-[44px] break-words text-center leading-tight ${active
-              ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25"
-              : "bg-white border border-line text-ink hover:border-pink/50"}`}
+              ? "bg-excite text-white shadow-lg shadow-excite/30"
+              : "bg-white border border-line text-ink hover:border-excite/50"}`}
           >
             {o.e ? <span>{o.e}</span> : null} {t(o.bn, o.en)}
           </button>
@@ -519,11 +519,11 @@ export default function OnboardingPage() {
             <span className="text-xs font-black uppercase tracking-wide text-ink-soft">
               {meta.emoji} {t(meta.bn, meta.en)}
             </span>
-            <span className="text-xs font-black text-pink">{progress}%</span>
+            <span className="text-xs font-black text-teal">{progress}%</span>
           </div>
           <div className="h-3 rounded-full bg-line overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-excite via-pink to-violet transition-all duration-500"
+              className="h-full rounded-full bg-teal transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -544,7 +544,7 @@ export default function OnboardingPage() {
           {/* consent */}
           {step === "consent" && (
             <div className="space-y-4 text-center">
-              <div className="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-br from-gold to-pink flex items-center justify-center text-3xl shadow-lg shadow-pink/25 animate-wiggle">🔒</div>
+              <div className="mx-auto w-16 h-16 rounded-3xl bg-gold flex items-center justify-center text-3xl shadow-lg shadow-gold/30 animate-wiggle">🔒</div>
               <h1 className="text-2xl font-black text-brand">{t("সবকিছু এক বাটনে সম্মতি", "Grant Everything in One Tap")}</h1>
               <p className="text-sm text-ink-soft">{t("এক ক্লিকে উন্নত অভিজ্ঞতা", "One tap for the best experience")}</p>
 
@@ -568,7 +568,7 @@ export default function OnboardingPage() {
                           update("incomeSectors", active ? form.incomeSectors.filter((i) => i !== s.v) : [...form.incomeSectors, s.v]);
                           trackEvent("interest_select", { pageCategory: "onboarding", searchKeyword: s.en, metadata: { action: active ? "deselect" : "select", group: "income_sector", value: s.v } });
                         }}
-                        className={`chip justify-center min-h-[44px] break-words text-center leading-tight ${active ? "bg-gradient-to-r from-excite to-pink text-white shadow-lg shadow-pink/25" : "bg-white border border-line text-ink hover:border-pink/50"}`}
+                        className={`chip justify-center min-h-[44px] break-words text-center leading-tight ${active ? "bg-excite text-white shadow-lg shadow-excite/30" : "bg-white border border-line text-ink hover:border-excite/50"}`}
                       >
                         <span>{s.icon}</span> {t(s.bn, s.en)}
                       </button>
@@ -891,7 +891,7 @@ export default function OnboardingPage() {
                           update("interests", active ? form.interests.filter((i) => i !== opt.en) : [...form.interests, opt.en]);
                           trackEvent("interest_select", { pageCategory: "onboarding", searchKeyword: opt.en, metadata: { action: active ? "deselect" : "select", group: "skill", value: opt.en } });
                         }}
-                        className={`chip justify-center ${active ? "bg-gradient-to-r from-violet to-pink text-white shadow-lg shadow-pink/20" : "bg-white border border-line text-ink hover:border-pink/50"}`}
+                        className={`chip justify-center ${active ? "bg-excite text-white shadow-lg shadow-excite/30" : "bg-white border border-line text-ink hover:border-excite/50"}`}
                       >
                         <span>{opt.icon}</span> {t(opt.bn, opt.en)}
                       </button>
@@ -899,7 +899,7 @@ export default function OnboardingPage() {
                   })}
                 </div>
                 {!showAllInterests && (form.goal ? INTERESTS.filter((o) => o.goals.includes(form.goal)).length : INTERESTS.filter((o) => POPULAR_INTERESTS.includes(o.en)).length) < INTERESTS.length && (
-                  <button type="button" onClick={() => setShowAllInterests(true)} className="mt-2 w-full text-sm font-semibold text-pink underline">
+                  <button type="button" onClick={() => setShowAllInterests(true)} className="mt-2 w-full text-sm font-semibold text-info underline">
                     {t("+ সব আগ্রহ দেখুন", "+ Show all interests")}
                   </button>
                 )}
@@ -972,7 +972,7 @@ export default function OnboardingPage() {
         {/* dots */}
         <div className="flex justify-center gap-1.5 mt-5">
           {STEP_ORDER.map((s, i) => (
-            <div key={s} className={`h-1.5 rounded-full transition-all duration-300 ${i === stepIdx ? "w-6 bg-pink" : i < stepIdx ? "w-2.5 bg-excite" : "w-2.5 bg-line"}`} />
+            <div key={s} className={`h-1.5 rounded-full transition-all duration-300 ${i === stepIdx ? "w-6 bg-teal" : i < stepIdx ? "w-2.5 bg-teal/40" : "w-2.5 bg-line"}`} />
           ))}
         </div>
       </div>
@@ -983,7 +983,7 @@ export default function OnboardingPage() {
 function Header({ emoji, title, sub }: { emoji: string; title: string; sub: string }) {
   return (
     <div className="text-center">
-      <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-violet to-pink flex items-center justify-center text-2xl shadow-lg shadow-pink/20 animate-floaty">{emoji}</div>
+      <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center text-2xl shadow-lg shadow-brand/25 animate-floaty">{emoji}</div>
       <h1 className="mt-3 text-xl font-black text-brand">{title}</h1>
       <p className="mt-1 text-sm text-ink-soft">{sub}</p>
     </div>

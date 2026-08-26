@@ -157,7 +157,7 @@ function CertificateView() {
           <div className="flex gap-2">
             <button
               onClick={() => window.print()}
-              className="btn-gold text-sm !py-3 px-5"
+              className="btn-excite text-sm !py-3 px-5"
             >
               ⬇️ ডাউনলোড
             </button>
@@ -392,7 +392,7 @@ function CertificateView() {
           <p className="mt-2 text-xs leading-relaxed text-white/70">
             {t("অভিনন্দন! এই সার্টিফিকেটের পর আপনার জন্য আরও একটি — এর চেয়েও বেশি মূল্যবান সার্টিফিকেট — দেওয়া হবে। এটি দেখতে হোমে গিয়ে নতুন অপশনটি চেক করুন।", "Congratulations! After this certificate, an even more valuable one awaits you. Go to Home and check the new option to see it.")}
           </p>
-          <a href="/" className="mt-4 btn-gold w-full text-sm !py-3.5 block text-center">
+          <a href="/" className="mt-4 btn-excite w-full text-sm !py-3.5 block text-center">
             🏠 {t("হোমে গিয়ে দেখুন", "Go Home to see it")}
           </a>
         </div>

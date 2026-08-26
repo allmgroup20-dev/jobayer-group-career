@@ -79,8 +79,8 @@
            shadow-lg shadow-brand/10 border border-line transition-all duration-300 hover:shadow-xl active:scale-[0.97] cursor-pointer;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border-2 border-excite/50 text-excite
-           font-bold text-sm transition-all duration-300 hover:bg-excite/10 active:scale-[0.97] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border-2 border-brand/60 text-brand
+           font-bold text-sm transition-all duration-300 hover:bg-brand/10 active:scale-[0.97] cursor-pointer;
   }
   .card-pop {
     @apply bg-white rounded-[1.25rem] p-4 md:p-6 shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-md;
