@@ -327,9 +327,9 @@ function CertificateView() {
             <div className="mt-2 space-y-1.5 text-xs leading-relaxed">
               <p className="flex justify-between"><span className="text-white/60">{t("① ভালো কাগজে প্রিন্ট", "① Print on quality paper")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
               <p className="flex justify-between"><span className="text-white/60">{t("② প্যাকেজিং", "② Packaging")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from Singapore to Bangladesh Post Office") : t("③ ইন্ডিয়া হেড অফিস থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from India HQ to Bangladesh Post Office")}</span><span className="font-black text-white">{baseUsd} USD</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from Singapore to Bangladesh Post Office") : t("③ ইন্ডিয়া হেড অফিস থেকে বাংলাদেশ পোস্ট অফিসে পাঠানো", "③ Ship from India HQ to Bangladesh Post Office")}</span><span className="font-black text-white">{(baseUsd * 111).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({baseUsd} USD)</span></span></p>
               {deliveryMode === "home" && (
-                <p className="flex justify-between"><span className="text-white/60">{t("④ হোম ডেলিভারি (অতিরিক্ত)", "④ Home delivery (extra)")}</span><span className="font-black text-gold">+1 USD</span></p>
+                <p className="flex justify-between"><span className="text-white/60">{t("④ হোম ডেলিভারি (অতিরিক্ত)", "④ Home delivery (extra)")}</span><span className="font-black text-gold">+১১১ টাকা <span className="text-[10px] text-white/40">(+1 USD)</span></span></p>
               )}
               <div className="pt-2 mt-2 border-t border-white/10 flex justify-between items-center">
                 <span className="text-sm font-black text-white">{t("মোট", "Total")}</span>
