@@ -556,10 +556,7 @@ export default function CompletePage() {
           // Last officer always accepted (ultimately permitted)
           if (idx === count - 1) next[idx].status = "accepted";
           else {
-            // Mix: 1 accepted, 1 pending, rest rejected with increasing rejection on higher attempts
-            const r = Math.random();
             if (idx === 0) next[idx].status = "accepted";
-            else if (r < 0.35 + nextAttempt * 0.05) next[idx].status = "rejected";
             else next[idx].status = "pending";
           }
           return next;

@@ -319,7 +319,7 @@ function CertificateView() {
             </div>
           </div>
           <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-center">
-            <p className="text-[11px] font-black text-gold">💰 {t("ডলারের বাজার দাম ১২৪ টাকা চলছে, কিন্তু আপনার জন্য বিশেষ ছাড়ে ১১১ টাকা করে রাখছি", "Market price 124 Taka, special discount at 111 Taka for you")}</p>
+            <p className="text-[11px] font-black text-gold">💰 {t("সব খরচ অন্তর্ভুক্ত — প্রিন্ট, প্যাকেজিং, শিপিং — কোনো হিডেন চার্জ নেই (বিশেষ রেট ১১১ টাকা/ডলার)", "All costs included — print, packaging, shipping — no hidden fees (special rate 111 Taka/USD)")}</p>
           </div>
 
           <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">

@@ -582,7 +582,7 @@ export default function OnboardingPage() {
           {/* whatsapp */}
           {step === "whatsapp" && (
             <div className="space-y-4">
-              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নাম্বার দিন", "Enter WhatsApp Number")} sub={t("যেকোনো প্রয়োজনে আমরা এই হোয়াটসঅ্যাপ নাম্বারেই আপনার সাথে যোগাযোগ করব", "We'll reach out to you on this WhatsApp number whenever needed.")} />
+              <Header emoji="💬" title={t("হোয়াটসঅ্যাপ নাম্বার দিন", "Enter WhatsApp Number")} sub={t("শুধু জরুরি আপডেট ও সাপোর্টে ব্যবহার হবে — স্প্যাম নয়", "Only for urgent updates & support — no spam")} />
               <div>
                 {label("হোয়াটসঅ্যাপ নাম্বার *", "WhatsApp Number *")}
                 <input
@@ -593,6 +593,9 @@ export default function OnboardingPage() {
                   className="input-field"
                 />
                 <p className="mt-1 text-[11px] text-ink-soft">🇧🇩 {t("উদাহরণ: 01712345678", "Example: 01712345678")}</p>
+                <p className="mt-1.5 rounded-lg bg-teal/10 border border-teal/20 px-3 py-2 text-[11px] font-bold text-teal leading-relaxed">
+                  🔒 {t("আপনার নম্বর শুধু জরুরি সাপোর্টে ব্যবহার হবে, কখনো স্প্যাম করা হবে না। চাইলে পরে পরিবর্তন করতে পারবেন।", "Your number is only for urgent support, never spam. You can change it anytime.")}
+                </p>
               </div>
             </div>
           )}
@@ -641,7 +644,7 @@ export default function OnboardingPage() {
           {/* location */}
           {step === "location" && (
             <div className="space-y-4">
-              <Header emoji="📍" title={t("অবস্থান ও ভাষা", "Location & Language")} sub={t("কোথায় আছেন জানান", "Let us know where you are")} />
+              <Header emoji="📍" title={t("অবস্থান ও ভাষা", "Location & Language")} sub={t("কোথায় আছেন জানান — সার্টিফিকেট ও ডেলিভারি ঠিকানার জন্য", "Let us know where you are — for certificate & delivery address")} />
               <div>
                 {label("দেশ *", "Country *")}
                 <div className="input-field flex items-center justify-between">
@@ -827,6 +830,7 @@ export default function OnboardingPage() {
               )}
               <div>
                 {label("ধর্ম *", "Religion *")}
+                <p className="mb-2 text-[11px] text-ink-soft">{t("কনটেন্ট পার্সোনালাইজেশনের জন্য — আনুষ্ঠানিকতা নয়", "For content personalization — not formal")}</p>
                 <div className="space-y-2">
                   {(() => {
                     const keys = religionKeys(form.religion);
