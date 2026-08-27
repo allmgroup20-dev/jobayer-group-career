@@ -891,38 +891,18 @@ export default function CompletePage() {
         <span key={i} className="confetti-piece" style={c} />
       ))}
 
-      <div className="max-w-lg mx-auto px-4 pt-10 pb-32 md:pb-16 text-center">
-        <div className="mx-auto w-24 h-24 rounded-[2rem] bg-[#0B1D3A] border-2 border-teal/20 flex items-center justify-center text-5xl shadow-lg animate-pulse-glow">
+      <div className="max-w-lg mx-auto px-4 pt-8 pb-24 md:pb-12 text-center">
+        <div className="mx-auto w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-[#0B1D3A] border-2 border-teal/20 flex items-center justify-center text-4xl md:text-5xl shadow-lg animate-pulse-glow">
           🏆
         </div>
-        <h1 className="mt-5 text-[clamp(28px,5vw,36px)] font-black leading-tight">
+        <h1 className="mt-3 text-[clamp(24px,5vw,32px)] font-black leading-tight">
           <span className="text-[#0B1D3A] drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">{t("অভিনন্দন!", "Congratulations!")}</span>
         </h1>
-        <p className="mt-2 text-base text-ink-soft">
+        <p className="mt-1 text-sm text-ink-soft">
           {t("আপনার প্রোফাইল কমপ্লিট হয়েছে", "Your profile is complete")} 🎊
         </p>
-        {me?.name && <p className="mt-1 font-black text-brand">{me.name}</p>}
+        {me?.name && <p className="mt-0.5 font-black text-brand text-sm">{me.name}</p>}
         {me?.workerId && <p className="text-xs font-bold text-ink-soft mt-0.5">{me.workerId}</p>}
-
-        {/* Value ladder — swipeable chips so nothing is cramped at 320px */}
-        <div className="mt-6 flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1 -mx-4 px-4 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3">
-            <p className="text-[10px] font-black uppercase tracking-wide text-teal">Foundation</p>
-            <p className="text-sm font-black text-slate-900">৳১৫–৩০k</p>
-            <p className="text-[10px] font-bold text-slate-600">Entry</p>
-          </div>
-          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3 opacity-90">
-            <p className="text-[10px] font-black uppercase tracking-wide text-warning">Ambassador</p>
-            <p className="text-sm font-black text-slate-900">৳৩০–৬০k</p>
-            <p className="text-[10px] font-bold text-slate-600">Professional 🔒</p>
-          </div>
-          <div className="snap-start shrink-0 w-36 rounded-xl bg-white border border-slate-200 shadow-sm p-3 opacity-90">
-            <p className="text-[10px] font-black uppercase tracking-wide text-violet">Elite</p>
-            <p className="text-sm font-black text-slate-900">৳৬০–১২০k+</p>
-            <p className="text-[10px] font-bold text-slate-600">Highest Honor 🔒</p>
-          </div>
-        </div>
-        <p className="mt-1.5 text-center text-[10px] font-bold text-slate-600">{t("৩ ধাপ — প্রতিটি ধাপে নতুন দক্ষতা", "1 < 2 < 3 — higher level, higher benefit")}</p>
 
         {/* Next Best Action — the ONE thing to do now */}
         {nba && (
@@ -934,43 +914,9 @@ export default function CompletePage() {
           </div>
         )}
 
-        {/* Hub tabs — one focused step at a time */}
-        <div role="tablist" aria-label={t("সার্টিফিকেট ধাপ", "Certificate steps")} className="mt-6 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 border border-line p-1">
-          {HUB_TABS.map((tb) => {
-            const active = activeStep === tb.key;
-            return (
-              <button
-                key={tb.key}
-                id={`hub-tab-${tb.key}`}
-                role="tab"
-                aria-selected={active}
-                tabIndex={active ? 0 : -1}
-                onKeyDown={(e) => {
-                  const idx = HUB_TABS.findIndex((x) => x.key === tb.key);
-                  let next = -1;
-                  if (e.key === "ArrowRight") next = (idx + 1) % HUB_TABS.length;
-                  else if (e.key === "ArrowLeft") next = (idx - 1 + HUB_TABS.length) % HUB_TABS.length;
-                  else if (e.key === "Home") next = 0;
-                  else if (e.key === "End") next = HUB_TABS.length - 1;
-                  if (next >= 0) {
-                    e.preventDefault();
-                    switchStep(HUB_TABS[next].key);
-                    document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
-                  }
-                }}
-                onClick={() => switchStep(tb.key)}
-                className={`min-h-[48px] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
-              >
-                <span className="text-base leading-none">{tb.icon}</span>
-                <span>{t(tb.bn, tb.en)}</span>
-              </button>
-            );
-          })}
-        </div>
-
 {/* Certificate 1 — Foundation (share task) */}
-         {activeStep === "foundation" && (
-         <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
+          {activeStep === "foundation" && (
+          <div id="cert-card" className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
@@ -1114,7 +1060,7 @@ export default function CompletePage() {
 
         {/* Certificate 2 — Referral Ambassador */}
         {activeStep === "ambassador" && (
-        <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
+        <div id="cert-card" className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
@@ -1130,6 +1076,16 @@ export default function CompletePage() {
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳৩০,০০০–৳৬০,০০০ • Ambassador • প্রফেশনাল পুরস্কার", "৳30,000–৳60,000 • Ambassador • Professional reward")}
           </div>
+
+          {/* Certificate preview — at TOP of card for 100% mobile visibility */}
+          <button
+            onClick={() => setShowCert2Preview((v) => !v)}
+            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-gold/10 border border-gold/20 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-gold">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
+            <span className={`text-slate-600 text-sm transition-transform ${showCert2Preview ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showCert2Preview && <CertificateSample variant="ambassador" />}
 
           {!completed ? (
             <p className="mt-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
@@ -1282,14 +1238,6 @@ export default function CompletePage() {
 
                 {showWaPicker && contactSendSection}
               </div>
-
-              <button
-                onClick={() => setShowCert2Preview((v) => !v)}
-                className="mt-4 w-full py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-gold active:scale-[0.99] transition-all"
-              >
-                👀 {showCert2Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার সার্টিফিকেট", "See how your certificate will look")} <span className={`inline-block transition-transform ${showCert2Preview ? "rotate-180" : ""}`}>▾</span>
-              </button>
-              {showCert2Preview && <CertificateSample variant="ambassador" />}
             </>
           )}
         </div>
@@ -1297,7 +1245,7 @@ export default function CompletePage() {
 
         {/* Certificate 3 — Elite Final */}
         {activeStep === "elite" && (
-        <div className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
+        <div id="cert-card" className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
@@ -1313,6 +1261,17 @@ export default function CompletePage() {
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
+
+          {/* Certificate preview — at TOP of card for 100% mobile visibility */}
+          <button
+            onClick={() => setShowCert3Preview((v) => !v)}
+            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-violet/10 border border-violet/20 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-violet">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
+            <span className={`text-slate-600 text-sm transition-transform ${showCert3Preview ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showCert3Preview && <CertificateSample variant="elite" />}
+
           {isPremium ? (
             <>
               <p className="mt-3 px-3 py-2.5 rounded-xl bg-violet/10 border border-violet/30 text-xs text-violet leading-relaxed">
@@ -1512,16 +1471,43 @@ export default function CompletePage() {
               </div>
             </>
           )}
-
-          <button
-            onClick={() => setShowCert3Preview((v) => !v)}
-            className="mt-3 w-full py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-violet active:scale-[0.99] transition-all"
-          >
-            👀 {showCert3Preview ? t("নমুনা প্রিভিউ বন্ধ করুন", "Close sample preview") : t("এভাবেই দেখাবে আপনার ফাইনাল সার্টিফিকেট", "See how your Final certificate will look")} <span className={`inline-block transition-transform ${showCert3Preview ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {showCert3Preview && <CertificateSample variant="elite" />}
         </div>
         )}
+
+        {/* Hub tabs — one focused step at a time */}
+        <div role="tablist" aria-label={t("সার্টিফিকেট ধাপ", "Certificate steps")} className="mt-6 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 border border-line p-1">
+          {HUB_TABS.map((tb) => {
+            const active = activeStep === tb.key;
+            return (
+              <button
+                key={tb.key}
+                id={`hub-tab-${tb.key}`}
+                role="tab"
+                aria-selected={active}
+                aria-controls="cert-card"
+                tabIndex={active ? 0 : -1}
+                onKeyDown={(e) => {
+                  const idx = HUB_TABS.findIndex((x) => x.key === tb.key);
+                  let next = -1;
+                  if (e.key === "ArrowRight") next = (idx + 1) % HUB_TABS.length;
+                  else if (e.key === "ArrowLeft") next = (idx - 1 + HUB_TABS.length) % HUB_TABS.length;
+                  else if (e.key === "Home") next = 0;
+                  else if (e.key === "End") next = HUB_TABS.length - 1;
+                  if (next >= 0) {
+                    e.preventDefault();
+                    switchStep(HUB_TABS[next].key);
+                    document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
+                  }
+                }}
+                onClick={() => switchStep(tb.key)}
+                className={`min-h-[48px] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
+              >
+                <span className="text-base leading-none">{tb.icon}</span>
+                <span>{t(tb.bn, tb.en)}</span>
+              </button>
+            );
+          })}
+        </div>
 
         <button onClick={() => router.push("/")} className="mt-6 btn-outline w-full">
           {t("হোমে ফিরে যান", "Back to Home")}
