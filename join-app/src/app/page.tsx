@@ -276,15 +276,6 @@ export default function HomePage() {
                 {t("১০০% মোবাইল ফ্রেন্ডলি — কোনো অ্যাপ ডাউনলোড দরকার নেই, ব্রাউজারেই সব কাজ হয়।", "100% mobile friendly — no app download needed, everything works in the browser.")}
               </p>
             </details>
-            <details className="card-pop !p-4 group">
-              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
-                {t("সাহায্য কিভাবে পাব?", "How to get help?")}
-                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
-              </summary>
-              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
-                {t("হোয়াটসঅ্যাপ সাপোর্ট সকাল ৯টা–রাত ৯টা এবং support@youtube-earner.com — সাধারণত কয়েক ঘণ্টার মধ্যে উত্তর।", "WhatsApp support 9AM–9PM and support@youtube-earner.com — usually replied within hours.")}
-              </p>
-            </details>
           </div>
         </div>
       </section>
@@ -321,31 +312,12 @@ export default function HomePage() {
                 name: "মোবাইলেই কি হবে?",
                 acceptedAnswer: { "@type": "Answer", text: "১০০% মোবাইল ফ্রেন্ডলি — কোনো অ্যাপ ডাউনলোড দরকার নেই, ব্রাউজারেই সব কাজ হয়।" },
               },
-              {
-                "@type": "Question",
-                name: "সাহায্য কিভাবে পাব?",
-                acceptedAnswer: { "@type": "Answer", text: "হোয়াটসঅ্যাপ সাপোর্ট সকাল ৯টা–রাত ৯টা এবং support@youtube-earner.com — সাধারণত কয়েক ঘণ্টার মধ্যে উত্তর।" },
-              },
             ],
           }),
         }}
       />
 
-      {/* Footer */}
-      <footer className="px-4 pb-24 md:pb-12 text-center text-xs text-ink-soft safe-bottom">
-        <p className="font-bold">
-          {t("একটি Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
-        </p>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-[11px]">
-          <a href="/privacy" className="underline hover:text-brand">{t("প্রাইভেসি", "Privacy")}</a>
-          <span className="text-line">•</span>
-          <a href="/terms" className="underline hover:text-brand">{t("শর্তাবলী", "Terms")}</a>
-          <span className="text-line">•</span>
-          <a href="mailto:support@youtube-earner.com" className="underline hover:text-brand">{t("যোগাযোগ", "Contact")}</a>
-          <span className="text-line">•</span>
-          <span>{t("সহায়তা: হোয়াটসঅ্যাপ ৯টা-৯টা", "Support: WhatsApp 9AM-9PM")}</span>
-        </div>
-      </footer>
+
 
       {/* Sticky Mobile CTA — only on home, hidden on desktop */}
       <div className="fixed inset-x-0 bottom-0 z-30 md:hidden border-t border-line bg-white/95 backdrop-blur px-4 pt-3 pb-3 safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
