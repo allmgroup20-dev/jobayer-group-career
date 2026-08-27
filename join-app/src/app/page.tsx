@@ -62,28 +62,29 @@ export default function HomePage() {
 
         <h1 className="mt-4 text-[clamp(28px,5vw,42px)] font-black leading-tight">
           <span className="text-[#0B1F33]">
-            {t("ইউটিউব আর্নার — এখানে শেখা হয় YouTube-এর সঠিক নিয়ম ও আর্নিং দক্ষতা", "YouTube Earner — learn the official YouTube rules and real earning skills")}
+            {t("ইউটিউব আর্নার — আসল নিয়ম শিখুন, বাস্তব সার্টিফিকেট পান", "YouTube Earner — learn real rules, earn real certificates")}
           </span>
           <br />
-          <span className="text-[#C2410C]">{t("গ্যারান্টেড ইনকাম নয় — প্রমাণিত দক্ষতা, সার্টিফিকেট ও স্বীকৃতি।", "No guaranteed income — proven skills, certificates and recognition.")}</span>
+          <span className="text-[#C2410C]">{t("৯৭০+ রিসোর্স · ৩-টিয়ার সার্টিফিকেট · প্রমাণিত দক্ষতা", "970+ resources · 3-tier certificates · proven skills")}</span>
         </h1>
 
         <p className="mt-3 text-base md:text-lg text-[#475569] font-medium max-w-md mx-auto">
           {t(
-            "সঠিক দক্ষতা ছাড়া YouTube-এ বড় হওয়া কঠিন — আমরা সেই ভিত্তি গড়ে দিই। ফ্রি ডেমো ক্লাস দিয়ে শুরু করুন।",
-            "Growing on YouTube without the right skills is hard — we build that foundation. Start with a free demo class."
+            "ইউটিউব-এ বড় হওয়ার সঠিক পথ — আমরা গাইড করব ধাপে ধাপে। ফ্রি ডেমো ক্লাস দিয়ে আজই শুরু করুন।",
+            "The right path to grow on YouTube — we guide you step by step. Start today with a free demo class."
           )}
         </p>
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm font-black">
-          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("ফ্রি রেজিস্ট্রেশন", "Free Registration")}</span>
-          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("ফ্রি ডেমো ক্লাস", "Free Demo Class")}</span>
+          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("ফ্রি আজীবন", "Free forever")}</span>
+          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("কোনো হিডেন চার্জ নেই", "No hidden fees")}</span>
+          <span className="badge-glow bg-white border border-[#E2E8F0] text-[#0B1F33]">✅ {t("গুগল সুরক্ষিত", "Google secured")}</span>
         </div>
       </section>
 
       {/* Auth card */}
-      <section className="px-4 pb-10">
+      <section id="auth-card" className="px-4 pb-10 scroll-mt-20">
         <div className="max-w-md mx-auto card-splash animate-pop-in">
           <div className="text-center mb-5">
             <div className="mx-auto w-20 h-20 rounded-3xl bg-pink/10 flex items-center justify-center text-4xl animate-floaty">
@@ -106,8 +107,9 @@ export default function HomePage() {
           )}
 
           {checking ? (
-            <div className="flex justify-center py-6">
-              <div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" />
+            <div className="space-y-3 animate-pulse">
+              <div className="h-12 rounded-2xl bg-slate-200" />
+              <div className="h-3 rounded-full bg-slate-100 w-3/4 mx-auto" />
             </div>
           ) : me ? (
             <div className="space-y-3">
@@ -175,12 +177,54 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trust bar — real verifiable trust, no fake numbers */}
+      <section className="px-4 pb-10">
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-3 text-center">
+          <div className="card-pop !p-3 !rounded-xl">
+            <p className="text-lg">🔒</p>
+            <p className="text-xs font-black text-brand">{t("গুগল সুরক্ষিত", "Google Secured")}</p>
+            <p className="text-[10px] text-ink-soft">{t("তথ্য এনক্রিপ্টেড", "Encrypted")}</p>
+          </div>
+          <div className="card-pop !p-3 !rounded-xl">
+            <p className="text-lg">✅</p>
+            <p className="text-xs font-black text-brand">{t("কিউআর যাচাই", "QR Verified")}</p>
+            <p className="text-[10px] text-ink-soft">{t("নিয়োগকর্তা যাচাই", "Employer verify")}</p>
+          </div>
+          <div className="card-pop !p-3 !rounded-xl">
+            <p className="text-lg">✍️</p>
+            <p className="text-xs font-black text-brand">{t("এক্সিকিউটিভ সই", "Executive Signed")}</p>
+            <p className="text-[10px] text-ink-soft">{t("সিইও, সিবিও, এপিএস", "CEO, CBO, APAC")}</p>
+          </div>
+          <div className="card-pop !p-3 !rounded-xl">
+            <p className="text-lg">🎁</p>
+            <p className="text-xs font-black text-brand">{t("ফ্রি আজীবন", "Free Forever")}</p>
+            <p className="text-[10px] text-ink-soft">{t("কোনো সাবস্ক্রিপশন নেই", "No subscription")}</p>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="px-4 pb-12 text-center text-xs text-ink-soft safe-bottom">
+      <footer className="px-4 pb-24 md:pb-12 text-center text-xs text-ink-soft safe-bottom">
         <p className="font-bold">
           {t("একটি Google অ্যাকাউন্ট — দুই প্ল্যাটফর্মে একই প্রোফাইল ও ডাটা।", "One Google account — same profile & data across both platforms.")}
         </p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-[11px]">
+          <a href="/privacy" className="underline hover:text-brand">{t("প্রাইভেসি", "Privacy")}</a>
+          <span className="text-line">•</span>
+          <a href="/terms" className="underline hover:text-brand">{t("শর্তাবলী", "Terms")}</a>
+          <span className="text-line">•</span>
+          <a href="mailto:support@youtube-earner.com" className="underline hover:text-brand">{t("যোগাযোগ", "Contact")}</a>
+          <span className="text-line">•</span>
+          <span>{t("সহায়তা: হোয়াটসঅ্যাপ ৯টা-৯টা", "Support: WhatsApp 9AM-9PM")}</span>
+        </div>
       </footer>
+
+      {/* Sticky Mobile CTA — only on home, hidden on desktop */}
+      <div className="fixed inset-x-0 bottom-0 z-30 md:hidden border-t border-line bg-white/95 backdrop-blur px-4 pt-3 pb-3 safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <button onClick={() => document.getElementById('auth-card')?.scrollIntoView({behavior:'smooth', block:'center'})} className="w-full btn-excite text-sm !py-3">
+          🚀 {t("গুগলে লগইন করে ফ্রি শুরু করুন", "Start free with Google")}
+        </button>
+      </div>
     </main>
   );
 }

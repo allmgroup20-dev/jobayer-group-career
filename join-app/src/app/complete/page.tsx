@@ -729,7 +729,7 @@ export default function CompletePage() {
       return {
         title: t("Elite এখনই আনলক করুন", "Unlock Elite now"),
         sub: t(
-          "Foundation ✓ — কমিটমেন্ট ফি দিলেই Elite সার্টিফিকেট সাথে সাথে",
+          "Foundation ✓ — এলিট অ্যাক্সেস ফি দিলেই Elite সার্টিফিকেট সাথে সাথে",
           "Foundation ✓ — commit once and get the Elite certificate instantly"
         ),
         cta: t("Elite ধাপ দেখুন", "Open Elite step"),
@@ -807,21 +807,21 @@ export default function CompletePage() {
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
                   >
-                    🔄 {t("পুনরায় পাঠান", "Send again")}
+                    🔄 {t("আবার শেয়ার করুন", "Share again")}
                   </button>
                 ) : failedPhones.has(c.phone) ? (
                   <button
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 border border-red/40 text-red text-[10px] font-black active:scale-95 transition-all"
                   >
-                    📤 {t("পুনরায় পাঠান", "Send again")}
+                    📤 {t("আবার শেয়ার করুন", "Share again")}
                   </button>
                 ) : (
                   <button
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
                   >
-                    📤 {t("WhatsApp-এ পাঠান", "Send")}
+                    📤 {t("বন্ধুকে পাঠান", "Send to friend")}
                   </button>
                 )}
               </div>
@@ -855,7 +855,7 @@ export default function CompletePage() {
                   onClick={() => sendTo(c.phone, c.shareText)}
                   className="flex-shrink-0 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-black active:scale-95 transition-all"
                 >
-                  🔁 {t("আবার পাঠান", "Send again")}
+                  🔁 {t("আবার শেয়ার করুন", "Share again")}
                 </button>
               )}
             </div>
@@ -1291,13 +1291,13 @@ export default function CompletePage() {
             <>
               {!completed && (
                 <p className="mt-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই কমিটমেন্ট ফি দিয়ে কমিটেড হতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become committed now with commitment fee.")}
+                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই এলিট অ্যাক্সেস ফি দিয়ে কমিটেড হতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become committed now with commitment fee.")}
                 </p>
               )}
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                 <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
-                <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("কমিটমেন্ট ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
+                <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("এলিট অ্যাক্সেস ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2 items-start">
                     <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">🎓</span>
