@@ -158,6 +158,27 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 970+ Resources explained */}
+      <section className="px-4 pb-10">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-center text-lg font-black text-brand">
+            {t("৯৭০+ রিসোর্স — কী পাবেন?", "970+ Resources — what is inside?")}
+          </h2>
+          <p className="text-center text-xs text-ink-soft mt-1">
+            {t("ক্যাটাগরি অনুযায়ী সাজানো — কোনটা ফ্রি, কোনটা প্রিমিয়াম পরিষ্কার লেবেল", "Organized by category — clearly labeled Free / Premium")}
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold">
+            <div className="card-pop !p-3 flex items-center gap-2"><span className="text-base">🎬</span> {t("ইউটিউব গ্রোথ", "YouTube Growth")} <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-teal/15 text-teal">Free</span></div>
+            <div className="card-pop !p-3 flex items-center gap-2"><span className="text-base">💼</span> {t("ফ্রিল্যান্সিং", "Freelancing")} <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-gold/15 text-gold">Premium</span></div>
+            <div className="card-pop !p-3 flex items-center gap-2"><span className="text-base">📢</span> {t("ডিজিটাল মার্কেটিং", "Digital Marketing")} <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-teal/15 text-teal">Free</span></div>
+            <div className="card-pop !p-3 flex items-center gap-2"><span className="text-base">🎨</span> {t("ভিডিও এডিটিং", "Video Editing")} <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-violet/15 text-violet">Premium</span></div>
+          </div>
+          <p className="mt-2 text-center text-[11px] text-ink-soft">
+            {t("লগইন করলেই ৫০+ ফ্রি রিসোর্স সাথে সাথে — বাকি ধাপে ধাপে আনলক", "50+ free resources instantly after login — rest unlock step by step")}
+          </p>
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="px-4 pb-16">
         <div className="max-w-md mx-auto">
@@ -199,6 +220,71 @@ export default function HomePage() {
             <p className="text-lg">🎁</p>
             <p className="text-xs font-black text-brand">{t("ফ্রি আজীবন", "Free Forever")}</p>
             <p className="text-[10px] text-ink-soft">{t("কোনো সাবস্ক্রিপশন নেই", "No subscription")}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ — objection handling, no fake claims */}
+      <section className="px-4 pb-10">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-center text-xl font-black text-brand mb-4">
+            {t("প্রায়শই জিজ্ঞাসিত প্রশ্ন", "Frequently Asked Questions")} ❓
+          </h2>
+          <div className="space-y-3">
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("পরে টাকা দিতে হবে?", "Will I have to pay later?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("না। রেজিস্ট্রেশন, ডেমো ক্লাস, ৫০+ রিসোর্স ও ফাউন্ডেশন সার্টিফিকেট — সব ফ্রি আজীবন। শুধু অরিজিনাল প্রিন্ট কপি নিতে চাইলে ডেলিভারি খরচ (প্রিন্ট+শিপিং) দিতে হয় — তাও ঐচ্ছিক।", "No. Registration, demo class, 50+ resources and Foundation certificate are free forever. Only if you order a printed original copy you pay delivery (print+shipping) — and that is optional.")}
+              </p>
+            </details>
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("কতদিনে সার্টিফিকেট পাব?", "How long to get certificate?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("ফাউন্ডেশন: আপনার শেয়ার গতির ওপর — গড়ে ১-২ সপ্তাহে ৩০ শেয়ার পূর্ণ হলে। অ্যাম্বাসেডর: ১১ রেফারেল + ৩ টাস্ক। এলিট: এলিট অ্যাক্সেস ফি দিয়ে সাথে সাথে।", "Foundation: depends on your sharing pace — avg 1-2 weeks to complete 30 shares. Ambassador: 11 referrals + 3 tasks. Elite: instantly with Elite access fee.")}
+              </p>
+            </details>
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("কী শিখব?", "What will I learn?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("ইউটিউব চ্যানেল গ্রোথ, এসইও, থাম্বনেল, মনিটাইজেশন, কমিউনিটি বিল্ডিং, ফ্রিল্যান্সিং ও ডিজিটাল মার্কেটিং — ৯৭০+ রিসোর্স ধাপে ধাপে।", "YouTube channel growth, SEO, thumbnails, monetization, community building, freelancing and digital marketing — 970+ resources step by step.")}
+              </p>
+            </details>
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("তথ্য কি নিরাপদ?", "Is my data safe?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("গুগল OAuth 2.0, এনক্রিপ্টেড ডাটাবেস, তৃতীয় পক্ষের কাছে বিক্রি করা হয় না। যেকোনো সময় ডাটা ডিলিটের অনুরোধ করতে পারেন।", "Google OAuth 2.0, encrypted database, never sold to third parties. You can request data deletion anytime.")}
+              </p>
+            </details>
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("মোবাইলেই কি হবে?", "Will it work on mobile?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("১০০% মোবাইল ফ্রেন্ডলি — কোনো অ্যাপ ডাউনলোড দরকার নেই, ব্রাউজারেই সব কাজ হয়।", "100% mobile friendly — no app download needed, everything works in the browser.")}
+              </p>
+            </details>
+            <details className="card-pop !p-4 group">
+              <summary className="font-black text-brand cursor-pointer list-none flex items-center justify-between">
+                {t("সাহায্য কিভাবে পাব?", "How to get help?")}
+                <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                {t("হোয়াটসঅ্যাপ সাপোর্ট সকাল ৯টা–রাত ৯টা এবং support@youtube-earner.com — সাধারণত কয়েক ঘণ্টার মধ্যে উত্তর।", "WhatsApp support 9AM–9PM and support@youtube-earner.com — usually replied within hours.")}
+              </p>
+            </details>
           </div>
         </div>
       </section>
