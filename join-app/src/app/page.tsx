@@ -101,7 +101,7 @@ export default function HomePage() {
           </div>
 
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm font-bold text-red-800">
+            <div role="alert" aria-live="polite" className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm font-bold text-red-800">
               ⚠️ {error}
             </div>
           )}
@@ -288,6 +288,48 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "পরে টাকা দিতে হবে?",
+                acceptedAnswer: { "@type": "Answer", text: "না। রেজিস্ট্রেশন, ডেমো ক্লাস, ৫০+ রিসোর্স ও ফাউন্ডেশন সার্টিফিকেট — সব ফ্রি আজীবন। শুধু অরিজিনাল প্রিন্ট কপি নিতে চাইলে ডেলিভারি খরচ দিতে হয় — তাও ঐচ্ছিক।" },
+              },
+              {
+                "@type": "Question",
+                name: "কতদিনে সার্টিফিকেট পাব?",
+                acceptedAnswer: { "@type": "Answer", text: "ফাউন্ডেশন: গড়ে ১-২ সপ্তাহে ৩০ শেয়ার পূর্ণ হলে। অ্যাম্বাসেডর: ১১ রেফারেল + ৩ টাস্ক। এলিট: এলিট অ্যাক্সেস ফি দিয়ে সাথে সাথে।" },
+              },
+              {
+                "@type": "Question",
+                name: "কী শিখব?",
+                acceptedAnswer: { "@type": "Answer", text: "ইউটিউব চ্যানেল গ্রোথ, এসইও, থাম্বনেল, মনিটাইজেশন, কমিউনিটি বিল্ডিং, ফ্রিল্যান্সিং ও ডিজিটাল মার্কেটিং — ৯৭০+ রিসোর্স ধাপে ধাপে।" },
+              },
+              {
+                "@type": "Question",
+                name: "তথ্য কি নিরাপদ?",
+                acceptedAnswer: { "@type": "Answer", text: "গুগল OAuth 2.0, এনক্রিপ্টেড ডাটাবেস, তৃতীয় পক্ষের কাছে বিক্রি করা হয় না। যেকোনো সময় ডাটা ডিলিটের অনুরোধ করতে পারেন।" },
+              },
+              {
+                "@type": "Question",
+                name: "মোবাইলেই কি হবে?",
+                acceptedAnswer: { "@type": "Answer", text: "১০০% মোবাইল ফ্রেন্ডলি — কোনো অ্যাপ ডাউনলোড দরকার নেই, ব্রাউজারেই সব কাজ হয়।" },
+              },
+              {
+                "@type": "Question",
+                name: "সাহায্য কিভাবে পাব?",
+                acceptedAnswer: { "@type": "Answer", text: "হোয়াটসঅ্যাপ সাপোর্ট সকাল ৯টা–রাত ৯টা এবং support@youtube-earner.com — সাধারণত কয়েক ঘণ্টার মধ্যে উত্তর।" },
+              },
+            ],
+          }),
+        }}
+      />
 
       {/* Footer */}
       <footer className="px-4 pb-24 md:pb-12 text-center text-xs text-ink-soft safe-bottom">

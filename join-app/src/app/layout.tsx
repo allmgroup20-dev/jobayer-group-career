@@ -60,11 +60,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     type: "website",
     locale: "bn_BD",
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
   },
   twitter: {
     card: "summary",
     title: "ইউটিউব আর্নার — দক্ষতা শিখুন, রেওয়ার্ড আনলক করুন",
     description: "ফ্রি ডেমো ক্লাস, ৯৭০+ প্রিমিয়াম রিসোর্স, সার্টিফিকেট ও বোনাস রিসোর্স।",
+    images: ["/logo.png"],
   },
 };
 
@@ -76,9 +78,19 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    sameAs: [],
+    description: "ইউটিউব আর্নার — আসল নিয়ম শিখুন, বাস্তব সার্টিফিকেট পান। ৯৭০+ রিসোর্স, ৩-টিয়ার সার্টিফিকেট।",
+  };
   return (
     <html lang="bn" className={`${solaimanLipi.variable} ${notoBengali.variable} ${cinzel.variable} ${greatVibes.variable}`}>
       <body className="min-h-screen bg-bg font-bengali antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

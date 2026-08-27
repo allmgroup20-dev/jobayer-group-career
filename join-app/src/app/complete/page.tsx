@@ -957,7 +957,7 @@ export default function CompletePage() {
           <p className="mt-2 text-xs font-bold text-teal">{motivation(percent, sentCount, target)}</p>
 
           {msg && (
-            <div className={`mt-3 px-3 py-2 rounded-xl text-xs font-bold ${
+            <div role={msg.kind === "error" ? "alert" : "status"} aria-live="polite" className={`mt-3 px-3 py-2 rounded-xl text-xs font-bold ${
               msg.kind === "ok" ? "bg-teal/15 text-teal border border-teal/30"
               : msg.kind === "warn" ? "bg-gold/15 text-gold border border-gold/30"
               : "bg-red/15 text-red border border-red/30"

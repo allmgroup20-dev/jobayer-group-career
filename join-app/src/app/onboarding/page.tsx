@@ -531,12 +531,12 @@ export default function OnboardingPage() {
 
         <div className="card-pop animate-pop-in !p-6 md:!p-8">
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm font-bold text-red-600">
+            <div role="alert" aria-live="polite" className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm font-bold text-red-600">
               ⚠️ {error}
             </div>
           )}
           {saved && (
-            <div className="mb-4 px-4 py-3 rounded-2xl bg-teal-50 border border-teal-200 text-sm font-bold text-teal-600">
+            <div role="status" aria-live="polite" className="mb-4 px-4 py-3 rounded-2xl bg-teal-50 border border-teal-200 text-sm font-bold text-teal-600">
               ✅ {saved}
             </div>
           )}
