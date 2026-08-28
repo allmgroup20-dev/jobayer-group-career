@@ -150,16 +150,6 @@ const CONTACT_PREFS = [
   { en: "SMS", bn: "এসএমএস", v: "sms", e: "📱" },
 ];
 
-const BUDGETS = [
-  { en: "1 - 100 ৳", bn: "১ - ১০০ টাকা", v: "1_100" },
-  { en: "100 - 300 ৳", bn: "১০০ - ৩০০ টাকা", v: "100_300" },
-  { en: "300 - 500 ৳", bn: "৩০০ - ৫০০ টাকা", v: "300_500" },
-  { en: "500 - 1,000 ৳", bn: "৫০০ - ১,০০০ টাকা", v: "500_1000" },
-  { en: "1,000 - 2,000 ৳", bn: "১,০০০ - ২,০০০ টাকা", v: "1000_2000" },
-  { en: "2,000 - 5,000 ৳", bn: "২,০০০ - ৫,০০০ টাকা", v: "2000_5000" },
-  { en: "5,000 - 10,000 ৳", bn: "৫,০০০ - ১০,০০০ টাকা", v: "5000_10000" },
-];
-
 const INTERESTS = [
   { en: "YouTube Content Creation", bn: "ইউটিউব কনটেন্ট ক্রিয়েশন", icon: "🎬", goals: ["content_creator", "extra_income", "business"] },
   { en: "Facebook Content Creation & Page Monetization", bn: "ফেসবুক কনটেন্ট ও পেজ মনিটাইজেশন", icon: "📱", goals: ["content_creator", "extra_income", "business"] },
@@ -273,7 +263,6 @@ export default function OnboardingPage() {
     interests: [] as string[],
     incomeSectors: [] as string[],
     preferredLearningTime: "",
-    budgetRange: "",
     referralSource: "",
     communicationPreference: "whatsapp",
   });
@@ -313,7 +302,6 @@ export default function OnboardingPage() {
           preferredLearningTime: data.preferredLearningTime || "",
           referralSource: data.referralSource || "",
           communicationPreference: data.communicationPreference || "whatsapp",
-          budgetRange: data.budgetRange || "",
         }));
         if (data.profileCompleted) {
           router.replace("/complete");
@@ -404,7 +392,6 @@ export default function OnboardingPage() {
       case "goals":
         if (!form.goal) return t("আপনার লক্ষ্য নির্বাচন করুন", "Select your goal");
         if (!form.preferredLearningTime) return t("পড়ার সময় নির্বাচন করুন", "Select preferred time");
-        if (!form.budgetRange) return t("বাজেট নির্বাচন করুন", "Select your budget");
         return "";
       case "source":
         if (!form.referralSource) return t("কীভাবে জানলেন নির্বাচন করুন", "Select how you found us");
@@ -450,7 +437,7 @@ export default function OnboardingPage() {
           });
           break;
         case "goals":
-          await api("/api/profile", { goal: form.goal, preferredLearningTime: form.preferredLearningTime, budgetRange: form.budgetRange });
+          await api("/api/profile", { goal: form.goal, preferredLearningTime: form.preferredLearningTime });
           if (form.interests.length > 0) {
             await fetch("/api/interests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ interests: form.interests }) }).catch(() => {});
           }
@@ -917,10 +904,6 @@ export default function OnboardingPage() {
                 {label("প্রতিদিন শেখার সময় *", "Daily Study Time *")}
                 <Pick options={DAILY_HOURS} value={form.preferredLearningTime} onPick={(v) => update("preferredLearningTime", v)} />
                 <p className="text-xs text-ink-soft mt-1">{t("রেকর্ডেড কোর্স যেকোনো সময় দেখা যায় — আপনার সুবিধা অনুযায়ী পরামর্শ দেব", "Recorded courses can be watched anytime — we'll guide you by your schedule")}</p>
-              </div>
-              <div>
-                {label("বাজেট (প্রতি কোর্সে) *", "Budget Range *")}
-                <Pick options={BUDGETS} value={form.budgetRange} onPick={(v) => update("budgetRange", v)} />
               </div>
             </div>
           )}
