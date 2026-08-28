@@ -32,6 +32,8 @@ function CertificateView() {
   const [data, setData] = useState<CertData | null>(null);
   const [showValue, setShowValue] = useState(false);
   const [showZoom, setShowZoom] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [showDelivery, setShowDelivery] = useState(false);
   const [deliveryMode, setDeliveryMode] = useState<"post" | "home">("post");
   const [postOfficeName, setPostOfficeName] = useState("");
   const [postOfficeAddress, setPostOfficeAddress] = useState("");
@@ -170,84 +172,8 @@ function CertificateView() {
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
 
-        {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit.
-            Clicking it opens the fullscreen zoom viewer (CertLightbox). */}
-        <button
-          type="button"
-          onClick={() => setShowZoom(true)}
-          aria-label={t("সার্টিফিকেট বড় করে দেখুন", "View certificate larger")}
-          className="mt-2 block w-full text-left active:scale-[0.995] transition-transform"
-        >
-          <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
-            <CertCanvas
-              className="print-area"
-              tier={tier}
-              data={{
-                name: data.name,
-                certificateId: data.certificateId,
-                date,
-                qrValue: verifyUrl,
-                siteUrl: data.siteUrl,
-              }}
-              style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}
-            />
-          </div>
-        </button>
-
-        <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-[#2DD4BF] print:hidden">
-          🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
-        </p>
-
-        {/* Owner tools — below the certificate so employers see verification first */}
-        <div className="mt-4 flex items-center justify-between print:hidden gap-2 flex-wrap">
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.print()}
-              className="btn-excite text-sm !py-3 px-5"
-            >
-              ⬇️ ডাউনলোড
-            </button>
-            <button
-              onClick={() => document.getElementById("delivery-card")?.scrollIntoView({ behavior: "smooth" })}
-              className="btn-outline text-sm !py-3 px-5"
-            >
-              📮 {t("অরিজিনাল কপি অর্ডার করুন", "Order Original Copy")}
-            </button>
-          </div>
-          <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
-        </div>
-
-        <CertLightbox
-          open={showZoom}
-          onClose={() => setShowZoom(false)}
-          tier={tier}
-          data={{
-            name: data.name,
-            certificateId: data.certificateId,
-            date,
-            qrValue: verifyUrl,
-            siteUrl: data.siteUrl,
-          }}
-        />
-
-        <style>{`
-          @media print {
-            @page { size: A4 landscape; margin: 0; }
-            body * { visibility: hidden !important; }
-            .print-area, .print-area * { visibility: visible !important; }
-            .print-area {
-              transform: none !important;
-              width: 297mm !important;
-              height: 210mm !important;
-              position: absolute !important;
-              left: 0 !important; top: 0 !important;
-              box-shadow: none !important; border-radius: 0 !important;
-            }
-          }
-        `}</style>
-
-        {/* Value / benefits — behind a button so the page stays calm */}
-        <div className="mt-6 print:hidden">
+        {/* Value — on top */}
+        <div className="mt-4 print:hidden">
           <button
             onClick={() => setShowValue((v) => !v)}
             className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 active:scale-[0.99] transition-all"
@@ -258,7 +184,6 @@ function CertificateView() {
 
           {showValue && (
             <div className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
-              {/* Tier badge */}
               <div className={`mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-black tracking-wider uppercase ${tier === "elite" ? "bg-gold/15 border-gold/30 text-gold" : tier === "ambassador" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/10 border-white/15 text-white/70"}`}>
                 {tier === "elite" ? t("Elite · সর্বোচ্চ সম্মান", "Elite · Highest Honor")
                   : tier === "ambassador" ? t("Ambassador · প্রফেশনাল", "Ambassador · Professional")
@@ -322,8 +247,91 @@ function CertificateView() {
           )}
         </div>
 
-        {/* Original Certificate Delivery — India/Singapore -> Bangladesh Post Office / Home */}
-        <div id="delivery-card" className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
+        {/* Certificate — fixed A4-landscape canvas (297x210mm), scaled to fit.
+            Clicking it opens the fullscreen zoom viewer (CertLightbox). */}
+        {/* View — middle */}
+        <div className="mt-4 print:hidden">
+          <button
+            onClick={() => setShowCertificate((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-white">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+            <span className={`text-white/60 text-sm transition-transform ${showCertificate ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showCertificate && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => setShowZoom(true)}
+                aria-label={t("সার্টিফিকেট বড় করে দেখুন", "View certificate larger")}
+                className="block w-full text-left active:scale-[0.995] transition-transform"
+              >
+                <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
+                  <CertCanvas
+                    className="print-area"
+                    tier={tier}
+                    data={{
+                      name: data.name,
+                      certificateId: data.certificateId,
+                      date,
+                      qrValue: verifyUrl,
+                      siteUrl: data.siteUrl,
+                    }}
+                    style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}
+                  />
+                </div>
+              </button>
+              <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-[#2DD4BF]">
+                🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
+              </p>
+              <div className="mt-3 flex gap-2">
+                <button onClick={() => window.print()} className="btn-excite text-sm !py-3 px-5">⬇️ ডাউনলোড</button>
+                <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <CertLightbox
+          open={showZoom}
+          onClose={() => setShowZoom(false)}
+          tier={tier}
+          data={{
+            name: data.name,
+            certificateId: data.certificateId,
+            date,
+            qrValue: verifyUrl,
+            siteUrl: data.siteUrl,
+          }}
+        />
+
+        <style>{`
+          @media print {
+            @page { size: A4 landscape; margin: 0; }
+            body * { visibility: hidden !important; }
+            .print-area, .print-area * { visibility: visible !important; }
+            .print-area {
+              transform: none !important;
+              width: 297mm !important;
+              height: 210mm !important;
+              position: absolute !important;
+              left: 0 !important; top: 0 !important;
+              box-shadow: none !important; border-radius: 0 !important;
+            }
+          }
+        `}</style>
+
+        {/* Order — bottom */}
+        <div className="mt-4 print:hidden">
+          <button
+            onClick={() => setShowDelivery((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
+            <span className={`text-white/60 text-sm transition-transform ${showDelivery ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showDelivery && (
+        <div id="delivery-card" className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6 print:hidden">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📮</div>
             <div>
@@ -418,6 +426,8 @@ function CertificateView() {
             {deliveryPaying ? t("প্রক্রিয়াধীন…", "Processing…") : rateInfo ? t(`💳 ${rateInfo.totalBdt.toLocaleString("en-US")} টাকা — SSLCommerz দিয়ে পে করুন`, `Pay ${rateInfo.totalBdt.toLocaleString("en-US")} Taka via SSLCommerz`) : t("💳 পে করুন — SSLCommerz", "Pay via SSLCommerz")}
           </button>
           <p className="mt-1.5 text-[10px] text-white/40 text-center">SSLCommerz • bKash / Nagad / Card • {t("শুধু টাকা, পয়সা বাদ — আজকের রেটে • পেমেন্টের পরেই অর্ডার কনফার্ম হবে", "Taka only, no paisa — at today's rate • order confirmed right after payment")}</p>
+        </div>
+          )}
         </div>
 
         {/* Next, even more valuable certificate teaser */}
