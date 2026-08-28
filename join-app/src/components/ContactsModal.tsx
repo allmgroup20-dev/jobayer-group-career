@@ -218,7 +218,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
               <div className="mt-3 px-3 py-2 rounded-xl bg-teal/10 border border-teal/20 text-[11px] font-bold text-teal">
                 {selected.size > 0
                   ? `✅ ${selected.size} জন বেছে নিয়েছেন — যতজন চান, সবই পারবেন!`
-                  : `অল্প কয়েকজন বেছে নিন — শেয়ার করলে আপনার পার্সেন্টেজ বাড়বে!`}
+                  : `অল্প কয়েকজন বেছে নিন — আমন্ত্রণ জানালে আপনার পার্সেন্টেজ বাড়বে!`}
               </div>
 
               {/* List */}
@@ -260,7 +260,7 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
               disabled={selected.size === 0 || busy}
               className="w-full py-3.5 rounded-2xl bg-excite text-white text-sm font-black hover:bg-excite-light active:scale-[0.99] transition-all disabled:opacity-40"
             >
-              {busy ? "যোগ হচ্ছে…" : `✅ ${selected.size} জন যুক্ত করুন`}
+              {busy ? "যোগ হচ্ছে…" : `✅ ${selected.size} জনকে আমন্ত্রণ জানান`}
             </button>
             {selected.size > 0 && (
               <p className="mt-2 text-center text-[11px] text-muted">এখন যা বেছে নিলেন তা-ই যোগ হবে — পরে আরও যোগ করতে পারবেন</p>

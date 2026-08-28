@@ -308,7 +308,7 @@ export default function CompletePage() {
         } else if (data.percent >= 50 && prevPercent < 50) {
           setMsg({ kind: "ok", text: t(`🎯 অর্ধেক পথ শেষ! এখন ${data.percent}% — চালিয়ে যান!`, `🎯 Halfway there! You're at ${data.percent}% — keep going!`) });
         } else if (data.sent > 0 && data.sent % 5 === 0) {
-          setMsg({ kind: "ok", text: t(`👏 দারুণ গতি! এখন ${data.percent}% — নতুন ভিন্ন মানুষদের কাছে শেয়ার করুন 💪`, `👏 Great pace! You're at ${data.percent}% — now share with new different people 💪`) });
+          setMsg({ kind: "ok", text: t(`👏 দারুণ গতি! এখন ${data.percent}% — নতুন আগ্রহীদের আমন্ত্রণ জানান 💪`, `👏 Great pace! You're at ${data.percent}% — now invite new interested friends 💪`) });
         }
       }
     } catch { /* ignore */ }
@@ -427,7 +427,7 @@ export default function CompletePage() {
     if (percent >= 60) return t("দারুণ! ৬০%+ — অর্ধেকের বেশি পার করেছেন!", "Great! Past 60% — over halfway there!");
     if (percent >= 40) return t("ভালো করছেন! ৪০%+ — এগিয়ে যান!", "Good going! 40%+ — keep it up!");
     if (percent >= 20) return t("চমৎকার শুরু! ২০%+ — চালিয়ে যান!", "Great start! 20%+ — keep going!");
-    return t("শুধু একজনকে পাঠালেই শুরু — দেখুন আপনার পার্সেন্টেজ বাড়ছে! ১০০%-এ পৌঁছালেই সার্টিফিকেট।", "Start with just one person — watch your percentage grow! Reach 100% and earn your certificate.");
+    return t("শুধু একজনকে আমন্ত্রণ জানালেই শুরু — দেখুন আপনার পার্সেন্টেজ বাড়ছে! ১০০%-এ পৌঁছালেই সার্টিফিকেট।", "Start by inviting just one person — watch your percentage grow! Reach 100% and earn your certificate.");
   };
 
   const confetti = useMemo(() => {
@@ -694,7 +694,7 @@ export default function CompletePage() {
   const shownSent = expanded ? shownSentAll : shownSentAll.slice(0, LIST_PREVIEW);
   const hiddenCount = (shownSelectedAll.length - shownSelected.length) + (shownSentAll.length - shownSent.length);
   const sentCount = share?.sent ?? 0;
-  const target = share?.target ?? 30;
+  const target = share?.target ?? 33;
   const referralJoins = me?.referralJoins ?? 0;
 
   // Next Best Action — the ONE thing to do right now, based on real progress.
@@ -704,20 +704,20 @@ export default function CompletePage() {
       return {
         title: t("Foundation সার্টিফিকেট চালিয়ে যান", "Continue your Foundation certificate"),
         sub: t(
-          `${percent}% সম্পন্ন — প্রতিটি শেয়ার আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
-          `${percent}% done — every share moves you closer to 100%`
+          `${percent}% সম্পন্ন — প্রতিটি আমন্ত্রণ আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
+          `${percent}% done — every invitation moves you closer to 100%`
         ),
-        cta: t("শেয়ার চালিয়ে যান", "Continue sharing"),
+        cta: t("আমন্ত্রণ জানাতে থাকুন", "Keep inviting"),
         run: () => switchStep("foundation"),
       };
     }
     if (!isPremium) {
       if (referralJoins < 11) {
         return {
-          title: t("Ambassador: আরও মানুষ যুক্ত করুন", "Ambassador: invite more people"),
+          title: t("Ambassador: আরও শেখার সঙ্গী আমন্ত্রণ জানান", "Ambassador: invite more learning partners"),
           sub: t(
-            `আপনার লিংকে ${referralJoins}/১১ জন যুক্ত হয়েছে — Foundation ✓ সম্পন্ন`,
-            `${referralJoins} of 11 joined via your link — Foundation ✓ complete`
+            `আপনার আমন্ত্রণ লিংকে ${referralJoins}/১১ জন রেজিস্ট্রেশন করেছে — Foundation ✓ সম্পন্ন`,
+            `${referralJoins} of 11 registered via your invitation link — Foundation ✓ complete`
           ),
           cta: t("Ambassador ধাপ দেখুন", "Open Ambassador step"),
           run: () => switchStep("ambassador"),
@@ -804,14 +804,14 @@ export default function CompletePage() {
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-3 py-2 rounded-xl bg-gold/15 border border-gold/30 text-gold text-[10px] font-black active:scale-95 transition-all"
                   >
-                    🔄 {t("আবার শেয়ার করুন", "Share again")}
+                    🔄 {t("আবার আমন্ত্রণ জানান", "Share again")}
                   </button>
                 ) : failedPhones.has(c.phone) ? (
                   <button
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-3 py-2 rounded-xl bg-red/15 border border-red/40 text-red text-[10px] font-black active:scale-95 transition-all"
                   >
-                    📤 {t("আবার শেয়ার করুন", "Share again")}
+                    📤 {t("আবার আমন্ত্রণ জানান", "Share again")}
                   </button>
                 ) : (
                   <button
@@ -852,7 +852,7 @@ export default function CompletePage() {
                   onClick={() => sendTo(c.phone, c.shareText)}
                   className="flex-shrink-0 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-black active:scale-95 transition-all"
                 >
-                  🔁 {t("আবার শেয়ার করুন", "Share again")}
+                  🔁 {t("আবার আমন্ত্রণ জানান", "Share again")}
                 </button>
               )}
             </div>
@@ -927,7 +927,25 @@ export default function CompletePage() {
             </span>
           </div>
           <p className="mt-2 text-xs text-slate-600">
-            {t("৩০ জন শিক্ষার্থীকে পরিচয় করিয়ে সম্পূর্ণ করুন", "Invite 30 learners to reach 100%")}
+            {t("৩৩ জন আগ্রহীকে আমন্ত্রণ জানিয়ে সম্পূর্ণ করুন — ১১+১১+১১ ধাপে", "Invite 33 interested friends — in 11+11+11 steps")}
+          </p>
+          <div className="mt-2 flex gap-1.5">
+            {[1,2,3].map((stepNum) => {
+              const filled = sentCount >= stepNum * 11;
+              const active = sentCount >= (stepNum-1)*11 && sentCount < stepNum*11;
+              const label = stepNum === 1 ? t("প্রথম ১১", "First 11") : stepNum === 2 ? t("দ্বিতীয় ১১", "Next 11") : t("শেষ ১১", "Final 11");
+              return (
+                <div key={stepNum} className={`flex-1 rounded-xl border px-2 py-1.5 text-center ${filled ? "bg-teal/15 border-teal/30" : active ? "bg-gold/15 border-gold/30" : "bg-slate-50 border-slate-200"}`}>
+                  <p className={`text-[10px] font-black ${filled ? "text-teal" : active ? "text-gold" : "text-slate-600"}`}>{label}</p>
+                  <p className={`text-[11px] font-black ${filled ? "text-teal" : active ? "text-gold" : "text-slate-600"}`}>
+                    {filled ? "✓" : `${Math.min(Math.max(sentCount - (stepNum-1)*11, 0), 11)}/১১`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-1.5 text-[10px] text-slate-600 text-center leading-relaxed">
+            {t("প্রতি ১১ জনে একটি ছোট অর্জন — ধীরে, নিজের গতিতে এগোন।", "Every 11 is a small win — go at your own pace.")}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
@@ -1062,7 +1080,7 @@ export default function CompletePage() {
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
               <span>
-                {t("রেফারেল অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
+                {t("আমন্ত্রণ অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
                 <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
               </span>
             </h2>
@@ -1099,24 +1117,24 @@ export default function CompletePage() {
                 <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="w-6 h-6 shrink-0 rounded-full bg-teal/20 text-teal text-xs font-black flex items-center justify-center mt-0.5">১</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-slate-900">{t("১১ জন শিক্ষার্থী যুক্ত করুন", "Get 11 learners to join")}</p>
+                    <p className="text-xs font-black text-slate-900">{t("১১ জন আপনার আমন্ত্রণ লিংকে রেজিস্ট্রেশন করলেই", "Once 11 register via your invitation link")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
                         <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
                       </div>
                       <span className="text-[11px] font-black text-teal">{referralJoins}/11</span>
                     </div>
-                    <p className="mt-1 text-[10px] text-slate-600">{t("আপনার লিংকে যারা আসলে জয়েন করেছে", "People who actually joined through your link")}</p>
+                    <p className="mt-1 text-[10px] text-slate-600">{t("আপনার আমন্ত্রণ লিংকে যারা নিজে থেকে রেজিস্ট্রেশন করেছে", "Those who registered on their own via your invitation link")}</p>
                   </div>
                 </div>
 
-                {/* Step 2 — share written message */}
+                {/* Step 2 — invite message */}
                 <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="w-6 h-6 shrink-0 rounded-full bg-gold/20 text-gold text-xs font-black flex items-center justify-center mt-0.5">২</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-slate-900">{t("লিখিত মেসেজ শেয়ার করুন", "Share the written message")}</p>
+                    <p className="text-xs font-black text-slate-900">{t("আমন্ত্রণ বার্তা জানান", "Share the invitation message")}</p>
                     <p className="mt-0.5 text-[10px] text-slate-600 leading-relaxed">
-                      {t("অ্যাপ থেকে মেসেজ কপি করে ৩টি ফেসবুক গ্রুপ + ১টি WhatsApp গ্রুপ + নিজের প্রোফাইলে পোস্ট করুন", "Copy the message from the app and post it in 3 Facebook groups + 1 WhatsApp group + your own profile")}
+                      {t("অ্যাপ থেকে আমন্ত্রণ বার্তা কপি করে ৩টি ফেসবুক গ্রুপ + ১টি WhatsApp গ্রুপ + নিজের প্রোফাইলে জানান", "Copy the invitation message from the app and share it in 3 Facebook groups + 1 WhatsApp group + your own profile")}
                     </p>
                   </div>
                 </div>
@@ -1127,7 +1145,7 @@ export default function CompletePage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-900">{t("৪টি স্ক্রিনশট জমা দিন", "Submit 4 screenshots")}</p>
                     <p className="mt-0.5 text-[10px] text-slate-600 leading-relaxed">
-                      {t("শেয়ারের স্ক্রিনশট আমাদের পাঠান — ২৪ ঘণ্টার মধ্যে ভেরিফাই করে সার্টিফিকেট দেব", "Send us the screenshots — we verify within 24 hours and issue the certificate")}
+                      {t("আমন্ত্রণের স্ক্রিনশট আমাদের পাঠান — ২৪ ঘণ্টার মধ্যে যাচাই করে সার্টিফিকেট দেব", "Send us the invitation screenshots — we verify within 24 hours and issue the certificate")}
                     </p>
                     <button onClick={() => setShowShotHelp((v) => !v)} className="mt-1.5 text-[10px] font-black text-pink underline">
                       📤 {t("কীভাবে জমা দেবেন", "How to submit")} <span className={`inline-block transition-transform ${showShotHelp ? "rotate-180" : ""}`}>▾</span>
@@ -1198,9 +1216,9 @@ export default function CompletePage() {
                 )}
               </div>
 
-              {/* Sharing tools */}
+              {/* Invitation tools */}
               <div className="mt-4">
-                <p className="text-[11px] font-black text-slate-600 uppercase tracking-wide">{t("আপনার শেয়ার সরঞ্জাম", "Your sharing tools")}</p>
+                <p className="text-[11px] font-black text-slate-600 uppercase tracking-wide">{t("আপনার আমন্ত্রণ সরঞ্জাম", "Your invitation tools")}</p>
                 <input
                   readOnly
                   value={link}
@@ -1213,11 +1231,11 @@ export default function CompletePage() {
                     🔄 {t("নতুন লিংক", "New link")}
                   </button>
                   <button onClick={copyMessage} className={`py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black active:scale-[0.99] transition-all ${msgCopied ? "text-teal" : "text-gold"}`}>
-                    {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("মেসেজ কপি করুন", "Copy message")}`}
+                    {msgCopied ? t("✅ কপি হয়েছে!", "Copied!") : `📝 ${t("আমন্ত্রণ বার্তা কপি করুন", "Copy invitation message")}`}
                   </button>
                 </div>
                 <p className="mt-1.5 text-[10px] text-slate-600 text-center">
-                  {t("প্রতিবার শেয়ারে নতুন আলাদা লিংক তৈরি হয় — সবাই একই লিংক পাবে না", "Every share creates a fresh unique link — no one gets the same link twice")}
+                  {t("প্রতিটি আমন্ত্রণে নতুন আলাদা লিংক তৈরি হয় — সবাই একই লিংক পাবে না", "Every invitation creates a fresh unique link — no one gets the same link twice")}
                 </p>
 
                 <div className="mt-3 flex justify-center">
@@ -1555,7 +1573,7 @@ function AddPeopleBlock({
         </>
       )}
       <p className="text-center text-[11px] text-slate-600 -mt-1">
-        {t("যাদের কাছে আমাদের তথ্যটি শেয়ার করতে চান", "The ones you want to share our info with")}
+        {t("যাদের কাছে আমাদের তথ্যটি আমন্ত্রণ করতে চান", "The ones you want to share our info with")}
       </p>
 
       {contactsSupported ? (
