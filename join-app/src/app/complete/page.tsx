@@ -911,6 +911,41 @@ export default function CompletePage() {
           </div>
         )}
 
+        {/* Hub tabs — one focused step at a time (now at top of card) */}
+        <div role="tablist" aria-label={t("সার্টিফিকেট ধাপ", "Certificate steps")} className="mt-6 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 border border-line p-1">
+          {HUB_TABS.map((tb) => {
+            const active = activeStep === tb.key;
+            return (
+              <button
+                key={tb.key}
+                id={`hub-tab-${tb.key}`}
+                role="tab"
+                aria-selected={active}
+                aria-controls="cert-card"
+                tabIndex={active ? 0 : -1}
+                onKeyDown={(e) => {
+                  const idx = HUB_TABS.findIndex((x) => x.key === tb.key);
+                  let next = -1;
+                  if (e.key === "ArrowRight") next = (idx + 1) % HUB_TABS.length;
+                  else if (e.key === "ArrowLeft") next = (idx - 1 + HUB_TABS.length) % HUB_TABS.length;
+                  else if (e.key === "Home") next = 0;
+                  else if (e.key === "End") next = HUB_TABS.length - 1;
+                  if (next >= 0) {
+                    e.preventDefault();
+                    switchStep(HUB_TABS[next].key);
+                    document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
+                  }
+                }}
+                onClick={() => switchStep(tb.key)}
+                className={`min-h-[48px] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
+              >
+                <span className="text-base leading-none">{tb.icon}</span>
+                <span>{t(tb.bn, tb.en)}</span>
+              </button>
+            );
+          })}
+        </div>
+
 {/* Certificate 1 — Foundation (share task) */}
           {activeStep === "foundation" && (
           <div id="cert-card" className="mt-6 bg-white border border-slate-200 shadow-sm !rounded-[1.25rem] text-left p-4 md:p-5">
@@ -1488,41 +1523,6 @@ export default function CompletePage() {
           )}
         </div>
         )}
-
-        {/* Hub tabs — one focused step at a time */}
-        <div role="tablist" aria-label={t("সার্টিফিকেট ধাপ", "Certificate steps")} className="mt-6 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 border border-line p-1">
-          {HUB_TABS.map((tb) => {
-            const active = activeStep === tb.key;
-            return (
-              <button
-                key={tb.key}
-                id={`hub-tab-${tb.key}`}
-                role="tab"
-                aria-selected={active}
-                aria-controls="cert-card"
-                tabIndex={active ? 0 : -1}
-                onKeyDown={(e) => {
-                  const idx = HUB_TABS.findIndex((x) => x.key === tb.key);
-                  let next = -1;
-                  if (e.key === "ArrowRight") next = (idx + 1) % HUB_TABS.length;
-                  else if (e.key === "ArrowLeft") next = (idx - 1 + HUB_TABS.length) % HUB_TABS.length;
-                  else if (e.key === "Home") next = 0;
-                  else if (e.key === "End") next = HUB_TABS.length - 1;
-                  if (next >= 0) {
-                    e.preventDefault();
-                    switchStep(HUB_TABS[next].key);
-                    document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
-                  }
-                }}
-                onClick={() => switchStep(tb.key)}
-                className={`min-h-[48px] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
-              >
-                <span className="text-base leading-none">{tb.icon}</span>
-                <span>{t(tb.bn, tb.en)}</span>
-              </button>
-            );
-          })}
-        </div>
 
         <button onClick={() => router.push("/")} className="mt-6 btn-outline w-full">
           {t("হোমে ফিরে যান", "Back to Home")}
