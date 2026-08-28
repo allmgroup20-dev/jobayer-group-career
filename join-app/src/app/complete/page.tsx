@@ -75,6 +75,9 @@ export default function CompletePage() {
   const [showCertPreview, setShowCertPreview] = useState(false);
   const [showCert2Preview, setShowCert2Preview] = useState(false);
   const [showCert3Preview, setShowCert3Preview] = useState(false);
+  const [showFoundationValue, setShowFoundationValue] = useState(false);
+  const [showFoundationCert, setShowFoundationCert] = useState(false);
+  const [showFoundationOrder, setShowFoundationOrder] = useState(false);
   const [showWaPicker, setShowWaPicker] = useState(false);
   const [showShotHelp, setShowShotHelp] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
@@ -1079,14 +1082,62 @@ export default function CompletePage() {
                 )}
               </div>
 
-              {share?.certificateId && (
+              {/* Value — on top */}
+              <div className="mt-3">
                 <button
-                  onClick={() => router.push(`/certificate?id=${share.certificateId}`)}
-                  className="mt-4 btn-gold w-full text-sm !py-3.5"
+                  onClick={() => setShowFoundationValue((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
                 >
-                  🎓 {t("সার্টিফিকেট দেখুন", "View Certificate")}
+                  <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</span>
+                  <span className={`text-slate-600 text-sm transition-transform ${showFoundationValue ? "rotate-180" : ""}`}>▾</span>
                 </button>
-              )}
+                {showFoundationValue && (
+                  <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs leading-relaxed text-slate-600 space-y-3">
+                    <p><b>{t("কী ধরনের সার্টিফিকেট", "Type")}</b> — {t("ফাউন্ডেশন — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এর এন্ট্রি-লেভেল অভিজ্ঞতার সনদ।", "Foundation — entry-level certificate.")}</p>
+                    <p><b>{t("কোথায় ব্যবহার", "Where to use")}</b> — {t("ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস এন্ট্রি ভূমিকায়।", "Entry roles in digital marketing, community, sales.")}</p>
+                    <p><b>{t("ক্যারিয়ার", "Career")}</b> — {t("প্রতিটি ধাপে নতুন দক্ষতা — এন্ট্রি থেকে মিড-লেভেলে যাওয়ার ভিত্তি।", "Each step ensures new skills.")}</p>
+                    <p><b>{t("কেন বিশ্বাসযোগ্য", "Why trusted")}</b> — {t("Authorized Signatory + QR যাচাই — ভেরিফাইড।", "Authorized Signatory + QR verified.")}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* View — middle: only certificate + print */}
+              <div className="mt-3">
+                <button
+                  onClick={() => setShowFoundationCert((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
+                >
+                  <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+                  <span className={`text-slate-600 text-sm transition-transform ${showFoundationCert ? "rotate-180" : ""}`}>▾</span>
+                </button>
+                {showFoundationCert && share?.certificateId && (
+                  <div className="mt-3 rounded-2xl bg-white border border-slate-200 p-3">
+                    <CertificateSample variant="foundation" />
+                    <p className="mt-2 text-[11px] font-bold text-teal text-center">✅ {t("এটি ভেরিফাইড — QR দিয়ে যাচাই করুন", "Verified — check via QR")}</p>
+                    <div className="mt-3 flex gap-2">
+                      <a href={`/certificate?id=${share.certificateId}`} className="flex-1 btn-gold text-sm !py-3 text-center">👁️ {t("বড় করে দেখুন", "View larger")}</a>
+                      <button onClick={() => window.print()} className="flex-1 btn-outline text-sm !py-3">⬇️ {t("প্রিন্ট", "Print")}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Order — bottom */}
+              <div className="mt-3">
+                <button
+                  onClick={() => setShowFoundationOrder((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
+                >
+                  <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
+                  <span className={`text-slate-600 text-sm transition-transform ${showFoundationOrder ? "rotate-180" : ""}`}>▾</span>
+                </button>
+                {showFoundationOrder && share?.certificateId && (
+                  <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
+                    <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
+                    <a href={`/certificate?id=${share.certificateId}`} className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
