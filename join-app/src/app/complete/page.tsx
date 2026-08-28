@@ -1349,11 +1349,6 @@ export default function CompletePage() {
             </>
           ) : (
             <>
-              {!completed && (
-                <p className="mt-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-                  🔒 {t("প্রথম সার্টিফিকেট ১০০% করলে Elite আরও দ্রুত আনলক হবে — তবে এখনই এলিট অ্যাক্সেস ফি দিয়ে কমিটেড হতে পারেন।", "Finish the first certificate to 100% for fastest Elite unlock — but you can also become committed now with commitment fee.")}
-                </p>
-              )}
               {/* 9 Premium Facilities — 100% positive, MLM-free */}
               <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
                 <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>

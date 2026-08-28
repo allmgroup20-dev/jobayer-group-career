@@ -6,8 +6,8 @@ import { useLang } from "@/lib/lang";
 
 type Msg = { kind: "ok" | "warn" | "error"; text: string } | null;
 
-const AD_INTERVAL_MIN = 60_000;
-const AD_INTERVAL_RANDOM_MAX = 180_000;
+const AD_INTERVAL_MIN = 180_000;
+const AD_INTERVAL_RANDOM_MAX = 300_000;
 const SKIP_COUNTDOWN_SEC = 5;
 
 function randomInterval() {
@@ -39,6 +39,10 @@ export default function EliteAdOverlay() {
   const [verifying, setVerifying] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [officers, setOfficers] = useState<Array<{ id: number; name: string; status: "viewing" | "accepted" | "pending" | "rejected" }>>([]);
+  const [hasCertificate, setHasCertificate] = useState(false);
+  const [bundleCount, setBundleCount] = useState<1|2|3>(1);
+  const [deliveryDiscount, setDeliveryDiscount] = useState(0);
+  const [deliveryMode, setDeliveryMode] = useState<"post"|"home">("post");
 
   const lastShownRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,6 +64,24 @@ export default function EliteAdOverlay() {
     try {
       const v = localStorage.getItem("elite_premium_attempt");
       if (v) setAttempt(Number(v) || 0);
+    } catch {}
+    try {
+      const r = await fetch("/api/share");
+      if (r.ok) {
+        const d = (await r.json()) as { completed?: boolean; certificateId?: string | null };
+        if (d.completed || d.certificateId) setHasCertificate(true);
+      }
+      const r2 = await fetch("/api/membership/status");
+      if (r2.ok) {
+        const dd = (await r2.json()) as { eliteCertificateId?: string | null };
+        if (dd.eliteCertificateId) setHasCertificate(true);
+      }
+    } catch {}
+    try {
+      const v = localStorage.getItem("original_copy_offer_views");
+      const views = v ? Number(v) : 0;
+      const steps = [0,5,10,15,20,30,40];
+      setDeliveryDiscount(steps[Math.min(views, steps.length-1)] || 0);
     } catch {}
   }, []);
 
@@ -172,12 +194,31 @@ export default function EliteAdOverlay() {
     } finally { setPaying(false); }
   };
 
-  // Show ad with 5-sec skip countdown
+  const handleDeliveryOrder = async () => {
+    try {
+      const res = await fetch("/api/delivery/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: "elite", deliveryMode, bundleCount, discount: bundleCount >= 2 ? deliveryDiscount : 0 }),
+      });
+      const j = await res.json().catch(() => ({})) as { GatewayPageURL?: string; error?: string };
+      if (!res.ok) { setPayMsg({ kind: "error", text: j.error || t("অর্ডার শুরু করা যায়নি", "Could not start order") }); return; }
+      if (j.GatewayPageURL) window.location.href = j.GatewayPageURL;
+    } catch { setPayMsg({ kind: "error", text: t("অর্ডার শুরু করা যায়নি", "Could not start order") }); }
+  };
+
+  // Show ad with 5-sec skip countdown + progressive bundle discount
   const showAd = useCallback(() => {
     if (isPremium) return;
     if (!loggedIn) return;
     const now = Date.now();
     lastShownRef.current = now;
+    try {
+      const views = Number(localStorage.getItem("original_copy_offer_views") || "0") + 1;
+      localStorage.setItem("original_copy_offer_views", String(views));
+      const steps = [0,5,10,15,20,30,40];
+      setDeliveryDiscount(steps[Math.min(views, steps.length-1)] || 0);
+    } catch {}
     setVisible(true);
     setCanSkip(false);
     setSkipRemaining(SKIP_COUNTDOWN_SEC);
@@ -231,7 +272,7 @@ export default function EliteAdOverlay() {
     if (pathname === prevPathRef.current) return;
     prevPathRef.current = pathname;
     if (isPremium || !loggedIn || visible) return;
-    if (Date.now() - lastShownRef.current < 60_000) return;
+    if (Date.now() - lastShownRef.current < 90_000) return;
     // small delay after navigation so page renders first
     const t = setTimeout(() => showAd(), 800);
     return () => clearTimeout(t);
@@ -374,6 +415,35 @@ export default function EliteAdOverlay() {
               </div>
             </div>
           </div>
+
+          {/* Original copy upsell — only if they have a certificate */}
+          {hasCertificate && (
+            <div className="mt-3 rounded-xl bg-teal/5 border border-teal/20 p-3">
+              <p className="text-[11px] font-black text-slate-900 text-center">📮 {t("আপনার সার্টিফিকেটের অরিজিনাল কপি অর্ডার দিন", "Order original copy of your certificate")}</p>
+              <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("হাতে পাওয়া অরিজিনাল কপি — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post office or home delivery")}</p>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                {[1,2,3].map((n)=>(
+                  // @ts-ignore
+                  <button key={n} onClick={()=>setBundleCount(n as 1|2|3)} className={`py-2 rounded-xl border text-xs font-black ${bundleCount===n ? "bg-teal/15 border-teal/30 text-teal" : "bg-white border-slate-200 text-slate-600"}`}>{n} {t("টি"," pcs")}</button>
+                ))}
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                <button onClick={()=>setDeliveryMode("post")} className={`py-2 rounded-xl border text-xs font-black ${deliveryMode==="post" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white border-slate-200 text-slate-600"}`}>📍 {t("পোস্ট অফিস","Post")} 0.5$</button>
+                <button onClick={()=>setDeliveryMode("home")} className={`py-2 rounded-xl border text-xs font-black ${deliveryMode==="home" ? "bg-gold/15 border-gold/30 text-gold" : "bg-white border-slate-200 text-slate-600"}`}>🏠 {t("হোম","Home")} 1$</button>
+              </div>
+              {bundleCount>=2 ? (
+                deliveryDiscount>0 ? (
+                  <p className="mt-2 text-[11px] font-black text-teal text-center">🎉 {t(`আপনি ${deliveryDiscount}% ছাড় পেয়েছেন` , `You got ${deliveryDiscount}% off`)} {deliveryDiscount>=40 ? t("— আপনাকে সর্বোচ্চ ছাড় দেওয়া হয়েছে"," — maximum discount") : ""}</p>
+                ) : (
+                  <p className="mt-2 text-[10px] text-slate-600 text-center">{t("একসাথে ২/৩টি অর্ডারে ডেলিভারি ফি-তে ছাড় পাবেন","Get delivery fee discount on 2/3 bundle")}</p>
+                )
+              ) : (
+                <p className="mt-2 text-[10px] text-slate-600 text-center">{t("১টি-তে ছাড় নেই, ২/৩টি একসাথে নিলে ছাড়","No discount for 1, discount for 2/3 bundle")}</p>
+              )}
+              {deliveryDiscount>=40 && <p className="mt-1 text-[10px] font-bold text-gold text-center">{t("🎉 আপনাকে সর্বোচ্চ ৪০% ছাড় দেওয়া হয়েছে — এর চেয়ে বেশি কোনোভাবেই সম্ভব নয়","You have received the maximum 40% discount — no more possible")}</p>}
+              <button onClick={handleDeliveryOrder} className="mt-2 w-full py-2.5 rounded-xl bg-teal text-white text-xs font-black">📮 {t("অরিজিনাল কপি অর্ডার করুন","Order original copy")}</button>
+            </div>
+          )}
 
           {/* Interest + Survey */}
           <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">

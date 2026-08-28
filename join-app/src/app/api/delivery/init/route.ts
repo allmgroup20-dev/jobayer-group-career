@@ -24,12 +24,19 @@ async function ensureDeliveryTable(env: { DB: D1Database }) {
       val_id TEXT,
       gateway_response TEXT,
       created_at TEXT DEFAULT (datetime('now')),
-      verified_at TEXT
+      verified_at TEXT,
+      bundle_count INTEGER DEFAULT 1,
+      discount_percent INTEGER DEFAULT 0,
+      delivery_fee_usd REAL DEFAULT 0
     )`
   ).run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_delivery_orders_worker ON delivery_orders(worker_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_delivery_orders_tran ON delivery_orders(tran_id)").run();
   await env.DB.prepare("INSERT OR IGNORE INTO company_settings (setting_key, setting_value, setting_type) VALUES ('usd_bdt_rate', '122', 'text')").run();
+  // Backfill for old tables
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN bundle_count INTEGER DEFAULT 1").run(); } catch {}
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN discount_percent INTEGER DEFAULT 0").run(); } catch {}
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN delivery_fee_usd REAL DEFAULT 0").run(); } catch {}
 }
 
 async function getRate(env: { DB: D1Database }): Promise<number> {
@@ -53,14 +60,24 @@ export async function POST(request: NextRequest) {
     const postOfficeName = String(body.postOfficeName || "").slice(0, 200);
     const postOfficeAddress = String(body.postOfficeAddress || "").slice(0, 500);
     const shippingAddress = String(body.shippingAddress || "").slice(0, 1000);
+    let bundleCount = Number(body.bundleCount || 1);
+    if (![1,2,3].includes(bundleCount)) bundleCount = 1;
+    let discount = Number(body.discount || 0);
+    if (bundleCount === 1) discount = 0;
+    discount = Math.max(0, Math.min(40, Math.round(discount)));
+    // Progressive validation: small steps 5,10,15,20,30,40 allowed; else clamp to nearest step
+    const allowed = [0,5,10,15,20,30,40];
+    if (!allowed.includes(discount)) discount = allowed.reduce((a,b)=> Math.abs(b-discount) < Math.abs(a-discount) ? b : a);
 
     if (deliveryMode === "post" && (!postOfficeName || !postOfficeAddress)) {
       return NextResponse.json({ error: "পোস্ট অফিসের নাম ও ঠিকানা দিন" }, { status: 400 });
     }
 
     const baseUsd = tier === "elite" ? 3 : 2;
-    const homeExtraUsd = deliveryMode === "home" ? 1 : 0;
-    const totalUsd = baseUsd + homeExtraUsd;
+    const deliveryFeeRaw = deliveryMode === "home" ? 1 : 0.5;
+    const deliveryFeeUsd = bundleCount >= 2 ? deliveryFeeRaw * (1 - discount / 100) : deliveryFeeRaw;
+    const totalUsd = baseUsd * bundleCount + deliveryFeeUsd;
+    const homeExtraUsd = deliveryFeeUsd;
     const rate = 111; // Fixed special discount (market 124)
     const totalBdt = Math.floor(totalUsd * rate);
 
@@ -75,8 +92,8 @@ export async function POST(request: NextRequest) {
 
     await execute(
       env,
-      "INSERT INTO delivery_orders (worker_id, tier, delivery_mode, base_usd, home_extra_usd, total_usd, total_bdt, usd_rate, post_office_name, post_office_address, shipping_address, status, tran_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
-      [workerId, tier, deliveryMode, baseUsd, homeExtraUsd, totalUsd, totalBdt, rate, postOfficeName || null, postOfficeAddress || null, shippingAddress || null, tranId]
+      "INSERT INTO delivery_orders (worker_id, tier, delivery_mode, base_usd, home_extra_usd, total_usd, total_bdt, usd_rate, post_office_name, post_office_address, shipping_address, status, tran_id, bundle_count, discount_percent, delivery_fee_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)",
+      [workerId, tier, deliveryMode, baseUsd, homeExtraUsd, totalUsd, totalBdt, rate, postOfficeName || null, postOfficeAddress || null, shippingAddress || null, tranId, bundleCount, discount, deliveryFeeUsd]
     );
 
     // Dev mock if no gateway
