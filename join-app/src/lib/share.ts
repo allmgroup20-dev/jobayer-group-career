@@ -71,7 +71,7 @@ export function buildShareLink(siteUrl: string, workerId: string, token: string)
 
 export function buildShareText(siteUrl: string, workerId: string, token: string): string {
   const link = buildShareLink(siteUrl, workerId, token);
-  return `🎯 এখনই জয়েন করুন! ইউটিউব আর্নারে প্রিমিয়াম রিসোর্স, বোনাস রিসোর্স ও সার্টিফিকেট অর্জনের সুযোগ।\nআমার রেফারেল: ${link}`;
+  return `🇧🇩 YouTube-এর পক্ষ থেকে বাংলাদেশীদের জন্য ১০০% ফ্রি সুযোগ — কোনো টাকা ছাড়াই রেজিস্ট্রেশন করে শেখা শুরু করুন\n⭐ চাকরিতে অগ্রাধিকার + কয়েক লক্ষ টাকার কোর্স ফ্রি + ১০০০ নিয়োগে সুযোগ\n🎓 কমিটেড লার্নার • 🌍 জাতীয়/আন্তর্জাতিক • 📚 গাইডলাইন+প্রশিক্ষণ • 🏆 Elite সার্টিফিকেট • ✈️ ইন্ডিয়া ভ্রমণ • 🎉 বার্ষিক পুরস্কার\n👉 আমার আমন্ত্রণ লিংক: ${link}`;
 }
 
 // Checks whether numbers have WhatsApp using the Baileys relay (/check).
