@@ -300,7 +300,7 @@ export default function EliteAdOverlay() {
           {/* 9 Benefits — compact */}
           <div className="mt-3 rounded-xl bg-white border border-[#E2E8F0] p-3 shadow-sm">
             <p className="text-[11px] font-black text-slate-900 text-center">💎 {t("কমিটমেন্টে নয়টি সুবিধা", "Nine Benefits with Commitment")}</p>
-            <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("এলিট অ্যাক্সেস ফি — আগামী ২–৩ বছর আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay 2–3 years, give your preferred budget")}</p>
+            <p className="mt-1 text-[10px] text-slate-600 text-center leading-relaxed">{t("এলিট অ্যাক্সেস ফি — আগামী ছয় মাস থেকে সর্বোচ্চ তিন বছর পর্যন্ত আমাদের সাথে থাকার আগ্রহ কনফার্ম করতে আপনার পছন্দের বাজেট দিন", "Commitment fee — to confirm your interest to stay from six months up to three years, give your preferred budget")}</p>
             <div className="mt-2 space-y-2">
               <div className="flex gap-2 items-start">
                 <span className="w-7 h-7 shrink-0 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-[11px]">🎓</span>
