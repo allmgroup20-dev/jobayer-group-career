@@ -137,6 +137,10 @@ export default function CompletePage() {
     } catch {}
   }, []);
 
+  const scrollToCard = useCallback(() => {
+    setTimeout(() => document.getElementById("cert-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  }, []);
+
   const loadShare = useCallback(async () => {
     try {
       const r = await fetch("/api/share");
@@ -895,10 +899,10 @@ export default function CompletePage() {
             <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t("এখন কী করবেন", "What to do now")}</p>
             <p className="mt-1 text-base font-black leading-snug text-brand">{nba.title}</p>
             <p className="mt-0.5 text-xs font-bold text-slate-600">{nba.sub}</p>
-            <button onClick={nba.run} className="mt-3 w-full btn-excite text-sm !py-3.5">{nba.cta}</button>
+            <button onClick={() => { nba.run(); scrollToCard(); }} className="mt-3 w-full btn-excite text-sm !py-3.5">{nba.cta}</button>
             {!isPremium && !nba.title.includes("Elite") && (
               <>
-                <button onClick={() => switchStep("elite")} className="mt-2 w-full btn-outline text-xs !py-3">
+                <button onClick={() => { switchStep("elite"); scrollToCard(); }} className="mt-2 w-full btn-outline text-xs !py-3">
                   🏆 {t("Elite-ও দেখুন — ৯টি সুবিধা", "See Elite — 9 benefits")}
                 </button>
                 <p className="mt-1.5 text-[10px] text-slate-600 text-center leading-relaxed">
@@ -934,7 +938,7 @@ export default function CompletePage() {
                     document.getElementById(`hub-tab-${HUB_TABS[next].key}`)?.focus();
                   }
                 }}
-                onClick={() => switchStep(tb.key)}
+                onClick={() => { switchStep(tb.key); scrollToCard(); }}
                 className={`min-h-[48px] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[11px] font-black transition-all ${active ? "bg-white shadow-sm text-brand" : "text-slate-600 active:bg-slate-200/60"}`}
               >
                 <span className="text-base leading-none">{tb.icon}</span>
