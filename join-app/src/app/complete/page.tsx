@@ -708,7 +708,7 @@ export default function CompletePage() {
       return {
         title: t("Foundation সার্টিফিকেট চালিয়ে যান", "Continue your Foundation certificate"),
         sub: t(
-          `${percent}% সম্পন্ন — প্রতিটি আমন্ত্রণ আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
+          `${percent.toLocaleString("bn-BD")}% সম্পন্ন — প্রতিটি আমন্ত্রণ আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
           `${percent}% done — every invitation moves you closer to 100%`
         ),
         cta: t("আমন্ত্রণ জানাতে থাকুন", "Keep inviting"),
@@ -718,11 +718,13 @@ export default function CompletePage() {
     if (!isPremium) {
       if (referralJoins < 11) {
         const pct = Math.min(Math.round((referralJoins / 11) * 100), 100);
+        const pctBn = `${pct.toLocaleString("bn-BD")}%`;
+        const pctEn = `${pct}%`;
         return {
-          title: t("Ambassador: আরও শেখার সঙ্গী আমন্ত্রণ জানান", "Ambassador: invite more learning partners"),
+          title: t("Ambassador: একজনকে Free রেজিস্ট্রেশন করান", "Ambassador: Get one Free registration"),
           sub: t(
-            `${pct}% সম্পন্ন — একজনকে আমন্ত্রণ জানালেই পার্সেন্টেজ বাড়ে, ১০০% হলেই সার্টিফিকেট`,
-            `${pct}% done — invite one person and watch it grow, 100% unlocks the certificate`
+            `${pctBn} সম্পন্ন — আরো একজনকে Free রেজিস্ট্রেশন করালেই পার্সেন্টেজ বাড়ে, ১০০% হলেই সার্টিফিকেট`,
+            `${pctEn} done — get one more Free registration and watch it grow, 100% unlocks the certificate`
           ),
           cta: t("Ambassador ধাপ দেখুন", "Open Ambassador step"),
           run: () => switchStep("ambassador"),
@@ -1134,14 +1136,14 @@ export default function CompletePage() {
                 <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="w-6 h-6 shrink-0 rounded-full bg-teal/20 text-teal text-xs font-black flex items-center justify-center mt-0.5">১</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-slate-900">{t("একজনকে আমন্ত্রণ জানান — দেখুন পার্সেন্টেজ বাড়ে", "Invite one person — watch the percentage grow")}</p>
+                    <p className="text-xs font-black text-slate-900">{t("একজনকে Free রেজিস্ট্রেশন করান", "Get one Free registration")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
                         <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
                       </div>
-                      <span className="text-[11px] font-black text-teal">{Math.min(Math.round((referralJoins / 11) * 100), 100)}%</span>
+                      <span className="text-[11px] font-black text-teal">{lang === "bn" ? `${Math.min(Math.round((referralJoins / 11) * 100), 100).toLocaleString("bn-BD")}%` : `${Math.min(Math.round((referralJoins / 11) * 100), 100)}%`}</span>
                     </div>
-                    <p className="mt-1 text-[10px] text-slate-600">{t("১০০% হলেই Ambassador সার্টিফিকেট পাবেন — একজনকে আমন্ত্রণ জানালেই বুঝবেন কতটুকু এগোলেন", "100% unlocks the Ambassador certificate — invite one and see your progress")}</p>
+                    <p className="mt-1 text-[10px] text-slate-600">{t("আরো একজনকে Free রেজিস্ট্রেশন করান — এভাবে আরো একজন, আরো একজন — ১০০% হলেই Ambassador সার্টিফিকেট", "Get one more Free registration — one more, one more — 100% unlocks the Ambassador certificate")}</p>
                   </div>
                 </div>
 
