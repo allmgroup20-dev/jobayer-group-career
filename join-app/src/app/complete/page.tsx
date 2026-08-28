@@ -818,7 +818,7 @@ export default function CompletePage() {
                     onClick={() => sendTo(c.phone, c.shareText)}
                     className="flex-shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-[#25D366] to-teal text-white text-xs font-black active:scale-95 transition-all"
                   >
-                    📤 {t("বন্ধুকে পাঠান", "Send to friend")}
+                    📤 {t("হোয়াটসঅ্যাপে বন্ধুকে পাঠান", "Send to friend on WhatsApp")}
                   </button>
                 )}
               </div>
