@@ -263,7 +263,7 @@ export default function EliteAdOverlay() {
         {/* Skip / countdown bar */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 bg-slate-900 text-white rounded-t-[1.5rem] md:rounded-t-[1.25rem]">
           <span className="text-[11px] font-black tracking-widest uppercase opacity-80">
-            {canSkip ? t("বিজ্ঞাপন", "Advertisement") : t(`বিজ্ঞাপন — ${skipRemaining}`, `Ad — ${skipRemaining}`)}
+            {canSkip ? "" : `${skipRemaining}`}
           </span>
           <button
             onClick={dismissAd}
@@ -274,7 +274,7 @@ export default function EliteAdOverlay() {
             {canSkip ? (
               <>{t("✕ বন্ধ করুন", "✕ Close")}</>
             ) : (
-              <>{t(`স্কিপ ${skipRemaining}s`, `Skip ${skipRemaining}s`)}</>
+              <>{skipRemaining}s</>
             )}
           </button>
         </div>
