@@ -889,18 +889,6 @@ export default function CompletePage() {
       ))}
 
       <div className="max-w-lg mx-auto px-4 pt-8 pb-24 md:pb-12 text-center">
-        <div className="mx-auto w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-[#0B1D3A] border-2 border-teal/20 flex items-center justify-center text-4xl md:text-5xl shadow-lg animate-pulse-glow">
-          🏆
-        </div>
-        <h1 className="mt-3 text-[clamp(24px,5vw,32px)] font-black leading-tight">
-          <span className="text-[#0B1D3A] drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)]">{t("অভিনন্দন!", "Congratulations!")}</span>
-        </h1>
-        <p className="mt-1 text-sm text-ink-soft">
-          {t("আপনার প্রোফাইল কমপ্লিট হয়েছে", "Your profile is complete")} 🎊
-        </p>
-        {me?.name && <p className="mt-0.5 font-black text-brand text-sm">{me.name}</p>}
-        {me?.workerId && <p className="text-xs font-bold text-ink-soft mt-0.5">{me.workerId}</p>}
-
         {/* Next Best Action — the ONE thing to do now */}
         {nba && (
           <div className="mt-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/15 via-transparent to-transparent p-4 text-left shadow-sm">
@@ -971,27 +959,6 @@ export default function CompletePage() {
               {completed ? t("✅ সম্পন্ন", "Done") : t("🚀 চলছে", "In progress")}
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-600">
-            {t("৩৩ জন আগ্রহীকে আমন্ত্রণ জানিয়ে সম্পূর্ণ করুন — ১১+১১+১১ ধাপে", "Invite 33 interested friends — in 11+11+11 steps")}
-          </p>
-          <div className="mt-2 flex gap-1.5">
-            {[1,2,3].map((stepNum) => {
-              const filled = sentCount >= stepNum * 11;
-              const active = sentCount >= (stepNum-1)*11 && sentCount < stepNum*11;
-              const label = stepNum === 1 ? t("প্রথম ১১", "First 11") : stepNum === 2 ? t("দ্বিতীয় ১১", "Next 11") : t("শেষ ১১", "Final 11");
-              return (
-                <div key={stepNum} className={`flex-1 rounded-xl border px-2 py-1.5 text-center ${filled ? "bg-teal/15 border-teal/30" : active ? "bg-gold/15 border-gold/30" : "bg-slate-50 border-slate-200"}`}>
-                  <p className={`text-[10px] font-black ${filled ? "text-teal" : active ? "text-gold" : "text-slate-600"}`}>{label}</p>
-                  <p className={`text-[11px] font-black ${filled ? "text-teal" : active ? "text-gold" : "text-slate-600"}`}>
-                    {filled ? "✓" : `${Math.min(Math.max(sentCount - (stepNum-1)*11, 0), 11)}/১১`}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-          <p className="mt-1.5 text-[10px] text-slate-600 text-center leading-relaxed">
-            {t("প্রতি ১১ জনে একটি ছোট অর্জন — ধীরে, নিজের গতিতে এগোন।", "Every 11 is a small win — go at your own pace.")}
-          </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
           </div>
