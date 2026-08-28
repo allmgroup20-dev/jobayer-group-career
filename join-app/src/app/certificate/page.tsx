@@ -42,7 +42,6 @@ function CertificateView() {
   const [rateInfo, setRateInfo] = useState<{ rate: number; totalUsd: number; totalBdt: number } | null>(null);
   const [deliveryPaying, setDeliveryPaying] = useState(false);
   const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
-  const [bundleCount, setBundleCount] = useState<1|2|3>(1);
   const [deliveryDiscount, setDeliveryDiscount] = useState(0);
 
   const tier: "foundation" | "ambassador" | "elite" = (() => {
@@ -52,10 +51,12 @@ function CertificateView() {
     return "foundation";
   })();
 
-  const baseUsd = tier === "elite" ? 3 : 2;
+  const earnedCount = tier === "elite" ? 3 : tier === "ambassador" ? 2 : 1;
   const deliveryFeeRaw = deliveryMode === "home" ? 1 : 0.5;
-  const deliveryFee = bundleCount >= 2 ? deliveryFeeRaw * (1 - deliveryDiscount / 100) : deliveryFeeRaw;
-  const totalUsd = baseUsd * bundleCount + deliveryFee;
+  const deliveryFee = earnedCount >= 2 ? deliveryFeeRaw * (1 - deliveryDiscount / 100) : deliveryFeeRaw;
+  // 4 items within 2 USD: print 0.6 + packaging 0.4 + shipping 0.5 + deliveryFeeRaw (0.5 post / 1 home)
+  const totalBase = deliveryMode === "home" ? 2.5 : 2.0;
+  const totalUsd = totalBase - (earnedCount >= 2 ? deliveryFeeRaw * deliveryDiscount / 100 : 0);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -75,7 +76,7 @@ function CertificateView() {
     const FIXED_RATE = 111;
     const totalBdt = Math.floor(totalUsd * FIXED_RATE);
     setRateInfo({ rate: FIXED_RATE, totalUsd, totalBdt });
-  }, [state, data, tier, deliveryMode, totalUsd, bundleCount, deliveryDiscount]);
+  }, [state, data, tier, deliveryMode, totalUsd, earnedCount, deliveryDiscount]);
 
   useEffect(() => {
     try {
@@ -150,7 +151,7 @@ function CertificateView() {
       const res = await fetch("/api/delivery/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier, deliveryMode, postOfficeName, postOfficeAddress, shippingAddress: deliveryAddress, bundleCount, discount: bundleCount >= 2 ? deliveryDiscount : 0 }),
+        body: JSON.stringify({ tier, deliveryMode, postOfficeName, postOfficeAddress, shippingAddress: deliveryAddress, bundleCount: earnedCount, discount: earnedCount >= 2 ? deliveryDiscount : 0 }),
       });
       const j = await res.json().catch(() => ({})) as { GatewayPageURL?: string; error?: string };
       if (!res.ok) {
@@ -346,13 +347,13 @@ function CertificateView() {
           <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
             <p className="text-[11px] font-black text-white/70 uppercase tracking-wide">{t("ধাপ অনুযায়ী খরচ", "Cost breakdown")}</p>
             <div className="mt-2 space-y-1.5 text-xs leading-relaxed">
-              <p className="flex justify-between"><span className="text-white/60">{t("① ভালো কাগজে প্রিন্ট", "① Print on quality paper")} ×{bundleCount}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{t("② প্যাকেজিং", "② Packaging")} ×{bundleCount}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ", "③ Ship from Singapore to Bangladesh") : t("③ ইন্ডিয়া থেকে বাংলাদেশ", "③ Ship from India to Bangladesh")} ({bundleCount}×{baseUsd} USD)</span><span className="font-black text-white">{(baseUsd * bundleCount * 111).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({baseUsd * bundleCount} USD)</span></span></p>
+              <p className="flex justify-between"><span className="text-white/60">{t("① ভালো কাগজে প্রিন্ট — ০.৬ USD", "① Print on quality paper — 0.6 USD")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{t("② প্যাকেজিং — ০.৪ USD", "② Packaging — 0.4 USD")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ — ০.৫ USD", "③ Ship from Singapore to Bangladesh — 0.5 USD") : t("③ ইন্ডিয়া থেকে বাংলাদেশ — ০.৫ USD", "③ Ship from India to Bangladesh — 0.5 USD")}</span><span className="font-black text-white">৫৫ টাকা <span className="text-[10px] text-white/40">(0.5 USD)</span></span></p>
               <p className="flex justify-between">
-                <span className="text-white/60">{deliveryMode === "home" ? t("④ হোম ডেলিভারি ফি (বান্ডেলে একবার)", "④ Home delivery fee (once per bundle)") : t("④ পোস্ট অফিস ফি (বান্ডেলে একবার)", "④ Post office fee (once per bundle)")}</span>
+                <span className="text-white/60">{deliveryMode === "home" ? t("④ হোম ডেলিভারি ফি — ১.০ USD (বান্ডেলে একবার)", "④ Home delivery fee — 1.0 USD (once per bundle)") : t("④ পোস্ট অফিস ফি — ০.৫ USD (বান্ডেলে একবার)", "④ Post office fee — 0.5 USD (once per bundle)")}</span>
                 <span className="font-black text-white">
-                  {bundleCount >= 2 && deliveryDiscount > 0 ? (
+                  {earnedCount >= 2 && deliveryDiscount > 0 ? (
                     <>
                       <span className="line-through text-white/40 mr-1">{(deliveryFeeRaw * 111).toLocaleString("en-US")}৳</span>
                       {(deliveryFee * 111).toLocaleString("en-US")} টাকা <span className="text-teal text-[10px]">-{deliveryDiscount}%</span>
@@ -362,9 +363,9 @@ function CertificateView() {
                   )}
                 </span>
               </p>
-              {bundleCount >= 2 && deliveryDiscount > 0 && <p className="text-[10px] font-bold text-teal text-right">🎉 {deliveryDiscount}% {t("ছাড় প্রযোজ্য — ডেলিভারি ফি-তে", "off on delivery fee")}</p>}
-              {bundleCount >= 2 && deliveryDiscount >= 40 && <p className="text-[10px] font-bold text-gold text-right">{t("🎉 আপনাকে সর্বোচ্চ ৪০% ছাড় দেওয়া হয়েছে — এর চেয়ে বেশি কোনোভাবেই সম্ভব নয়","Maximum 40% discount — no more possible")}</p>}
-              {bundleCount === 1 && <p className="text-[10px] text-white/40 text-right">{t("১টি-তে ছাড় নেই, ২/৩টি একসাথে নিলে ছাড়","No discount for 1, discount for 2/3 bundle")}</p>}
+              {earnedCount >= 2 && deliveryDiscount > 0 && <p className="text-[10px] font-bold text-teal text-right">🎉 {deliveryDiscount}% {t("ছাড় প্রযোজ্য — ডেলিভারি ফি-তে", "off on delivery fee")}</p>}
+              {earnedCount >= 2 && deliveryDiscount >= 40 && <p className="text-[10px] font-bold text-gold text-right">{t("🎉 আপনাকে সর্বোচ্চ ৪০% ছাড় দেওয়া হয়েছে — এর চেয়ে বেশি কোনোভাবেই সম্ভব নয়","Maximum 40% discount — no more possible")}</p>}
+              {earnedCount === 1 && <p className="text-[10px] text-white/40 text-right">{t("১টি-তে ছাড় নেই, ২/৩টি একসাথে নিলে ছাড়","No discount for 1, discount for 2/3 bundle")}</p>}
               <div className="pt-2 mt-2 border-t border-white/10 flex justify-between items-center">
                 <span className="text-sm font-black text-white">{t("মোট", "Total")}</span>
                 <span className="text-right">
@@ -375,15 +376,11 @@ function CertificateView() {
               <p className="text-[10px] text-white/40 text-right">1 USD = 111 BDT <span className="line-through opacity-40">124 BDT</span> • {t("বিশেষ ছাড় • পয়সা বাদ, শুধু টাকা", "special discount • floor, no paisa")}</p>
             </div>
           </div>
-          <div className="mt-3">
-            <p className="text-[11px] font-black text-white/70">{t("কয়টি অরিজিনাল কপি নেবেন?", "How many original copies?")}</p>
-            <div className="mt-1.5 grid grid-cols-3 gap-2">
-              {[1,2,3].map((n)=>(
-                // @ts-ignore
-                <button key={n} onClick={()=>setBundleCount(n as 1|2|3)} className={`py-2 rounded-xl border text-xs font-black ${bundleCount===n ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/5 border-white/10 text-white/60"}`}>{n} {t("টি"," pcs")}</button>
-              ))}
-            </div>
-            {bundleCount >= 2 && <p className="mt-1.5 text-[10px] text-teal text-center">{t("২/৩টি একসাথে — ডেলিভারি ফি একবার + ছাড়","2/3 bundle — single delivery fee + discount")}</p>}
+          <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
+            <p className="text-[11px] font-black text-white/70 text-center">
+              {earnedCount === 1 ? t("আপনি ১টি সার্টিফিকেট অর্জন করেছেন", "You have earned 1 certificate") : earnedCount === 2 ? t("আপনি ২টি সার্টিফিকেট (Foundation + Ambassador) অর্জন করেছেন — একসাথে অর্ডারে ডেলিভারি একবারই", "You have earned 2 certificates (Foundation + Ambassador) — single delivery for bundle") : t("আপনি ৩টি সার্টিফিকেট (Foundation + Ambassador + Elite) অর্জন করেছেন — একসাথে অর্ডারে ডেলিভারি একবারই", "You have earned 3 certificates (Foundation + Ambassador + Elite) — single delivery for bundle")}
+            </p>
+            {earnedCount >= 2 && <p className="mt-1 text-[10px] text-teal text-center">{t("২/৩টি একসাথে — ডেলিভারি ফি একবার + ছাড়","2/3 bundle — single delivery fee + discount")}</p>}
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">

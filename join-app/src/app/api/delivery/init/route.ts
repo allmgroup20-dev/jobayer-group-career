@@ -73,10 +73,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "পোস্ট অফিসের নাম ও ঠিকানা দিন" }, { status: 400 });
     }
 
-    const baseUsd = tier === "elite" ? 3 : 2;
+    // 4 items within 2 USD: print 0.6 + packaging 0.4 + shipping 0.5 + deliveryFeeRaw (post 0.5 / home 1.0)
+    // Bundle delivery single fee: 1 cert 2.0/2.5, 2-3 certs same total but delivery fee discounted
+    const totalBase = deliveryMode === "home" ? 2.5 : 2.0;
     const deliveryFeeRaw = deliveryMode === "home" ? 1 : 0.5;
     const deliveryFeeUsd = bundleCount >= 2 ? deliveryFeeRaw * (1 - discount / 100) : deliveryFeeRaw;
-    const totalUsd = baseUsd * bundleCount + deliveryFeeUsd;
+    const totalUsd = totalBase - (bundleCount >= 2 ? deliveryFeeRaw * discount / 100 : 0);
+    const baseUsd = 1.5; // print+pack+ship (0.6+0.4+0.5) for DB
     const homeExtraUsd = deliveryFeeUsd;
     const rate = 111; // Fixed special discount (market 124)
     const totalBdt = Math.floor(totalUsd * rate);
