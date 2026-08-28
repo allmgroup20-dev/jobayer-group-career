@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { LanguageProvider, useLang } from "@/lib/lang";
 import { useTracker } from "@/lib/tracking";
+
+const EliteAdOverlay = dynamic(() => import("@/components/EliteAdOverlay"), { ssr: false });
 
 function LangToggle() {
   const { lang, setLang } = useLang();
@@ -84,6 +87,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <div id="main-content">
         {children}
       </div>
+      <EliteAdOverlay />
     </LanguageProvider>
   );
 }
