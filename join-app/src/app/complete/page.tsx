@@ -717,11 +717,12 @@ export default function CompletePage() {
     }
     if (!isPremium) {
       if (referralJoins < 11) {
+        const pct = Math.min(Math.round((referralJoins / 11) * 100), 100);
         return {
           title: t("Ambassador: আরও শেখার সঙ্গী আমন্ত্রণ জানান", "Ambassador: invite more learning partners"),
           sub: t(
-            `আপনার আমন্ত্রণ লিংকে ${referralJoins}/১১ জন রেজিস্ট্রেশন করেছে — Foundation ✓ সম্পন্ন`,
-            `${referralJoins} of 11 registered via your invitation link — Foundation ✓ complete`
+            `${pct}% সম্পন্ন — একজনকে আমন্ত্রণ জানালেই পার্সেন্টেজ বাড়ে, ১০০% হলেই সার্টিফিকেট`,
+            `${pct}% done — invite one person and watch it grow, 100% unlocks the certificate`
           ),
           cta: t("Ambassador ধাপ দেখুন", "Open Ambassador step"),
           run: () => switchStep("ambassador"),
@@ -1133,14 +1134,14 @@ export default function CompletePage() {
                 <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="w-6 h-6 shrink-0 rounded-full bg-teal/20 text-teal text-xs font-black flex items-center justify-center mt-0.5">১</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-slate-900">{t("১১ জন আপনার আমন্ত্রণ লিংকে রেজিস্ট্রেশন করলেই", "Once 11 register via your invitation link")}</p>
+                    <p className="text-xs font-black text-slate-900">{t("একজনকে আমন্ত্রণ জানান — দেখুন পার্সেন্টেজ বাড়ে", "Invite one person — watch the percentage grow")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
                         <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
                       </div>
-                      <span className="text-[11px] font-black text-teal">{referralJoins}/11</span>
+                      <span className="text-[11px] font-black text-teal">{Math.min(Math.round((referralJoins / 11) * 100), 100)}%</span>
                     </div>
-                    <p className="mt-1 text-[10px] text-slate-600">{t("আপনার আমন্ত্রণ লিংকে যারা নিজে থেকে রেজিস্ট্রেশন করেছে", "Those who registered on their own via your invitation link")}</p>
+                    <p className="mt-1 text-[10px] text-slate-600">{t("১০০% হলেই Ambassador সার্টিফিকেট পাবেন — একজনকে আমন্ত্রণ জানালেই বুঝবেন কতটুকু এগোলেন", "100% unlocks the Ambassador certificate — invite one and see your progress")}</p>
                   </div>
                 </div>
 
