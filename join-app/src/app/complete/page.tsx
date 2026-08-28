@@ -908,6 +908,16 @@ export default function CompletePage() {
             <p className="mt-1 text-base font-black leading-snug text-brand">{nba.title}</p>
             <p className="mt-0.5 text-xs font-bold text-slate-600">{nba.sub}</p>
             <button onClick={nba.run} className="mt-3 w-full btn-excite text-sm !py-3.5">{nba.cta}</button>
+            {!isPremium && !nba.title.includes("Elite") && (
+              <>
+                <button onClick={() => switchStep("elite")} className="mt-2 w-full btn-outline text-xs !py-3">
+                  🏆 {t("Elite-ও দেখুন — ৯টি সুবিধা", "See Elite — 9 benefits")}
+                </button>
+                <p className="mt-1.5 text-[10px] text-slate-600 text-center leading-relaxed">
+                  {t("চাইলে এখনই Elite-ও শুরু করতে পারেন — Foundation-ও চলবে", "You can also start Elite now — Foundation continues too")}
+                </p>
+              </>
+            )}
           </div>
         )}
 
