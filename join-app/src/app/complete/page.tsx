@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import QRCode from "react-qr-code";
 import { useLang } from "@/lib/lang";
 import { trackEvent } from "@/lib/tracking";
+import ContactsModal from "@/components/ContactsModal";
 
 // Sample previews are heavy (A4 canvas + fonts) and always hidden behind a
 // toggle — load them on demand so the hub's first paint stays light.
@@ -47,10 +48,8 @@ const HUB_TABS: { key: HubTab; icon: string; bn: string; en: string }[] = [
 
 const VERIFY_MS = 60_000; // verification window (max 1 minute)
 
-// Google contacts picker is temporarily disabled in the UI. Flip to true to
-// bring both instances back (top + bottom of the contact list) — no other
-// change needed; handlers and ContactsModal wiring remain intact.
-const SHOW_GOOGLE_CONTACTS = false;
+// Google contacts picker — enabled to keep Contacts invitation feature on.
+const SHOW_GOOGLE_CONTACTS = true;
 
 export default function CompletePage() {
   const { lang } = useLang();
@@ -78,6 +77,7 @@ export default function CompletePage() {
   const [showFoundationValue, setShowFoundationValue] = useState(false);
   const [showFoundationCert, setShowFoundationCert] = useState(false);
   const [showFoundationOrder, setShowFoundationOrder] = useState(false);
+  const [contactsModalOpen, setContactsModalOpen] = useState(false);
   const [showWaPicker, setShowWaPicker] = useState(false);
   const [showShotHelp, setShowShotHelp] = useState(false);
   const [expandedList, setExpandedList] = useState(false);
@@ -773,7 +773,7 @@ export default function CompletePage() {
             t={t}
             busy={busy}
             contactsSupported={contactsSupported}
-            onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+            onGoogle={() => setContactsModalOpen(true)}
             onNativePick={pickContacts}
             onManualAdd={addManualPhone}
           />
@@ -1558,6 +1558,18 @@ export default function CompletePage() {
           {t("হোমে ফিরে যান", "Back to Home")}
         </button>
       </div>
+
+      <ContactsModal
+        open={contactsModalOpen}
+        onClose={() => setContactsModalOpen(false)}
+        onPick={(picked) => {
+          setContactsModalOpen(false);
+          const valid = picked.map((c) => ({ name: c.name, tel: c.phone }));
+          if (valid.length) submitContacts(valid);
+        }}
+        busy={busy}
+        alreadyAdded={new Set(allContacts.map((c) => c.phone))}
+      />
 
       {/* Mobile sticky next-step — always one thumb-reachable primary action */}
       {nba && (
