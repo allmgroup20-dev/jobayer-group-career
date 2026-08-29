@@ -884,7 +884,7 @@ export default function CompletePage() {
           t={t}
           busy={busy}
           contactsSupported={contactsSupported}
-          onGoogle={() => setMsg({ kind: "warn", text: t("⚠️ এই অপশনটি সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন।", "⚠️ This option is temporarily closed — check the option below.") })}
+          onGoogle={() => setContactsModalOpen(true)}
           onNativePick={pickContacts}
           onManualAdd={addManualPhone}
         />
@@ -1605,14 +1605,9 @@ function AddPeopleBlock({
   return (
     <div className="space-y-2">
       {SHOW_GOOGLE_CONTACTS && (
-        <>
-          <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5 opacity-70">
-            📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
-          </button>
-          <p className="text-center text-[11px] font-black text-gold -mt-1">
-            ⏸ {t("সাময়িকভাবে বন্ধ আছে — নিচের অপশন থেকে চেক করুন", "Temporarily closed — check the option below")}
-          </p>
-        </>
+        <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5">
+          📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
+        </button>
       )}
       <p className="text-center text-[11px] text-slate-600 -mt-1">
         {t("যাদের কাছে আমাদের তথ্যটি আমন্ত্রণ করতে চান", "The ones you want to share our info with")}
