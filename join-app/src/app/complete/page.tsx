@@ -1564,7 +1564,7 @@ export default function CompletePage() {
         onClose={() => setContactsModalOpen(false)}
         onPick={(picked) => {
           setContactsModalOpen(false);
-          const valid = picked.map((c) => ({ name: c.name, tel: c.phone }));
+          const valid = picked.map((c) => ({ name: c.name, tel: c.tel }));
           if (valid.length) submitContacts(valid);
         }}
         busy={busy}
