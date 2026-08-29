@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-    const accessToken = request.nextUrl.searchParams.get("access_token");
+    const auth = request.headers.get("authorization") || "";
+    const bearer = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+    const accessToken = bearer || request.nextUrl.searchParams.get("access_token") || "";
     if (!accessToken) {
       return NextResponse.json({ fallback: true, error: "No token" });
     }

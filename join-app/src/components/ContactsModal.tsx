@@ -65,7 +65,9 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
         }
       });
 
-      const res = await fetch(`/api/contacts?access_token=${encodeURIComponent(accessToken)}`);
+      const res = await fetch(`/api/contacts`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (!res.ok) { setState("fallback"); return; }
       const data = await res.json() as { contacts?: GoogleContact[]; fallback?: boolean };
       if (data.fallback || !data.contacts) { setState("fallback"); return; }
