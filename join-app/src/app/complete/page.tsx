@@ -694,8 +694,8 @@ export default function CompletePage() {
   const searchFilter = (c: { phone: string; name: string }) => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q);
   const LIST_PREVIEW = 5;
   const searching = q.length > 0;
-  const shownSelectedAll = selectedContacts.filter(searchFilter);
-  const shownSentAll = sentContacts.filter(searchFilter);
+  const shownSelectedAll = selectedContacts.filter(searchFilter).slice().sort((a,b)=> (a.waExists===false?1:0)-(b.waExists===false?1:0));
+  const shownSentAll = sentContacts.filter(searchFilter).slice().sort((a,b)=> (a.waExists===false?1:0)-(b.waExists===false?1:0));
   const expanded = expandedList || searching;
   const shownSelected = expanded ? shownSelectedAll : shownSelectedAll.slice(0, LIST_PREVIEW);
   const shownSent = expanded ? shownSentAll : shownSentAll.slice(0, LIST_PREVIEW);

@@ -256,7 +256,19 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
 
         {/* Footer */}
         {state === "list" && (
-          <div className="px-5 py-3 border-t border-line">
+          <div className="px-5 py-3 border-t border-line space-y-2">
+            <button
+              onClick={() => {
+                const allPhones = filtered.map((c) => c.phone);
+                setSelected(new Set(allPhones));
+                const picked = filtered.map((c) => ({ name: c.name, tel: c.phone }));
+                if (picked.length) onPick(picked);
+              }}
+              disabled={busy || filtered.length === 0}
+              className="w-full py-3 rounded-2xl bg-teal text-white text-sm font-black hover:bg-teal/90 active:scale-[0.99] transition-all disabled:opacity-40"
+            >
+              ⚡ এক ক্লিকে সব ({filtered.length} জন) — একবারে সব
+            </button>
             <button
               onClick={submit}
               disabled={selected.size === 0 || busy}
@@ -265,8 +277,9 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
               {busy ? "যোগ হচ্ছে…" : `✅ ${selected.size} জনকে আমন্ত্রণ জানান`}
             </button>
             {selected.size > 0 && (
-              <p className="mt-2 text-center text-[11px] text-muted">এখন যা বেছে নিলেন তা-ই যোগ হবে — পরে আরও যোগ করতে পারবেন</p>
+              <p className="text-center text-[11px] text-muted">এখন যা বেছে নিলেন তা-ই যোগ হবে — পরে আরও যোগ করতে পারবেন</p>
             )}
+            <p className="text-center text-[11px] text-ink-soft">সব দেখানো হবে, WhatsApp নম্বর উপরে থাকবে</p>
           </div>
         )}
       </div>
