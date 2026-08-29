@@ -68,9 +68,25 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
       const res = await fetch(`/api/contacts`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (!res.ok) { setState("fallback"); return; }
-      const data = await res.json() as { contacts?: GoogleContact[]; fallback?: boolean };
-      if (data.fallback || !data.contacts) { setState("fallback"); return; }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({})) as { error?: string };
+        // Google verification 403 or access_denied -> show specific help
+        if (String(errData.error || "").includes("403") || String(errData.error || "").includes("verification") || res.status === 403) {
+          setState("fallback");
+          setErrMsg("verification");
+          return;
+        }
+        setState("fallback");
+        return;
+      }
+      const data = await res.json() as { contacts?: GoogleContact[]; fallback?: boolean; error?: string };
+      if (data.fallback || !data.contacts) {
+        if (String(data.error || "").includes("403") || String(data.error || "").includes("verification")) {
+          setErrMsg("verification");
+        }
+        setState("fallback");
+        return;
+      }
       const unique: GoogleContact[] = [];
       const seen = new Set<string>();
       for (const c of data.contacts) {
@@ -174,10 +190,19 @@ export default function ContactsModal({ open, onClose, onPick, busy, alreadyAdde
           {state === "fallback" && (
             <div className="py-10 text-center">
               <div className="text-4xl">📲</div>
-              <p className="mt-3 text-sm font-bold text-[#0B1F33]">Google থেকে মানুষ পাওয়া যায়নি</p>
-              <p className="mt-1 text-xs text-ink-soft">
-                হয় Google-এ সাময়িক সমস্যা বা আপনার পছন্দের মানুষগুলো Google-এ নেই। চিন্তা নেই — পেজে ফিরে নিচের বাটন দিয়ে ফোনবুক/সিম থেকে খুঁজে নিন, অথবা বন্ধুর নাম্বার লিখে যোগ করুন।
+              <p className="mt-3 text-sm font-bold text-[#0B1F33]">
+                {errMsg === "verification" ? "Google যাচাইকরণ বাকি — অ্যাক্সেস ব্লক" : "Google থেকে মানুষ পাওয়া যায়নি"}
               </p>
+              <p className="mt-1 text-xs text-ink-soft">
+                {errMsg === "verification"
+                  ? "earner.workers.dev এখনো Google verification সম্পন্ন করেনি — অ্যাপটি Testing মোডে আছে, শুধু অনুমোদিত tester-রা প্রবেশ করতে পারে। আপনি যদি tester হন, Developer (allmgroup20@gmail.com) কে আপনার Gmail Test users-এ যোগ করতে বলুন। অথবা নিচের ফোনবুক/হাতে লেখা উপায়ে আমন্ত্রণ জানান। বিস্তারিত: Privacy Policy দেখুন।"
+                  : "হয় Google-এ সাময়িক সমস্যা বা আপনার পছন্দের মানুষগুলো Google-এ নেই। চিন্তা নেই — পেজে ফিরে নিচের বাটন দিয়ে ফোনবুক/সিম থেকে খুঁজে নিন, অথবা বন্ধুর নাম্বার লিখে যোগ করুন।"}
+              </p>
+              {errMsg === "verification" && (
+                <a href="/privacy" className="mt-3 inline-block text-xs font-bold text-teal underline">
+                  Privacy Policy দেখুন
+                </a>
+              )}
               <button onClick={onClose} className="mt-4 px-5 py-2.5 rounded-xl bg-slate-100 text-brand text-sm font-black hover:bg-slate-200">
                 ঠিক আছে
               </button>
