@@ -1632,7 +1632,7 @@ function AddPeopleBlock({
 
       {contactsSupported ? (
         <button onClick={onNativePick} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">
-          {busy ? t("প্রক্রিয়াধীন…", "Working…") : t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here")}
+          {busy ? t("প্রক্রিয়াধীন…", "Working…") : showGoogle ? t("🔍 পছন্দের কাউকে না পেলে এখান থেকে খুঁজে নিন", "🔍 Didn't find them? Search here") : t("📇 আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
         </button>
       ) : (
         <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-200 p-3">
@@ -1640,7 +1640,7 @@ function AddPeopleBlock({
             {t("এই ডিভাইসে ফোনবুক পিকার নেই — নিচের বাটনে চাপ দিয়ে নম্বর যোগ করুন।", "No phonebook picker on this device — add numbers with the button below.")}
           </p>
           <button onClick={() => setShowManual((v) => !v)} disabled={busy} className="mt-2 btn-white w-full text-sm !py-3 disabled:opacity-60">
-            {t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers")}
+            {showGoogle ? t("📲 পছন্দের মানুষদের নাম্বার লিখে যোগ করুন", "📲 Add your people's numbers") : t("📇 আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
           </button>
           {showManual && (
             <div className="mt-2 flex gap-2">
