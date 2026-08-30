@@ -973,13 +973,16 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
               <span>
                 {t("ফাউন্ডেশন সার্টিফিকেট", "Foundation Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Foundation • প্রথম ধাপ", "Foundation • First step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Foundation • প্রথম ধাপ — এন্ট্রি-লেভেল সার্টিফিকেট", "Foundation • First step — Entry-level certificate")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${completed ? "bg-teal/20 text-teal border border-teal/40" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {completed ? t("✅ সম্পন্ন", "Done") : t("🚀 চলছে", "In progress")}
             </span>
           </div>
+          <p className="mt-2 text-[11px] font-bold text-teal leading-relaxed">
+            {t("ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট, সেলস — এন্ট্রি জবে সহায়ক", "Digital marketing, community management, sales — helps in entry-level jobs")}
+          </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
           </div>
@@ -1162,13 +1165,16 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
               <span>
                 {t("আমন্ত্রণ অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • দ্বিতীয় ধাপ", "Ambassador • Second step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • দ্বিতীয় ধাপ — প্রফেশনাল সার্টিফিকেট", "Ambassador • Second step — Professional certificate")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${!completed ? "bg-white text-slate-600 border border-slate-200" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {!completed ? t("🔒 লক", "Locked") : t("🚀 চলছে", "In progress")}
             </span>
           </div>
+          <p className="mt-2 text-[11px] font-bold text-gold leading-relaxed">
+            {t("ডিজিটাল মার্কেটিং, কমিউনিটি লিড, অ্যাফিলিয়েট — মিড-লেভেল জবে সহায়ক", "Digital marketing, community lead, affiliate — helps in mid-level jobs")}
+          </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳৩০,০০০–৳৬০,০০০ • Ambassador • প্রফেশনাল পুরস্কার", "৳30,000–৳60,000 • Ambassador • Professional reward")}
           </div>
@@ -1347,13 +1353,16 @@ export default function CompletePage() {
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
               <span>
                 {t("এলিট ফাইনাল সার্টিফিকেট", "Elite Final Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Elite • শেষ ধাপ", "Elite • Final step")}</span>
+                <span className="block text-[10px] font-bold text-slate-600">{t("Elite • শেষ ধাপ — সর্বোচ্চ আন্তর্জাতিক সার্টিফিকেট", "Elite • Final step — Highest international certificate")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white text-slate-600 border border-slate-200" : "bg-gold/20 text-gold border border-gold/40"}`}>
               {isPremium ? t("✅ কমিটেড (২–৩ বছর)", "Committed (2–3 years)") : !completed ? t("🔒 লক", "Locked") : t("🔒 কমিটমেন্ট লক", "Commitment Locked")}
             </span>
           </div>
+          <p className="mt-2 text-[11px] font-bold text-violet leading-relaxed">
+            {t("সর্বোচ্চ আন্তর্জাতিক মান — টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিডারশিপ — সর্বোচ্চ বেতনের জবে সহায়ক", "Highest international standard — team lead, project manager, startup leadership — helps in highest salary jobs")}
+          </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
