@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDB } from "@/lib/env";
-import { ensureWorkerProfileColumns, queryFirst } from "@/lib/queries";
-import { verifyWorkerFromCookies } from "@/lib/session";
+import { getDB } from "@/lib/db";
+import { queryFirstSafe } from "@/lib/db/queries";
+import { verifyWorkerFromCookies } from "@/lib/auth/session";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,12 +10,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const workerId = payload.sub;
-
-    const env = await getDB();
-    await ensureWorkerProfileColumns(env);
-
-    const worker = await queryFirst<Record<string, any>>(
-      env,
+    const db = await getDB();
+    const worker = await queryFirstSafe<Record<string, any>>(
+      db,
       `SELECT w.worker_id, w.name, w.phone, w.email, w.google_id, w.sponsor_id, w.sponsor_name,
               w.level, w.join_date, w.membership_status, w.avatar_url, w.preferred_language,
               w.age_group, w.occupation, w.education_level, w.gender, w.country, w.city,
@@ -23,28 +20,21 @@ export async function GET(request: NextRequest) {
               w.goal, w.preferred_learning_time, w.referral_source, w.communication_preference,
               w.budget_range, w.religion, w.total_team_members, w.resource_income,
               w.interests_updated_at, w.created_at
-       FROM workers w
-       WHERE w.worker_id = ?`,
+       FROM workers w WHERE w.worker_id = ?`,
       [workerId]
     );
-
     if (!worker) {
       return NextResponse.json({ error: "Worker not found" }, { status: 404 });
     }
-
-    // Real joins via this worker's referral link (Level-2 certificate progress).
-    const joinsRow = await queryFirst<{ total: number }>(
-      env, "SELECT COUNT(*) AS total FROM workers WHERE sponsor_id = ?", [workerId]
-    ).catch(() => null);
+    const joinsRow = await queryFirstSafe<{ total: number }>(db, "SELECT COUNT(*) AS total FROM workers WHERE sponsor_id = ?", [workerId]);
     const referralJoins = joinsRow?.total ?? 0;
-
     const looksLikePhone = (value?: string) => {
       if (!value) return false;
       const digits = value.replace(/\D/g, "");
       return digits.length >= 10 && digits.length <= 13;
     };
-
     return NextResponse.json({
+      worker_id: worker.worker_id,
       workerId: worker.worker_id,
       name: worker.name || "",
       phone: looksLikePhone(worker.phone) ? worker.phone : "",

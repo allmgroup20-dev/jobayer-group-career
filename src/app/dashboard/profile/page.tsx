@@ -12,7 +12,20 @@ import { religionKeys, religionPath, religionOptions, religionLevels } from "@/l
 
 export default function ProfilePage() {
   const { lang } = useLanguageStore();
-  const workerId = typeof window !== "undefined" ? localStorage.getItem("worker_id") : null;
+  const [workerId, setWorkerId] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/api/me", { credentials: "include" })
+      .then(async (r) => {
+        if (!r.ok) return;
+        const d = await r.json() as { worker_id?: string; workerId?: string };
+        const wid = d.worker_id || d.workerId;
+        if (wid) {
+          setWorkerId(wid);
+          try { localStorage.setItem("worker_id", wid); } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
   const { data: profileData, loading } = useSWRFetch<Record<string, any>>(
     workerId ? `/api/workers/profile?workerId=${workerId}` : null,
     { ttlMs: 180_000 }

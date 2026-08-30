@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         worker.age_group && worker.occupation && worker.education_level &&
         worker.gender && worker.country && worker.city && worker.goal &&
         worker.preferred_learning_time && worker.referral_source &&
-        worker.communication_preference && worker.budget_range && worker.religion),
+        worker.communication_preference && worker.religion),
     });
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

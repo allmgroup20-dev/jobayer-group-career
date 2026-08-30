@@ -13,8 +13,23 @@ async function signHMAC(secret: string, data: string): Promise<string> {
 let _jwtSecretWarned = false;
 
 export function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
+  let secret: string | undefined;
+  let inWorkerRuntime = false;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getCloudflareContext } = require("@opennextjs/cloudflare");
+    const env = getCloudflareContext().env as Record<string, unknown>;
+    inWorkerRuntime = true;
+    const binding = env.JWT_SECRET;
+    if (typeof binding === "string" && binding) secret = binding;
+  } catch {
+    inWorkerRuntime = false;
+  }
+  if (!secret) secret = process.env.JWT_SECRET;
   if (!secret) {
+    if (inWorkerRuntime) {
+      throw new Error("CRITICAL: JWT_SECRET is not set on the deployed worker. Set it with `npx wrangler secret put JWT_SECRET`.");
+    }
     if (process.env.NODE_ENV === "production") {
       throw new Error("CRITICAL: JWT_SECRET env var is not set in production. Refusing to start.");
     }

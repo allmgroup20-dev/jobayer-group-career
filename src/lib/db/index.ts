@@ -8,7 +8,7 @@ const PENDING_FLAG = "__dbSchemaSetupPending";
 
 let dbCache: { DB: D1Database } | null = null;
 
-const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila","city_corporation","ward","area","union_name","pourashava"];
+const SCHEMA_COLS = ["google_id","facebook_id","preferred_language","resource_income","resource_income_original","division","district","upazila","city_corporation","ward","area","union_name","pourashava","age_group","occupation","education_level","gender","country","city","goal","preferred_learning_time","referral_source","communication_preference","budget_range","religion"];
 
 async function ensureSchema(env: { DB: D1Database }): Promise<void> {
   const g = globalThis as any;

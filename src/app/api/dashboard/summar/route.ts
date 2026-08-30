@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         profile.ageGroup && profile.occupation && profile.educationLevel &&
         profile.gender && profile.country && profile.city && profile.goal &&
         profile.preferredLearningTime && profile.referralSource &&
-        profile.communicationPreference && profile.budgetRange && profile.religion);
+        profile.communicationPreference && profile.religion);
     }
 
     const [commissions, accounts, analytics, settingsRows, levelRow, teamCount, withdrawalSum] = await Promise.all([
