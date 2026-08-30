@@ -117,6 +117,7 @@ export const SITE_CONTENT_DEFAULTS: Record<string, unknown> = {
       packagingLabelBn: "প্যাকেজিং",
       packagingLabelEn: "Packaging",
       shippingUsd: 0.5,
+      shippingEliteUsd: 1.0,
       shippingLabelBn: "ইন্ডিয়া থেকে বাংলাদেশ",
       shippingLabelEn: "Ship from India to Bangladesh",
       shippingEliteLabelBn: "সিঙ্গাপুর থেকে বাংলাদেশ",

@@ -73,16 +73,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "পোস্ট অফিসের নাম ও ঠিকানা দিন" }, { status: 400 });
     }
 
-    // Dynamic 4-item pricing from join_certificate (editable in company panel), fallback to 0.6/0.4/0.5/0.5
-    let printUsd = 0.6, packUsd = 0.4, shipUsd = 0.5, postUsd = 0.5, homeUsd = 1.0, bundleHandlingUsd = 0, usdRateCfg = 111;
+    // Dynamic 4-item pricing from join_certificate (editable in company panel): India 0.5, Singapore (elite) 1.0
+    let printUsd = 0.6, packUsd = 0.4, shipUsd = 0.5, shipEliteUsd = 1.0, postUsd = 0.5, homeUsd = 1.0, bundleHandlingUsd = 0, usdRateCfg = 111;
     try {
       const cfgRow = await env.DB.prepare("SELECT content FROM site_content WHERE section = 'join_certificate'").first<{ content: string }>();
       if (cfgRow?.content) {
-        const cfg = JSON.parse(cfgRow.content) as { costs?: { printUsd?: number; packagingUsd?: number; shippingUsd?: number; postFeeUsd?: number; homeFeeUsd?: number }; bundleHandlingUsd?: number; usdRate?: number };
+        const cfg = JSON.parse(cfgRow.content) as { costs?: { printUsd?: number; packagingUsd?: number; shippingUsd?: number; shippingEliteUsd?: number; postFeeUsd?: number; homeFeeUsd?: number }; bundleHandlingUsd?: number; usdRate?: number };
         if (cfg.costs) {
           if (typeof cfg.costs.printUsd === "number") printUsd = cfg.costs.printUsd;
           if (typeof cfg.costs.packagingUsd === "number") packUsd = cfg.costs.packagingUsd;
           if (typeof cfg.costs.shippingUsd === "number") shipUsd = cfg.costs.shippingUsd;
+          if (typeof cfg.costs.shippingEliteUsd === "number") shipEliteUsd = cfg.costs.shippingEliteUsd;
           if (typeof cfg.costs.postFeeUsd === "number") postUsd = cfg.costs.postFeeUsd;
           if (typeof cfg.costs.homeFeeUsd === "number") homeUsd = cfg.costs.homeFeeUsd;
         }
@@ -90,12 +91,13 @@ export async function POST(request: NextRequest) {
         if (typeof cfg.usdRate === "number") usdRateCfg = cfg.usdRate;
       }
     } catch {}
-    const totalBase = deliveryMode === "home" ? printUsd + packUsd + shipUsd + homeUsd : printUsd + packUsd + shipUsd + postUsd;
+    const shipForTier = tier === "elite" ? shipEliteUsd : shipUsd;
+    const totalBase = deliveryMode === "home" ? printUsd + packUsd + shipForTier + homeUsd : printUsd + packUsd + shipForTier + postUsd;
     const deliveryFeeRaw = deliveryMode === "home" ? homeUsd : postUsd;
     const handlingExtra = bundleCount >= 2 ? bundleHandlingUsd : 0;
     const deliveryFeeUsd = bundleCount >= 2 ? deliveryFeeRaw * (1 - discount / 100) : deliveryFeeRaw;
     const totalUsd = totalBase + handlingExtra - (bundleCount >= 2 ? deliveryFeeRaw * discount / 100 : 0);
-    const baseUsd = printUsd + packUsd + shipUsd;
+    const baseUsd = printUsd + packUsd + shipForTier;
     const homeExtraUsd = deliveryFeeUsd + handlingExtra;
     const rate = usdRateCfg;
     const totalBdt = Math.floor(totalUsd * rate);

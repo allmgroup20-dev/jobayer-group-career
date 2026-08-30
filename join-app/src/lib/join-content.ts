@@ -73,7 +73,7 @@ export const JOIN_CERT_DEFAULTS = {
   costs: {
     printUsd: 0.6, printLabelBn: "ভালো কাগজে প্রিন্ট", printLabelEn: "Print on quality paper",
     packagingUsd: 0.4, packagingLabelBn: "প্যাকেজিং", packagingLabelEn: "Packaging",
-    shippingUsd: 0.5, shippingLabelBn: "ইন্ডিয়া থেকে বাংলাদেশ", shippingLabelEn: "Ship from India to Bangladesh",
+    shippingUsd: 0.5, shippingEliteUsd: 1.0, shippingLabelBn: "ইন্ডিয়া থেকে বাংলাদেশ", shippingLabelEn: "Ship from India to Bangladesh",
     shippingEliteLabelBn: "সিঙ্গাপুর থেকে বাংলাদেশ", shippingEliteLabelEn: "Ship from Singapore to Bangladesh",
     postFeeUsd: 0.5, postLabelBn: "পোস্ট অফিস ফি", postLabelEn: "Post office fee",
     homeFeeUsd: 1.0, homeLabelBn: "হোম ডেলিভারি ফি", homeLabelEn: "Home delivery fee",

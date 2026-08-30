@@ -55,12 +55,13 @@ function CertificateView() {
   })();
 
   const earnedCount = tier === "elite" ? 3 : tier === "ambassador" ? 2 : 1;
+  const shipUsd = tier === "elite" ? ((costs as unknown as { shippingEliteUsd?: number }).shippingEliteUsd ?? 1.0) : costs.shippingUsd;
   const deliveryFeeRaw = deliveryMode === "home" ? costs.homeFeeUsd : costs.postFeeUsd;
   const bundleHandling = earnedCount >= 2 ? (certCfg.bundleHandlingUsd || 0) : 0;
   const deliveryFee = earnedCount >= 2 ? deliveryFeeRaw * (1 - deliveryDiscount / 100) : deliveryFeeRaw;
   const totalBase = deliveryMode === "home"
-    ? costs.printUsd + costs.packagingUsd + costs.shippingUsd + costs.homeFeeUsd
-    : costs.printUsd + costs.packagingUsd + costs.shippingUsd + costs.postFeeUsd;
+    ? costs.printUsd + costs.packagingUsd + shipUsd + costs.homeFeeUsd
+    : costs.printUsd + costs.packagingUsd + shipUsd + costs.postFeeUsd;
   const totalUsd = totalBase + bundleHandling - (earnedCount >= 2 ? deliveryFeeRaw * deliveryDiscount / 100 : 0);
 
   useEffect(() => {
@@ -330,7 +331,7 @@ function CertificateView() {
             <div className="mt-2 space-y-1.5 text-xs leading-relaxed">
               <p className="flex justify-between"><span className="text-white/60">{t(`① ${costs.printLabelBn} — ${costs.printUsd} USD`, `① ${costs.printLabelEn} — ${costs.printUsd} USD`)}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
               <p className="flex justify-between"><span className="text-white/60">{t(`② ${costs.packagingLabelBn} — ${costs.packagingUsd} USD`, `② ${costs.packagingLabelEn} — ${costs.packagingUsd} USD`)}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t(`③ ${costs.shippingEliteLabelBn} — ${costs.shippingUsd} USD`, `③ ${costs.shippingEliteLabelEn} — ${costs.shippingUsd} USD`) : t(`③ ${costs.shippingLabelBn} — ${costs.shippingUsd} USD`, `③ ${costs.shippingLabelEn} — ${costs.shippingUsd} USD`)}</span><span className="font-black text-white">{(costs.shippingUsd * certCfg.usdRate).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({costs.shippingUsd} USD)</span></span></p>
+              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t(`③ ${costs.shippingEliteLabelBn} — ${shipUsd} USD`, `③ ${costs.shippingEliteLabelEn} — ${shipUsd} USD`) : t(`③ ${costs.shippingLabelBn} — ${costs.shippingUsd} USD`, `③ ${costs.shippingLabelEn} — ${costs.shippingUsd} USD`)}</span><span className="font-black text-white">{(shipUsd * certCfg.usdRate).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({shipUsd} USD)</span></span></p>
               <p className="flex justify-between">
                 <span className="text-white/60">{deliveryMode === "home" ? t(`④ ${costs.homeLabelBn} — ${costs.homeFeeUsd} USD (বান্ডেলে একবার)`, `④ ${costs.homeLabelEn} — ${costs.homeFeeUsd} USD (once per bundle)`) : t(`④ ${costs.postLabelBn} — ${costs.postFeeUsd} USD (বান্ডেলে একবার)`, `④ ${costs.postLabelEn} — ${costs.postFeeUsd} USD (once per bundle)`)}</span>
                 <span className="font-black text-white">
