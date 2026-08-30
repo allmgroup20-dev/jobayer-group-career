@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLang } from "@/lib/lang";
 import { A4_LANDSCAPE_H, useCertScale } from "@/lib/useCertScale";
+import { JOIN_CERT_DEFAULTS, useJoinContent } from "@/lib/join-content";
 import CertCanvas from "@/components/CertCanvas";
 import CertLightbox from "@/components/CertLightbox";
 
@@ -44,6 +45,8 @@ function CertificateView() {
   const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
   const [deliveryDiscount, setDeliveryDiscount] = useState(0);
 
+  const { content: certCfg } = useJoinContent("join_certificate", JOIN_CERT_DEFAULTS);
+  const costs = certCfg.costs;
   const tier: "foundation" | "ambassador" | "elite" = (() => {
     const cid = data?.certificateId || "";
     if (cid.startsWith("YA-ELITE-")) return "elite";
@@ -52,11 +55,13 @@ function CertificateView() {
   })();
 
   const earnedCount = tier === "elite" ? 3 : tier === "ambassador" ? 2 : 1;
-  const deliveryFeeRaw = deliveryMode === "home" ? 1 : 0.5;
+  const deliveryFeeRaw = deliveryMode === "home" ? costs.homeFeeUsd : costs.postFeeUsd;
+  const bundleHandling = earnedCount >= 2 ? (certCfg.bundleHandlingUsd || 0) : 0;
   const deliveryFee = earnedCount >= 2 ? deliveryFeeRaw * (1 - deliveryDiscount / 100) : deliveryFeeRaw;
-  // 4 items within 2 USD: print 0.6 + packaging 0.4 + shipping 0.5 + deliveryFeeRaw (0.5 post / 1 home)
-  const totalBase = deliveryMode === "home" ? 2.5 : 2.0;
-  const totalUsd = totalBase - (earnedCount >= 2 ? deliveryFeeRaw * deliveryDiscount / 100 : 0);
+  const totalBase = deliveryMode === "home"
+    ? costs.printUsd + costs.packagingUsd + costs.shippingUsd + costs.homeFeeUsd
+    : costs.printUsd + costs.packagingUsd + costs.shippingUsd + costs.postFeeUsd;
+  const totalUsd = totalBase + bundleHandling - (earnedCount >= 2 ? deliveryFeeRaw * deliveryDiscount / 100 : 0);
 
   useEffect(() => {
     if (!id) { setState("missing"); return; }
@@ -73,10 +78,10 @@ function CertificateView() {
 
   useEffect(() => {
     if (state !== "ok" || !data) return;
-    const FIXED_RATE = 111;
-    const totalBdt = Math.floor(totalUsd * FIXED_RATE);
-    setRateInfo({ rate: FIXED_RATE, totalUsd, totalBdt });
-  }, [state, data, tier, deliveryMode, totalUsd, earnedCount, deliveryDiscount]);
+    const rate = certCfg.usdRate || 111;
+    const totalBdt = Math.floor(totalUsd * rate);
+    setRateInfo({ rate, totalUsd, totalBdt });
+  }, [state, data, tier, deliveryMode, totalUsd, earnedCount, deliveryDiscount, certCfg.usdRate]);
 
   useEffect(() => {
     try {
@@ -195,52 +200,28 @@ function CertificateView() {
               <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
               <div>
                 <p className="text-sm font-black text-white">{t("কী ধরনের সার্টিফিকেট", "Type of certificate")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {tier === "elite"
-                    ? t("Elite Final — YouTube Earner কমিউনিটির সর্বোচ্চ সম্মান। অসাধারণ পারফরম্যান্স ও দেশব্যাপী লার্নারদের মেন্টরিং-এর বিশ্বমানের স্বীকৃতি। ৩ জন গ্লোবাল এক্সিকিউটিভ সই + QR যাচাই।", "Elite Final — the highest honor of the YouTube Earner community. World-class recognition for extraordinary performance and nationwide learner mentoring. Signed by 3 global executives + QR verification.")
-                    : tier === "ambassador"
-                    ? t("রেফারেল অ্যাম্বাসেডর — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এ প্রিমিয়াম স্বীকৃতি। বিশ্বস্ত অ্যাম্বাসেডর হিসেবে নেটওয়ার্ক গড়ার সরকারি-মানের সনদ। QR যাচাই সহ।", "Referral Ambassador — premium recognition for community-building and digital marketing. Verifiable certificate as a trusted ambassador. With QR verification.")
-                    : t("ফাউন্ডেশন — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এর এন্ট্রি-লেভেল অভিজ্ঞতার সনদ। প্রোফাইল সম্পন্ন ও প্রাথমিক দক্ষতা প্রমাণের স্বীকৃতি। QR যাচাই সহ।", "Foundation — entry-level certificate of community-building and digital marketing. Recognition for completing your profile and proving core skills. With QR verification.")}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">{t((certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].typeBn, (certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].typeEn)}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-teal/15 border border-teal/30 flex items-center justify-center text-lg">💼</div>
               <div>
                 <p className="text-sm font-black text-white">{t("কোন কোন কাজে ব্যবহার করা যাবে", "Where this experience applies")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {tier === "elite"
-                    ? t("টিম লিড, প্রজেক্ট ম্যানেজার, ডিজিটাল মার্কেটিং লিড, ইনফ্লুয়েন্সার ম্যানেজার ও স্টার্টআপ লিডারশিপ ভূমিকায় CV-তে সবচেয়ে বেশি প্রাধান্য পায়।", "Carries the most weight for team lead, project manager, digital marketing lead, influencer manager and startup leadership roles.")
-                    : tier === "ambassador"
-                    ? t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং-এ মাঝারি-স্তরের ভূমিকায় বাড়তি সুবিধা।", "Adds strong value for digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing — mid-level advantage.")
-                    : t("ডিজিটাল মার্কেটিং এসিস্ট্যান্ট, কমিউনিটি ম্যানেজার, সেলস/প্রমোশন এক্সিকিউটিভ, অ্যাফিলিয়েট মার্কেটার ও ফ্রিল্যান্সিং ভূমিকায় CV-তে এন্ট্রি হিসেবে কাজে লাগে।", "Useful as an entry credential for digital marketing assistant, community manager, sales/promotion executive, affiliate marketer and freelancing.")}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">{t((certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].whereBn, (certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].whereEn)}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-lg">🚀</div>
               <div>
                 <p className="text-sm font-black text-white">{t("ক্যারিয়ার সম্ভাবনা", "Career Opportunity")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {tier === "elite"
-                    ? t("এই সার্টিফিকেট দিয়ে লিডারশিপ ও এডভান্সড ডিজিটাল মার্কেটিং ভূমিকায় আবেদন করতে পারবেন — আপনার শেখা ও চেষ্টা আপনাকে এগিয়ে নেবে।", "With this certificate you can apply for leadership and advanced digital marketing roles — your learning and effort will take you forward.")
-                    : tier === "ambassador"
-                    ? t("এই সার্টিফিকেট দিয়ে মিড-লেভেল ডিজিটাল মার্কেটিং ও কমিউনিটি ভূমিকায় আবেদন করতে পারবেন — শেখা যত বাড়বে, সুযোগ তত বাড়বে।", "With this certificate you can apply for mid-level digital marketing and community roles — the more you learn, the more opportunities grow.")
-                    : t("এই সার্টিফিকেট দিয়ে এন্ট্রি-লেভেল ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস ভূমিকায় আবেদন করতে পারবেন — প্রতিটি ধাপে নতুন দক্ষতা নিশ্চিত।", "With this certificate you can apply for entry-level digital marketing, community management and sales roles — each step ensures new skills.")}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">{t((certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].careerBn, (certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].careerEn)}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-violet/15 border border-violet/30 flex items-center justify-center text-lg">📈</div>
               <div>
                 <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why it's trusted")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  {tier === "elite"
-                    ? t("৩ জন গ্লোবাল এক্সিকিউটিভ (CEO, CBO, APAC President) সই + ইউনিক ID + QR — সর্বোচ্চ যাচাইযোগ্যতা।", "Signed by 3 global executives (CEO, CBO, APAC President) + unique ID + QR — maximum verifiability.")
-                    : tier === "ambassador"
-                    ? t("Country Manager (PREETI LOBANA) সই + সিল + QR — নিয়োগকর্তা এই পেজ থেকেই যাচাই করতে পারেন।", "Signed by Country Manager (PREETI LOBANA) + seal + QR — any employer can verify on this page.")
-                    : t("Authorized Signatory + ইউনিক ID + QR — এন্ট্রি-লেভেল যাচাইযোগ্য সনদ।", "Authorized Signatory + unique ID + QR — verifiable entry-level credential.")}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-white/60">{t((certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].trustBn, (certCfg.tierDescriptions as Record<string, Record<string,string>>)[tier].trustEn)}</p>
               </div>
               </div>
             </div>
@@ -341,46 +322,47 @@ function CertificateView() {
             </div>
           </div>
           <div className="mt-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/30 text-center">
-            <p className="text-[11px] font-black text-gold">💰 {t("সব খরচ অন্তর্ভুক্ত — প্রিন্ট, প্যাকেজিং, শিপিং — কোনো হিডেন চার্জ নেই (বিশেষ রেট ১১১ টাকা/ডলার)", "All costs included — print, packaging, shipping — no hidden fees (special rate 111 Taka/USD)")}</p>
+            <p className="text-[11px] font-black text-gold">💰 {t(`সব খরচ অন্তর্ভুক্ত — প্রিন্ট, প্যাকেজিং, শিপিং — কোনো হিডেন চার্জ নেই (বিশেষ রেট ${certCfg.usdRate} টাকা/ডলার)`, `All costs included — print, packaging, shipping — no hidden fees (special rate ${certCfg.usdRate} Taka/USD)`)}</p>
           </div>
 
           <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
             <p className="text-[11px] font-black text-white/70 uppercase tracking-wide">{t("ধাপ অনুযায়ী খরচ", "Cost breakdown")}</p>
             <div className="mt-2 space-y-1.5 text-xs leading-relaxed">
-              <p className="flex justify-between"><span className="text-white/60">{t("① ভালো কাগজে প্রিন্ট — ০.৬ USD", "① Print on quality paper — 0.6 USD")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{t("② প্যাকেজিং — ০.৪ USD", "② Packaging — 0.4 USD")}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
-              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t("③ সিঙ্গাপুর থেকে বাংলাদেশ — ০.৫ USD", "③ Ship from Singapore to Bangladesh — 0.5 USD") : t("③ ইন্ডিয়া থেকে বাংলাদেশ — ০.৫ USD", "③ Ship from India to Bangladesh — 0.5 USD")}</span><span className="font-black text-white">৫৫ টাকা <span className="text-[10px] text-white/40">(0.5 USD)</span></span></p>
+              <p className="flex justify-between"><span className="text-white/60">{t(`① ${costs.printLabelBn} — ${costs.printUsd} USD`, `① ${costs.printLabelEn} — ${costs.printUsd} USD`)}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{t(`② ${costs.packagingLabelBn} — ${costs.packagingUsd} USD`, `② ${costs.packagingLabelEn} — ${costs.packagingUsd} USD`)}</span><span className="text-white/40 text-[10px]">{t("অন্তর্ভুক্ত", "included")}</span></p>
+              <p className="flex justify-between"><span className="text-white/60">{tier === "elite" ? t(`③ ${costs.shippingEliteLabelBn} — ${costs.shippingUsd} USD`, `③ ${costs.shippingEliteLabelEn} — ${costs.shippingUsd} USD`) : t(`③ ${costs.shippingLabelBn} — ${costs.shippingUsd} USD`, `③ ${costs.shippingLabelEn} — ${costs.shippingUsd} USD`)}</span><span className="font-black text-white">{(costs.shippingUsd * certCfg.usdRate).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({costs.shippingUsd} USD)</span></span></p>
               <p className="flex justify-between">
-                <span className="text-white/60">{deliveryMode === "home" ? t("④ হোম ডেলিভারি ফি — ১.০ USD (বান্ডেলে একবার)", "④ Home delivery fee — 1.0 USD (once per bundle)") : t("④ পোস্ট অফিস ফি — ০.৫ USD (বান্ডেলে একবার)", "④ Post office fee — 0.5 USD (once per bundle)")}</span>
+                <span className="text-white/60">{deliveryMode === "home" ? t(`④ ${costs.homeLabelBn} — ${costs.homeFeeUsd} USD (বান্ডেলে একবার)`, `④ ${costs.homeLabelEn} — ${costs.homeFeeUsd} USD (once per bundle)`) : t(`④ ${costs.postLabelBn} — ${costs.postFeeUsd} USD (বান্ডেলে একবার)`, `④ ${costs.postLabelEn} — ${costs.postFeeUsd} USD (once per bundle)`)}</span>
                 <span className="font-black text-white">
                   {earnedCount >= 2 && deliveryDiscount > 0 ? (
                     <>
-                      <span className="line-through text-white/40 mr-1">{(deliveryFeeRaw * 111).toLocaleString("en-US")}৳</span>
-                      {(deliveryFee * 111).toLocaleString("en-US")} টাকা <span className="text-teal text-[10px]">-{deliveryDiscount}%</span>
+                      <span className="line-through text-white/40 mr-1">{(deliveryFeeRaw * certCfg.usdRate).toLocaleString("en-US")}৳</span>
+                      {(deliveryFee * certCfg.usdRate).toLocaleString("en-US")} টাকা <span className="text-teal text-[10px]">-{deliveryDiscount}%</span>
                     </>
                   ) : (
-                    <>{(deliveryFeeRaw * 111).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({deliveryFeeRaw} USD)</span></>
+                    <>{(deliveryFeeRaw * certCfg.usdRate).toLocaleString("en-US")} টাকা <span className="text-[10px] text-white/40">({deliveryFeeRaw} USD)</span></>
                   )}
                 </span>
               </p>
+              {bundleHandling > 0 && earnedCount >= 2 && <p className="text-[10px] text-white/40 text-right">{t(`+ বান্ডেল হ্যান্ডলিং ${bundleHandling} USD`, `+ bundle handling ${bundleHandling} USD`)}</p>}
               {earnedCount >= 2 && deliveryDiscount > 0 && <p className="text-[10px] font-bold text-teal text-right">🎉 {deliveryDiscount}% {t("ছাড় প্রযোজ্য — ডেলিভারি ফি-তে", "off on delivery fee")}</p>}
               {earnedCount >= 2 && deliveryDiscount >= 40 && <p className="text-[10px] font-bold text-gold text-right">{t("🎉 আপনাকে সর্বোচ্চ ৪০% ছাড় দেওয়া হয়েছে — এর চেয়ে বেশি কোনোভাবেই সম্ভব নয়","Maximum 40% discount — no more possible")}</p>}
               {earnedCount === 1 && <p className="text-[10px] text-white/40 text-right">{t("১টি-তে ছাড় নেই, ২/৩টি একসাথে নিলে ছাড়","No discount for 1, discount for 2/3 bundle")}</p>}
               <div className="pt-2 mt-2 border-t border-white/10 flex justify-between items-center">
                 <span className="text-sm font-black text-white">{t("মোট", "Total")}</span>
                 <span className="text-right">
-                  <span className="text-sm font-black text-gold">{rateInfo ? `${rateInfo.totalBdt.toLocaleString("en-US")} টাকা` : `${totalUsd} USD`}</span>
+                  <span className="text-sm font-black text-gold">{rateInfo ? `${rateInfo.totalBdt.toLocaleString("en-US")} টাকা` : `${totalUsd.toFixed(2)} USD`}</span>
                   <span className="ml-2 text-[11px] font-bold text-white/40">({totalUsd.toFixed(2)} USD{t(" • আজকের রেটে", " at today's rate")})</span>
                 </span>
               </div>
-              <p className="text-[10px] text-white/40 text-right">1 USD = 111 BDT <span className="line-through opacity-40">124 BDT</span> • {t("বিশেষ ছাড় • পয়সা বাদ, শুধু টাকা", "special discount • floor, no paisa")}</p>
+              <p className="text-[10px] text-white/40 text-right">1 USD = {certCfg.usdRate} BDT <span className="line-through opacity-40">{certCfg.marketRate} BDT</span> • {t("বিশেষ ছাড় • পয়সা বাদ, শুধু টাকা", "special discount • floor, no paisa")}</p>
             </div>
           </div>
           <div className="mt-3 rounded-xl bg-white/[0.04] border border-white/10 p-3">
             <p className="text-[11px] font-black text-white/70 text-center">
               {earnedCount === 1 ? t("আপনি ১টি সার্টিফিকেট অর্জন করেছেন", "You have earned 1 certificate") : earnedCount === 2 ? t("আপনি ২টি সার্টিফিকেট (Foundation + Ambassador) অর্জন করেছেন — একসাথে অর্ডারে ডেলিভারি একবারই", "You have earned 2 certificates (Foundation + Ambassador) — single delivery for bundle") : t("আপনি ৩টি সার্টিফিকেট (Foundation + Ambassador + Elite) অর্জন করেছেন — একসাথে অর্ডারে ডেলিভারি একবারই", "You have earned 3 certificates (Foundation + Ambassador + Elite) — single delivery for bundle")}
             </p>
-            {earnedCount >= 2 && <p className="mt-1 text-[10px] text-teal text-center">{t("২/৩টি একসাথে — ডেলিভারি ফি একবার + ছাড়","2/3 bundle — single delivery fee + discount")}</p>}
+            {earnedCount >= 2 && <p className="mt-1 text-[10px] text-teal text-center">{t(certCfg.bundleNoteBn, certCfg.bundleNoteEn)}</p>}
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">

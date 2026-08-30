@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "@/lib/lang";
+import { JOIN_HOME_DEFAULTS, useJoinContent } from "@/lib/join-content";
 import GoogleLogin from "@/components/GoogleLogin";
 
 type Me = {
@@ -28,6 +29,7 @@ export default function HomePage() {
   const { lang } = useLang();
   const router = useRouter();
   const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
+  const { content: hc } = useJoinContent("join_home", JOIN_HOME_DEFAULTS);
   const [me, setMe] = useState<Me | null>(null);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
@@ -57,22 +59,19 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -top-6 -right-10 -z-10 w-44 h-44 rounded-full bg-[#2563EB]/5 blur-3xl animate-floaty" style={{ animationDelay: "1s" }} />
 
         <span className="badge-glow bg-[#C2410C]/10 text-[#C2410C] border border-[#C2410C]/20 animate-wiggle mt-4">
-          🎉 {t("এখনই জয়েন করুন", "Join Now")}
+          🎉 {t(hc.heroBadgeBn, hc.heroBadgeEn)}
         </span>
 
         <h1 className="mt-4 text-[clamp(28px,5vw,42px)] font-black leading-tight">
           <span className="text-[#0B1F33]">
-            {t("ইউটিউব আর্নার — আসল নিয়ম শিখুন, বাস্তব সার্টিফিকেট পান", "YouTube Earner — learn real rules, earn real certificates")}
+            {t(hc.heroTitleBn, hc.heroTitleEn)}
           </span>
           <br />
-          <span className="text-[#C2410C]">{t("৯৭০+ রিসোর্স · ৩-টিয়ার সার্টিফিকেট · প্রমাণিত দক্ষতা", "970+ resources · 3-tier certificates · proven skills")}</span>
+          <span className="text-[#C2410C]">{t(hc.heroSubtitleBn, hc.heroSubtitleEn)}</span>
         </h1>
 
         <p className="mt-3 text-base md:text-lg text-[#475569] font-medium max-w-md mx-auto">
-          {t(
-            "ইউটিউব-এ বড় হওয়ার সঠিক পথ — আমরা গাইড করব ধাপে ধাপে। ফ্রি ডেমো ক্লাস দিয়ে আজই শুরু করুন।",
-            "The right path to grow on YouTube — we guide you step by step. Start today with a free demo class."
-          )}
+          {t(hc.heroDescBn, hc.heroDescEn)}
         </p>
 
         {/* Trust badges */}

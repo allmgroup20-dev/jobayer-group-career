@@ -73,15 +73,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "পোস্ট অফিসের নাম ও ঠিকানা দিন" }, { status: 400 });
     }
 
-    // 4 items within 2 USD: print 0.6 + packaging 0.4 + shipping 0.5 + deliveryFeeRaw (post 0.5 / home 1.0)
-    // Bundle delivery single fee: 1 cert 2.0/2.5, 2-3 certs same total but delivery fee discounted
-    const totalBase = deliveryMode === "home" ? 2.5 : 2.0;
-    const deliveryFeeRaw = deliveryMode === "home" ? 1 : 0.5;
+    // Dynamic 4-item pricing from join_certificate (editable in company panel), fallback to 0.6/0.4/0.5/0.5
+    let printUsd = 0.6, packUsd = 0.4, shipUsd = 0.5, postUsd = 0.5, homeUsd = 1.0, bundleHandlingUsd = 0, usdRateCfg = 111;
+    try {
+      const cfgRow = await env.DB.prepare("SELECT content FROM site_content WHERE section = 'join_certificate'").first<{ content: string }>();
+      if (cfgRow?.content) {
+        const cfg = JSON.parse(cfgRow.content) as { costs?: { printUsd?: number; packagingUsd?: number; shippingUsd?: number; postFeeUsd?: number; homeFeeUsd?: number }; bundleHandlingUsd?: number; usdRate?: number };
+        if (cfg.costs) {
+          if (typeof cfg.costs.printUsd === "number") printUsd = cfg.costs.printUsd;
+          if (typeof cfg.costs.packagingUsd === "number") packUsd = cfg.costs.packagingUsd;
+          if (typeof cfg.costs.shippingUsd === "number") shipUsd = cfg.costs.shippingUsd;
+          if (typeof cfg.costs.postFeeUsd === "number") postUsd = cfg.costs.postFeeUsd;
+          if (typeof cfg.costs.homeFeeUsd === "number") homeUsd = cfg.costs.homeFeeUsd;
+        }
+        if (typeof cfg.bundleHandlingUsd === "number") bundleHandlingUsd = cfg.bundleHandlingUsd;
+        if (typeof cfg.usdRate === "number") usdRateCfg = cfg.usdRate;
+      }
+    } catch {}
+    const totalBase = deliveryMode === "home" ? printUsd + packUsd + shipUsd + homeUsd : printUsd + packUsd + shipUsd + postUsd;
+    const deliveryFeeRaw = deliveryMode === "home" ? homeUsd : postUsd;
+    const handlingExtra = bundleCount >= 2 ? bundleHandlingUsd : 0;
     const deliveryFeeUsd = bundleCount >= 2 ? deliveryFeeRaw * (1 - discount / 100) : deliveryFeeRaw;
-    const totalUsd = totalBase - (bundleCount >= 2 ? deliveryFeeRaw * discount / 100 : 0);
-    const baseUsd = 1.5; // print+pack+ship (0.6+0.4+0.5) for DB
-    const homeExtraUsd = deliveryFeeUsd;
-    const rate = 111; // Fixed special discount (market 124)
+    const totalUsd = totalBase + handlingExtra - (bundleCount >= 2 ? deliveryFeeRaw * discount / 100 : 0);
+    const baseUsd = printUsd + packUsd + shipUsd;
+    const homeExtraUsd = deliveryFeeUsd + handlingExtra;
+    const rate = usdRateCfg;
     const totalBdt = Math.floor(totalUsd * rate);
 
     const worker = await queryFirst<{ name: string; phone: string; email: string; division: string; district: string }>(
