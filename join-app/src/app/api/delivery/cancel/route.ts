@@ -3,14 +3,21 @@ import { getDB } from "@/lib/env";
 
 export async function POST(request: NextRequest) {
   try {
-    const form = await request.formData().catch(() => null);
-    let tranId = "";
-    if (form) tranId = String(form.get("tran_id") || "");
-    if (!tranId) tranId = request.nextUrl.searchParams.get("tran_id") || "";
+    const ct = request.headers.get("content-type") || "";
+    let data: Record<string, string> = {};
+    if (ct.includes("application/json")) {
+      const j = await request.json().catch(() => ({}));
+      for (const [k, v] of Object.entries(j as Record<string, unknown>)) data[k] = String(v);
+    } else {
+      const form = await request.formData().catch(() => null);
+      if (form) for (const [k, v] of form.entries()) data[k] = String(v);
+    }
+    for (const [k, v] of request.nextUrl.searchParams.entries()) if (!data[k]) data[k] = v;
+    const tranId = data.tran_id || data.tranId || "";
     if (tranId) {
       try {
         const env = await getDB();
-        await env.DB.prepare("UPDATE delivery_orders SET status = 'CANCELLED', verified_at = datetime('now') WHERE tran_id = ?").bind(tranId).run();
+        await env.DB.prepare("UPDATE delivery_orders SET status = 'CANCELLED', gateway_response = ?, verified_at = datetime('now') WHERE tran_id = ?").bind(JSON.stringify(data), tranId).run();
       } catch {}
     }
   } catch {}

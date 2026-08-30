@@ -472,21 +472,22 @@ export default function CompletePage() {
         } else setIsPremium(false);
       })
       .catch(() => setIsPremium(false));
-    // Show toast from redirect ?membership=success / failed etc.
+    // Show toast from redirect ?membership=success / failed etc. — handles all statuses, always visible
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const m = p.get("membership");
-      if (m === "success") {
-        setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
-        switchStep("elite");
-      }
-      else if (m === "failed") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট ব্যর্থ হয়েছে — আবার চেষ্টা করুন", "Payment failed — please try again") });
-      else if (m === "cancelled") setPayMsg({ kind: "warn", text: t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled") });
       if (m) {
+        if (m === "success") {
+          setPayMsg({ kind: "ok", text: t("✅ অভিনন্দন! আপনি এখন ১০০% প্রিমিয়াম মেম্বার — Elite আনলক হয়েছে!", "✅ Congratulations! You are now 100% premium — Elite unlocked!") });
+          switchStep("elite");
+        } else if (m === "failed") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট ব্যর্থ হয়েছে — আবার চেষ্টা করুন", "Payment failed — please try again") });
+        else if (m === "cancelled") setPayMsg({ kind: "warn", text: t("↩️ পেমেন্ট বাতিল হয়েছে", "Payment cancelled") });
+        else if (m === "error") setPayMsg({ kind: "error", text: t("❌ পেমেন্ট যাচাই করা যায়নি", "Payment verification failed") });
+        else if (m === "amount_mismatch") setPayMsg({ kind: "error", text: t("⚠️ টাকার পরিমাণ মিলেনি — সাপোর্টে যোগাযোগ করুন", "Amount mismatch — contact support") });
+        else setPayMsg({ kind: "warn", text: t(`ℹ️ পেমেন্ট: ${m}`, `Payment: ${m}`) });
         const url = new URL(window.location.href);
         url.searchParams.delete("membership");
-        window.history.replaceState({}, "", url.toString());
-        // refresh premium status after redirect
+        setTimeout(() => window.history.replaceState({}, "", url.toString()), 5000);
         setTimeout(() => {
           fetch("/api/membership/status").then(r=>r.ok?r.json():null).then(dd=>{ const d = dd as { isPremium?: boolean; eliteCertificateId?: string | null } | null; if(d&&typeof d.isPremium==="boolean") { setIsPremium(d.isPremium); if(d.eliteCertificateId) setEliteCertificateId(d.eliteCertificateId); } }).catch(()=>{});
         }, 500);
@@ -897,6 +898,11 @@ export default function CompletePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden relative page-under-header bg-[#F8FAFC]">
+      {payMsg && (
+        <div className={`mx-4 mt-3 rounded-2xl border text-xs font-black px-4 py-3 text-center ${payMsg.kind === "ok" ? "bg-teal/15 border-teal/30 text-teal" : payMsg.kind === "error" ? "bg-red-500/15 border-red-500/30 text-red-600" : "bg-amber-500/15 border-amber-500/30 text-amber-700"}`}>
+          {payMsg.text}
+        </div>
+      )}
       {completed && confetti.map((c, i) => (
         <span key={i} className="confetti-piece" style={c} />
       ))}

@@ -105,17 +105,21 @@ function CertificateView() {
         setDeliveryAddress(addr || (m.city as string) || "");
       })
       .catch(() => {});
-    // delivery status toast
+    // delivery status — global banner + auto-open, handles all statuses
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const d = p.get("delivery");
-      if (d === "success") setDeliveryMsg(t("✅ অর্ডার সফল — শীঘ্রই পোস্ট অফিস/হোমে পাঠানো হবে", "Order successful — will be shipped soon"));
-      else if (d === "failed") setDeliveryMsg(t("❌ পেমেন্ট ব্যর্থ", "Payment failed"));
-      else if (d === "cancelled") setDeliveryMsg(t("পেমেন্ট বাতিল হয়েছে", "Payment cancelled"));
       if (d) {
+        if (d === "success") { setDeliveryMsg(t("✅ অর্ডার সফল — শীঘ্রই পোস্ট অফিস/হোমে পাঠানো হবে", "Order successful — will be shipped soon")); setShowDelivery(true); }
+        else if (d === "failed") { setDeliveryMsg(t("❌ পেমেন্ট ব্যর্থ — আবার চেষ্টা করুন", "Payment failed — please try again")); setShowDelivery(true); }
+        else if (d === "cancelled") { setDeliveryMsg(t("↩️ পেমেন্ট বাতিল হয়েছে", "Payment cancelled")); setShowDelivery(true); }
+        else if (d === "amount_mismatch") { setDeliveryMsg(t("⚠️ টাকার পরিমাণ মিলেনি — সাপোর্টে যোগাযোগ করুন", "Amount mismatch — please contact support")); setShowDelivery(true); }
+        else if (d === "error") { setDeliveryMsg(t("❌ পেমেন্ট যাচাই করা যায়নি", "Payment verification failed")); setShowDelivery(true); }
+        else { setDeliveryMsg(t(`ℹ️ পেমেন্ট: ${d}`, `Payment: ${d}`)); setShowDelivery(true); }
         const url = new URL(window.location.href);
         url.searchParams.delete("delivery");
-        window.history.replaceState({}, "", url.toString());
+        // keep clean URL after 5s so banner stays visible
+        setTimeout(() => window.history.replaceState({}, "", url.toString()), 5000);
       }
     }
   }, [state, t]);
@@ -175,6 +179,11 @@ function CertificateView() {
   return (
     <main className="min-h-screen page-under-header pb-16 px-4 bg-[#0a0a0a]">
       <div className="max-w-4xl mx-auto">
+        {deliveryMsg && (
+          <div className={`mb-4 rounded-2xl border text-xs font-black px-4 py-3 print:hidden ${deliveryMsg.includes("✅") ? "bg-teal/15 border-teal/30 text-[#2DD4BF]" : deliveryMsg.includes("❌") || deliveryMsg.includes("⚠️") ? "bg-red-500/15 border-red-500/30 text-red-300" : "bg-gold/15 border-gold/30 text-gold"}`}>
+            {deliveryMsg}
+          </div>
+        )}
         <div className="mb-4 rounded-2xl bg-teal/15 border border-teal/30 text-[#2DD4BF] text-xs font-bold px-4 py-3 print:hidden">
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>

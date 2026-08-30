@@ -23,9 +23,15 @@ async function ensureDeliveryTable(env: { DB: D1Database }) {
       val_id TEXT,
       gateway_response TEXT,
       created_at TEXT DEFAULT (datetime('now')),
-      verified_at TEXT
+      verified_at TEXT,
+      bundle_count INTEGER DEFAULT 1,
+      discount_percent INTEGER DEFAULT 0,
+      delivery_fee_usd REAL DEFAULT 0
     )`
   ).run();
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN bundle_count INTEGER DEFAULT 1").run(); } catch {}
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN discount_percent INTEGER DEFAULT 0").run(); } catch {}
+  try { await env.DB.prepare("ALTER TABLE delivery_orders ADD COLUMN delivery_fee_usd REAL DEFAULT 0").run(); } catch {}
 }
 
 async function handleCallback(request: NextRequest) {
