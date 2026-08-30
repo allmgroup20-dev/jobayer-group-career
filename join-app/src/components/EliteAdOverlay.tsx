@@ -296,13 +296,13 @@ export default function EliteAdOverlay() {
   if (isPremium) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => canSkip && dismissAd()} aria-hidden />
-      {/* Ad card — bottom sheet on mobile, centered modal on desktop */}
-      <div className="relative w-full md:max-w-lg max-h-[92vh] md:max-h-[88vh] overflow-y-auto bg-white rounded-t-[1.5rem] md:rounded-[1.25rem] shadow-2xl border border-slate-200 flex flex-col">
+      {/* Ad card — centered modal on all screens, smaller on mobile */}
+      <div className="relative w-[92vw] max-w-md md:max-w-lg max-h-[82vh] md:max-h-[88vh] overflow-y-auto bg-white rounded-[1.5rem] shadow-2xl border border-slate-200 flex flex-col">
         {/* Skip / countdown bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 bg-slate-900 text-white rounded-t-[1.5rem] md:rounded-t-[1.25rem]">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 bg-slate-900 text-white rounded-t-[1.5rem]">
           <span className="text-[11px] font-black tracking-widest uppercase opacity-80">
             {canSkip ? "" : `${skipRemaining}`}
           </span>
@@ -334,6 +334,9 @@ export default function EliteAdOverlay() {
               {t("🔒 কমিটমেন্ট লক", "Commitment Locked")}
             </span>
           </div>
+          <p className="mt-2 text-[11px] font-black text-violet text-center leading-relaxed">
+            {t("সর্বোচ্চ আন্তর্জাতিক মানের সার্টিফিকেট — ৯টি সুবিধা সাথে সাথে পেয়ে যান", "Highest international standard certificate — get 9 benefits instantly")}
+          </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
