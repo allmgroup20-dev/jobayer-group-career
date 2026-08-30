@@ -81,14 +81,17 @@ export async function POST(request: NextRequest) {
       } catch {}
     }
 
-    // If no credentials in dev, simulate premium for testing (local-d1)
+    // If no credentials in dev, simulate premium for testing (local-d1) — check both test/live
     const isDev = process.env.NODE_ENV === "development";
-    let storeIdCheck = "";
+    let hasStore = false;
     try {
-      const testRow = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", ["sslcommerz_test_store_id"]);
-      storeIdCheck = testRow?.setting_value || "";
-    } catch {}
-    const hasStore = !!storeIdCheck || !!process.env.SSLCOMMERZ_STORE_ID;
+      const modeRow = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", ["sslcommerz_mode"]);
+      const mode = modeRow?.setting_value || "test";
+      const key = mode === "live" ? "sslcommerz_live_store_id" : "sslcommerz_test_store_id";
+      const row = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", [key]);
+      const altRow = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", [key === "sslcommerz_live_store_id" ? "sslcommerz_test_store_id" : "sslcommerz_live_store_id"]);
+      hasStore = !!(row?.setting_value || altRow?.setting_value || process.env.SSLCOMMERZ_STORE_ID || hasCredentials);
+    } catch { hasStore = !!hasCredentials; }
 
     if (!hasStore && isDev) {
       // Dev mock: directly mark premium and return mock URL + elite cert

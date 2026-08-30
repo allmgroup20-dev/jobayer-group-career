@@ -91,17 +91,18 @@ export default function OnboardingPage() {
   }, []);
 
   useEffect(() => {
-    const wid = localStorage.getItem("worker_id");
-    if (!wid) { window.location.href = "/login"; return; }
-    setWorkerId(wid);
-    fetch(`/api/workers/profile?workerId=${encodeURIComponent(wid)}`)
-      .then(r => r.json() as Promise<{ phone?: string }>)
-      .then(d => {
-        if (looksLikePhone(d.phone)) {
-          setPhone(d.phone!);
-        } else {
-          setPhone("");
-        }
+    fetch("/api/me", { credentials: "include" })
+      .then(async (r) => {
+        if (!r.ok) { window.location.href = "/login"; return null; }
+        const d = await r.json() as { worker_id?: string; workerId?: string; phone?: string; profileCompleted?: boolean };
+        const wid = d?.worker_id || d?.workerId || "";
+        if (!wid) { window.location.href = "/login"; return null; }
+        setWorkerId(wid);
+        try { localStorage.setItem("worker_id", wid); } catch {}
+        if (d.profileCompleted) { window.location.href = "/dashboard"; return null; }
+        if (looksLikePhone(d.phone)) setPhone(d.phone!);
+        else setPhone("");
+        return d;
       })
       .catch(() => {})
       .finally(() => setLoading(false));

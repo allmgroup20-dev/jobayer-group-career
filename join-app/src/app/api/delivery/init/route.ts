@@ -117,13 +117,17 @@ export async function POST(request: NextRequest) {
       [workerId, tier, deliveryMode, baseUsd, homeExtraUsd, totalUsd, totalBdt, rate, postOfficeName || null, postOfficeAddress || null, shippingAddress || null, tranId, bundleCount, discount, deliveryFeeUsd]
     );
 
-    // Dev mock if no gateway
-    let storeIdCheck = "";
+    // Dev mock if no gateway — check both test/live
+    const hasCredentials = (service as unknown as { storeId: string })["storeId"] || process.env.SSLCOMMERZ_STORE_ID;
+    let hasStore = false;
     try {
-      const r = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", ["sslcommerz_test_store_id"]);
-      storeIdCheck = r?.setting_value || "";
-    } catch {}
-    const hasStore = !!storeIdCheck || !!process.env.SSLCOMMERZ_STORE_ID;
+      const modeRow = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", ["sslcommerz_mode"]);
+      const mode = modeRow?.setting_value || "test";
+      const key = mode === "live" ? "sslcommerz_live_store_id" : "sslcommerz_test_store_id";
+      const r = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", [key]);
+      const alt = await queryFirst<{ setting_value: string }>(env, "SELECT setting_value FROM company_settings WHERE setting_key = ?", [key === "sslcommerz_live_store_id" ? "sslcommerz_test_store_id" : "sslcommerz_live_store_id"]);
+      hasStore = !!(r?.setting_value || alt?.setting_value || hasCredentials);
+    } catch { hasStore = !!hasCredentials; }
     const isDev = process.env.NODE_ENV === "development";
     if (!hasStore && isDev) {
       await execute(env, "UPDATE delivery_orders SET status = 'VALID', verified_at = datetime('now') WHERE tran_id = ?", [tranId]);

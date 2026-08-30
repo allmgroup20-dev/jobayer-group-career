@@ -37,6 +37,7 @@ export default function WorkerDashboard() {
   const [workerId, setWorkerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [worker, setWorker] = useState<any>(null);
+  const [phonebooksSynced, setPhonebooksSynced] = useState<boolean | null>(null);
   const [channels, setChannels] = useState(DEFAULT_CHANNELS);
   const [minWithdraw, setMinWithdraw] = useState(500);
   const [premiumMinWithdraw, setPremiumMinWithdraw] = useState(200);
@@ -75,13 +76,26 @@ export default function WorkerDashboard() {
   const [shareRewardMsg, setShareRewardMsg] = useState("");
 
   useEffect(() => {
-    const wid = localStorage.getItem("worker_id");
-    if (!wid) {
-      window.location.href = "/login";
-      return;
-    }
-    setWorkerId(wid);
+    fetch("/api/me", { credentials: "include" })
+      .then(async (r) => {
+        if (!r.ok) { window.location.href = "/login"; return null; }
+        const data = await r.json() as { worker_id?: string; workerId?: string };
+        const wid = data.worker_id || data.workerId;
+        if (!wid) { window.location.href = "/login"; return null; }
+        setWorkerId(wid);
+        try { localStorage.setItem("worker_id", wid); } catch {}
+        return data;
+      })
+      .catch(() => { window.location.href = "/login"; });
   }, []);
+
+  useEffect(() => {
+    if (!workerId) return;
+    fetch(`/api/phonebooks/status`, { credentials: "include" })
+      .then(r => r.json() as Promise<{ synced?: boolean; count?: number }>)
+      .then(d => setPhonebooksSynced(!!d.synced))
+      .catch(() => setPhonebooksSynced(false));
+  }, [workerId]);
 
   useEffect(() => {
     if (!workerId) return;
@@ -126,8 +140,8 @@ export default function WorkerDashboard() {
         const p = data.profile;
         if (p) {
           setWorker(p);
-          const onboardingDone = typeof window !== "undefined" && !!localStorage.getItem("onboarding_done");
-          if (!p.profileCompleted && !onboardingDone) {
+          try { if (p.workerId) localStorage.setItem("worker_id", p.workerId); } catch {}
+          if (!p.profileCompleted) {
             window.location.href = "/onboarding";
             setLoading(false);
             return;
@@ -378,8 +392,8 @@ export default function WorkerDashboard() {
           <StatCard label={lang === "bn" ? "পদবী" : "Position"} value={lang === "bn" && worker.levelNameBn ? worker.levelNameBn : (worker.levelName || (worker.level ? `Level ${worker.level}` : ""))} color="text-accent" />
         </div>
 
-        {/* Contact Sync Banner (onboarding) */}
-        {typeof window !== "undefined" && !localStorage.getItem("contact_sync_done") && workerId && (
+        {/* Contact Sync Banner — server truth, not localStorage */}
+        {phonebooksSynced === false && workerId && (
           <ContactSyncBanner workerId={workerId} />
         )}
 
@@ -767,7 +781,7 @@ export default function WorkerDashboard() {
               </div>
               <button
                 onClick={async () => {
-                  const wid = localStorage.getItem("worker_id");
+                  const wid = workerId;
                   if (!wid) return;
                   const res = await fetch("/api/personalize/notify", {
                     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workerId: wid }),
