@@ -54,7 +54,10 @@ export async function middleware(request: NextRequest) {
   const method = request.method;
 
   // CSRF: reject cross-origin state-changing requests to /api/*
-  if (pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+  // Bypass for SSLCommerz callbacks (server-to-server POST without cookies, validated via tran_id/val_id)
+  const SSL_BYPASS = ["/api/membership/success", "/api/membership/fail", "/api/membership/cancel", "/api/membership/ipn", "/api/delivery/success", "/api/delivery/fail", "/api/delivery/cancel", "/api/delivery/ipn"];
+  const isSslBypass = SSL_BYPASS.some((p) => pathname.startsWith(p));
+  if (!isSslBypass && pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
     const origin = request.headers.get("origin");
     if (origin) {
       try {
