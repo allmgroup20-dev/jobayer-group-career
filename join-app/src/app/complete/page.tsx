@@ -726,10 +726,10 @@ export default function CompletePage() {
         return {
           title: t("আপনার ফ্রি অ্যাম্বাসেডর সার্টিফিকেট নিন", "Get your free Ambassador certificate"),
           sub: t(
-            `${pctBn} সম্পন্ন — আরো একজনকে Free রেজিস্ট্রেশন করালেই ১০০% হবে, ফ্রি সার্টিফিকেট নিন`,
+            `${pctBn} সম্পন্ন — আরো একজনকে ফ্রি রেজিস্ট্রেশন করালেই ১০০% হবে, ফ্রি সার্টিফিকেট নিন`,
             `${pctEn} done — one more Free registration to reach 100% and claim free certificate`
           ),
-          cta: t("Free রেজিস্ট্রেশন করান — ফ্রি সার্টিফিকেট নিন", "Get Free registration — claim free certificate"),
+          cta: t("ফ্রি রেজিস্ট্রেশন করান — ফ্রি সার্টিফিকেট নিন", "Get Free registration — claim free certificate"),
           run: () => switchStep("ambassador"),
         };
       }
@@ -1195,14 +1195,14 @@ export default function CompletePage() {
                 <div className="flex gap-3 items-start px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="w-6 h-6 shrink-0 rounded-full bg-teal/20 text-teal text-xs font-black flex items-center justify-center mt-0.5">১</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-slate-900">{t("একজনকে Free রেজিস্ট্রেশন করান", "Get one Free registration")}</p>
+                    <p className="text-xs font-black text-slate-900">{t("একজনকে ফ্রি রেজিস্ট্রেশন করান", "Get one Free registration")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
                         <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
                       </div>
                       <span className="text-[11px] font-black text-teal">{lang === "bn" ? `${Math.min(Math.round((referralJoins / 11) * 100), 100).toLocaleString("bn-BD")}%` : `${Math.min(Math.round((referralJoins / 11) * 100), 100)}%`}</span>
                     </div>
-                    <p className="mt-1 text-[10px] text-slate-600">{t("আরো একজনকে Free রেজিস্ট্রেশন করান — এভাবে আরো একজন, আরো একজন — ১০০% হলেই Ambassador সার্টিফিকেট", "Get one more Free registration — one more, one more — 100% unlocks the Ambassador certificate")}</p>
+                    <p className="mt-1 text-[10px] text-slate-600">{t("আরো একজনকে ফ্রি রেজিস্ট্রেশন করান — এভাবে আরো একজন, আরো একজন — ১০০% হলেই Ambassador সার্টিফিকেট", "Get one more Free registration — one more, one more — 100% unlocks the Ambassador certificate")}</p>
                   </div>
                 </div>
 
