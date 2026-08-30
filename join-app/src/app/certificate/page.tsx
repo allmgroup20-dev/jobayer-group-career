@@ -41,6 +41,7 @@ function CertificateView() {
   const [deliveryPaying, setDeliveryPaying] = useState(false);
   const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
   const [deliveryDiscount, setDeliveryDiscount] = useState(0);
+  const [showDelivery, setShowDelivery] = useState(false);
 
   const { content: certCfg } = useJoinContent("join_certificate", JOIN_CERT_DEFAULTS);
   const costs = certCfg.costs;
