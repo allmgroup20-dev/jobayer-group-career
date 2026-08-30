@@ -78,6 +78,12 @@ export default function CompletePage() {
   const [showFoundationValue, setShowFoundationValue] = useState(false);
   const [showFoundationCert, setShowFoundationCert] = useState(false);
   const [showFoundationOrder, setShowFoundationOrder] = useState(false);
+  const [showAmbassadorValue, setShowAmbassadorValue] = useState(false);
+  const [showAmbassadorCert, setShowAmbassadorCert] = useState(false);
+  const [showAmbassadorOrder, setShowAmbassadorOrder] = useState(false);
+  const [showEliteValue, setShowEliteValue] = useState(false);
+  const [showEliteCert, setShowEliteCert] = useState(false);
+  const [showEliteOrder, setShowEliteOrder] = useState(false);
   const [contactsModalOpen, setContactsModalOpen] = useState(false);
   const [showWaPicker, setShowWaPicker] = useState(false);
   const [showShotHelp, setShowShotHelp] = useState(false);
@@ -993,17 +999,6 @@ export default function CompletePage() {
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
           </div>
 
-          {/* Preview — hidden behind a button so the card stays calm */}
-          <button
-            onClick={() => setShowCertPreview((v) => !v)}
-            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 active:scale-[0.99] transition-all"
-          >
-            <span className="text-xs font-black text-teal">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
-            <span className={`text-slate-600 text-sm transition-transform ${showCertPreview ? "rotate-180" : ""}`}>▾</span>
-          </button>
-
-          {showCertPreview && <CertificateSample variant="foundation" />}
-
           {/* Single progress — one bar, one encouraging line */}
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-3 rounded-full bg-slate-200 overflow-hidden">
@@ -1185,15 +1180,43 @@ export default function CompletePage() {
             <span>💰</span> {t("৳৩০,০০০–৳৬০,০০০ • Ambassador • প্রফেশনাল পুরস্কার", "৳30,000–৳60,000 • Ambassador • Professional reward")}
           </div>
 
-          {/* Certificate preview — at TOP of card for 100% mobile visibility */}
-          <button
-            onClick={() => setShowCert2Preview((v) => !v)}
-            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-gold/10 border border-gold/20 active:scale-[0.99] transition-all"
-          >
-            <span className="text-xs font-black text-gold">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
-            <span className={`text-slate-600 text-sm transition-transform ${showCert2Preview ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {showCert2Preview && <CertificateSample variant="ambassador" />}
+          {/* 3-button stack — same system for all certificates */}
+          <div className="mt-3 space-y-2">
+            <button onClick={() => setShowAmbassadorValue((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorValue ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showAmbassadorValue && (
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs leading-relaxed text-slate-600 space-y-2">
+                <p><b>{t("কী ধরনের সার্টিফিকেট", "Type")}</b> — {t("অ্যাম্বাসেডর — কমিউনিটি লিডারশিপ ও ডিজিটাল মার্কেটিং-এ প্রফেশনাল স্বীকৃতি।", "Ambassador — professional recognition in community leadership and digital marketing.")}</p>
+                <p><b>{t("কোথায় ব্যবহার", "Where to use")}</b> — {t("ডিজিটাল মার্কেটিং, কমিউনিটি লিড, অ্যাফিলিয়েট — মিড-লেভেল জবে সহায়ক।", "Digital marketing, community lead, affiliate — helps in mid-level jobs.")}</p>
+                <p><b>{t("কেন বিশ্বাসযোগ্য", "Why trusted")}</b> — {t("Country Manager সই + QR যাচাই — ভেরিফাইড।", "Country Manager signature + QR verified.")}</p>
+              </div>
+            )}
+            <button onClick={() => setShowAmbassadorCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorCert ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showAmbassadorCert && (
+              <div className="rounded-2xl bg-white border border-slate-200 p-3">
+                <CertificateSample variant="ambassador" />
+                <p className="mt-2 text-[11px] font-bold text-teal text-center">✅ {t("এটি ভেরিফাইড — QR দিয়ে যাচাই করুন", "Verified — check via QR")}</p>
+                <div className="mt-2 flex gap-2">
+                  <button onClick={() => window.print()} className="flex-1 btn-outline text-sm !py-2">⬇️ {t("প্রিন্ট", "Print")}</button>
+                </div>
+              </div>
+            )}
+            <button onClick={() => setShowAmbassadorOrder((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorOrder ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showAmbassadorOrder && (
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
+                <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
+                <a href="/certificate" className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
+              </div>
+            )}
+          </div>
 
           {!completed ? (
             <p className="mt-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
@@ -1372,16 +1395,47 @@ export default function CompletePage() {
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
           </div>
+          <p className="mt-2 text-[11px] font-bold text-violet leading-relaxed">
+            {t("সর্বোচ্চ আন্তর্জাতিক মান — টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিডারশিপ — সর্বোচ্চ বেতনের জবে সহায়ক", "Highest international standard — team lead, project manager, startup leadership — helps in highest salary jobs")}
+          </p>
 
-          {/* Certificate preview — at TOP of card for 100% mobile visibility */}
-          <button
-            onClick={() => setShowCert3Preview((v) => !v)}
-            className="mt-3 w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-violet/10 border border-violet/20 active:scale-[0.99] transition-all"
-          >
-            <span className="text-xs font-black text-violet">👁 {t("সার্টিফিকেট কেমন দেখাবে", "Preview the certificate")}</span>
-            <span className={`text-slate-600 text-sm transition-transform ${showCert3Preview ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {showCert3Preview && <CertificateSample variant="elite" />}
+          {/* 3-button stack — same system for all certificates */}
+          <div className="mt-3 space-y-2">
+            <button onClick={() => setShowEliteValue((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showEliteValue ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showEliteValue && (
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs leading-relaxed text-slate-600 space-y-2">
+                <p><b>{t("কী ধরনের সার্টিফিকেট", "Type")}</b> — {t("Elite — সর্বোচ্চ আন্তর্জাতিক মানের সার্টিফিকেট, ৩ এক্সিকিউটিভ স্বাক্ষর + QR।", "Elite — highest international standard, 3 executive signatures + QR.")}</p>
+                <p><b>{t("কোথায় ব্যবহার", "Where to use")}</b> — {t("টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিডারশিপ — সর্বোচ্চ বেতন।", "Team lead, project manager, startup leadership — highest salary.")}</p>
+                <p><b>{t("কেন বিশ্বাসযোগ্য", "Why trusted")}</b> — {t("৩ জন গ্লোবাল এক্সিকিউটিভ সই + QR — সর্বোচ্চ যাচাই।", "3 global executives + QR — maximum verification.")}</p>
+              </div>
+            )}
+            <button onClick={() => setShowEliteCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showEliteCert ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showEliteCert && (
+              <div className="rounded-2xl bg-white border border-slate-200 p-3">
+                <CertificateSample variant="elite" />
+                <p className="mt-2 text-[11px] font-bold text-teal text-center">✅ {t("এটি ভেরিফাইড — QR দিয়ে যাচাই করুন", "Verified — check via QR")}</p>
+                <div className="mt-2 flex gap-2">
+                  <button onClick={() => window.print()} className="flex-1 btn-outline text-sm !py-2">⬇️ {t("প্রিন্ট", "Print")}</button>
+                </div>
+              </div>
+            )}
+            <button onClick={() => setShowEliteOrder((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
+              <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
+              <span className={`text-slate-600 text-sm transition-transform ${showEliteOrder ? "rotate-180" : ""}`}>▾</span>
+            </button>
+            {showEliteOrder && (
+              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
+                <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
+                <a href="/certificate" className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
+              </div>
+            )}
+          </div>
 
           {isPremium ? (
             <>
