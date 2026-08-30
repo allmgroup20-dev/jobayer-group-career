@@ -709,12 +709,12 @@ export default function CompletePage() {
   const nba: Nba | null = (() => {
     if (!completed) {
       return {
-        title: t("Foundation সার্টিফিকেট চালিয়ে যান", "Continue your Foundation certificate"),
+        title: t("আপনার ফ্রি ফাউন্ডেশন সার্টিফিকেট নিন", "Get your free Foundation certificate"),
         sub: t(
-          `${percent.toLocaleString("bn-BD")}% সম্পন্ন — প্রতিটি আমন্ত্রণ আপনাকে ১০০%-এর কাছে নিয়ে যায়`,
-          `${percent}% done — every invitation moves you closer to 100%`
+          `${percent.toLocaleString("bn-BD")}% সম্পন্ন — একজনকে আমন্ত্রণ জানালেই ১০০% হবে, ফ্রি সার্টিফিকেট নিন`,
+          `${percent}% done — invite one person to reach 100% and claim your free certificate`
         ),
-        cta: t("আমন্ত্রণ জানাতে থাকুন", "Keep inviting"),
+        cta: t("আমন্ত্রণ জানান — ফ্রি সার্টিফিকেট নিন", "Invite — claim free certificate"),
         run: () => switchStep("foundation"),
       };
     }
@@ -724,22 +724,22 @@ export default function CompletePage() {
         const pctBn = `${pct.toLocaleString("bn-BD")}%`;
         const pctEn = `${pct}%`;
         return {
-          title: t("Ambassador: একজনকে Free রেজিস্ট্রেশন করান", "Ambassador: Get one Free registration"),
+          title: t("আপনার ফ্রি অ্যাম্বাসেডর সার্টিফিকেট নিন", "Get your free Ambassador certificate"),
           sub: t(
-            `${pctBn} সম্পন্ন — আরো একজনকে Free রেজিস্ট্রেশন করালেই পার্সেন্টেজ বাড়ে, ১০০% হলেই সার্টিফিকেট`,
-            `${pctEn} done — get one more Free registration and watch it grow, 100% unlocks the certificate`
+            `${pctBn} সম্পন্ন — আরো একজনকে Free রেজিস্ট্রেশন করালেই ১০০% হবে, ফ্রি সার্টিফিকেট নিন`,
+            `${pctEn} done — one more Free registration to reach 100% and claim free certificate`
           ),
-          cta: t("Ambassador ধাপ দেখুন", "Open Ambassador step"),
+          cta: t("Free রেজিস্ট্রেশন করান — ফ্রি সার্টিফিকেট নিন", "Get Free registration — claim free certificate"),
           run: () => switchStep("ambassador"),
         };
       }
       return {
-        title: t("Elite এখনই আনলক করুন", "Unlock Elite now"),
+        title: t("আপনার পছন্দমত অর্থ দিয়ে Elite সুবিধা ভোগ করুন", "Enjoy Elite benefits with your preferred amount"),
         sub: t(
-          "Foundation ✓ — এলিট অ্যাক্সেস ফি দিলেই Elite সার্টিফিকেট সাথে সাথে",
-          "Foundation ✓ — commit once and get the Elite certificate instantly"
+          "Foundation ✓ — পছন্দের বাজেট দিয়ে Elite-এর ৯টি সুবিধা সাথে সাথে",
+          "Foundation ✓ — choose your budget and unlock 9 Elite benefits instantly"
         ),
-        cta: t("Elite ধাপ দেখুন", "Open Elite step"),
+        cta: t("Elite সুবিধা দেখুন — ৯টি সুবিধা", "View Elite benefits — 9 benefits"),
         run: () => switchStep("elite"),
       };
     }
@@ -899,23 +899,31 @@ export default function CompletePage() {
       ))}
 
       <div className="max-w-lg mx-auto px-4 pt-8 pb-24 md:pb-12 text-center">
-        {/* Next Best Action — the ONE thing to do now */}
+        {/* Next Best Action — the ONE thing to do now — beautiful card */}
         {nba && (
-          <div className="mt-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/15 via-transparent to-transparent p-4 text-left shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t("এখন কী করবেন", "What to do now")}</p>
-            <p className="mt-1 text-base font-black leading-snug text-brand">{nba.title}</p>
-            <p className="mt-0.5 text-xs font-bold text-slate-600">{nba.sub}</p>
-            <button onClick={() => { nba.run(); scrollToCard(); }} className="mt-3 w-full btn-excite text-sm !py-3.5">{nba.cta}</button>
-            {!isPremium && !nba.title.includes("Elite") && (
-              <>
-                <button onClick={() => { switchStep("elite"); scrollToCard(); }} className="mt-2 w-full btn-outline text-xs !py-3">
-                  🏆 {t("Elite-ও দেখুন — ৯টি সুবিধা", "See Elite — 9 benefits")}
-                </button>
-                <p className="mt-1.5 text-[10px] text-slate-600 text-center leading-relaxed">
-                  {t("চাইলে এখনই Elite-ও শুরু করতে পারেন — Foundation-ও চলবে", "You can also start Elite now — Foundation continues too")}
-                </p>
-              </>
-            )}
+          <div className="mt-6 rounded-[1.5rem] bg-white border border-gold/20 shadow-xl shadow-gold/10 overflow-hidden text-left">
+            <div className="bg-gradient-to-r from-gold/10 via-amber/5 to-transparent px-5 py-3 flex items-center gap-3 border-b border-gold/10">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-amber flex items-center justify-center text-white text-lg shadow-md shrink-0">🎯</div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-gold">{t("এখন কী করবেন", "What to do now")}</p>
+                <p className="text-[11px] font-bold text-slate-500">{t("আপনার পরবর্তী ধাপ", "Your next step")}</p>
+              </div>
+            </div>
+            <div className="p-5">
+              <h3 className="text-[17px] font-black leading-snug text-[#0B1F33]">{nba.title}</h3>
+              <p className="mt-2 text-[13px] font-bold text-slate-600 leading-relaxed">{nba.sub}</p>
+              <button onClick={() => { nba.run(); scrollToCard(); }} className="mt-4 w-full btn-excite text-sm !py-3.5 rounded-xl shadow-lg shadow-gold/20">{nba.cta}</button>
+              {!isPremium && !nba.title.includes("Elite") && (
+                <>
+                  <button onClick={() => { switchStep("elite"); scrollToCard(); }} className="mt-3 w-full btn-outline text-xs !py-3 rounded-xl">
+                    🏆 {t("Elite-ও দেখুন — ৯টি সুবিধা", "See Elite — 9 benefits")}
+                  </button>
+                  <p className="mt-2 text-[11px] text-slate-600 text-center leading-relaxed">
+                    {t("চাইলে এখনই Elite-ও শুরু করতে পারেন — Foundation-ও চলবে", "You can also start Elite now — Foundation continues too")}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         )}
 
