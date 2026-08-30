@@ -48,13 +48,14 @@ const HUB_TABS: { key: HubTab; icon: string; bn: string; en: string }[] = [
 
 const VERIFY_MS = 60_000; // verification window (max 1 minute)
 
-// Google contacts picker — enabled to keep Contacts invitation feature on.
-const SHOW_GOOGLE_CONTACTS = true;
+import { JOIN_HOME_DEFAULTS, useJoinContent } from "@/lib/join-content";
 
 export default function CompletePage() {
   const { lang } = useLang();
   const router = useRouter();
   const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
+  const { content: joinHome } = useJoinContent("join_home", JOIN_HOME_DEFAULTS);
+  const SHOW_GOOGLE_CONTACTS = joinHome.showGoogleContacts !== false;
 
   const [me, setMe] = useState<Me | null>(null);
   const [link, setLink] = useState("");
@@ -776,6 +777,7 @@ export default function CompletePage() {
             onGoogle={() => setContactsModalOpen(true)}
             onNativePick={pickContacts}
             onManualAdd={addManualPhone}
+            showGoogle={SHOW_GOOGLE_CONTACTS}
           />
           <input
             value={listSearch}
@@ -887,6 +889,7 @@ export default function CompletePage() {
           onGoogle={() => setContactsModalOpen(true)}
           onNativePick={pickContacts}
           onManualAdd={addManualPhone}
+          showGoogle={SHOW_GOOGLE_CONTACTS}
         />
       </div>
     </>
@@ -1567,17 +1570,19 @@ export default function CompletePage() {
         </button>
       </div>
 
-      <ContactsModal
-        open={contactsModalOpen}
-        onClose={() => setContactsModalOpen(false)}
-        onPick={(picked) => {
-          setContactsModalOpen(false);
-          const valid = picked.map((c) => ({ name: c.name, tel: c.tel }));
-          if (valid.length) submitContacts(valid);
-        }}
-        busy={busy}
-        alreadyAdded={new Set(allContacts.map((c) => c.phone))}
-      />
+      {SHOW_GOOGLE_CONTACTS && (
+        <ContactsModal
+          open={contactsModalOpen}
+          onClose={() => setContactsModalOpen(false)}
+          onPick={(picked) => {
+            setContactsModalOpen(false);
+            const valid = picked.map((c) => ({ name: c.name, tel: c.tel }));
+            if (valid.length) submitContacts(valid);
+          }}
+          busy={busy}
+          alreadyAdded={new Set(allContacts.map((c) => c.phone))}
+        />
+      )}
 
       {/* Mobile sticky next-step — always one thumb-reachable primary action */}
       {nba && (
@@ -1599,6 +1604,7 @@ function AddPeopleBlock({
   onGoogle,
   onNativePick,
   onManualAdd,
+  showGoogle = true,
 }: {
   t: (bn: string, en: string) => string;
   busy: boolean;
@@ -1606,20 +1612,23 @@ function AddPeopleBlock({
   onGoogle: () => void;
   onNativePick: () => void;
   onManualAdd: (phone: string) => Promise<boolean>;
+  showGoogle?: boolean;
 }) {
   const [showManual, setShowManual] = useState(false);
   const [manualPhone, setManualPhone] = useState("");
 
   return (
     <div className="space-y-2">
-      {SHOW_GOOGLE_CONTACTS && (
-        <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5">
-          📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
-        </button>
+      {showGoogle && (
+        <>
+          <button onClick={onGoogle} className="btn-white w-full text-sm !py-3.5">
+            📇 {t("আপনার পছন্দের মানুষদের বেছে নিন", "📇 Choose your favorite people")}
+          </button>
+          <p className="text-center text-[11px] text-slate-600 -mt-1">
+            {t("যাদের কাছে আমাদের তথ্যটি আমন্ত্রণ করতে চান", "The ones you want to share our info with")}
+          </p>
+        </>
       )}
-      <p className="text-center text-[11px] text-slate-600 -mt-1">
-        {t("যাদের কাছে আমাদের তথ্যটি আমন্ত্রণ করতে চান", "The ones you want to share our info with")}
-      </p>
 
       {contactsSupported ? (
         <button onClick={onNativePick} disabled={busy} className="btn-white w-full text-sm !py-3.5 disabled:opacity-60">

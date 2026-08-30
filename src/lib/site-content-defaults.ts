@@ -85,6 +85,7 @@ export const SITE_CONTENT_DEFAULTS: Record<string, unknown> = {
     faq: [
       { qBn: "এটা কি ফ্রি?", qEn: "Is it free?", aBn: "হ্যাঁ, জয়েন ফ্রি।", aEn: "Yes, joining is free." },
     ],
+    showGoogleContacts: true,
   },
   join_tiers: {
     foundation: { icon: "🎓", labelBn: "ফাউন্ডেশন", labelEn: "Foundation", priceRangeBn: "৳১৫,০০০–৳৩০,০০০", priceRangeEn: "৳15,000–৳30,000" },

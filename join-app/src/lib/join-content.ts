@@ -67,6 +67,7 @@ export const JOIN_HOME_DEFAULTS = {
     { n: "২", bn: "প্রোফাইল সম্পূর্ণ করুন", en: "Complete your profile" },
     { n: "৩", bn: "শিখুন, রিসোর্স আনলক করুন ও সার্টিফিকেট অর্জন করুন", en: "Learn, unlock resources & earn certificates" },
   ],
+  showGoogleContacts: true,
 };
 
 export const JOIN_CERT_DEFAULTS = {
