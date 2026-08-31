@@ -213,10 +213,9 @@ function CertificateView() {
             🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
           </p>
           <div className="mt-3 flex gap-2">
-            <button onClick={() => window.print()} className="btn-excite text-sm !py-3 px-5">⬇️ ডাউনলোড</button>
-            <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
+            <button onClick={() => window.print()} className="flex-1 btn-excite text-sm !py-3">⬇️ ডাউনলোড</button>
+            <a href={`/certificate/select?id=${data.certificateId}`} className="flex-1 btn-excite text-sm !py-3 text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
           </div>
-          <a href={`/certificate/select?id=${data.certificateId}`} className="mt-3 w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
         </div>
 
         {/* Next, even more valuable certificate teaser */}
