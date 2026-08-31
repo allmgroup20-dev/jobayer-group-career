@@ -243,10 +243,10 @@ function CertificateView() {
             </div>
           )}
           {tier === "elite" && (
-            <div className="rounded-2xl bg-gradient-to-br from-gold/20 via-amber/10 to-white border border-gold/30 p-6 text-center">
+            <div className="rounded-2xl bg-white border border-gold/30 p-6 text-center shadow-lg shadow-gold/10">
               <div className="text-3xl">🎉</div>
-              <h3 className="mt-2 text-base font-black text-slate-900">{t("আপনি সব সার্টিফিকেট অর্জন করেছেন!", "You have earned all certificates!")}</h3>
-              <p className="mt-1 text-xs text-slate-600">{t("এখন অরিজিনাল কপি অর্ডার করুন — একসাথে নিলে ডেলিভারি একবারই।", "Now order original copies — single delivery for bundle.")}</p>
+              <h3 className="mt-2 text-[15px] font-black text-[#0B1F33]">{t("আপনি সব সার্টিফিকেট অর্জন করেছেন!", "You have earned all certificates!")}</h3>
+              <p className="mt-1 text-xs font-bold text-slate-700">{t("এখন অরিজিনাল কপি অর্ডার করুন — একসাথে নিলে", "Now order original copies —")} <span className="text-teal">{t("ডেলিভারি একবারই", "single delivery")}</span>।</p>
               <a href={`/certificate/select?id=${data.certificateId}`} className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অরিজিনাল অর্ডার করুন", "Order original")}</a>
             </div>
           )}
