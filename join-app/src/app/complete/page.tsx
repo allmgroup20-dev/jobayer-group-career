@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-type Me = { workerId?: string; name?: string; totalTeamMembers?: number; resourceIncome?: number; referralJoins?: number };
+type Me = { workerId?: string; name?: string; totalTeamMembers?: number; resourceIncome?: number; referralJoins?: number; downstreamFoundations?: number };
 
 type ShareSummary = {
   target: number;
@@ -709,8 +709,9 @@ export default function CompletePage() {
   const shownSent = expanded ? shownSentAll : shownSentAll.slice(0, LIST_PREVIEW);
   const hiddenCount = (shownSelectedAll.length - shownSelected.length) + (shownSentAll.length - shownSent.length);
   const sentCount = share?.sent ?? 0;
-  const target = share?.target ?? 33;
+  const target = share?.target ?? 11;
   const referralJoins = me?.referralJoins ?? 0;
+  const downstreamFoundations = me?.downstreamFoundations ?? 0;
 
   // Next Best Action — the ONE thing to do right now, based on real progress.
   type Nba = { title: string; sub: string; cta: string; run: () => void };
@@ -727,8 +728,8 @@ export default function CompletePage() {
       };
     }
     if (!isPremium) {
-      if (referralJoins < 11) {
-        const pct = Math.min(Math.round((referralJoins / 11) * 100), 100);
+      if (referralJoins < 3) {
+        const pct = Math.min(Math.round((referralJoins / 3) * 100), 100);
         const pctBn = `${pct.toLocaleString("bn-BD")}%`;
         const pctEn = `${pct}%`;
         return {
@@ -741,11 +742,25 @@ export default function CompletePage() {
           run: () => switchStep("ambassador"),
         };
       }
+      // Elite 11-3-3 light: 3 downstream foundations OR fallback paid bundle
+      if (downstreamFoundations < 3) {
+        const pct = Math.min(Math.round((downstreamFoundations / 3) * 100), 100);
+        const pctBn = `${pct.toLocaleString("bn-BD")}%`;
+        return {
+          title: t("আপনার ফ্রি Elite সার্টিফিকেট - ৩ জন ফাউন্ডেশন", "Your free Elite - 3 Foundations"),
+          sub: t(
+            `${pctBn} সম্পন্ন — আপনার ৩ জনের মধ্যে ${downstreamFoundations} জন ফাউন্ডেশন পেয়েছে, আর ${3 - downstreamFoundations} জন পেলেই Elite ফ্রি — অথবা ৩৪৯ টাকা বান্ডেল`,
+            `${pct} done — ${downstreamFoundations}/3 foundations, ${3 - downstreamFoundations} more for free Elite — or 349 BDT bundle`
+          ),
+          cta: t("Elite দেখুন — ফ্রি বা ৩৪৯ টাকা বান্ডেল", "View Elite — free or 349 BDT bundle"),
+          run: () => switchStep("elite"),
+        };
+      }
       return {
         title: t("আপনার পছন্দমত অর্থ দিয়ে Elite সুবিধা ভোগ করুন", "Enjoy Elite benefits with your preferred amount"),
         sub: t(
-          "Foundation ✓ — পছন্দের বাজেট দিয়ে Elite-এর ৯টি সুবিধা সাথে সাথে",
-          "Foundation ✓ — choose your budget and unlock 9 Elite benefits instantly"
+          "Foundation ✓ Ambassador ✓ — পছন্দের বাজেট দিয়ে Elite-এর ৯টি সুবিধা সাথে সাথে",
+          "Foundation ✓ Ambassador ✓ — choose your budget and unlock 9 Elite benefits instantly"
         ),
         cta: t("Elite সুবিধা দেখুন — ৯টি সুবিধা", "View Elite benefits — 9 benefits"),
         run: () => switchStep("elite"),
@@ -1236,9 +1251,9 @@ export default function CompletePage() {
                     <p className="text-xs font-black text-slate-900">{t("একজনকে ফ্রি রেজিস্ট্রেশন করান", "Get one Free registration")}</p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
-                        <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 11) * 100, 100)}%` }} />
+                        <div className="h-full rounded-full bg-teal transition-all duration-700" style={{ width: `${Math.min((referralJoins / 3) * 100, 100)}%` }} />
                       </div>
-                      <span className="text-[11px] font-black text-teal">{lang === "bn" ? `${Math.min(Math.round((referralJoins / 11) * 100), 100).toLocaleString("bn-BD")}%` : `${Math.min(Math.round((referralJoins / 11) * 100), 100)}%`}</span>
+                      <span className="text-[11px] font-black text-teal">{lang === "bn" ? `${Math.min(Math.round((referralJoins / 3) * 100), 100).toLocaleString("bn-BD")}%` : `${Math.min(Math.round((referralJoins / 3) * 100), 100)}%`}</span>
                     </div>
                     <p className="mt-1 text-[10px] text-slate-600">{t("আরো একজনকে ফ্রি রেজিস্ট্রেশন করান — এভাবে আরো একজন, আরো একজন — ১০০% হলেই Ambassador সার্টিফিকেট", "Get one more Free registration — one more, one more — 100% unlocks the Ambassador certificate")}</p>
                   </div>

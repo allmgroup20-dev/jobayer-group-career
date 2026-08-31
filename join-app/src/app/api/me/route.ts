@@ -38,6 +38,13 @@ export async function GET(request: NextRequest) {
     ).catch(() => null);
     const referralJoins = joinsRow?.total ?? 0;
 
+    // Downstream foundations: how many of your 3 referrals have earned Foundation (certificate_id not null)
+    // For Elite 11-3-3 light: 3 referrals must each get Foundation to unlock Elite (or pay fallback)
+    const downstreamFoundationRow = await queryFirst<{ total: number }>(
+      env, "SELECT COUNT(*) AS total FROM workers WHERE sponsor_id = ? AND certificate_id IS NOT NULL AND certificate_id != ''", [workerId]
+    ).catch(() => null);
+    const downstreamFoundations = downstreamFoundationRow?.total ?? 0;
+
     const looksLikePhone = (value?: string) => {
       if (!value) return false;
       const digits = value.replace(/\D/g, "");
@@ -80,6 +87,7 @@ export async function GET(request: NextRequest) {
       totalTeamMembers: worker.total_team_members ?? 0,
       resourceIncome: worker.resource_income ?? 0,
       referralJoins,
+      downstreamFoundations,
       interestsUpdatedAt: worker.interests_updated_at || null,
       profileCompleted: !!(
         worker.age_group && worker.occupation && worker.education_level &&

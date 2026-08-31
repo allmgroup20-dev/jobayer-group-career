@@ -1,20 +1,17 @@
 import { query, queryFirst } from "./queries";
 
-export const SHARE_TARGET = 33;
+export const SHARE_TARGET = 11;
 // Hard safety cap so a single request can't flood the DB. Real limit: none —
 // users may pick as many contacts as they want (the whole phonebook).
 export const MAX_BATCH = 500;
 // The relay /check endpoint accepts at most 20 numbers per request.
 const CHECK_CHUNK = 20;
 
-// Research-backed "fast-to-slow" (degressive) progress schedule for 33 shares (11+11+11).
-// Meta-analyses (32 experiments) show fast-to-slow bars reduce drop-offs while
-// slow-to-fast / linear bars don't help. First shares jump big (1st=14%,
-// 2nd=21%, 3rd=27%), ~60% by share 12, then gentle 1–2% steps so the bar ALWAYS
-// moves (stalling kills motivation) and only hits 100% at exactly the target.
+// Research-backed "fast-to-slow" (degressive) progress schedule for 11 shares.
+// 11 = quick win (Bangladeshi suspicion: small target = trust). First shares jump big
+// (1st=20%, 2nd=33%, 3rd=44%) then gentle steps so bar ALWAYS moves and hits 100% at 11.
 const SHARE_PERCENT_SCHEDULE = [
-  0, 14, 21, 27, 32, 36, 40, 43, 47, 50, 53, 56, 59, 62, 64, 67,
-  69, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 95, 97, 98, 99, 100,
+  0, 20, 33, 44, 53, 61, 68, 75, 81, 87, 93, 100,
 ];
 
 export function percentFor(sent: number): number {
