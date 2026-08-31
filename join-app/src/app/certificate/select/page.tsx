@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLang } from "@/lib/lang";
 import { JOIN_CERT_DEFAULTS, useJoinContent } from "@/lib/join-content";
 
+export const dynamic = "force-dynamic";
+
 type Earned = { foundation: boolean; ambassador: boolean; elite: boolean };
 
-export default function SelectCertificatePage() {
+function SelectView() {
   const { lang } = useLang();
   const t = (bn: string, en: string) => (lang === "bn" ? bn : en);
   const sp = useSearchParams();
@@ -158,5 +160,13 @@ export default function SelectCertificatePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SelectCertificatePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen flex items-center justify-center pt-20"><div className="w-9 h-9 border-4 border-pink/20 border-t-pink rounded-full animate-spin" /></main>}>
+      <SelectView />
+    </Suspense>
   );
 }
