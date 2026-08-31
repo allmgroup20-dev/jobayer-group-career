@@ -1152,22 +1152,7 @@ export default function CompletePage() {
                 )}
               </div>
 
-              {/* Order — bottom */}
-              <div className="mt-3">
-                <button
-                  onClick={() => setShowFoundationOrder((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
-                >
-                  <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
-                  <span className={`text-slate-600 text-sm transition-transform ${showFoundationOrder ? "rotate-180" : ""}`}>▾</span>
-                </button>
-                {showFoundationOrder && share?.certificateId && (
-                  <div className="mt-3 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
-                    <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
-                    <a href={`/certificate?id=${share.certificateId}`} className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
-                  </div>
-                )}
-              </div>
+              <a href={`/certificate/select?id=${share?.certificateId || ""}`} className="mt-3 w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
             </div>
           )}
         </div>
@@ -1221,16 +1206,7 @@ export default function CompletePage() {
                 </div>
               </div>
             )}
-            <button onClick={() => setShowAmbassadorOrder((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
-              <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorOrder ? "rotate-180" : ""}`}>▾</span>
-            </button>
-            {showAmbassadorOrder && (
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
-                <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
-                <a href="/certificate" className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
-              </div>
-            )}
+            <a href={`/certificate/select?id=${share?.certificateId || ""}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
           </div>
 
           {!completed ? (
@@ -1440,16 +1416,7 @@ export default function CompletePage() {
                 </div>
               </div>
             )}
-            <button onClick={() => setShowEliteOrder((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-gold">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</span>
-              <span className={`text-slate-600 text-sm transition-transform ${showEliteOrder ? "rotate-180" : ""}`}>▾</span>
-            </button>
-            {showEliteOrder && (
-              <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
-                <p className="text-xs font-bold text-slate-600">{t("অরিজিনাল কপি হাতে পান — পোস্ট অফিস বা হোম ডেলিভারি", "Original copy in hand — post or home")}</p>
-                <a href="/certificate" className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অর্ডার করতে যান", "Go to order")}</a>
-              </div>
-            )}
+            <a href={`/certificate/select?id=${eliteCertificateId || share?.certificateId || ""}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
           </div>
 
           {isPremium ? (
