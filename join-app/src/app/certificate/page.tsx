@@ -42,6 +42,7 @@ function CertificateView() {
   const [deliveryMsg, setDeliveryMsg] = useState<string | null>(null);
   const [deliveryDiscount, setDeliveryDiscount] = useState(0);
   const [showDelivery, setShowDelivery] = useState(false);
+  const [showValue, setShowValue] = useState(false);
 
   const { content: certCfg } = useJoinContent("join_certificate", JOIN_CERT_DEFAULTS);
   const costs = certCfg.costs;
@@ -186,6 +187,54 @@ function CertificateView() {
           ✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।
         </div>
 
+        {/* Value — on top */}
+        <div className="mt-4 print:hidden">
+          <button
+            onClick={() => setShowValue((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 active:scale-[0.99] transition-all"
+          >
+            <span className="text-xs font-black text-gold">🎓 {t("কী ধরনের সার্টিফিকেট পাবেন", "What type of certificate")}</span>
+            <span className={`text-white/60 text-sm transition-transform ${showValue ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showValue && (
+            <div className="mt-3 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 shrink-0 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-lg">📜</div>
+                  <div>
+                    <p className="text-sm font-black text-white">{t("কী ধরনের সার্টিফিকেট", "Type")}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-white/60">
+                      {tier === "elite"
+                        ? t("Elite Final — সর্বোচ্চ আন্তর্জাতিক মান, ৩ জন গ্লোবাল এক্সিকিউটিভ সই + QR।", "Elite Final — highest international, 3 executives + QR.")
+                        : tier === "ambassador"
+                        ? t("অ্যাম্বাসেডর — প্রফেশনাল স্বীকৃতি, Country Manager সই + QR।", "Ambassador — professional, Country Manager + QR.")
+                        : t("ফাউন্ডেশন — এন্ট্রি-লেভেল সনদ, Authorized Signatory + QR।", "Foundation — entry-level, Authorized Signatory + QR.")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 shrink-0 rounded-xl bg-teal/15 border border-teal/30 flex items-center justify-center text-lg">💼</div>
+                  <div>
+                    <p className="text-sm font-black text-white">{t("কোথায় ব্যবহার", "Where to use")}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-white/60">
+                      {tier === "elite" ? t("টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিডারশিপ — সর্বোচ্চ বেতন।", "Team lead, project manager, startup leadership — highest salary.") : tier === "ambassador" ? t("ডিজিটাল মার্কেটিং, কমিউনিটি লিড, অ্যাফিলিয়েট — মিড-লেভেল।", "Digital marketing, community lead, affiliate — mid-level.") : t("ডিজিটাল মার্কেটিং, কমিউনিটি, সেলস — এন্ট্রি।", "Digital marketing, community, sales — entry.")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 shrink-0 rounded-xl bg-violet/15 border border-violet/30 flex items-center justify-center text-lg">📈</div>
+                  <div>
+                    <p className="text-sm font-black text-white">{t("কেন বিশ্বাসযোগ্য", "Why trusted")}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-white/60">
+                      {tier === "elite" ? t("৩ জন গ্লোবাল এক্সিকিউটিভ সই + QR — সর্বোচ্চ।", "3 global executives + QR — maximum.") : tier === "ambassador" ? t("Country Manager সই + QR — ভেরিফাইড।", "Country Manager + QR — verified.") : t("Authorized Signatory + QR — ভেরিফাইড।", "Authorized Signatory + QR — verified.")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Certificate — directly visible */}
         <div className="mt-4">
           <button
@@ -216,6 +265,8 @@ function CertificateView() {
             <button onClick={() => window.print()} className="btn-excite text-sm !py-3 px-5">⬇️ ডাউনলোড</button>
             <a href="/" className="btn-outline text-sm !py-3 px-5">হোমে যান</a>
           </div>
+          <a href={`/certificate/select?id=${data.certificateId}`} className="mt-3 w-full btn-excite text-sm !py-3.5 block text-center">📦 {t("কয়টি সার্টিফিকেট অর্ডার করবেন? — দেখুন ও সিলেক্ট করুন", "How many certificates to order? — view and select")}</a>
+          <p className="mt-1.5 text-[10px] text-white/40 text-center">{t("কয়টি পেয়েছেন দেখুন, যতগুলো সিলেক্ট করবেন ততগুলো পাবেন — একই সার্টিফিকেটের একাধিক কপিও নিতে পারবেন", "See how many you have earned, select as many as you want — multiple copies of same certificate also possible")}</p>
         </div>
 
         {/* Next, even more valuable certificate teaser */}

@@ -60,8 +60,9 @@ export async function POST(request: NextRequest) {
     const postOfficeName = String(body.postOfficeName || "").slice(0, 200);
     const postOfficeAddress = String(body.postOfficeAddress || "").slice(0, 500);
     const shippingAddress = String(body.shippingAddress || "").slice(0, 1000);
-    let bundleCount = Number(body.bundleCount || 1);
-    if (![1,2,3].includes(bundleCount)) bundleCount = 1;
+    let bundleCount = Math.round(Number(body.bundleCount || 1));
+    if (!Number.isFinite(bundleCount) || bundleCount < 1) bundleCount = 1;
+    if (bundleCount > 30) bundleCount = 30;
     let discount = Number(body.discount || 0);
     if (bundleCount === 1) discount = 0;
     discount = Math.max(0, Math.min(40, Math.round(discount)));
@@ -92,12 +93,12 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
     const shipForTier = tier === "elite" ? shipEliteUsd : shipUsd;
-    const totalBase = deliveryMode === "home" ? printUsd + packUsd + shipForTier + homeUsd : printUsd + packUsd + shipForTier + postUsd;
+    const perCopyBase = printUsd + packUsd + shipForTier;
     const deliveryFeeRaw = deliveryMode === "home" ? homeUsd : postUsd;
     const handlingExtra = bundleCount >= 2 ? bundleHandlingUsd : 0;
     const deliveryFeeUsd = bundleCount >= 2 ? deliveryFeeRaw * (1 - discount / 100) : deliveryFeeRaw;
-    const totalUsd = totalBase + handlingExtra - (bundleCount >= 2 ? deliveryFeeRaw * discount / 100 : 0);
-    const baseUsd = printUsd + packUsd + shipForTier;
+    const totalUsd = perCopyBase * bundleCount + deliveryFeeUsd + handlingExtra;
+    const baseUsd = perCopyBase * bundleCount;
     const homeExtraUsd = deliveryFeeUsd + handlingExtra;
     const rate = usdRateCfg;
     const totalBdt = Math.floor(totalUsd * rate);
