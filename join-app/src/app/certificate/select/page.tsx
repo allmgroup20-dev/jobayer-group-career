@@ -67,7 +67,10 @@ function SelectView() {
     })();
   }, [id]);
 
-  const toggle = (k: string) => setSelected(s=>({ ...s, [k]: !s[k] }));
+  const toggle = (k: string) => {
+    if (!earned[k as keyof Earned]) return;
+    setSelected(s=>({ ...s, [k]: !s[k] }));
+  };
   const changeCopy = (k: string, delta: number) => setCopies(c=> {
     const v = Math.max(1, Math.min(10, (c[k] || 1) + delta));
     return { ...c, [k]: v };
@@ -106,18 +109,18 @@ function SelectView() {
   };
 
   const Card = ({ k, title, icon, earned }: { k: string; title: string; icon: string; earned: boolean }) => (
-    <div className={`rounded-2xl border p-4 ${selected[k] ? "bg-teal/10 border-teal/30" : "bg-white border-slate-200"} ${!earned ? "opacity-60" : ""}`}>
+    <div className={`rounded-2xl border p-4 ${!earned ? "bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed" : selected[k] ? "bg-teal/10 border-teal/30" : "bg-white border-slate-200"} `}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg">{icon}</div>
           <div>
             <p className="text-sm font-black text-slate-900">{title}</p>
-            <p className="text-[11px] text-slate-600">{earned ? t("অর্জিত ✓", "Earned ✓") : t("এখনো অর্জিত নয়", "Not yet earned")}</p>
+            <p className="text-[11px] text-slate-600">{earned ? t("অর্জিত ✓", "Earned ✓") : t("এখনো অর্জিত নয় — অর্ডার করা যাবে না", "Not yet earned — cannot order")}</p>
           </div>
         </div>
-        <input type="checkbox" checked={!!selected[k]} onChange={()=>toggle(k)} className="w-5 h-5 accent-teal" />
+        <input type="checkbox" checked={!!selected[k]} onChange={()=>{ if(!earned) return; toggle(k); }} disabled={!earned} className="w-5 h-5 accent-teal disabled:opacity-40" />
       </div>
-      {selected[k] && (
+      {selected[k] && earned && (
         <div className="mt-3 flex items-center justify-between">
           <span className="text-xs font-bold text-slate-700">{t("কপি", "Copies")}</span>
           <div className="flex items-center gap-2">
@@ -131,10 +134,10 @@ function SelectView() {
   );
 
   return (
-    <main className="min-h-screen page-under-header pb-16 px-4 bg-[#0a0a0a]">
+    <main className="min-h-screen page-under-header pb-24 px-4 bg-[#F8FAFC]">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-xl font-black text-white text-center mt-4">{t("কয়টি সার্টিফিকেট অর্ডার করবেন?", "How many certificates to order?")}</h1>
-        <p className="text-xs text-white/60 text-center mt-1">{t("আপনি কয়টি পেয়েছেন দেখুন, যতগুলো সিলেক্ট করবেন ততগুলো পাবেন — একই সার্টিফিকেটের একাধিক কপিও নিতে পারবেন। প্রতিটি কপির খরচ বাড়বে।", "See how many you have earned, select as many as you want — multiple copies of same certificate also possible. Cost increases per copy.")}</p>
+        <h1 className="text-xl font-black text-[#0B1F33] text-center mt-4">{t("কয়টি সার্টিফিকেট অর্ডার করবেন?", "How many certificates to order?")}</h1>
+        <p className="text-xs text-slate-600 text-center mt-1">{t("আপনি কয়টি পেয়েছেন দেখুন, যতগুলো সিলেক্ট করবেন ততগুলো পাবেন — একই সার্টিফিকেটের একাধিক কপিও নিতে পারবেন। প্রতিটি কপির খরচ বাড়বে।", "See how many you have earned, select as many as you want — multiple copies of same certificate also possible. Cost increases per copy.")}</p>
         <p className="text-[11px] text-teal text-center mt-1">{t("ডেলিভারি খরচ সবগুলোতে সমান — একটি ডেলিভারির খরচই সবগুলোর জন্য", "Delivery cost same for all — single delivery fee for all")}</p>
 
         <div className="mt-4 space-y-3">
@@ -143,19 +146,19 @@ function SelectView() {
           <Card k="elite" title={t("এলিট সার্টিফিকেট", "Elite Certificate")} icon="🏆" earned={earned.elite} />
         </div>
 
-        <div className="mt-4 rounded-2xl bg-white/[0.03] border border-white/10 p-4">
-          <p className="text-xs font-black text-white/70">{t("ডেলিভারি", "Delivery")}</p>
+        <div className="mt-4 rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <p className="text-xs font-black text-slate-900">{t("ডেলিভারি", "Delivery")}</p>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <button onClick={()=>setDeliveryMode("post")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode==="post" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white/5 border-white/10 text-white/60"}`}>📍 {t("পোস্ট অফিস — ০.৫$", "Post — 0.5$")}</button>
-            <button onClick={()=>setDeliveryMode("home")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode==="home" ? "bg-gold/15 border-gold/30 text-gold" : "bg-white/5 border-white/10 text-white/60"}`}>🏠 {t("হোম — ১$", "Home — 1$")}</button>
+            <button onClick={()=>setDeliveryMode("post")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode==="post" ? "bg-teal/15 border-teal/30 text-teal" : "bg-white border-slate-200 text-slate-600"}`}>📍 {t("পোস্ট অফিস — ০.৫$", "Post — 0.5$")}</button>
+            <button onClick={()=>setDeliveryMode("home")} className={`py-2.5 rounded-xl border text-xs font-black ${deliveryMode==="home" ? "bg-gold/15 border-gold/30 text-gold" : "bg-white border-slate-200 text-slate-600"}`}>🏠 {t("হোম — ১$", "Home — 1$")}</button>
           </div>
-          <div className="mt-3 text-xs text-white/60 space-y-1">
-            <p className="flex justify-between"><span>{t("প্রতি কপি (প্রিন্ট+প্যাক+শিপ)", "Per copy (print+pack+ship)")}</span><span>{perCopyBase} USD</span></p>
-            <p className="flex justify-between"><span>{t("ডেলিভারি ফি (একবার)", "Delivery fee (once)")}</span><span>{deliveryFeeRaw} USD {totalCopies>=2 && deliveryDiscount>0 ? <span className="text-teal">-{deliveryDiscount}% → {deliveryFee.toFixed(2)} USD</span> : ""}</span></p>
-            <p className="flex justify-between font-black text-white"><span>{t("মোট", "Total")}</span><span>{totalUsd.toFixed(2)} USD — {totalBdt} ৳</span></p>
+          <div className="mt-3 text-xs text-slate-600 space-y-1">
+            <p className="flex justify-between"><span>{t("প্রতি কপি (প্রিন্ট+প্যাক+শিপ)", "Per copy (print+pack+ship)")}</span><span className="font-bold text-slate-900">{perCopyBase} USD</span></p>
+            <p className="flex justify-between"><span>{t("ডেলিভারি ফি (একবার)", "Delivery fee (once)")}</span><span className="font-bold text-slate-900">{deliveryFeeRaw} USD {totalCopies>=2 && deliveryDiscount>0 ? <span className="text-teal">-{deliveryDiscount}% → {deliveryFee.toFixed(2)} USD</span> : ""}</span></p>
+            <p className="flex justify-between font-black text-slate-900"><span>{t("মোট", "Total")}</span><span>{totalUsd.toFixed(2)} USD — {totalBdt} ৳</span></p>
             {totalCopies>=2 && <p className="text-teal text-[11px] text-center">{t("ডেলিভারি ফি-তে ছাড় প্রযোজ্য", "Discount on delivery fee")}</p>}
           </div>
-          <button onClick={handlePay} disabled={paying || totalCopies===0} className="mt-3 w-full py-3 rounded-xl bg-gold text-black font-black disabled:opacity-50">{paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("অর্ডার করুন", "Order now")}</button>
+          <button onClick={handlePay} disabled={paying || totalCopies===0} className="mt-3 w-full py-3 rounded-xl bg-gold text-black font-black disabled:opacity-50 shadow-md">{paying ? t("প্রক্রিয়াধীন…", "Processing…") : t("অর্ডার করুন", "Order now")}</button>
           {msg && <p className="mt-2 text-xs font-bold text-center text-gold">{msg}</p>}
         </div>
       </div>
