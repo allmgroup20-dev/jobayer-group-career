@@ -213,23 +213,43 @@ function CertificateView() {
             🔍 {t("সার্টিফিকেটে ট্যাপ/ক্লিক করে বড় করে জুম করে দেখুন", "Tap/click the certificate to view it larger and zoom in")}
           </p>
           <div className="mt-3 flex gap-2">
-            <button onClick={() => window.print()} className="flex-1 btn-excite text-sm !py-3">⬇️ ডাউনলোড</button>
+            <button onClick={() => window.print()} className="btn-excite text-sm !py-3 px-5 shrink-0">⬇️ ডাউনলোড</button>
             <a href={`/certificate/select?id=${data.certificateId}`} className="flex-1 btn-excite text-sm !py-3 text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
           </div>
         </div>
 
-        {/* Next, even more valuable certificate teaser */}
-        <div className="mt-6 rounded-2xl bg-gradient-to-br from-gold/20 via-pink/20 to-violet/20 border border-gold/30 p-6 text-center print:hidden">
-          <div className="text-4xl">🏆</div>
-          <h2 className="mt-2 text-lg font-black text-white">
-            {t("আরেকটি আরও মূল্যবান সার্টিফিকেট অপেক্ষা করছে!", "An even more valuable certificate is waiting!")}
-          </h2>
-          <p className="mt-2 text-xs leading-relaxed text-white/70">
-            {t("অভিনন্দন! এই সার্টিফিকেটের পর আপনার জন্য আরও একটি — এর চেয়েও বেশি মূল্যবান সার্টিফিকেট — দেওয়া হবে। এটি দেখতে হোমে গিয়ে নতুন অপশনটি চেক করুন।", "Congratulations! After this certificate, an even more valuable one awaits you. Go to Home and check the new option to see it.")}
-          </p>
-          <a href="/" className="mt-4 btn-excite w-full text-sm !py-3.5 block text-center">
-            🏠 {t("হোমে গিয়ে দেখুন", "Go Home to see it")}
-          </a>
+        {/* Next certificates — show remaining to earn */}
+        <div className="mt-6 space-y-3 print:hidden">
+          {tier === "foundation" && (
+            <>
+              <div className="rounded-2xl bg-white border border-slate-200 p-4">
+                <h3 className="text-sm font-black text-slate-900">🔗 {t("অ্যাম্বাসেডর সার্টিফিকেট — মিড-লেভেল", "Ambassador — mid-level")}</h3>
+                <p className="mt-1 text-xs text-slate-600">{t("ডিজিটাল মার্কেটিং, কমিউনিটি লিড, অ্যাফিলিয়েট — মিড-লেভেল জবে সহায়ক।", "Digital marketing, community lead, affiliate — helps in mid-level jobs.")}</p>
+                <p className="mt-1 text-[11px] text-slate-500">{t("১১ জনকে ফ্রি রেজিস্ট্রেশন করালেই — ৩টি কাজ সম্পন্ন করলেই সার্টিফিকেট।", "Get 11 Free registrations — complete 3 tasks for certificate.")}</p>
+                <a href="/complete?step=ambassador" className="mt-3 btn-outline w-full text-sm !py-3 block text-center">👁️ {t("অ্যাম্বাসেডর দেখুন", "View Ambassador")}</a>
+              </div>
+              <div className="rounded-2xl bg-white border border-slate-200 p-4">
+                <h3 className="text-sm font-black text-slate-900">🏆 {t("এলিট সার্টিফিকেট — সর্বোচ্চ", "Elite — highest")}</h3>
+                <p className="mt-1 text-xs text-slate-600">{t("টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ — সর্বোচ্চ বেতন। ৯টি সুবিধা।", "Team lead, project manager, startup — highest salary. 9 benefits.")}</p>
+                <a href="/complete?step=elite" className="mt-3 btn-outline w-full text-sm !py-3 block text-center">👁️ {t("এলিট দেখুন", "View Elite")}</a>
+              </div>
+            </>
+          )}
+          {tier === "ambassador" && (
+            <div className="rounded-2xl bg-white border border-slate-200 p-4">
+              <h3 className="text-sm font-black text-slate-900">🏆 {t("এলিট সার্টিফিকেট — সর্বোচ্চ", "Elite — highest")}</h3>
+              <p className="mt-1 text-xs text-slate-600">{t("টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ — সর্বোচ্চ বেতন। ৯টি সুবিধা।", "Team lead, project manager, startup — highest salary. 9 benefits.")}</p>
+              <a href="/complete?step=elite" className="mt-3 btn-outline w-full text-sm !py-3 block text-center">👁️ {t("এলিট দেখুন", "View Elite")}</a>
+            </div>
+          )}
+          {tier === "elite" && (
+            <div className="rounded-2xl bg-gradient-to-br from-gold/20 via-amber/10 to-white border border-gold/30 p-6 text-center">
+              <div className="text-3xl">🎉</div>
+              <h3 className="mt-2 text-base font-black text-slate-900">{t("আপনি সব সার্টিফিকেট অর্জন করেছেন!", "You have earned all certificates!")}</h3>
+              <p className="mt-1 text-xs text-slate-600">{t("এখন অরিজিনাল কপি অর্ডার করুন — একসাথে নিলে ডেলিভারি একবারই।", "Now order original copies — single delivery for bundle.")}</p>
+              <a href={`/certificate/select?id=${data.certificateId}`} className="mt-3 btn-excite w-full text-sm !py-3 block text-center">📮 {t("অরিজিনাল অর্ডার করুন", "Order original")}</a>
+            </div>
+          )}
         </div>
       </div>
     </main>
