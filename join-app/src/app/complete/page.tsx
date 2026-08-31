@@ -1206,7 +1206,9 @@ export default function CompletePage() {
                 </div>
               </div>
             )}
-            <a href={`/certificate/select?id=${share?.certificateId || ""}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
+            {share?.certificateId && (
+              <a href={`/certificate/select?id=${share.certificateId}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
+            )}
           </div>
 
           {!completed ? (
@@ -1416,7 +1418,9 @@ export default function CompletePage() {
                 </div>
               </div>
             )}
-            <a href={`/certificate/select?id=${eliteCertificateId || share?.certificateId || ""}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
+            {(eliteCertificateId || share?.certificateId) && (
+              <a href={`/certificate/select?id=${eliteCertificateId || share?.certificateId}`} className="w-full btn-excite text-sm !py-3.5 block text-center">📮 {t("আপনার অরিজিনাল সার্টিফিকেট অর্ডার করুন", "Order your original certificate")}</a>
+            )}
           </div>
 
           {isPremium ? (
