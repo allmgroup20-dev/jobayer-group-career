@@ -122,6 +122,42 @@ function CertificateView() {
     }
   }, [state, t]);
 
+  // Screenshot / print deterrence — 90% block, watermark traces
+  useEffect(() => {
+    if (state !== "ok") return;
+    const prevent = (e: Event) => e.preventDefault();
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "PrintScreen" || (e.ctrlKey && (e.key.toLowerCase() === "p" || e.key.toLowerCase() === "s")) || (e.metaKey && e.key.toLowerCase() === "p") || e.key === "F12" || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(e.key.toLowerCase()))) {
+        e.preventDefault();
+        const el = document.querySelector(".print-area") as HTMLElement | null;
+        if (el) { el.style.filter = "blur(12px)"; setTimeout(() => { el.style.filter = ""; }, 1200); }
+        try { navigator.clipboard.writeText(""); } catch {}
+      }
+    };
+    const handleVisibility = () => {
+      const el = document.querySelector(".print-area") as HTMLElement | null;
+      if (document.hidden && el) el.style.filter = "blur(12px)";
+      else if (el) el.style.filter = "";
+    };
+    // block canvas data extraction
+    const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
+    // @ts-ignore
+    HTMLCanvasElement.prototype.toDataURL = function() { throw new Error("Screenshot disabled"); } as any;
+    document.addEventListener("contextmenu", prevent);
+    document.addEventListener("selectstart", prevent);
+    document.addEventListener("dragstart", prevent);
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      document.removeEventListener("contextmenu", prevent);
+      document.removeEventListener("selectstart", prevent);
+      document.removeEventListener("dragstart", prevent);
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      HTMLCanvasElement.prototype.toDataURL = origToDataURL;
+    };
+  }, [state]);
+
   if (state === "loading") {
     return (
       <main className="min-h-screen flex items-center justify-center page-under-header">
@@ -186,17 +222,20 @@ function CertificateView() {
           {t("✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।", "✅ This certificate is verified online — authentic and valid. Any employer can verify it on this page.")}
         </div>
 
-        {/* Certificate — directly visible */}
-        <div className="mt-4">
+        {/* Certificate — directly visible — screenshot/print deter */}
+        <div className="mt-4 select-none" style={{ WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" } as React.CSSProperties} onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
+          <style>{`@media print { body * { visibility: hidden !important; } .print-area, .print-area * { visibility: hidden !important; display: none !important; } } * { -webkit-touch-callout: none; }`}</style>
           <button
             type="button"
             onClick={() => setShowZoom(true)}
             aria-label={t("সার্টিফিকেট বড় করে দেখুন", "View certificate larger")}
-            className="block w-full text-left active:scale-[0.995] transition-transform"
+            className="block w-full text-left active:scale-[0.995] transition-transform select-none"
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
           >
-            <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
+            <div ref={ref} className="w-full overflow-hidden rounded-2xl select-none" style={{ height: A4_LANDSCAPE_H * scale, WebkitUserSelect: "none", userSelect: "none" } as React.CSSProperties}>
               <CertCanvas
-                className="print-area"
+                className="print-area select-none"
                 tier={tier}
                 data={{
                   name: data.name,
