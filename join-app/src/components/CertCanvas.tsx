@@ -352,6 +352,19 @@ export default function CertCanvas({
         </>
       )}
 
+      {/* Tiled user watermark — deters screenshot sharing (shows owner) */}
+      {!sample && (
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.035] select-none">
+          <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-x-12 gap-y-8 p-8" style={{ transform: "rotate(-24deg) scale(1.6)" }}>
+            {Array.from({ length: 28 }).map((_, i) => (
+              <span key={i} className="whitespace-nowrap text-[8px] font-black tracking-[0.18em] text-gray-900">
+                {name} • {certId} • {date}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ═══════════ Content — Ambassador (ULTRA-PREMIUM luxury) ═══════════ */}
       {isAmbassador ? (
         <div className="relative flex h-full flex-col items-center justify-center px-36 text-center text-[#1a1a1a]">

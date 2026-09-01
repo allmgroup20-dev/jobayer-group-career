@@ -122,38 +122,55 @@ function CertificateView() {
     }
   }, [state, t]);
 
-  // Screenshot / print deterrence — 90% block, watermark traces
+  // Screenshot deterrence — not 100% block at OS level, but deters 90% casual users
   useEffect(() => {
     if (state !== "ok") return;
-    const prevent = (e: Event) => e.preventDefault();
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "PrintScreen" || (e.ctrlKey && (e.key.toLowerCase() === "p" || e.key.toLowerCase() === "s")) || (e.metaKey && e.key.toLowerCase() === "p") || e.key === "F12" || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(e.key.toLowerCase()))) {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleDragStart = (e: DragEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if (
+        e.key === "PrintScreen" ||
+        (e.ctrlKey && e.shiftKey && (k === "s" || k === "p" || k === "i")) ||
+        (e.ctrlKey && k === "p") ||
+        (e.ctrlKey && k === "s") ||
+        e.key === "F12" ||
+        (e.metaKey && k === "p") ||
+        (e.metaKey && k === "s")
+      ) {
         e.preventDefault();
-        const el = document.querySelector(".print-area") as HTMLElement | null;
-        if (el) { el.style.filter = "blur(12px)"; setTimeout(() => { el.style.filter = ""; }, 1200); }
+        // blur and clear clipboard deterrence
         try { navigator.clipboard.writeText(""); } catch {}
       }
     };
     const handleVisibility = () => {
-      const el = document.querySelector(".print-area") as HTMLElement | null;
-      if (document.hidden && el) el.style.filter = "blur(12px)";
-      else if (el) el.style.filter = "";
+      if (document.hidden) {
+        document.body.style.filter = "blur(12px)";
+        document.body.style.transition = "filter 0.2s";
+      } else {
+        document.body.style.filter = "";
+      }
     };
-    // block canvas data extraction
+    document.addEventListener("contextmenu", handleContextMenu as unknown as EventListener);
+    document.addEventListener("dragstart", handleDragStart as unknown as EventListener);
+    document.addEventListener("keydown", handleKeyDown as unknown as EventListener);
+    document.addEventListener("visibilitychange", handleVisibility);
+    // Disable canvas readback
     const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
     // @ts-ignore
-    HTMLCanvasElement.prototype.toDataURL = function() { throw new Error("Screenshot disabled"); } as any;
-    document.addEventListener("contextmenu", prevent);
-    document.addEventListener("selectstart", prevent);
-    document.addEventListener("dragstart", prevent);
-    document.addEventListener("keydown", handleKey);
-    document.addEventListener("visibilitychange", handleVisibility);
+    HTMLCanvasElement.prototype.toDataURL = function(this: HTMLCanvasElement) {
+      if (this.classList.contains("print-area") || (this as unknown as HTMLElement).closest?.(".print-area")) {
+        throw new Error("Canvas export disabled");
+      }
+      // @ts-ignore
+      return (origToDataURL as unknown as (this: HTMLCanvasElement) => string).apply(this, arguments as unknown as []);
+    } as unknown as typeof origToDataURL;
     return () => {
-      document.removeEventListener("contextmenu", prevent);
-      document.removeEventListener("selectstart", prevent);
-      document.removeEventListener("dragstart", prevent);
-      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("contextmenu", handleContextMenu as unknown as EventListener);
+      document.removeEventListener("dragstart", handleDragStart as unknown as EventListener);
+      document.removeEventListener("keydown", handleKeyDown as unknown as EventListener);
       document.removeEventListener("visibilitychange", handleVisibility);
+      document.body.style.filter = "";
       HTMLCanvasElement.prototype.toDataURL = origToDataURL;
     };
   }, [state]);
@@ -212,6 +229,7 @@ function CertificateView() {
 
   return (
     <main className="min-h-screen page-under-header pb-16 px-4 bg-[#0a0a0a]">
+      <style>{`@media print { body * { visibility: hidden !important; } .print-area { display: none !important; } } * { -webkit-touch-callout: none; }`}</style>
       <div className="max-w-4xl mx-auto">
         {deliveryMsg && (
           <div className={`mb-4 rounded-2xl border text-xs font-black px-4 py-3 print:hidden ${deliveryMsg.includes("✅") ? "bg-teal/15 border-teal/30 text-[#2DD4BF]" : deliveryMsg.includes("❌") || deliveryMsg.includes("⚠️") ? "bg-red-500/15 border-red-500/30 text-red-300" : "bg-gold/15 border-gold/30 text-gold"}`}>
@@ -222,20 +240,17 @@ function CertificateView() {
           {t("✅ এই সার্টিফিকেটটি অনলাইনে যাচাইকৃত — আসল ও বৈধ। নিয়োগকর্তা/যেকেউ এই পেজ দেখে যাচাই করতে পারেন।", "✅ This certificate is verified online — authentic and valid. Any employer can verify it on this page.")}
         </div>
 
-        {/* Certificate — directly visible — screenshot/print deter */}
-        <div className="mt-4 select-none" style={{ WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" } as React.CSSProperties} onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
-          <style>{`@media print { body * { visibility: hidden !important; } .print-area, .print-area * { visibility: hidden !important; display: none !important; } } * { -webkit-touch-callout: none; }`}</style>
+        {/* Certificate — directly visible, screenshot deterred — 90% deterrence + trace */}
+        <div className="mt-4 select-none relative" onContextMenu={(e)=>e.preventDefault()} onDragStart={(e)=>e.preventDefault()} style={{userSelect:'none', WebkitUserSelect:'none' as unknown as any, WebkitTouchCallout:'none' as unknown as any}}>
           <button
             type="button"
             onClick={() => setShowZoom(true)}
             aria-label={t("সার্টিফিকেট বড় করে দেখুন", "View certificate larger")}
-            className="block w-full text-left active:scale-[0.995] transition-transform select-none"
-            onContextMenu={(e) => e.preventDefault()}
-            draggable={false}
+            className="block w-full text-left active:scale-[0.995] transition-transform relative overflow-hidden rounded-2xl"
           >
-            <div ref={ref} className="w-full overflow-hidden rounded-2xl select-none" style={{ height: A4_LANDSCAPE_H * scale, WebkitUserSelect: "none", userSelect: "none" } as React.CSSProperties}>
+            <div ref={ref} className="w-full overflow-hidden rounded-2xl" style={{ height: A4_LANDSCAPE_H * scale }}>
               <CertCanvas
-                className="print-area select-none"
+                className="print-area"
                 tier={tier}
                 data={{
                   name: data.name,
@@ -246,6 +261,16 @@ function CertificateView() {
                 }}
                 style={{ transform: `scale(${scale})`, transformOrigin: "top left" }}
               />
+            </div>
+            {/* Tiled watermark overlay — captured on screenshot — trace */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.07] select-none rounded-2xl" aria-hidden>
+              <div className="absolute inset-0 flex flex-wrap content-start gap-8 p-4 rotate-[-12deg] scale-110">
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <span key={i} className="text-[10px] font-black tracking-widest text-white whitespace-nowrap">
+                    {data.name} • {data.certificateId} • {date}
+                  </span>
+                ))}
+              </div>
             </div>
           </button>
           <p className="mt-2 rounded-xl bg-teal/10 border border-teal/30 px-3 py-2 text-center text-[11px] font-black text-[#2DD4BF]">
