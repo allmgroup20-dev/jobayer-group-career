@@ -181,7 +181,7 @@ export default function CertCanvas({
   return (
     <div
       className={`relative text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-[#FBF8F1]" : isElite ? "bg-[#fffefa]" : "bg-white"} ${className || ""}`}
-      style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, ...style }}
+      style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, filter: "blur(8px)", ...style }}
     >
       {/* ═══════════ Tier decorations ═══════════ */}
       {isElite ? (
@@ -352,9 +352,9 @@ export default function CertCanvas({
         </>
       )}
 
-      {/* Tiled user watermark — deters screenshot sharing (shows owner) */}
+      {/* Tiled user watermark — deters screenshot sharing (shows owner) — always blur */}
       {!sample && (
-        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.035] select-none">
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.06] select-none" style={{ filter: "blur(0.6px)" }}>
           <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-x-12 gap-y-8 p-8" style={{ transform: "rotate(-24deg) scale(1.6)" }}>
             {Array.from({ length: 28 }).map((_, i) => (
               <span key={i} className="whitespace-nowrap text-[8px] font-black tracking-[0.18em] text-gray-900">
