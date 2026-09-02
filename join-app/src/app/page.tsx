@@ -245,7 +245,7 @@ export default function HomePage() {
                 <span className="text-ink-soft group-open:rotate-180 transition-transform">▾</span>
               </summary>
               <p className="mt-2 text-sm text-ink-soft leading-relaxed">
-                {t("ফাউন্ডেশন: আপনার শেয়ার গতির ওপর — গড়ে ১-২ সপ্তাহে ৩০ শেয়ার পূর্ণ হলে। অ্যাম্বাসেডর: ১১ রেফারেল + ৩ টাস্ক। এলিট: এলিট অ্যাক্সেস ফি দিয়ে সাথে সাথে।", "Foundation: depends on your sharing pace — avg 1-2 weeks to complete 30 shares. Ambassador: 11 referrals + 3 tasks. Elite: instantly with Elite access fee.")}
+                {t("ফাউন্ডেশন: গড়ে ২-৩ দিনে ১১ জনকে আমন্ত্রণ জানালেই। অ্যাম্বাসেডর: ৩ জন ফ্রি রেজিস্ট্রেশন + ১ টাস্ক। এলিট: আপনার ৩ জন ফাউন্ডেশন পেলেই ফ্রি, না হলে ৩৪৯ টাকা বান্ডেল।", "Foundation: avg 2-3 days to invite 11. Ambassador: 3 free registrations + 1 task. Elite: free when your 3 get Foundation, or 349 BDT bundle.")}
               </p>
             </details>
             <details className="card-pop !p-4 group">
@@ -294,7 +294,7 @@ export default function HomePage() {
               {
                 "@type": "Question",
                 name: "কতদিনে সার্টিফিকেট পাব?",
-                acceptedAnswer: { "@type": "Answer", text: "ফাউন্ডেশন: গড়ে ১-২ সপ্তাহে ৩০ শেয়ার পূর্ণ হলে। অ্যাম্বাসেডর: ১১ রেফারেল + ৩ টাস্ক। এলিট: এলিট অ্যাক্সেস ফি দিয়ে সাথে সাথে।" },
+                acceptedAnswer: { "@type": "Answer", text: "ফাউন্ডেশন: গড়ে ২-৩ দিনে ১১ জনকে আমন্ত্রণ জানালেই। অ্যাম্বাসেডর: ৩ জন ফ্রি রেজিস্ট্রেশন। এলিট: ৩ জন ফাউন্ডেশন পেলেই ফ্রি, না হলে ৩৪৯ টাকা বান্ডেল।" },
               },
               {
                 "@type": "Question",
