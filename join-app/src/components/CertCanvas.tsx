@@ -181,7 +181,7 @@ export default function CertCanvas({
   return (
     <div
       className={`relative text-gray-900 rounded-2xl shadow-2xl select-none overflow-hidden ${isAmbassador ? "bg-[#FBF8F1]" : isElite ? "bg-[#fffefa]" : "bg-white"} ${className || ""}`}
-      style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, filter: "blur(8px)", ...style }}
+      style={{ width: A4_LANDSCAPE_W, height: A4_LANDSCAPE_H, ...style }}
     >
       {/* ═══════════ Tier decorations ═══════════ */}
       {isElite ? (
@@ -352,10 +352,10 @@ export default function CertCanvas({
         </>
       )}
 
-      {/* Tiled user watermark — deters screenshot sharing (shows owner) — always blur */}
+      {/* Tiled user watermark — deters screenshot sharing (shows owner) — always visible, max */}
       {!sample && (
-        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.06] select-none" style={{ filter: "blur(0.6px)" }}>
-          <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-x-12 gap-y-8 p-8" style={{ transform: "rotate(-24deg) scale(1.6)" }}>
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.10] select-none">
+          <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-x-8 gap-y-6 p-8" style={{ transform: "rotate(-24deg) scale(1.6)" }}>
             {Array.from({ length: 28 }).map((_, i) => (
               <span key={i} className="whitespace-nowrap text-[8px] font-black tracking-[0.18em] text-gray-900">
                 {name} • {certId} • {date}
@@ -467,22 +467,22 @@ export default function CertCanvas({
           <div className="mt-6 flex w-full items-end justify-between">
             {/* executive signature — printed, not a sticker */}
             <div className="text-left">
-              <div className="relative inline-block">
+              <div className="relative inline-block" style={{ filter: "blur(6px)" }}>
                 <img
                   src="/certs/ambassador-signature.png"
                   alt="Signature"
                   className="h-12 w-auto opacity-90"
-                  style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.18))" }}
+                  style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.18)) blur(6px)" }}
                 />
                 <div className="ye-gold-rule absolute left-0 -bottom-2 h-px w-full" />
               </div>
-              <p className="mt-4 text-[14px] font-bold tracking-wide text-[#111214]">PREETI LOBANA</p>
-              <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">Country Manager &amp; Vice President</p>
-              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">YouTube India</p>
+              <p className="mt-4 text-[14px] font-bold tracking-wide text-[#111214]" style={{ filter: "blur(5px)" }}>PREETI LOBANA</p>
+              <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]" style={{ filter: "blur(5px)" }}>Country Manager &amp; Vice President</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]" style={{ filter: "blur(5px)" }}>YouTube India</p>
             </div>
 
             {/* premium gold medallion seal — golden disc, larger rings */}
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center" style={{ filter: "blur(6px)" }}>
               <div className="absolute h-[104px] w-[104px] rounded-full border border-[#D9B95C]/60" />
               <div className="absolute h-[98px] w-[98px] rounded-full border border-[#E8D8AD]/70" />
               <div className="ye-gold-surface absolute h-[90px] w-[90px] rounded-full shadow-[inset_0_2px_3px_rgba(255,255,255,0.45),inset_0_-3px_6px_rgba(0,0,0,0.35),0_6px_14px_rgba(0,0,0,0.2)]" />
@@ -581,7 +581,7 @@ export default function CertCanvas({
                 {/* 3 executive signatures — reference style (double champagne
                     hairline + caps name) */}
                 <div className="flex items-end gap-8">
-                  <div className="flex w-[170px] flex-col items-center text-center">
+                  <div className="flex w-[170px] flex-col items-center text-center" style={{ filter: "blur(6px)" }}>
                     <img src="/certs/elite-seal-ceo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
                     <img src="/certs/elite-signature-ceo.png" alt="Neal Mohan" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
@@ -590,7 +590,7 @@ export default function CertCanvas({
                     <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Executive Officer</p>
                     <p className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">YouTube Global · San Bruno, USA</p>
                   </div>
-                  <div className="flex w-[170px] flex-col items-center text-center">
+                  <div className="flex w-[170px] flex-col items-center text-center" style={{ filter: "blur(6px)" }}>
                     <img src="/certs/elite-seal-cbo.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
                     <img src="/certs/elite-signature-cbo.png" alt="Mary Ellen Coe" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
@@ -599,7 +599,7 @@ export default function CertCanvas({
                     <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.08em] text-[#7a7478]">Chief Business Officer</p>
                     <p className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.06em] text-[#929DA6]">YouTube Global · San Bruno, USA</p>
                   </div>
-                  <div className="flex w-[170px] flex-col items-center text-center">
+                  <div className="flex w-[170px] flex-col items-center text-center" style={{ filter: "blur(6px)" }}>
                     <img src="/certs/elite-seal-apac.png" alt="Seal" className="h-12 w-12 rounded-full object-cover ring-2 ring-[#c79a28]/50 shadow-[0_2px_6px_rgba(0,0,0,0.12)]" />
                     <img src="/certs/elite-signature-apac.png" alt="Sanjay Gupta" className="mt-2 h-9 w-auto opacity-90" />
                     <div className="mt-1 h-px w-24 bg-[#c5b88f]" />
