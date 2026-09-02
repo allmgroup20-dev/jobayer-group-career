@@ -172,11 +172,7 @@ export default function CertCanvas({
       ? "has earned this premium recognition for outstanding community-building and digital marketing excellence, bringing a growing network of associates together as a trusted referral ambassador."
       : "has successfully completed their full profile on YouTube Earner and proven outstanding community-building and digital marketing skills by uniting a growing community of learners and friends.";
 
-  const watermarkColor = isElite
-    ? "text-[#252225]/[0.06]"
-    : isAmbassador
-      ? "text-[#111214]/[0.06]"
-      : "text-gray-900/10";
+  const watermarkColor = " text-gray-900/[0.10];
 
   return (
     <div

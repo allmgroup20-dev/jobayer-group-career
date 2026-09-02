@@ -1137,7 +1137,7 @@ export default function CompletePage() {
                   onClick={() => setShowFoundationCert((v) => !v)}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
                 >
-                  <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+                  <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View a sample certificate")}</span>
                   <span className={`text-slate-600 text-sm transition-transform ${showFoundationCert ? "rotate-180" : ""}`}>▾</span>
                 </button>
                 {showFoundationCert && share?.certificateId && (
@@ -1194,7 +1194,7 @@ export default function CompletePage() {
               </div>
             )}
             <button onClick={() => setShowAmbassadorCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View your certificate")}</span>
               <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorCert ? "rotate-180" : ""}`}>▾</span>
             </button>
             {showAmbassadorCert && (
@@ -1406,7 +1406,7 @@ export default function CompletePage() {
               </div>
             )}
             <button onClick={() => setShowEliteCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-slate-900">👁️ {t("আপনার সার্টিফিকেট দেখুন", "View your certificate")}</span>
+              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View your certificate")}</span>
               <span className={`text-slate-600 text-sm transition-transform ${showEliteCert ? "rotate-180" : ""}`}>▾</span>
             </button>
             {showEliteCert && (
