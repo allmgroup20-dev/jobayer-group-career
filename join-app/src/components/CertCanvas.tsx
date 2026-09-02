@@ -341,9 +341,19 @@ export default function CertCanvas({
             ◈ PREVIEW · SAMPLE
           </span>
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
-            <span className={`whitespace-nowrap rotate-[-24deg] text-[90px] font-black uppercase tracking-[0.25em] ${watermarkColor}`}>
+            <span className={`whitespace-nowrap rotate-[-24deg] text-[90px] font-black uppercase tracking-[0.25em] ${watermarkColor} opacity-[0.14]`}>
               SAMPLE
             </span>
+          </div>
+          {/* Tiled watermark — sample also gets max watermark (deters screenshot) */}
+          <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.09] select-none">
+            <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-x-8 gap-y-6 p-8" style={{ transform: "rotate(-24deg) scale(1.6)" }}>
+              {Array.from({ length: 28 }).map((_, i) => (
+                <span key={i} className="whitespace-nowrap text-[8px] font-black tracking-[0.18em] text-gray-900">
+                  {name} • {certId} • {date}
+                </span>
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -686,23 +696,23 @@ export default function CertCanvas({
                 </div>
               </div>
               <div className="mt-6 flex w-full items-end justify-between border-t pt-4 text-sm text-gray-500">
-                {/* left — signer identity (PREETI LOBANA) */}
+                {/* left — signer identity (PREETI LOBANA) — blurred on both sample and real (screenshot deterrence) */}
                 <div className="flex items-end gap-4 text-left">
                   <div className="flex flex-col items-start">
-                    <div className="relative inline-block">
+                    <div className="relative inline-block" style={{ filter: "blur(6px)" }}>
                       <img
                         src="/certs/ambassador-signature.png"
                         alt="Signature"
                         className="h-14 w-auto opacity-90"
-                        style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.18))" }}
+                        style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.18)) blur(6px)" }}
                       />
                       <div className="ye-gold-rule absolute left-0 -bottom-2 h-px w-full" />
                     </div>
-                    <p className="mt-4 text-[15px] font-bold tracking-wide text-[#111214]">PREETI LOBANA</p>
-                    <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">Country Manager &amp; Vice President</p>
-                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]">YouTube India</p>
+                    <p className="mt-4 text-[15px] font-bold tracking-wide text-[#111214]" style={{ filter: "blur(6px)" }}>PREETI LOBANA</p>
+                    <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]" style={{ filter: "blur(6px)" }}>Country Manager &amp; Vice President</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#B99238]" style={{ filter: "blur(6px)" }}>YouTube India</p>
                   </div>
-                  <img src="/certs/ambassador-seal.png" alt="Official Seal" className="h-16 w-16 rounded-full object-cover mix-blend-multiply" />
+                  <img src="/certs/ambassador-seal.png" alt="Official Seal" className="h-16 w-16 rounded-full object-cover mix-blend-multiply" style={{ filter: "blur(6px)" }} />
                 </div>
                 {/* right — Authorized + Verify */}
                 <div className="flex flex-col items-end text-right">

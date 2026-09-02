@@ -1036,7 +1036,41 @@ export default function CompletePage() {
             </div>
           )}
 
-{!completed ? (
+          {/* Foundation value + sample — always visible until earned (fixes hidden bug) */}
+          {!completed && (
+            <div className="mt-3 space-y-2">
+              <button
+                onClick={() => setShowFoundationValue((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
+              >
+                <span className="text-xs font-black text-gold">🎓 {t("এই সার্টিফিকেটের মূল্য", "What this certificate means")}</span>
+                <span className={`text-slate-600 text-sm transition-transform ${showFoundationValue ? "rotate-180" : ""}`}>▾</span>
+              </button>
+              {showFoundationValue && (
+                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs leading-relaxed text-slate-600 space-y-3">
+                  <p><b>{t("কী ধরনের সার্টিফিকেট", "Type")}</b> — {t("ফাউন্ডেশন — কমিউনিটি বিল্ডিং ও ডিজিটাল মার্কেটিং-এর এন্ট্রি-লেভেল অভিজ্ঞতার সনদ।", "Foundation — entry-level certificate.")}</p>
+                  <p><b>{t("কোথায় ব্যবহার", "Where to use")}</b> — {t("ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট ও সেলস এন্ট্রি ভূমিকায়।", "Entry roles in digital marketing, community, sales.")}</p>
+                  <p><b>{t("ক্যারিয়ার", "Career")}</b> — {t("প্রতিটি ধাপে নতুন দক্ষতা — এন্ট্রি থেকে মিড-লেভেলে যাওয়ার ভিত্তি।", "Each step ensures new skills.")}</p>
+                  <p><b>{t("কেন বিশ্বাসযোগ্য", "Why trusted")}</b> — {t("Authorized Signatory + QR যাচাই — ভেরিফাইড।", "Authorized Signatory + QR verified.")}</p>
+                </div>
+              )}
+              <button
+                onClick={() => setShowFoundationCert((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all"
+              >
+                <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View a sample certificate")}</span>
+                <span className={`text-slate-600 text-sm transition-transform ${showFoundationCert ? "rotate-180" : ""}`}>▾</span>
+              </button>
+              {showFoundationCert && (
+                <div className="rounded-2xl bg-white border border-slate-200 p-3">
+                  <CertificateSample variant="foundation" />
+                  <p className="mt-2 text-[11px] font-bold text-slate-500 text-center">{t("এটি একটি নমুনা — আসল সার্টিফিকেটে আপনার নাম • ইউনিক ID • QR থাকবে", "This is a sample — your real certificate will have your name • unique ID • QR")}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!completed ? (
             <>
               {contactSendSection}
             </>
@@ -1194,7 +1228,7 @@ export default function CompletePage() {
               </div>
             )}
             <button onClick={() => setShowAmbassadorCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View your certificate")}</span>
+              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View a sample certificate")}</span>
               <span className={`text-slate-600 text-sm transition-transform ${showAmbassadorCert ? "rotate-180" : ""}`}>▾</span>
             </button>
             {showAmbassadorCert && (
@@ -1406,7 +1440,7 @@ export default function CompletePage() {
               </div>
             )}
             <button onClick={() => setShowEliteCert((v) => !v)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200 active:scale-[0.99] transition-all">
-              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View your certificate")}</span>
+              <span className="text-xs font-black text-slate-900">👁️ {t("সার্টিফিকেটের একটি নমুনা দেখুন", "View a sample certificate")}</span>
               <span className={`text-slate-600 text-sm transition-transform ${showEliteCert ? "rotate-180" : ""}`}>▾</span>
             </button>
             {showEliteCert && (
