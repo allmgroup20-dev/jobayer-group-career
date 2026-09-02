@@ -57,10 +57,10 @@ export const JOIN_HOME_DEFAULTS = {
   heroDescBn: "ইউটিউব-এ বড় হওয়ার সঠিক পথ — আমরা গাইড করব ধাপে ধাপে।",
   heroDescEn: "The right path to grow on YouTube — we guide you step by step.",
   benefits: [
-    { emoji: "🎁", bn: "বোনাস রিসোর্স", en: "Instant bonus resources" },
-    { emoji: "💰", bn: "সার্টিফিকেট ও স্বীকৃতি", en: "Certificates & recognition" },
-    { emoji: "📚", bn: "৯৭০+ প্রিমিয়াম রিসোর্স", en: "970+ premium resources" },
-    { emoji: "🤝", bn: "বন্ধুর সাথে শিখুন", en: "Learn together & earn certificates together" },
+    { emoji: "🎁", bn: "YouTube Growth Assistant - ১১ জন আমন্ত্রণে", en: "YouTube Growth Assistant - invite 11" },
+    { emoji: "💰", bn: "Digital Community Manager - ৩ রেজিস্ট্রেশনে", en: "Digital Community Manager - 3 regs" },
+    { emoji: "📚", bn: "YouTube Project Lead - ৫ টিম + ইন্টারভিউ", en: "YouTube Project Lead - 5 teams + interview" },
+    { emoji: "🤝", bn: "৯৭০+ রিসোর্স - চাকরিতে সরাসরি লাগবে", en: "970+ resources - directly useful for jobs" },
   ],
   steps: [
     { n: "১", bn: "Google দিয়ে লগইন করুন", en: "Log in with Google" },
@@ -84,8 +84,8 @@ export const JOIN_CERT_DEFAULTS = {
   bundleNoteEn: "2/3 bundle — single delivery fee + discount",
   usdRate: 111, marketRate: 124,
   tierDescriptions: {
-    foundation: { typeBn: "ফাউন্ডেশন — এন্ট্রি-লেভেল সনদ।", typeEn: "Foundation — entry-level certificate.", whereBn: "ডিজিটাল মার্কেটিং এসিস্ট্যান্ট", whereEn: "Digital marketing assistant", careerBn: "এন্ট্রি-লেভেল ভূমিকায় আবেদন", careerEn: "Apply for entry-level roles", trustBn: "Authorized Signatory + QR", trustEn: "Authorized Signatory + QR" },
-    ambassador: { typeBn: "অ্যাম্বাসেডর — প্রিমিয়াম স্বীকৃতি।", typeEn: "Ambassador — premium.", whereBn: "কমিউনিটি ম্যানেজার", whereEn: "Community manager", careerBn: "মিড-লেভেল ভূমিকায়", careerEn: "Mid-level roles", trustBn: "PREETI LOBANA সই + QR", trustEn: "PREETI LOBANA + QR" },
-    elite: { typeBn: "Elite — সর্বোচ্চ সম্মান।", typeEn: "Elite — highest honor.", whereBn: "টিম লিড, প্রজেক্ট ম্যানেজার", whereEn: "Team lead, project manager", careerBn: "লিডারশিপ ভূমিকায়", careerEn: "Leadership roles", trustBn: "৩ জন এক্সিকিউটিভ সই + QR", trustEn: "3 executives + QR" },
+    foundation: { typeBn: "YouTube Growth Assistant — লিড জেনারেশন ও কমিউনিটি বিল্ডিং প্রমাণ। ১১ জনকে আমন্ত্রণ = বাস্তব মার্কেটিং কাজ।", typeEn: "YouTube Growth Assistant — proved Lead Generation & Community Building. Invited 11 = real marketing work.", whereBn: "ইউটিউব চ্যানেল, ফেসবুক পেজ, দোকান/NGO মার্কেটিং", whereEn: "YouTube channel, Facebook page, shop/NGO marketing", careerBn: "ইন্টারভিউতে দেখান - লিড জেনারেশন স্কিল প্রমাণ", careerEn: "Show in interview - proves lead generation skill", trustBn: "Authorized Signatory + QR ভেরিফাই", trustEn: "Authorized Signatory + QR verified" },
+    ambassador: { typeBn: "Digital Community Manager — ৩ জন রেজিস্ট্রেশন + ক্যাম্পেইন। টিম বিল্ডিং প্রমাণ।", typeEn: "Digital Community Manager — 3 registrations + campaign. Proves team building.", whereBn: "অনলাইন শপ, কোচিং, এজেন্সি কমিউনিটি ম্যানেজমেন্ট", whereEn: "Online shop, coaching, agency community management", careerBn: "ম্যানেজার পদের জন্য - কমিউনিটি প্রমাণ", careerEn: "For manager roles - proves community skill", trustBn: "PREETI LOBANA সই + QR", trustEn: "PREETI LOBANA + QR" },
+    elite: { typeBn: "YouTube Project Lead — ৫ ফাউন্ডেশন টিম + ৩০ দিন + ইন্টারভিউ। লিডারশিপ প্রমাণ, আন্তর্জাতিক মান।", typeEn: "YouTube Project Lead — led 5 foundations + 30 days + interview. Proves leadership, international standard.", whereBn: "এজেন্সি টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিড", whereEn: "Agency team lead, project manager, startup lead", careerBn: "লিডারশিপ রোলে - সর্বোচ্চ বেতন", careerEn: "Leadership roles - highest salary", trustBn: "৩ জন এক্সিকিউটিভ সই + QR + ইন্টারভিউ", trustEn: "3 executives + QR + interview" },
   },
 };

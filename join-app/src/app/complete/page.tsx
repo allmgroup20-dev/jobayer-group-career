@@ -999,8 +999,8 @@ export default function CompletePage() {
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-teal/20 border border-teal/40 flex items-center justify-center text-base">🎓</span>
               <span>
-                {t("ফাউন্ডেশন সার্টিফিকেট", "Foundation Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Foundation • প্রথম ধাপ — এন্ট্রি-লেভেল সার্টিফিকেট", "Foundation • First step — Entry-level certificate")}</span>
+                {t("YouTube Growth Assistant", "YouTube Growth Assistant")}
+                <span className="block text-[10px] font-bold text-slate-600">{t("Foundation • ১১ জনকে আমন্ত্রণ = লিড জেনারেশন স্কিল প্রমাণ", "Foundation • Invite 11 = proves lead generation skill")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${completed ? "bg-teal/20 text-teal border border-teal/40" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1008,7 +1008,10 @@ export default function CompletePage() {
             </span>
           </div>
           <p className="mt-2 text-[11px] font-bold text-teal leading-relaxed">
-            {t("ডিজিটাল মার্কেটিং, কমিউনিটি ম্যানেজমেন্ট, সেলস — এন্ট্রি জবে সহায়ক", "Digital marketing, community management, sales — helps in entry-level jobs")}
+            {t("✅ কি কাজ করে পেলেন: ১১ জনকে আমন্ত্রণ (লিড জেনারেশন), কমিউনিটি বিল্ডিং, ক্যাম্পেইন — ইউটিউব/ফেসবুক/দোকানে কাজে লাগবে", "✅ Earned by: Invited 11 (lead gen), community building, campaign — useful for YouTube/FB/shop")}
+          </p>
+          <p className="mt-1 text-[10px] font-bold text-slate-600 leading-relaxed">
+            {t("💼 কোথায় লাগবে: ইউটিউব চ্যানেল এসিস্ট্যান্ট, ফেসবুক পেজ ম্যানেজার, দোকান মার্কেটিং - ইন্টারভিউতে দেখান", "💼 Where: YouTube assistant, FB page manager, shop marketing - show in interview")}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳১৫,০০০–৳৩০,০০০ • Foundation • এন্ট্রি পুরস্কার", "৳15,000–৳30,000 • Foundation • Entry reward")}
@@ -1199,8 +1202,8 @@ export default function CompletePage() {
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-base">🔗</span>
               <span>
-                {t("আমন্ত্রণ অ্যাম্বাসেডর সার্টিফিকেট", "Referral Ambassador Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • দ্বিতীয় ধাপ — প্রফেশনাল সার্টিফিকেট", "Ambassador • Second step — Professional certificate")}</span>
+                {t("Digital Community Manager", "Digital Community Manager")}
+                <span className="block text-[10px] font-bold text-slate-600">{t("Ambassador • ৩ জন রেজিস্ট্রেশন = টিম বিল্ডিং প্রমাণ", "Ambassador • 3 regs = proves team building")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${!completed ? "bg-white text-slate-600 border border-slate-200" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1208,7 +1211,7 @@ export default function CompletePage() {
             </span>
           </div>
           <p className="mt-2 text-[11px] font-bold text-gold leading-relaxed">
-            {t("ডিজিটাল মার্কেটিং, কমিউনিটি লিড, অ্যাফিলিয়েট — মিড-লেভেল জবে সহায়ক", "Digital marketing, community lead, affiliate — helps in mid-level jobs")}
+            {t("✅ কি কাজ: ৩ জনকে রেজিস্ট্রেশন + ১ টা ক্যাম্পেইন (৩ গ্রুপ + প্রোফাইল) — অনলাইন শপ/কোচিং/এজেন্সিতে ম্যানেজার পদে লাগবে", "✅ Earned by: 3 regs + 1 campaign (3 groups + profile) — for manager roles in shop/coaching/agency")}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600">
             <span>💰</span> {t("৳৩০,০০০–৳৬০,০০০ • Ambassador • প্রফেশনাল পুরস্কার", "৳30,000–৳60,000 • Ambassador • Professional reward")}
@@ -1408,8 +1411,8 @@ export default function CompletePage() {
             <h2 className="text-lg font-black flex items-center gap-2">
               <span className="w-9 h-9 shrink-0 rounded-xl bg-violet/20 border border-violet/40 flex items-center justify-center text-base">🏆</span>
               <span>
-                {t("এলিট ফাইনাল সার্টিফিকেট", "Elite Final Certificate")}
-                <span className="block text-[10px] font-bold text-slate-600">{t("Elite • শেষ ধাপ — সর্বোচ্চ আন্তর্জাতিক সার্টিফিকেট", "Elite • Final step — Highest international certificate")}</span>
+                {t("YouTube Project Lead", "YouTube Project Lead")}
+                <span className="block text-[10px] font-bold text-slate-600">{t("Elite • ৫ ফাউন্ডেশন টিম + ৩০ দিন + ইন্টারভিউ = লিডারশিপ প্রমাণ", "Elite • 5 foundations + 30 days + interview = proves leadership")}</span>
               </span>
             </h2>
             <span className={`badge-glow ${isPremium ? "bg-teal/20 text-teal border border-teal/40" : !completed ? "bg-white text-slate-600 border border-slate-200" : "bg-gold/20 text-gold border border-gold/40"}`}>
@@ -1417,7 +1420,10 @@ export default function CompletePage() {
             </span>
           </div>
           <p className="mt-2 text-[11px] font-bold text-violet leading-relaxed">
-            {t("সর্বোচ্চ আন্তর্জাতিক মান — টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ লিডারশিপ — সর্বোচ্চ বেতনের জবে সহায়ক", "Highest international standard — team lead, project manager, startup leadership — helps in highest salary jobs")}
+            {t("✅ কি কাজ: ৫ জন ফাউন্ডেশন টিম লিড + ৩০ দিন Active + ভিডিও ইন্টারভিউ — আন্তর্জাতিক প্রজেক্ট লিড প্রমাণ", "✅ Earned by: Led 5 foundations + 30 days active + video interview — proves international project lead")}
+          </p>
+          <p className="mt-1 text-[10px] font-bold text-slate-600 leading-relaxed">
+            {t("💼 কোথায়: এজেন্সি টিম লিড, প্রজেক্ট ম্যানেজার, স্টার্টআপ - সর্বোচ্চ বেতন, HR এই নাম চেনে", "💼 Where: Agency team lead, PM, startup - highest salary, HR knows this title")}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet/10 border border-violet/30 text-[10px] font-black text-violet/80">
             <span>💰</span> {t("৳৬০,০০০–৳১,২০,০০০+ • Elite • সর্বোচ্চ পুরস্কার", "৳60,000–৳120,000+ • Elite • Highest reward")}
