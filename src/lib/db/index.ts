@@ -148,7 +148,7 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
     const cols = await env.DB.prepare("PRAGMA table_info(workers)").all<{ name: string }>();
     const names = cols.results?.map(r => r.name) || [];
     const tbls = await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs','screenshot_submissions')"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('feature_flags','site_content','api_cost_logs','screenshot_submissions','system_logs','health_history')"
     ).all<{ name: string }>();
     const tables = tbls.results?.map(r => r.name) || [];
     const seeded = await env.DB.prepare(
@@ -160,6 +160,8 @@ async function ensureSchema(env: { DB: D1Database }): Promise<void> {
       tables.includes("site_content") &&
       tables.includes("api_cost_logs") &&
       tables.includes("screenshot_submissions") &&
+      tables.includes("system_logs") &&
+      tables.includes("health_history") &&
       !!seeded
     ) {
       g[DONE_FLAG] = true;

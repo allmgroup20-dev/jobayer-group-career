@@ -43,7 +43,14 @@ const DEV_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
-  const jwtSecret = process.env.JWT_SECRET;
+  // On Workers, secrets live in cloudflare env, not process.env — try both for local dev compat
+  let jwtSecret = process.env.JWT_SECRET || "";
+  try {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const ctx = await getCloudflareContext({ async: true }).catch(() => null);
+    const envSecret = (ctx?.env as unknown as Record<string, string>)?.JWT_SECRET;
+    if (envSecret) jwtSecret = envSecret;
+  } catch {}
 
   // Redirect non-canonical hostname navigations (e.g. *.workers.dev, preview
   // links) to the canonical domain so OAuth/CSRF always sees one origin.
